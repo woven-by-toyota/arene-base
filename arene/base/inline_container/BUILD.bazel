@@ -1,0 +1,362 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "inline_function_hdrs",
+    srcs = [
+        "function.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "inline_function",
+    hdrs = [":inline_function_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:memory",
+        "//arene/base:type_traits",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:decay",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+    ],
+)
+
+filegroup(
+    name = "vector_hdrs",
+    srcs = [
+        "external_vector.hpp",
+        "vector.hpp",
+        "vector_reference.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "vector",
+    hdrs = [":vector_hdrs"],
+    visibility = [
+        ":__subpackages__",
+        # Enable export tests to depend only on vector, as not all targets
+        # are usable as .without_toolchain_stdlib targets yet.
+        "//arene/base/tests:__pkg__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:array",
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:iterator",
+        "//arene/base:memory",
+        "//arene/base:optional",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:exceptions",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/inline_container/detail:comparison_interface",
+        "//arene/base/inline_container/detail:try_construct_interface",
+        "//arene/base/inline_container/detail:unsafe_element_storage",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_destructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:min_value_overload",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:move_iterator",
+        "//arene/base/type_manipulation",
+    ],
+)
+
+filegroup(
+    name = "map_hdrs",
+    srcs = ["map.hpp"],
+)
+
+filegroup(
+    name = "map_exceptions_enabled_srcs",
+    srcs = ["map_exceptions_enabled.cpp"],
+)
+
+filegroup(
+    name = "map_exceptions_disabled_srcs",
+    srcs = ["map_exceptions_disabled.cpp"],
+)
+
+cc_library_with_variants(
+    name = "map",
+    srcs = select({
+        "//conditions:default": [":map_exceptions_enabled_srcs"],
+        "//configs:exceptions_disabled": [":map_exceptions_disabled_srcs"],
+    }),
+    hdrs = [":map_hdrs"],
+    visibility = ["//arene/base/inline_container:__subpackages__"],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:array",
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:functional",
+        "//arene/base:integer_sequences",
+        "//arene/base:iterator",
+        "//arene/base:optional",
+        "//arene/base:scope_guard",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:exceptions",
+        "//arene/base/inline_container/detail:compare",
+        "//arene/base/inline_container/detail:container_base_type",
+        "//arene/base/inline_container/detail:iterator_interface",
+        "//arene/base/inline_container/detail:lower_bound_index",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_const",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/type_manipulation",
+    ] + select({
+        "//conditions:default": ["//arene/base/stdlib_choice:stdexcept"],
+        "//configs:exceptions_disabled": [],
+    }),
+)
+
+filegroup(
+    name = "map_reference_hdrs",
+    srcs = [
+        "map_reference.hpp",
+        "map_reference_iterator.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "map_reference",
+    hdrs = [":map_reference_hdrs"],
+    visibility = ["//arene/base/inline_container:__subpackages__"],
+    deps = [
+        ":map",
+        "//arene/base:functional",
+        "//arene/base/detail:exceptions",
+        "//arene/base/inline_container/detail:compare",
+        "//arene/base/inline_container/detail:container_base_type",
+        "//arene/base/inline_container/detail:erased_member_function",
+        "//arene/base/inline_container/detail:range_interface",
+        "//arene/base/type_manipulation",
+    ],
+)
+
+filegroup(
+    name = "set_hdrs",
+    srcs = [
+        "set.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "set",
+    hdrs = [":set_hdrs"],
+    visibility = [
+        ":__subpackages__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:array",
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:integer_sequences",
+        "//arene/base:iterator",
+        "//arene/base:optional",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/compiler_support",
+        "//arene/base/inline_container/detail:compare",
+        "//arene/base/inline_container/detail:lower_bound_index",
+        "//arene/base/inline_container/detail:unsafe_element_storage",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_destructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/type_manipulation",
+    ],
+)
+
+filegroup(
+    name = "deque_hdrs",
+    srcs = [
+        "deque.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "deque",
+    hdrs = [":deque_hdrs"],
+    visibility = [":__subpackages__"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:memory",
+        "//arene/base/algorithm:copy",
+        "//arene/base/inline_container/detail:iterator_interface",
+        "//arene/base/inline_container/detail:range_interface",
+        "//arene/base/inline_container/detail:try_construct_interface",
+        "//arene/base/inline_container/detail:unsafe_element_storage",
+        "//arene/base/iterator:distance",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_trivially_copyable",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:min_value_overload",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/type_manipulation",
+        "//arene/base/type_traits:iterator_category_traits",
+        "//arene/base/utility:safe_comparisons",
+    ],
+)
+
+filegroup(
+    name = "circular_buffer_hdrs",
+    srcs = [
+        "circular_buffer.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "circular_buffer",
+    hdrs = [":circular_buffer_hdrs"],
+    visibility = [":__subpackages__"],
+    deps = [
+        ":deque",
+        "//arene/base:constraints",
+        "//arene/base/inline_container/detail:try_construct_interface",
+        "//arene/base/iterator:distance",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":circular_buffer",
+        ":deque",
+        ":inline_function",
+        ":map",
+        ":map_reference",
+        ":set",
+        ":vector",
+    ],
+)
+
+cc_library_with_variants(
+    name = "inline_container",
+    visibility = [
+        "//:__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":internal",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":circular_buffer_hdrs",
+        ":deque_hdrs",
+        ":inline_function_hdrs",
+        ":map_exceptions_disabled_srcs",
+        ":map_exceptions_enabled_srcs",
+        ":map_hdrs",
+        ":map_reference_hdrs",
+        ":set_hdrs",
+        ":vector_hdrs",
+        "//arene/base/inline_container/detail:package",
+        "//arene/base/inline_container/testing:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

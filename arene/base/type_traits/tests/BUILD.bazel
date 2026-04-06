@@ -1,0 +1,367 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_library_with_variants(
+    name = "predicate_test_utilities",
+    testonly = True,
+    hdrs = ["predicate_test_utilities.hpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:logical_and",
+        "//arene/base/stdlib_choice:logical_or",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:tuplet",
+    ],
+)
+
+cc_test(
+    name = "all_are_same_test",
+    srcs = ["all_are_same_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "all_of_test",
+    srcs = ["all_of_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "always_false_test",
+    srcs = ["always_false_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "any_of_test",
+    srcs = ["any_of_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "arithmetic_traits_test",
+    srcs = ["arithmetic_traits_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "comparison_traits_test",
+    srcs = ["comparison_traits_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "conjunction_test",
+    srcs = ["conjunction_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:conjunction",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_binary_predicate_is_compare_test",
+    srcs = ["is_binary_predicate_is_compare_test.cpp"],
+    deps = [
+        ":predicate_test_utilities",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/type_traits:is_binary_predicate",
+        "//arene/base/type_traits:is_compare",
+        "//arene/base/type_traits:is_predicate",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_copyable_test",
+    srcs = ["is_copyable_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_only_explicitly_constructible_test",
+    srcs = ["is_only_explicitly_constructible_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_implicitly_constructible_test",
+    srcs = ["is_implicitly_constructible_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "index_of_test",
+    srcs = ["index_of_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "is_instantiation_of_test",
+    srcs = ["is_instantiation_of_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "is_integral_constant_like_test",
+    srcs = ["is_integral_constant_like_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_integral_constant_like",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "is_invocable_test",
+    srcs = ["is_invocable_test.cpp"],
+    deps = [
+        "//arene/base:functional",
+        "//arene/base:type_list",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "is_one_of_test",
+    srcs = ["is_one_of_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_predicate_test",
+    srcs = ["is_predicate_test.cpp"],
+    deps = [
+        ":predicate_test_utilities",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/type_traits:is_predicate",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "denotes_range_test",
+    srcs = ["denotes_range_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "disjunction_test",
+    srcs = ["disjunction_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:disjunction",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "iterator_category_traits_test",
+    srcs = ["iterator_category_traits_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "negation_test",
+    srcs = ["negation_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:negation",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "none_of_test",
+    srcs = ["none_of_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "remove_cvref_test",
+    srcs = [
+        "remove_cvref_test.cpp",
+    ],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "decays_to_test",
+    srcs = ["decays_to_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "is_swappable_test",
+    srcs = ["is_swappable_test.cpp"],
+    deps = [
+        "//arene/base:type_list",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "is_transparent_comparator_for_test",
+    srcs = ["is_transparent_comparator_for_test.cpp"],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_movable_test",
+    srcs = ["is_movable_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_tuple_like_test",
+    srcs = ["is_tuple_like_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "type_identity_test",
+    srcs = ["type_identity_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "has_overloaded_address_operator_test",
+    srcs = ["has_overloaded_address_operator_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "unwrap_reference_test",
+    srcs = ["unwrap_reference_test.cpp"],
+    deps = [
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "priority_tag_test",
+    srcs = ["priority_tag_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_empty",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:internal",
+        "//testlibs:gtest",
+    ],
+)

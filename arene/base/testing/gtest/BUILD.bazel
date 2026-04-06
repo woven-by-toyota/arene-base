@@ -1,0 +1,89 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "conditional_tests_hdrs",
+    srcs = select({
+        "//configs:toolchain_stdlib_enabled": ["with_gtest/conditional_tests.hpp"],
+        "//configs:toolchain_stdlib_disabled": ["with_minitest/conditional_tests.hpp"],
+    }),
+)
+
+cc_library_with_variants(
+    name = "conditional_tests",
+    hdrs = [":conditional_tests_hdrs"],
+    include_prefix = "arene/base/testing/gtest",
+    strip_include_prefix = select({
+        "//configs:toolchain_stdlib_enabled": "with_gtest",
+        "//configs:toolchain_stdlib_disabled": "with_minitest",
+    }),
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing/gtest/detail",
+    ],
+)
+
+filegroup(
+    name = "constexpr_test_hdrs",
+    srcs = select({
+        "//configs:toolchain_stdlib_enabled": ["with_gtest/constexpr_test.hpp"],
+        "//configs:toolchain_stdlib_disabled": ["with_minitest/constexpr_test.hpp"],
+    }),
+)
+
+cc_library_with_variants(
+    name = "constexpr_test",
+    hdrs = [":constexpr_test_hdrs"],
+    include_prefix = "arene/base/testing/gtest",
+    strip_include_prefix = select({
+        "//configs:toolchain_stdlib_enabled": "with_gtest",
+        "//configs:toolchain_stdlib_disabled": "with_minitest",
+    }),
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing/gtest/detail",
+    ],
+)
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "conditional_assertions.hpp",
+        "static_assertions.hpp",
+        "static_assertions_config.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "gtest_internal",
+    hdrs = [":hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base/testing:__pkg__",
+    ],
+    deps = [
+        ":conditional_tests",
+        ":constexpr_test",
+        "//arene/base:type_list",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/testing/gtest/detail",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":conditional_tests_hdrs",
+        ":constexpr_test_hdrs",
+        ":hdrs",
+        "//arene/base/testing/gtest/detail:package",
+    ],
+    visibility = ["//arene/base/testing:__pkg__"],
+)

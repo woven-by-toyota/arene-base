@@ -1,0 +1,55 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_test")
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
+
+cc_test(
+    name = "concatenate_test",
+    srcs = ["concatenate_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "define_configuration_test",
+    srcs = ["define_configuration_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "require_semicolon_test",
+    srcs = ["require_semicolon_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_build_error_test(
+    name = "require_semicolon_no_semicolon_test",
+    src = "require_semicolon_no_semicolon_test.cpp",
+    compile_stderr = matcher.has_substr("expected ';'"),
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "stringize_test",
+    srcs = ["stringize_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)

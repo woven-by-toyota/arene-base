@@ -1,0 +1,248 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load("//rules:cc_test.bzl", "cc_test")
+
+cc_test(
+    name = "unique_test_value_test",
+    srcs = ["unique_test_value_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/inline_container/testing:unique_test_value",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "default_constructible_properties_test",
+    srcs = ["default_constructible_properties_test.cpp"],
+    deps = [
+        "//arene/base/inline_container/testing:default_constructible_properties",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_build_error_test(
+    name = "unique_test_value_requires_operator_equals_test",
+    src = inline_src.cpp("""\
+#include "arene/base/inline_container/testing/unique_test_value.hpp"
+
+struct no_operator_equals
+{};
+
+const auto _ = arene::base::testing::unique_test_value<no_operator_equals, 0>();
+
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "error: {static_assert} failed{requirement}{sep}{diagnostic}".format(
+            diagnostic = "if tests request a unique test value, the test value type must provide an equality operator",
+            requirement = "( due to requirement 'is_equality_comparable_v<no_operator_equals>')?",
+            sep = "(: | \")",
+            static_assert = "(static_assert|static assertion)",
+        ),
+    ),
+    deps = [
+        "//arene/base/inline_container/testing:unique_test_value",
+    ],
+)
+
+COMPILE_TIME_AND_RUNTIME_TEST_CASES = [
+    {
+        "name": "has_duplicate",
+        "type": "int",
+        "index": "1",
+        "content": """\
+#include "arene/base/array.hpp"
+#include "arene/base/inline_container/testing/unique_test_value.hpp"
+
+template <>
+MAYBE_CONSTEXPR auto ::arene::base::testing::test_value_array<int> = arene::base::array<int, 2>{1, 1};
+
+auto main() -> int
+{
+  static_cast<void>(arene::base::testing::unique_test_value<int, 1>());
+}
+        """,
+    },
+    {
+        "name": "has_earlier_duplicate",
+        "type": "int",
+        "index": "1",
+        "content": """\
+#include "arene/base/array.hpp"
+#include "arene/base/inline_container/testing/unique_test_value.hpp"
+
+template <>
+MAYBE_CONSTEXPR auto ::arene::base::testing::test_value_array<int> = arene::base::array<int, 4>{1, 1, 3, 5};
+
+auto main() -> int
+{
+  static_cast<void>(arene::base::testing::unique_test_value<int, 3>());
+}
+        """,
+    },
+    {
+        "name": "has_non_comparable",
+        "type": "float",
+        "index": "0",
+        "content": """\
+#include <limits>
+#include "arene/base/array.hpp"
+#include "arene/base/inline_container/testing/unique_test_value.hpp"
+
+template <>
+MAYBE_CONSTEXPR auto ::arene::base::testing::test_value_array<float> = arene::base::array<float, 1>{
+  std::numeric_limits<float>::quiet_NaN()
+};
+
+auto main() -> int
+{
+  static_cast<void>(arene::base::testing::unique_test_value<float, 0>());
+}
+        """,
+    },
+]
+
+[
+    (
+        write_file(
+            name = "{}_compile_time_src".format(test["name"]),
+            out = "{}_compile_time_src.cpp".format(test["name"]),
+            content = [test["content"].replace("MAYBE_CONSTEXPR", "constexpr")],
+            tags = ["manual"],
+            visibility = ["//visibility:private"],
+        ),
+        cc_build_error_test(
+            name = "{}_compile_time_has_specific_error_test".format(test["name"]),
+            src = ":{}_compile_time_src".format(test["name"]),
+            compile_stderr = matcher.contains_extended_regex(
+                select({
+                    "//configs/compiler:clang": "in instantiation of member function 'arene::base::testing::detail::assert_test_values_are_unique<{type}, {index}>".format(
+                        index = test["index"],
+                        type = test["type"],
+                    ),
+                    "//configs/compiler:arm_clang": "in instantiation of member function 'arene::base::testing::detail::assert_test_values_are_unique<{type}, {index}>".format(
+                        index = test["index"],
+                        type = test["type"],
+                    ),
+                    "//configs/compiler:gcc_or_qcc": "In instantiation of 'constexpr void arene::base::testing::detail::assert_test_values_are_unique.*with T = {type}; (long )?unsigned int N = {index}".format(
+                        index = test["index"],
+                        type = test["type"],
+                    ),
+                }),
+            ),
+            deps = [
+                "//arene/base:array",
+                "//arene/base/inline_container/testing:unique_test_value",
+            ],
+        ),
+        cc_build_error_test(
+            name = "{}_compile_time_has_generic_error_test".format(test["name"]),
+            src = ":{}_compile_time_src".format(test["name"]),
+            compile_stderr = matcher.contains_extended_regex(
+                "error: {static_assert} failed{requirement}{sep}{diagnostic}".format(
+                    diagnostic = "test requested N unique values but 'arene::base::testing::test_values' produces duplicates",
+                    requirement = "( due to requirement 'value')?",
+                    sep = "(: | \")",
+                    static_assert = "(static_assert|static assertion)",
+                ),
+            ),
+            deps = ["//arene/base/inline_container/testing:unique_test_value"],
+        ),
+        write_file(
+            name = "{}_runtime_src".format(test["name"]),
+            out = "{}_runtime_src.cpp".format(test["name"]),
+            content = [test["content"].replace("MAYBE_CONSTEXPR", "const")],
+            tags = ["manual"],
+            visibility = ["//visibility:private"],
+        ),
+        cc_binary(
+            name = "{}_runtime_binary".format(test["name"]),
+            testonly = True,
+            srcs = [":{}_runtime_src".format(test["name"])],
+            tags = ["manual"],
+            visibility = ["//visibility:private"],
+            deps = ["//arene/base/inline_container/testing:unique_test_value"],
+        ),
+        sh_test(
+            name = "{}_runtime_test".format(test["name"]),
+            srcs = ["has_runtime_error.bash"],
+            args = [
+                "$(location :{}_runtime_binary)".format(test["name"]),
+                "ERROR: test requested unique values but 'arene::base::testing::test_values<{type}>({index})' duplicates an earlier test value".format(
+                    index = test["index"],
+                    type = test["type"],
+                ).replace(" ", "\\ ").replace("'", "\\'"),
+            ],
+            data = [
+                ":{}_runtime_binary".format(test["name"]),
+                "//configs:incompatible_with_toolchain_stdlib_disabled",
+            ],
+        ),
+    )
+    for test in COMPILE_TIME_AND_RUNTIME_TEST_CASES
+]
+
+cc_build_error_test(
+    name = "default_constructible_types_must_be_equal_checked_in_constexpr",
+    src = inline_src.cpp("""\
+#include "arene/base/inline_container/testing/default_constructible_properties.hpp"
+
+struct constexpr_default_constructible_and_not_equal {
+  constexpr_default_constructible_and_not_equal() = default;
+  constexpr_default_constructible_and_not_equal(constexpr_default_constructible_and_not_equal const&) = default;
+  constexpr auto operator==(constexpr_default_constructible_and_not_equal const&) const { return false; }
+  constexpr auto operator!=(constexpr_default_constructible_and_not_equal const&) const { return true; }
+};
+
+auto main() -> int {
+  arene::base::testing::assert_default_constructible_properties<constexpr_default_constructible_and_not_equal>(),
+  return 0;
+}
+"""),
+    compile_stderr = matcher.has_substr(
+        "test provided a default constructible value, but two default constructed instances do not compare equal",
+    ),
+    deps = [
+        "//arene/base/inline_container/testing:default_constructible_properties",
+    ],
+)
+
+cc_build_error_test(
+    name = "default_constructible_types_must_be_equal_after_copy_checked_in_constexpr",
+    src = inline_src.cpp("""\
+#include "arene/base/inline_container/testing/default_constructible_properties.hpp"
+
+struct default_constructible_and_copyable_not_equal_after_copy {
+  constexpr default_constructible_and_copyable_not_equal_after_copy() {}
+  constexpr default_constructible_and_copyable_not_equal_after_copy(
+      default_constructible_and_copyable_not_equal_after_copy const& rhs
+  )
+      : value{rhs.value + 1} {}
+
+  constexpr auto operator==(default_constructible_and_copyable_not_equal_after_copy const& rhs) const {
+    return value == rhs.value;
+  }
+  constexpr auto operator!=(default_constructible_and_copyable_not_equal_after_copy const& rhs) const { return !(*this == rhs); }
+
+  int value{};
+};
+
+auto main() -> int {
+  arene::base::testing::assert_default_constructible_properties<default_constructible_and_copyable_not_equal_after_copy>(),
+  return 0;
+}
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "test provided a default constructible value, but a copy of the default constructed instance does not compare equal to the original",
+    ),
+    deps = [
+        "//arene/base/inline_container/testing:default_constructible_properties",
+    ],
+)

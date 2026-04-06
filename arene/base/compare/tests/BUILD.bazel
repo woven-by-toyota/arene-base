@@ -1,0 +1,77 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "operators_test",
+    srcs = ["operators_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compare:internal",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "strong_ordering_test",
+    srcs = ["strong_ordering_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:string_view",
+        "//arene/base/compare:internal",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "strong_ordering_death_test",
+    srcs = ["strong_ordering_death_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compare:internal",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "compare_three_way_test",
+    srcs = ["compare_three_way_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:contracts",
+        "//arene/base:string_view",
+        "//arene/base/compare:internal",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:less",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)

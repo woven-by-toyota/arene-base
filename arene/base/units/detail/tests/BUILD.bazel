@@ -1,0 +1,16 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "sum_test",
+    srcs = [
+        "sum_test.cpp",
+    ],
+    deps = [
+        "//arene/base/units/detail:sum",
+        "//testlibs:gtest",
+    ],
+)

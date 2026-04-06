@@ -1,0 +1,36 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "detail_hdrs",
+    srcs = [
+        "pre_abort_cleanup_gcov.inl",
+        "pre_abort_cleanup_llvmcov.inl",
+        "pre_abort_cleanup_production.inl",
+    ],
+)
+
+cc_library_with_variants(
+    name = "detail",
+    hdrs = [":detail_hdrs"],
+    visibility = [
+        "//arene/base/contracts:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/contracts/detail/stacktrace",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":detail_hdrs",
+        "//arene/base/contracts/detail/stacktrace:package",
+    ],
+    visibility = ["//arene/base/contracts:__pkg__"],
+)

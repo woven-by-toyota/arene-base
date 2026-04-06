@@ -1,0 +1,818 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "all_are_same_hdrs",
+    srcs = [
+        "all_are_same.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "all_are_same",
+    hdrs = [":all_are_same_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":all_of",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+filegroup(
+    name = "all_of_hdrs",
+    srcs = [
+        "all_of.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "all_of",
+    hdrs = [":all_of_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "any_of_hdrs",
+    srcs = [
+        "any_of.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "any_of",
+    hdrs = [":any_of_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "always_false_hdrs",
+    srcs = [
+        "always_false.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "always_false",
+    hdrs = [":always_false_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "arithmetic_traits_hdrs",
+    srcs = [
+        "arithmetic_traits.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "arithmetic_traits",
+    hdrs = [":arithmetic_traits_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+    ],
+)
+
+filegroup(
+    name = "comparison_traits_hdrs",
+    srcs = [
+        "comparison_traits.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "comparison_traits",
+    hdrs = [":comparison_traits_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_convertible",
+    ],
+)
+
+filegroup(
+    name = "conjunction_hdrs",
+    srcs = ["conjunction.hpp"],
+)
+
+cc_library_with_variants(
+    name = "conjunction",
+    hdrs = [":conjunction_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+filegroup(
+    name = "is_copyable_hdrs",
+    srcs = [
+        "is_copyable.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_copyable",
+    hdrs = [":is_copyable_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_movable",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_object",
+    ],
+)
+
+filegroup(
+    name = "denotes_range_hdrs",
+    srcs = [
+        "denotes_range.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "denotes_range",
+    hdrs = [":denotes_range_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":iterator_category_traits",
+        ":remove_cvref",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+    ],
+)
+
+filegroup(
+    name = "disjunction_hdrs",
+    srcs = ["disjunction.hpp"],
+)
+
+cc_library_with_variants(
+    name = "disjunction",
+    hdrs = [":disjunction_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+filegroup(
+    name = "is_only_explicitly_constructible_hdrs",
+    srcs = [
+        "is_only_explicitly_constructible.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_only_explicitly_constructible",
+    hdrs = [":is_only_explicitly_constructible_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_implicitly_constructible",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_constructible",
+    ],
+)
+
+filegroup(
+    name = "is_implicitly_constructible_hdrs",
+    srcs = [
+        "is_implicitly_constructible.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_implicitly_constructible",
+    hdrs = [":is_implicitly_constructible_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":priority_tag",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+filegroup(
+    name = "index_of_hdrs",
+    srcs = [
+        "index_of.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "index_of",
+    hdrs = [":index_of_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+filegroup(
+    name = "is_binary_predicate_hdrs",
+    srcs = [
+        "is_binary_predicate.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_binary_predicate",
+    hdrs = [":is_binary_predicate_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_predicate",
+        ":remove_cvref",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_constructible",
+    ],
+)
+
+filegroup(
+    name = "is_compare_hdrs",
+    srcs = [
+        "is_compare.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_compare",
+    hdrs = [":is_compare_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_binary_predicate",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+filegroup(
+    name = "is_instantiation_of_hdrs",
+    srcs = [
+        "is_instantiation_of.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_instantiation_of",
+    hdrs = [":is_instantiation_of_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "is_integral_constant_like_hdrs",
+    srcs = [
+        "is_integral_constant_like.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_integral_constant_like",
+    hdrs = [":is_integral_constant_like_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":comparison_traits",
+        ":remove_cvref",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_member_object_pointer",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+filegroup(
+    name = "is_invocable_hdrs",
+    srcs = [
+        "is_invocable.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_invocable",
+    hdrs = [":is_invocable_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_reference_wrapper",
+        ":remove_cvref",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:is_void",
+        "//arene/base/type_list",
+    ],
+)
+
+filegroup(
+    name = "is_predicate_hdrs",
+    srcs = [
+        "is_predicate.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_predicate",
+    hdrs = [":is_predicate_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_invocable",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/type_list",
+    ],
+)
+
+filegroup(
+    name = "is_reference_wrapper_hdrs",
+    srcs = [
+        "is_reference_wrapper.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_reference_wrapper",
+    hdrs = [":is_reference_wrapper_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:reference_wrapper_fwd",
+    ],
+)
+
+filegroup(
+    name = "is_swappable_hdrs",
+    srcs = [
+        "is_swappable.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_swappable",
+    hdrs = [":is_swappable_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:remove_reference",
+    ],
+)
+
+filegroup(
+    name = "is_transparent_comparator_for_hdrs",
+    srcs = [
+        "is_transparent_comparator_for.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_transparent_comparator_for",
+    hdrs = [":is_transparent_comparator_for_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_invocable",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+filegroup(
+    name = "is_tuple_like_hdrs",
+    srcs = [
+        "is_tuple_like.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_tuple_like",
+    hdrs = [":is_tuple_like_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":remove_cvref",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple/detail:get",
+    ],
+)
+
+filegroup(
+    name = "iterator_category_traits_hdrs",
+    srcs = [
+        "iterator_category_traits.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "iterator_category_traits",
+    hdrs = [":iterator_category_traits_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":comparison_traits",
+        ":remove_cvref",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_const",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_lvalue_reference",
+        "//arene/base/stdlib_choice:is_pointer",
+        "//arene/base/stdlib_choice:is_reference",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:is_signed",
+        "//arene/base/stdlib_choice:is_volatile",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/type_manipulation:give_qualifiers_to",
+    ],
+)
+
+filegroup(
+    name = "member_pointer_class_type_hdrs",
+    srcs = [
+        "member_pointer_class_type.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "member_pointer_class_type",
+    hdrs = [":member_pointer_class_type_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "negation_hdrs",
+    srcs = ["negation.hpp"],
+)
+
+cc_library_with_variants(
+    name = "negation",
+    hdrs = [":negation_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+filegroup(
+    name = "none_of_hdrs",
+    srcs = ["none_of.hpp"],
+)
+
+cc_library_with_variants(
+    name = "none_of",
+    hdrs = [":none_of_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":any_of",
+    ],
+)
+
+filegroup(
+    name = "is_movable_hdrs",
+    srcs = [
+        "is_movable.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_movable",
+    hdrs = [":is_movable_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_swappable",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_object",
+    ],
+)
+
+filegroup(
+    name = "priority_tag_hdrs",
+    srcs = [
+        "priority_tag.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "priority_tag",
+    hdrs = [":priority_tag_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+filegroup(
+    name = "remove_cvref_hdrs",
+    srcs = [
+        "remove_cvref.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "remove_cvref",
+    hdrs = [":remove_cvref_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_reference",
+    ],
+)
+
+filegroup(
+    name = "type_identity_hdrs",
+    srcs = [
+        "type_identity.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "type_identity",
+    hdrs = [":type_identity_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "unwrap_reference_hdrs",
+    srcs = [
+        "unwrap_reference.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "unwrap_reference",
+    hdrs = [":unwrap_reference_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:decay",
+        "//arene/base/stdlib_choice:reference_wrapper_fwd",
+    ],
+)
+
+filegroup(
+    name = "void_t_hdrs",
+    srcs = [
+        "void_t.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "void_t",
+    hdrs = [":void_t_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "decays_to.hpp",
+        "has_overloaded_address_operator.hpp",
+        "is_array_convertible.hpp",
+        "is_one_of.hpp",
+    ],
+)
+
+cc_library(
+    name = "internal",
+    hdrs = [":hdrs"],
+    visibility = [
+        "//arene/base:__pkg__",
+        "//arene/base/type_traits:__subpackages__",
+    ],
+    deps = [
+        ":all_are_same",
+        ":all_of",
+        ":always_false",
+        ":any_of",
+        ":arithmetic_traits",
+        ":comparison_traits",
+        ":conjunction",
+        ":denotes_range",
+        ":disjunction",
+        ":index_of",
+        ":is_binary_predicate",
+        ":is_compare",
+        ":is_copyable",
+        ":is_implicitly_constructible",
+        ":is_instantiation_of",
+        ":is_integral_constant_like",
+        ":is_invocable",
+        ":is_movable",
+        ":is_only_explicitly_constructible",
+        ":is_predicate",
+        ":is_reference_wrapper",
+        ":is_swappable",
+        ":is_transparent_comparator_for",
+        ":is_tuple_like",
+        ":iterator_category_traits",
+        ":member_pointer_class_type",
+        ":negation",
+        ":none_of",
+        ":priority_tag",
+        ":remove_cvref",
+        ":type_identity",
+        ":unwrap_reference",
+        ":void_t",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:decay",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_class",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":all_are_same_hdrs",
+        ":all_of_hdrs",
+        ":always_false_hdrs",
+        ":any_of_hdrs",
+        ":arithmetic_traits_hdrs",
+        ":comparison_traits_hdrs",
+        ":conjunction_hdrs",
+        ":denotes_range_hdrs",
+        ":disjunction_hdrs",
+        ":hdrs",
+        ":index_of_hdrs",
+        ":is_binary_predicate_hdrs",
+        ":is_compare_hdrs",
+        ":is_copyable_hdrs",
+        ":is_implicitly_constructible_hdrs",
+        ":is_instantiation_of_hdrs",
+        ":is_integral_constant_like_hdrs",
+        ":is_invocable_hdrs",
+        ":is_movable_hdrs",
+        ":is_only_explicitly_constructible_hdrs",
+        ":is_predicate_hdrs",
+        ":is_reference_wrapper_hdrs",
+        ":is_swappable_hdrs",
+        ":is_transparent_comparator_for_hdrs",
+        ":is_tuple_like_hdrs",
+        ":iterator_category_traits_hdrs",
+        ":member_pointer_class_type_hdrs",
+        ":negation_hdrs",
+        ":none_of_hdrs",
+        ":priority_tag_hdrs",
+        ":remove_cvref_hdrs",
+        ":type_identity_hdrs",
+        ":unwrap_reference_hdrs",
+        ":void_t_hdrs",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

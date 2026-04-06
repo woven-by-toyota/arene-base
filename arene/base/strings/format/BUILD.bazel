@@ -1,0 +1,54 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "to_inline_string_hdrs",
+    srcs = [
+        "to_inline_string.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "to_inline_string_internal",
+    hdrs = [":to_inline_string_hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        "//arene/base:contracts",
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_signed",
+        "//arene/base/stdlib_choice:is_unsigned",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/strings:inline_string",
+    ],
+)
+
+cc_library_with_variants(
+    name = "to_inline_string",
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":to_inline_string_internal",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":to_inline_string_hdrs",
+    ],
+    visibility = ["//arene/base/strings:__pkg__"],
+)

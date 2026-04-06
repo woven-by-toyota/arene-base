@@ -1,0 +1,139 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+package(
+    default_visibility = ["//tools/compdb:__subpackages__"],
+)
+
+cc_test_with_variants(
+    name = "asan_annotations_test",
+    srcs = ["asan_annotations_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:span",
+        "//arene/base/compiler_support:internal",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "asan_annotations_death_test",
+    srcs = ["asan_annotations_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:span",
+        "//arene/base/compiler_support:internal",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "attributes_test",
+    srcs = ["attributes_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "builtin_types_test",
+    srcs = ["builtin_types_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_library_with_variants(
+    name = "cpp14_inline_helpers",
+    testonly = True,
+    srcs = [
+        "cpp14_inline_test_tu1.cpp",
+        "cpp14_inline_test_tu2.cpp",
+    ],
+    hdrs = [
+        "cpp14_inline_test.hpp",
+        "cpp14_inline_test_tu1.hpp",
+        "cpp14_inline_test_tu2.hpp",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
+
+cc_test_with_variants(
+    name = "cpp14_inline_test",
+    srcs = ["cpp14_inline_test.cpp"],
+    deps = [
+        ":cpp14_inline_helpers",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "expect_test",
+    srcs = ["expect_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "integer_types_test",
+    srcs = ["integer_types_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_possibly_constant_evaluated_test",
+    srcs = ["is_possibly_constant_evaluated_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "thread_safety_annotations_test",
+    srcs = ["thread_safety_annotations_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "version_test",
+    srcs = ["version_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "cpp17_test",
+    srcs = ["cpp17_test.cpp"],
+    copts = ["-std=c++17"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+)

@@ -1,0 +1,193 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "abs_test",
+    srcs = [
+        "abs_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/math/detail:abs",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "abs_death_test",
+    srcs = [
+        "abs_death_test.cpp",
+    ],
+    target_compatible_with = select({
+        "//testlibs/minitest:death_tests_supported": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/math/detail:abs",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "abs_diff_test",
+    srcs = [
+        "abs_diff_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/math:internal",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "aliases_test",
+    srcs = [
+        "aliases_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "float_properties_test",
+    srcs = ["float_properties_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:float_properties",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "float_sign_test",
+    srcs = ["float_sign_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:byte",
+        "//arene/base:endian",
+        "//arene/base/compiler_support",
+        "//arene/base/math:abs",
+        "//arene/base/math:float_properties",
+        "//arene/base/math:float_sign",
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "log2_test",
+    srcs = ["log2_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "log2_death_test",
+    srcs = ["log2_death_test.cpp"],
+    target_compatible_with = select({
+        "//testlibs/minitest:death_tests_supported": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "power_of_2_test",
+    srcs = ["power_of_2_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "gcd_test",
+    srcs = ["gcd_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "lcm_test",
+    srcs = ["lcm_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "pi_test",
+    srcs = ["pi_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:pi",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)

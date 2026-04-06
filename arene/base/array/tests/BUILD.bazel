@@ -1,0 +1,63 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "array_test",
+    srcs = ["array_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:integer_sequences",
+        "//arene/base:iterator",
+        "//arene/base:type_list",
+        "//arene/base:type_traits",
+        "//arene/base/array:internal",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:exceptions",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:has_broken_less_than",
+    ],
+)
+
+cc_test(
+    name = "array_at_test",
+    srcs = ["array_at_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/array:internal",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:exceptions",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "array_death_test",
+    srcs = ["array_death_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/array:internal",
+        "//arene/base/compiler_support",
+        "//testlibs:gtest",
+    ],
+)

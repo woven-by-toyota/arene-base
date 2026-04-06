@@ -1,0 +1,103 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+module(
+    name = "arene-base",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_cc", version = "0.1.1")
+
+bazel_dep(name = "aspect_bazel_lib", version = "2.20.0", dev_dependency = True)
+bazel_dep(name = "buildifier_prebuilt", version = "8.0.1", dev_dependency = True)
+bazel_dep(name = "fmt", version = "11.2.0", dev_dependency = True)
+bazel_dep(name = "rules_fuzzing", version = "0.5.2", dev_dependency = True)
+bazel_dep(name = "rules_pkg", version = "1.0.1", dev_dependency = True)
+bazel_dep(name = "rules_python", version = "1.1.0", dev_dependency = True)
+bazel_dep(name = "rules_shell", version = "0.5.1", dev_dependency = True)
+bazel_dep(name = "toolchains_llvm", dev_dependency = True)
+bazel_dep(name = "google_benchmark", version = "1.9.4", dev_dependency = True)
+
+# No BCR version that uses LLD on macOS
+# https://github.com/bazel-contrib/toolchains_llvm/commit/305c5c529a860476bbd4f402d843abc30801b873
+archive_override(
+    module_name = "toolchains_llvm",
+    integrity = "sha256-jfh7vAdDfwX6oCJQzoHAEoJ1Z7X7cCL7BE8/sp2lEi0=",
+    strip_prefix = "toolchains_llvm-ed7cff62aabd0874a2e7e445cc2fdb91064d75e1",
+    urls = [
+        "https://github.com/bazel-contrib/toolchains_llvm/archive/ed7cff62aabd0874a2e7e445cc2fdb91064d75e1.tar.gz",
+    ],
+)
+
+
+### llvm20 toolchain which is used to provide clangd
+###
+CXX_STANDARD = ["-std=c++14"]
+
+COMMON_CXX_WARNINGS = [
+    "-Werror",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Wconversion",
+    "-Wold-style-cast",
+    "-Wcast-align",
+    "-Wunused",
+    "-Woverloaded-virtual",
+    "-Wmisleading-indentation",
+    "-Wnull-dereference",
+    "-Wformat=2",
+    "-Wdocumentation-unknown-command",
+    "-Wextra-semi",
+    "-Wunreachable-code",
+    "-Wunreachable-code-return",
+    "-Wcomma",
+]
+
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
+llvm.toolchain(
+    name = "llvm20_toolchain",
+    cxx_flags = {
+        "": [
+            "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE",
+            "-stdlib=libc++",
+            "-Wshadow",
+        ] + COMMON_CXX_WARNINGS + CXX_STANDARD,
+    },
+    # https://github.com/bazel-contrib/toolchains_llvm/blob/master/toolchain/internal/llvm_distributions.bzl
+    llvm_version = "20.1.7",
+)
+use_repo(llvm, "llvm20_toolchain")
+
+register_toolchains(
+    "@llvm20_toolchain//:all",
+    dev_dependency = True,
+)
+###
+
+# This matches the version from arene-linters and is used to provide ClangFormat
+# when the host platform is not x86_64-linux.
+llvm.toolchain(
+    name = "llvm17_toolchain",
+    # https://github.com/bazel-contrib/toolchains_llvm/blob/master/toolchain/internal/llvm_distributions.bzl
+    llvm_version = "17.0.6",
+)
+use_repo(llvm, "llvm17_toolchain")
+
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "gcc-time-trace-plugin",
+    build_file = "//:non_module_dev_deps/gcc-time-trace-plugin.BUILD.bazel",
+    integrity = "sha256-UOQOblPdBU4JO387pMnRbMqU4dLzIu+PvoayB/M4nzc=",
+    strip_prefix = "gcc-time-trace-plugin-8f327dbb91b098a1e02896be853b91aeff137513",
+    url = "https://github.com/shouth/gcc-time-trace-plugin/archive/8f327dbb91b098a1e02896be853b91aeff137513.tar.gz",
+)
+
+
+bazel_dep(name = "googletest", version = "1.14.0", repo_name = "com_google_googletest")
+bazel_dep(name = "rules_build_error", version = "0.8.6", dev_dependency = True)

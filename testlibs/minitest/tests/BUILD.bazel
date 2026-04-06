@@ -1,0 +1,1091 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_test")
+load("//rules:binary_log.bzl", "binary_log")
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
+load("//rules:grep.bzl", "grep_test")
+load(":minitest_output_test.bzl", "minitest_output_test", "replace")
+
+minitest_output_test(
+    name = "minitest_basic_111_output_test",
+    srcs = ["minitest_basic_test.cpp"],
+    expected_content = [
+        "3 tests run. 3 PASSED. 0 FAILED",
+        "",
+    ],
+    local_defines = [
+        "TEST_ONE_PASSES=true",
+        "TEST_TWO_PASSES=true",
+        "TEST_THREE_PASSES=true",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_basic_111_xml_output_test",
+    srcs = ["minitest_basic_test.cpp"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="Test">',
+        '<testcase name="TestThree" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="11"/>',
+        '<testcase name="TestTwo" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="9"/>',
+        '<testcase name="TestOne" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="7"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    local_defines = [
+        "TEST_ONE_PASSES=true",
+        "TEST_TWO_PASSES=true",
+        "TEST_THREE_PASSES=true",
+    ],
+    test_xml_output = True,
+)
+
+minitest_output_test(
+    name = "minitest_basic_110_output_test",
+    srcs = ["minitest_basic_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_basic_test.cpp:11: Error: Assertion failed TEST_THREE_PASSES was false, expected to be true for Test::TestThree",
+        "3 tests run. 2 PASSED. 1 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TEST_ONE_PASSES=true",
+        "TEST_TWO_PASSES=true",
+        "TEST_THREE_PASSES=false",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_basic_110_xml_output_test",
+    srcs = ["minitest_basic_test.cpp"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="Test">',
+        '<testcase name="TestThree" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="11">',
+        '<failure message="testlibs/minitest/tests/minitest_basic_test.cpp:11: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_basic_test.cpp:11: Error: Assertion failed TEST_THREE_PASSES was false, expected to be true for Test::TestThree]]></failure>',
+        "</testcase>",
+        '<testcase name="TestTwo" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="9"/>',
+        '<testcase name="TestOne" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="7"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TEST_ONE_PASSES=true",
+        "TEST_TWO_PASSES=true",
+        "TEST_THREE_PASSES=false",
+    ],
+    test_xml_output = True,
+)
+
+minitest_output_test(
+    name = "minitest_basic_000_output_test",
+    srcs = ["minitest_basic_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_basic_test.cpp:11: Error: Assertion failed TEST_THREE_PASSES was false, expected to be true for Test::TestThree",
+        "testlibs/minitest/tests/minitest_basic_test.cpp:9: Error: Assertion failed TEST_TWO_PASSES was false, expected to be true for Test::TestTwo",
+        "testlibs/minitest/tests/minitest_basic_test.cpp:7: Error: Assertion failed TEST_ONE_PASSES was false, expected to be true for Test::TestOne",
+        "3 tests run. 0 PASSED. 3 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TEST_ONE_PASSES=false",
+        "TEST_TWO_PASSES=false",
+        "TEST_THREE_PASSES=false",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_basic_000_xml_output_test",
+    srcs = ["minitest_basic_test.cpp"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="Test">',
+        '<testcase name="TestThree" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="11">',
+        '<failure message="testlibs/minitest/tests/minitest_basic_test.cpp:11: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_basic_test.cpp:11: Error: Assertion failed TEST_THREE_PASSES was false, expected to be true for Test::TestThree]]></failure>',
+        "</testcase>",
+        '<testcase name="TestTwo" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="9">',
+        '<failure message="testlibs/minitest/tests/minitest_basic_test.cpp:9: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_basic_test.cpp:9: Error: Assertion failed TEST_TWO_PASSES was false, expected to be true for Test::TestTwo]]></failure>',
+        "</testcase>",
+        '<testcase name="TestOne" file="testlibs/minitest/tests/minitest_basic_test.cpp" line="7">',
+        '<failure message="testlibs/minitest/tests/minitest_basic_test.cpp:7: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_basic_test.cpp:7: Error: Assertion failed TEST_ONE_PASSES was false, expected to be true for Test::TestOne]]></failure>',
+        "</testcase>",
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TEST_ONE_PASSES=false",
+        "TEST_TWO_PASSES=false",
+        "TEST_THREE_PASSES=false",
+    ],
+    test_xml_output = True,
+)
+
+minitest_output_test(
+    name = "minitest_fixture_test",
+    srcs = ["minitest_fixture_test.cpp"],
+    expected_content = [
+        "1 tests run. 1 PASSED. 0 FAILED",
+        "",
+    ],
+)
+
+MINITEST_CONTENT_TRANSFORMERS = {
+    "//configs/compiler:gcc_or_qcc": replace(" &amp", "&amp"),
+}
+
+minitest_output_test(
+    name = "minitest_typed_111111_output_test",
+    srcs = ["minitest_typed_test.cpp"],
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        "6 tests run. 6 PASSED. 0 FAILED",
+        "",
+    ],
+    local_defines = [
+        "TYPED_TEST_PASSES=true",
+        "SOME_USER_TYPE_VALUE=0",
+        "REF_TEST_PASSES=true",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_typed_111111_xml_output_test",
+    srcs = ["minitest_typed_test.cpp"],
+    content_transformers = MINITEST_CONTENT_TRANSFORMERS,
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="TestSuiteForRefTypedTests">',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt; &amp;"/>',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="double &amp;"/>',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="char &amp;"/>',
+        "</testsuite>",
+        '<testsuite name="TestSuiteForTypedTests">',
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt;"/>',
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="double"/>',
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="char"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    local_defines = [
+        "TYPED_TEST_PASSES=true",
+        "SOME_USER_TYPE_VALUE=0",
+        "REF_TEST_PASSES=true",
+    ],
+    test_xml_output = True,
+)
+
+minitest_output_test(
+    name = "minitest_typed_000111_output_test",
+    srcs = ["minitest_typed_test.cpp"],
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed TYPED_TEST_PASSES was false, expected to be true for TestSuiteForTypedTests::TypedTest minitest_typed_tests::some_user_type<int, 'a'>",
+        "testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed TYPED_TEST_PASSES was false, expected to be true for TestSuiteForTypedTests::TypedTest double",
+        "testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed TYPED_TEST_PASSES was false, expected to be true for TestSuiteForTypedTests::TypedTest char",
+        "6 tests run. 3 PASSED. 3 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST_PASSES=false",
+        "SOME_USER_TYPE_VALUE=0",
+        "REF_TEST_PASSES=true",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_typed_000111_xml_output_test",
+    srcs = ["minitest_typed_test.cpp"],
+    content_transformers = MINITEST_CONTENT_TRANSFORMERS,
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="TestSuiteForRefTypedTests">',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt; &amp;"/>',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="double &amp;"/>',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="char &amp;"/>',
+        "</testsuite>",
+        '<testsuite name="TestSuiteForTypedTests">',
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt;">',
+        '<failure message="testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed TYPED_TEST_PASSES was false, expected to be true for TestSuiteForTypedTests::TypedTest minitest_typed_tests::some_user_type<int, \'a\'>]]></failure>',
+        "</testcase>",
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="double">',
+        '<failure message="testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed TYPED_TEST_PASSES was false, expected to be true for TestSuiteForTypedTests::TypedTest double]]></failure>',
+        "</testcase>",
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="char">',
+        '<failure message="testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_typed_test.cpp:22: Error: Assertion failed TYPED_TEST_PASSES was false, expected to be true for TestSuiteForTypedTests::TypedTest char]]></failure>',
+        "</testcase>",
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST_PASSES=false",
+        "SOME_USER_TYPE_VALUE=0",
+        "REF_TEST_PASSES=true",
+    ],
+    test_xml_output = True,
+)
+
+minitest_output_test(
+    name = "minitest_typed_110111_output_test",
+    srcs = ["minitest_typed_test.cpp"],
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_typed_test.cpp:23: Error: Assertion failed 0 expected to be TypeParam{} for TestSuiteForTypedTests::TypedTest minitest_typed_tests::some_user_type<int, 'a'>",
+        "6 tests run. 5 PASSED. 1 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST_PASSES=true",
+        "SOME_USER_TYPE_VALUE=42",
+        "REF_TEST_PASSES=true",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_typed_110111_xml_output_test",
+    srcs = ["minitest_typed_test.cpp"],
+    content_transformers = MINITEST_CONTENT_TRANSFORMERS,
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="TestSuiteForRefTypedTests">',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt; &amp;"/>',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="double &amp;"/>',
+        '<testcase name="RefTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="33" type_param="char &amp;"/>',
+        "</testsuite>",
+        '<testsuite name="TestSuiteForTypedTests">',
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt;">',
+        '<failure message="testlibs/minitest/tests/minitest_typed_test.cpp:23: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_typed_test.cpp:23: Error: Assertion failed 0 expected to be TypeParam{} for TestSuiteForTypedTests::TypedTest minitest_typed_tests::some_user_type<int, \'a\'>]]></failure>',
+        "</testcase>",
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="double"/>',
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_typed_test.cpp" line="21" type_param="char"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST_PASSES=true",
+        "SOME_USER_TYPE_VALUE=42",
+        "REF_TEST_PASSES=true",
+    ],
+    test_xml_output = True,
+)
+
+minitest_output_test(
+    name = "minitest_mutated_typed_output_test",
+    srcs = ["minitest_mutated_typed_test.cpp"],
+    expected_content = [
+        "40 tests run. 40 PASSED. 0 FAILED",
+        "",
+    ],
+    linkopts = select({
+        # 'std::terminate' is defined in libc++abi in Clang toolchains from @arene-toolchains
+        "//configs/compiler:clang": ["-Wl,--allow-multiple-definition"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_mutated_typed_xml_output_test",
+    srcs = ["minitest_mutated_typed_test.cpp"],
+    content_transformers = MINITEST_CONTENT_TRANSFORMERS,
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="TestSuiteForPreReferencedTypedTests">',
+        '<testcase name="PreRefTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="60" type_param="double &amp;"/>',
+        '<testcase name="PreRefTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="60" type_param="char &amp;"/>',
+        "</testsuite>",
+        '<testsuite name="TestSuiteForRvalueReferenceTests">',
+        '<testcase name="RRefTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="50" type_param="double &amp;&amp;"/>',
+        '<testcase name="RRefTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="50" type_param="char &amp;&amp;"/>',
+        "</testsuite>",
+        '<testsuite name="TestSuiteForNonVolatileTests">',
+        '<testcase name="NonVolatileTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="41" type_param="const double"/>',
+        '<testcase name="NonVolatileTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="41" type_param="const char"/>',
+        '<testcase name="NonVolatileTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="41" type_param="double"/>',
+        '<testcase name="NonVolatileTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="41" type_param="char"/>',
+        "</testsuite>",
+        '<testsuite name="TestSuiteForVolatileNonRvalueReferenceTests">',
+        '<testcase name="VolatileNonRvalueTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="32" type_param="const volatile double &amp;"/>',
+        '<testcase name="VolatileNonRvalueTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="32" type_param="const volatile char &amp;"/>',
+        '<testcase name="VolatileNonRvalueTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="32" type_param="volatile double &amp;"/>',
+        '<testcase name="VolatileNonRvalueTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="32" type_param="volatile char &amp;"/>',
+        '<testcase name="VolatileNonRvalueTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="32" type_param="const volatile double"/>',
+        '<testcase name="VolatileNonRvalueTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="32" type_param="const volatile char"/>',
+        '<testcase name="VolatileNonRvalueTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="32" type_param="volatile double"/>',
+        '<testcase name="VolatileNonRvalueTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="32" type_param="volatile char"/>',
+        "</testsuite>",
+        '<testsuite name="TestSuiteForAllTypesTests">',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const volatile double &amp;&amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const volatile char &amp;&amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="volatile double &amp;&amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="volatile char &amp;&amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const double &amp;&amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const char &amp;&amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="double &amp;&amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="char &amp;&amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const volatile double &amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const volatile char &amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="volatile double &amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="volatile char &amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const double &amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const char &amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="double &amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="char &amp;"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const volatile double"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const volatile char"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="volatile double"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="volatile char"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const double"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="const char"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="double"/>',
+        '<testcase name="AllTypesTest" file="testlibs/minitest/tests/minitest_mutated_typed_test.cpp" line="21" type_param="char"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    linkopts = select({
+        # 'std::terminate' is defined in libc++abi in Clang toolchains from @arene-toolchains
+        "//configs/compiler:clang": ["-Wl,--allow-multiple-definition"],
+        "//conditions:default": [],
+    }),
+    test_xml_output = True,
+    deps = [
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_constexpr_output_test",
+    srcs = ["minitest_constexpr_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_constexpr_test.cpp:77: Skipped for TestSuiteForTypedTests::ConditionalTypedTestRuns char",
+        "10 tests run. 9 PASSED. 0 FAILED. 1 SKIPPED",
+        "",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_constexpr_xml_output_test",
+    srcs = ["minitest_constexpr_test.cpp"],
+    content_transformers = MINITEST_CONTENT_TRANSFORMERS,
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="TestSuiteForTypedTests">',
+        '<testcase name="ConditionalTypedTestRuns" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="77" type_param="int"/>',
+        '<testcase name="ConditionalTypedTestRuns" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="77" type_param="char">',
+        '<skipped message="testlibs/minitest/tests/minitest_constexpr_test.cpp:77: Skipped"><![CDATA[testlibs/minitest/tests/minitest_constexpr_test.cpp:77: Skipped for TestSuiteForTypedTests::ConditionalTypedTestRuns char]]></skipped>',
+        "</testcase>",
+        '<testcase name="ConditionalTypedTest" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="69" type_param="int"/>',
+        '<testcase name="ConditionalTypedTest" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="69" type_param="char"/>',
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="45" type_param="int"/>',
+        '<testcase name="TypedTest" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="45" type_param="char"/>',
+        "</testsuite>",
+        '<testsuite name="Test">',
+        '<testcase name="ReallyConstexpr" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="33"/>',
+        '<testcase name="NotReallyConstexpr" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="26"/>',
+        '<testcase name="NonTypedTestConstexprAssert" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="15"/>',
+        '<testcase name="NonTypedTest" file="testlibs/minitest/tests/minitest_constexpr_test.cpp" line="9"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    test_xml_output = True,
+)
+
+cc_build_error_test(
+    name = "minitest_constexpr_typed_test_compile_fail_test",
+    src = "minitest_constexpr_typed_test_compile_fail_test.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//configs/compiler:clang": "non-constexpr function 'non_constexpr_function' cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "non-constexpr function 'non_constexpr_function' cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function .*void non_constexpr_function()",
+        }),
+    ),
+    deps = ["//testlibs/minitest"],
+)
+
+cc_build_error_test(
+    name = "minitest_constexpr_test_compile_fail_test",
+    src = "minitest_constexpr_test_compile_fail_test.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//configs/compiler:clang": "non-constexpr function 'non_constexpr_function' cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "non-constexpr function 'non_constexpr_function' cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function .*void non_constexpr_function()",
+        }),
+    ),
+    deps = ["//testlibs/minitest"],
+)
+
+minitest_output_test(
+    name = "minitest_conditionally_constexpr_test_compile_succeed_test",
+    srcs = ["minitest_conditionally_constexpr_test_compile_fail_test.cpp"],
+    expected_content = [
+        "1 tests run. 1 PASSED. 0 FAILED",
+        "",
+    ],
+)
+
+cc_build_error_test(
+    name = "minitest_conditionally_constexpr_test_compile_fail_test",
+    src = "minitest_conditionally_constexpr_test_compile_fail_test.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//configs/compiler:clang": "non-constexpr function 'non_constexpr_function' cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "non-constexpr function 'non_constexpr_function' cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function .*void non_constexpr_function()",
+        }),
+    ),
+    local_defines = ["MINITEST_RUN_IN_CONSTEXPR=1"],
+    deps = ["//testlibs/minitest"],
+)
+
+minitest_output_test(
+    name = "minitest_conditionally_constexpr_typed_test_compile_succeed_test",
+    srcs = ["minitest_conditionally_constexpr_typed_test_compile_fail_test.cpp"],
+    expected_content = [
+        "1 tests run. 1 PASSED. 0 FAILED",
+        "",
+    ],
+)
+
+cc_build_error_test(
+    name = "minitest_conditionally_constexpr_typed_test_compile_fail_test",
+    src = "minitest_conditionally_constexpr_typed_test_compile_fail_test.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//configs/compiler:clang": "non-constexpr function 'non_constexpr_function' cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "non-constexpr function 'non_constexpr_function' cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function .*void non_constexpr_function()",
+        }),
+    ),
+    local_defines = ["MINITEST_RUN_IN_CONSTEXPR=1"],
+    deps = ["//testlibs/minitest"],
+)
+
+cc_build_error_test(
+    name = "minitest_constexpr_assertion_compile_fail_test",
+    src = "minitest_constexpr_assertion_compile_fail_test.cpp",
+    compile_stderr = matcher.has_substr("ASSERT_EQ(1, 2);"),
+    deps = ["//testlibs/minitest"],
+)
+
+[
+    cc_build_error_test(
+        name = "minitest_assert_macro_without_semicolon_compile_fail_{}_test".format(index),
+        src = "minitest_assert_macro_without_semicolon_compile_fail_test.cpp",
+        compile_stderr = matcher.contains_basic_regex(
+            select({
+                "//configs/compiler:clang": "minitest_assert_macro_without_semicolon_compile_fail_test.cpp:8:.*error:.*expected ';' after expression",
+                "//configs/compiler:arm_clang": "minitest_assert_macro_without_semicolon_compile_fail_test.cpp:8:.*error:.*expected ';' after expression",
+                "//configs/compiler:gcc_or_qcc": "minitest_assert_macro_without_semicolon_compile_fail_test.cpp:[8,9]:.*error:.*expected '.*;.*' before '.*}.*' token",
+            }),
+        ),
+        local_defines = [
+            "REPLACED_ASSERT_MACRO={}".format(assert_macro),
+        ],
+        deps = ["//testlibs/minitest"],
+    )
+    for index, assert_macro in enumerate([
+        "ASSERT_TRUE(true)",
+        "ASSERT_FALSE(false)",
+        "ASSERT_EQ(1, 1)",
+    ])
+]
+
+minitest_output_test(
+    name = "minitest_conditional_typed_output_test",
+    srcs = ["minitest_conditional_typed_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_conditional_typed_test.cpp:44: Error: Assertion failed sizeof(TypeParam) == 1 was false, expected to be true for CondTypedTestTests::TestOne some_other_large_class",
+        "5 tests run. 4 PASSED. 1 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+)
+
+minitest_output_test(
+    name = "minitest_conditional_typed_xml_output_test",
+    srcs = ["minitest_conditional_typed_test.cpp"],
+    content_transformers = MINITEST_CONTENT_TRANSFORMERS,
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="CondTypedTestTests">',
+        '<testcase name="TestOne" file="testlibs/minitest/tests/minitest_conditional_typed_test.cpp" line="43" type_param="some_other_large_class">',
+        '<failure message="testlibs/minitest/tests/minitest_conditional_typed_test.cpp:44: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_conditional_typed_test.cpp:44: Error: Assertion failed sizeof(TypeParam) == 1 was false, expected to be true for CondTypedTestTests::TestOne some_other_large_class]]></failure>',
+        "</testcase>",
+        '<testcase name="TestOne" file="testlibs/minitest/tests/minitest_conditional_typed_test.cpp" line="43" type_param="some_other_class"/>',
+        '<testcase name="TestOne" file="testlibs/minitest/tests/minitest_conditional_typed_test.cpp" line="43" type_param="some_class"/>',
+        '<testcase name="TestOne" file="testlibs/minitest/tests/minitest_conditional_typed_test.cpp" line="43" type_param="double"/>',
+        '<testcase name="TestOne" file="testlibs/minitest/tests/minitest_conditional_typed_test.cpp" line="43" type_param="char"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 1,
+    test_xml_output = True,
+)
+
+minitest_output_test(
+    name = "set_up_tear_down_test",
+    srcs = ["set_up_tear_down_test.cpp"],
+    expected_content = [
+        "15 tests run. 15 PASSED. 0 FAILED",
+        "",
+    ],
+    expected_return_code = 0,
+)
+
+minitest_output_test(
+    name = "set_up_tear_down_xml_output_test",
+    srcs = ["set_up_tear_down_test.cpp"],
+    content_transformers = MINITEST_CONTENT_TRANSFORMERS,
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="MyInstantiation/SetUpTearDownP">',
+        '<testcase name="TypedTestPDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="63" type_param="void"/>',
+        '<testcase name="TypedTestPDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="63" type_param="double"/>',
+        '<testcase name="TypedTestPDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="63" type_param="int"/>',
+        "</testsuite>",
+        '<testsuite name="SetUpTearDown">',
+        '<testcase name="ConditionalUnconditionalSuccess" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="52" type_param="void"/>',
+        '<testcase name="ConditionalUnconditionalSuccess" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="52" type_param="double"/>',
+        '<testcase name="ConditionalUnconditionalSuccess" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="52" type_param="int"/>',
+        '<testcase name="UnconditionalSuccess" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="48" type_param="void"/>',
+        '<testcase name="UnconditionalSuccess" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="48" type_param="double"/>',
+        '<testcase name="UnconditionalSuccess" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="48" type_param="int"/>',
+        '<testcase name="ConditionalTypedTestDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="42" type_param="void"/>',
+        '<testcase name="ConditionalTypedTestDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="42" type_param="double"/>',
+        '<testcase name="ConditionalTypedTestDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="42" type_param="int"/>',
+        '<testcase name="TypedTestDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="35" type_param="void"/>',
+        '<testcase name="TypedTestDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="35" type_param="double"/>',
+        '<testcase name="TypedTestDoesSetUpAndTearDown" file="testlibs/minitest/tests/set_up_tear_down_test.cpp" line="35" type_param="int"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 0,
+    test_xml_output = True,
+)
+
+cc_binary(
+    name = "panic_example",
+    srcs = ["panic_example.cpp"],
+    copts = select({
+        "//configs/compiler:gcc_or_qcc": ["-Wno-suggest-attribute=noreturn"],
+        "//conditions:default": [],
+    }),
+    deps = ["//testlibs/minitest"],
+)
+
+binary_log(
+    name = "panic_example_out",
+    src = ":panic_example",
+    file_descriptor = "stderr",
+    return_code = 134,
+)
+
+grep_test(
+    name = "panic_example_test",
+    srcs = [":panic_example_out"],
+    pattern_syntax = "fixed_strings",
+    patterns = [
+        "testlibs/minitest/tests/panic_example.cpp:7: error: MINITEST PANIC [reason for panic]",
+    ],
+)
+
+GCC_TYPE_NAME_TRANSFORMS = {
+    "//configs/compiler:gcc_or_qcc": replace({
+        "unsigned long long": "long long unsigned int",
+        "short": "short int",
+        " &amp": "&amp",
+    }),
+}
+
+minitest_output_test(
+    name = "minitest_typed_test_p_all_pass_output_test",
+    srcs = ["minitest_typed_test_p_test.cpp"],
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        "17 tests run. 17 PASSED. 0 FAILED",
+        "",
+    ],
+    local_defines = [
+        "TYPED_TEST1_PASSES=true",
+        "TYPED_TEST2_PASSES=true",
+        "SOME_USER_TYPE_VALUE=0",
+        "MIN_PARAM_SIZE=0",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_typed_test_p_custom_fail_output_test",
+    srcs = ["minitest_typed_test_p_test.cpp"],
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:26: Error: Assertion failed 0 expected to be TypeParam{} for Group2/TestSuiteForTypedTests::TypedTest2 minitest_typed_tests::some_user_type<unsigned int, 'X'>",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:21: Error: Assertion failed 0 expected to be TypeParam{} for Group2/TestSuiteForTypedTests::TypedTest1 minitest_typed_tests::some_user_type<unsigned int, 'X'>",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:26: Error: Assertion failed 0 expected to be TypeParam{} for Group1/TestSuiteForTypedTests::TypedTest2 minitest_typed_tests::some_user_type<int, 'a'>",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:21: Error: Assertion failed 0 expected to be TypeParam{} for Group1/TestSuiteForTypedTests::TypedTest1 minitest_typed_tests::some_user_type<int, 'a'>",
+        "17 tests run. 13 PASSED. 4 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST1_PASSES=true",
+        "TYPED_TEST2_PASSES=true",
+        "SOME_USER_TYPE_VALUE=42",
+        "MIN_PARAM_SIZE=0",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_typed_test_p_test1_fail_output_test",
+    srcs = ["minitest_typed_test_p_test.cpp"],
+    content_transformers = GCC_TYPE_NAME_TRANSFORMS,
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:20: Error: Assertion failed TYPED_TEST1_PASSES was false, expected to be true for Group2/TestSuiteForTypedTests::TypedTest1 minitest_typed_tests::some_user_type<unsigned int, 'X'>",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:20: Error: Assertion failed TYPED_TEST1_PASSES was false, expected to be true for Group2/TestSuiteForTypedTests::TypedTest1 unsigned long long",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:20: Error: Assertion failed TYPED_TEST1_PASSES was false, expected to be true for Group2/TestSuiteForTypedTests::TypedTest1 short",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:20: Error: Assertion failed TYPED_TEST1_PASSES was false, expected to be true for Group2/TestSuiteForTypedTests::TypedTest1 int",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:20: Error: Assertion failed TYPED_TEST1_PASSES was false, expected to be true for Group1/TestSuiteForTypedTests::TypedTest1 minitest_typed_tests::some_user_type<int, 'a'>",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:20: Error: Assertion failed TYPED_TEST1_PASSES was false, expected to be true for Group1/TestSuiteForTypedTests::TypedTest1 double",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:20: Error: Assertion failed TYPED_TEST1_PASSES was false, expected to be true for Group1/TestSuiteForTypedTests::TypedTest1 char",
+        "17 tests run. 10 PASSED. 7 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST1_PASSES=false",
+        "TYPED_TEST2_PASSES=true",
+        "SOME_USER_TYPE_VALUE=0",
+        "MIN_PARAM_SIZE=0",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_typed_test_p_test2_fail_output_test",
+    srcs = ["minitest_typed_test_p_test.cpp"],
+    content_transformers = GCC_TYPE_NAME_TRANSFORMS,
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:25: Error: Assertion failed TYPED_TEST2_PASSES was false, expected to be true for Group2/TestSuiteForTypedTests::TypedTest2 minitest_typed_tests::some_user_type<unsigned int, 'X'>",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:25: Error: Assertion failed TYPED_TEST2_PASSES was false, expected to be true for Group2/TestSuiteForTypedTests::TypedTest2 unsigned long long",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:25: Error: Assertion failed TYPED_TEST2_PASSES was false, expected to be true for Group2/TestSuiteForTypedTests::TypedTest2 short",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:25: Error: Assertion failed TYPED_TEST2_PASSES was false, expected to be true for Group2/TestSuiteForTypedTests::TypedTest2 int",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:25: Error: Assertion failed TYPED_TEST2_PASSES was false, expected to be true for Group1/TestSuiteForTypedTests::TypedTest2 minitest_typed_tests::some_user_type<int, 'a'>",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:25: Error: Assertion failed TYPED_TEST2_PASSES was false, expected to be true for Group1/TestSuiteForTypedTests::TypedTest2 double",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:25: Error: Assertion failed TYPED_TEST2_PASSES was false, expected to be true for Group1/TestSuiteForTypedTests::TypedTest2 char",
+        "17 tests run. 10 PASSED. 7 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST1_PASSES=true",
+        "TYPED_TEST2_PASSES=false",
+        "SOME_USER_TYPE_VALUE=0",
+        "MIN_PARAM_SIZE=0",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_typed_test_p_size_test_fail_output_test",
+    srcs = ["minitest_typed_test_p_test.cpp"],
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:38: Error: Assertion failed sizeof(TypeParam) > MIN_PARAM_SIZE was false, expected to be true for Group1/OtherSuiteForTypedTests::TypedTest1 minitest_typed_tests::some_user_type<int, 'a'>",
+        "testlibs/minitest/tests/minitest_typed_test_p_test.cpp:38: Error: Assertion failed sizeof(TypeParam) > MIN_PARAM_SIZE was false, expected to be true for Group1/OtherSuiteForTypedTests::TypedTest1 char",
+        "17 tests run. 15 PASSED. 2 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST1_PASSES=true",
+        "TYPED_TEST2_PASSES=true",
+        "SOME_USER_TYPE_VALUE=0",
+        "MIN_PARAM_SIZE=2",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_typed_test_p_xml_output_test",
+    srcs = ["minitest_typed_test_p_test.cpp"],
+    content_transformers = GCC_TYPE_NAME_TRANSFORMS,
+    copts = ["-Wno-float-equal"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="Group2/TestSuiteForTypedTests">',
+        '<testcase name="TypedTest2" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="24" type_param="minitest_typed_tests::some_user_type&lt;unsigned int, &apos;X&apos;&gt;"/>',
+        '<testcase name="TypedTest2" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="24" type_param="unsigned long long"/>',
+        '<testcase name="TypedTest2" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="24" type_param="short"/>',
+        '<testcase name="TypedTest2" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="24" type_param="int"/>',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="19" type_param="minitest_typed_tests::some_user_type&lt;unsigned int, &apos;X&apos;&gt;"/>',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="19" type_param="unsigned long long"/>',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="19" type_param="short"/>',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="19" type_param="int"/>',
+        "</testsuite>",
+        '<testsuite name="Group1/OtherSuiteForTypedTests">',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="37" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt;">',
+        '<failure message="testlibs/minitest/tests/minitest_typed_test_p_test.cpp:38: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_typed_test_p_test.cpp:38: Error: Assertion failed sizeof(TypeParam) > MIN_PARAM_SIZE was false, expected to be true for Group1/OtherSuiteForTypedTests::TypedTest1 minitest_typed_tests::some_user_type<int, \'a\'>]]></failure>',
+        "</testcase>",
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="37" type_param="double"/>',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="37" type_param="char">',
+        '<failure message="testlibs/minitest/tests/minitest_typed_test_p_test.cpp:38: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_typed_test_p_test.cpp:38: Error: Assertion failed sizeof(TypeParam) > MIN_PARAM_SIZE was false, expected to be true for Group1/OtherSuiteForTypedTests::TypedTest1 char]]></failure>',
+        "</testcase>",
+        "</testsuite>",
+        '<testsuite name="Group1/TestSuiteForTypedTests">',
+        '<testcase name="TypedTest2" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="24" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt;"/>',
+        '<testcase name="TypedTest2" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="24" type_param="double"/>',
+        '<testcase name="TypedTest2" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="24" type_param="char"/>',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="19" type_param="minitest_typed_tests::some_user_type&lt;int, &apos;a&apos;&gt;"/>',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="19" type_param="double"/>',
+        '<testcase name="TypedTest1" file="testlibs/minitest/tests/minitest_typed_test_p_test.cpp" line="19" type_param="char"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 1,
+    local_defines = [
+        "TYPED_TEST1_PASSES=true",
+        "TYPED_TEST2_PASSES=true",
+        "SOME_USER_TYPE_VALUE=0",
+        "MIN_PARAM_SIZE=2",
+    ],
+    test_xml_output = True,
+)
+
+cc_test(
+    name = "cstring_test",
+    srcs = ["cstring_test.cpp"],
+    deps = ["//testlibs/minitest:cstring"],
+)
+
+cc_test(
+    name = "type_name_test",
+    srcs = ["type_name_test.cpp"],
+    deps = [
+        "//testlibs/minitest:cstring",
+        "//testlibs/minitest:type_name",
+    ],
+)
+
+minitest_output_test(
+    name = "stream_insertion_output_test",
+    srcs = ["stream_insertion_output_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/stream_insertion_output_test.cpp:38: Error: Assertion failed 1 expected to be 2 for Test::Failure",
+        "3 tests run. 2 PASSED. 1 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+)
+
+minitest_output_test(
+    name = "assert_streq_output_test",
+    srcs = ["assert_streq_output_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/assert_streq_output_test.cpp:23: Error: Assertion failed \"hello\" expected to be \"jello\" for Test::UnequalStringsInitialLetter",
+        "testlibs/minitest/tests/assert_streq_output_test.cpp:18: Error: Assertion failed \"hello\" expected to be \"hello world\" for Test::UnequalStringsDifferentLengths",
+        "testlibs/minitest/tests/assert_streq_output_test.cpp:13: Error: Assertion failed \"hello\" expected to be \"hellp\" for Test::UnequalStringsFinalLetter",
+        "testlibs/minitest/tests/assert_streq_output_test.cpp:9: Error: Assertion failed \"hello\" expected to be different from \"hello\" for Test::EqualStrings",
+        "4 tests run. 0 PASSED. 4 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+)
+
+minitest_output_test(
+    name = "floating_point_output_test",
+    srcs = ["floating_point_output_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/floating_point_output_test.cpp:83: Error: Assertion failed nan<TypeParam> expected to be near (but one was NaN) nan<TypeParam> for FloatingPointTest::NaNWithNaNNear long double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:83: Error: Assertion failed nan<TypeParam> expected to be near (but one was NaN) nan<TypeParam> for FloatingPointTest::NaNWithNaNNear double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:83: Error: Assertion failed nan<TypeParam> expected to be near (but one was NaN) nan<TypeParam> for FloatingPointTest::NaNWithNaNNear float",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:78: Error: Assertion failed nan<TypeParam> expected to be nan<TypeParam> for FloatingPointTest::NaNWithNaNExact long double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:78: Error: Assertion failed nan<TypeParam> expected to be nan<TypeParam> for FloatingPointTest::NaNWithNaNExact double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:78: Error: Assertion failed nan<TypeParam> expected to be nan<TypeParam> for FloatingPointTest::NaNWithNaNExact float",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:73: Error: Assertion failed nan<TypeParam> expected to be near (but one was NaN) TypeParam{0} for FloatingPointTest::NaNWithZeroNear long double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:73: Error: Assertion failed nan<TypeParam> expected to be near (but one was NaN) TypeParam{0} for FloatingPointTest::NaNWithZeroNear double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:73: Error: Assertion failed nan<TypeParam> expected to be near (but one was NaN) TypeParam{0} for FloatingPointTest::NaNWithZeroNear float",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:68: Error: Assertion failed nan<TypeParam> expected to be TypeParam{0} for FloatingPointTest::NaNWithZeroExact long double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:68: Error: Assertion failed nan<TypeParam> expected to be TypeParam{0} for FloatingPointTest::NaNWithZeroExact double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:68: Error: Assertion failed nan<TypeParam> expected to be TypeParam{0} for FloatingPointTest::NaNWithZeroExact float",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:63: Error: Assertion failed infinity<TypeParam> expected to be near infinity<TypeParam> for FloatingPointTest::InfinityNear long double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:63: Error: Assertion failed infinity<TypeParam> expected to be near infinity<TypeParam> for FloatingPointTest::InfinityNear double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:63: Error: Assertion failed infinity<TypeParam> expected to be near infinity<TypeParam> for FloatingPointTest::InfinityNear float",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:53: Error: Assertion failed static_cast<TypeParam>(0.3L) expected to be near static_cast<TypeParam>(0.9L) for FloatingPointTest::FarValuesNear long double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:53: Error: Assertion failed static_cast<TypeParam>(0.3L) expected to be near static_cast<TypeParam>(0.9L) for FloatingPointTest::FarValuesNear double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:53: Error: Assertion failed static_cast<TypeParam>(0.3L) expected to be near static_cast<TypeParam>(0.9L) for FloatingPointTest::FarValuesNear float",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:48: Error: Assertion failed static_cast<TypeParam>(0.3L) expected to be static_cast<TypeParam>(0.9L) for FloatingPointTest::FarValuesExact long double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:48: Error: Assertion failed static_cast<TypeParam>(0.3L) expected to be static_cast<TypeParam>(0.9L) for FloatingPointTest::FarValuesExact double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:48: Error: Assertion failed static_cast<TypeParam>(0.3L) expected to be static_cast<TypeParam>(0.9L) for FloatingPointTest::FarValuesExact float",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:38: Error: Assertion failed TypeParam{-1L} expected to be TypeParam{-1.5L} for FloatingPointTest::NearbyValuesExact long double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:38: Error: Assertion failed TypeParam{-1L} expected to be TypeParam{-1.5L} for FloatingPointTest::NearbyValuesExact double",
+        "testlibs/minitest/tests/floating_point_output_test.cpp:38: Error: Assertion failed TypeParam{-1L} expected to be TypeParam{-1.5L} for FloatingPointTest::NearbyValuesExact float",
+        "36 tests run. 12 PASSED. 24 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    deps = [
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+    ],
+)
+
+minitest_output_test(
+    name = "minitest_unconditional_assertions_test",
+    srcs = ["minitest_unconditional_assertions.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_unconditional_assertions.cpp:11: Error: Assertion failed Execution reached an invocation of FAIL() for Test::Fail",
+        "testlibs/minitest/tests/minitest_unconditional_assertions.cpp:9: Skipped for Test::Skip",
+        "3 tests run. 1 PASSED. 1 FAILED. 1 SKIPPED",
+        "",
+    ],
+    expected_return_code = 1,
+)
+
+minitest_output_test(
+    name = "minitest_unconditional_assertions_xml_test",
+    srcs = ["minitest_unconditional_assertions.cpp"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="Test">',
+        '<testcase name="Fail" file="testlibs/minitest/tests/minitest_unconditional_assertions.cpp" line="11">',
+        '<failure message="testlibs/minitest/tests/minitest_unconditional_assertions.cpp:11: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_unconditional_assertions.cpp:11: Error: Assertion failed Execution reached an invocation of FAIL() for Test::Fail]]></failure>',
+        "</testcase>",
+        '<testcase name="Skip" file="testlibs/minitest/tests/minitest_unconditional_assertions.cpp" line="9">',
+        '<skipped message="testlibs/minitest/tests/minitest_unconditional_assertions.cpp:9: Skipped"><![CDATA[testlibs/minitest/tests/minitest_unconditional_assertions.cpp:9: Skipped for Test::Skip]]></skipped>',
+        "</testcase>",
+        '<testcase name="Succeed" file="testlibs/minitest/tests/minitest_unconditional_assertions.cpp" line="7"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 1,
+    test_xml_output = True,
+)
+
+minitest_output_test(
+    name = "assert_throw_output_test",
+    srcs = ["assert_throw_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/minitest.cpp:74: Error: Assertion failed Uncaught exception thrown from test body for AssertNothrow::ThrowingExceptionOutsideAssert",
+        "testlibs/minitest/tests/assert_throw_test.cpp:33: Error: Assertion failed throw_some_exception(true) threw an exception when none was expected for AssertNothrow::ThrowingExceptionWhenNotExpected",
+        "testlibs/minitest/tests/assert_throw_test.cpp:28: Error: Assertion failed does_not_throw() did not throw an exception when it was expected to throw other_exception for AssertThrow::NotThrowingExceptionWhenExpected",
+        "testlibs/minitest/tests/assert_throw_test.cpp:26: Error: Assertion failed throw_some_exception(true) threw a different type of exception, when it was expected to throw other_exception for AssertThrow::ThrowingWrongException",
+        "6 tests run. 2 PASSED. 4 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    target_compatible_with = select({
+        "//configs:exceptions_enabled": [],
+        "//configs:exceptions_disabled": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+    ],
+)
+
+minitest_output_test(
+    name = "assert_throw_output_test_no_exceptions",
+    srcs = ["assert_throw_test.cpp"],
+    expected_content = [
+        "3 tests run. 3 PASSED. 0 FAILED",
+        "",
+    ],
+    target_compatible_with = select({
+        "//configs:exceptions_enabled": ["@platforms//:incompatible"],
+        "//configs:exceptions_disabled": [],
+    }),
+    deps = [
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+    ],
+)
+
+minitest_output_test(
+    name = "assert_message_test",
+    srcs = ["assert_message_test.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/assert_message_test.cpp:21: Error: Assertion failed false was false, expected to be true for Messages::True",
+        "testlibs/minitest/tests/assert_message_test.cpp:19: Error: Assertion failed true was true, expected to be false for Messages::False",
+        "testlibs/minitest/tests/assert_message_test.cpp:17: Error: Assertion failed 1 expected to not be 1 for Messages::NotEqual",
+        "testlibs/minitest/tests/assert_message_test.cpp:15: Error: Assertion failed 1 expected to be 2 for Messages::Equal",
+        "testlibs/minitest/tests/assert_message_test.cpp:13: Error: Assertion failed 1 expected to be greater than or equal to 2 for Messages::GreaterThanOrEqual",
+        "testlibs/minitest/tests/assert_message_test.cpp:11: Error: Assertion failed 1 expected to be less than or equal to 0 for Messages::LessThanOrEqual",
+        "testlibs/minitest/tests/assert_message_test.cpp:9: Error: Assertion failed 1 expected to be greater than 2 for Messages::GreaterThan",
+        "testlibs/minitest/tests/assert_message_test.cpp:7: Error: Assertion failed 1 expected to be less than 0 for Messages::LessThan",
+        "8 tests run. 0 PASSED. 8 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+)
+
+minitest_output_test(
+    name = "minitest_death_assertions_test",
+    srcs = ["minitest_death_tests.cpp"],
+    expected_content = [
+        "testlibs/minitest/tests/minitest_death_tests.cpp:64: Error: Assertion failed expected message is too long to check for; it could get cut off for DeathTest::VeryLongTargetMessageIsRejected",
+        "testlibs/minitest/tests/minitest_death_tests.cpp:58: Error: Assertion failed child process failed but its stderr did not include the target string for DeathTest::TargetMessageCrossingMultipleChunks",
+        "testlibs/minitest/tests/minitest_death_tests.cpp:36: Error: Assertion failed child process failed but its stderr did not include the target string for DeathTest::WrongMessageNotFoundInNoMessage",
+        "testlibs/minitest/tests/minitest_death_tests.cpp:34: Error: Assertion failed child process failed but its stderr did not include the target string for DeathTest::WrongMessageNotFound",
+        "testlibs/minitest/tests/minitest_death_tests.cpp:28: Error: Assertion failed exited with status 0 instead of an error for DeathTest::ExitSuccessFails",
+        "testlibs/minitest/tests/minitest_death_tests.cpp:26: Error: Assertion failed did not exit for DeathTest::NoCrashFails",
+        "10 tests run. 4 PASSED. 6 FAILED",
+        "",
+    ],
+    expected_return_code = 1,
+    target_compatible_with = select({
+        "//testlibs/minitest:death_tests_supported": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+)
+
+minitest_output_test(
+    name = "minitest_death_assertions_xml_test",
+    srcs = ["minitest_death_tests.cpp"],
+    expected_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites name="AllTests">',
+        '<testsuite name="DeathTest">',
+        '<testcase name="VeryLongTargetMessageIsRejected" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="61">',
+        '<failure message="testlibs/minitest/tests/minitest_death_tests.cpp:64: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_death_tests.cpp:64: Error: Assertion failed expected message is too long to check for; it could get cut off for DeathTest::VeryLongTargetMessageIsRejected]]></failure>',
+        "</testcase>",
+        '<testcase name="TargetMessageCrossingMultipleChunks" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="43">',
+        '<failure message="testlibs/minitest/tests/minitest_death_tests.cpp:58: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_death_tests.cpp:58: Error: Assertion failed child process failed but its stderr did not include the target string for DeathTest::TargetMessageCrossingMultipleChunks]]></failure>',
+        "</testcase>",
+        '<testcase name="TwoDeathTestsInOneCase" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="38"/>',
+        '<testcase name="WrongMessageNotFoundInNoMessage" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="36">',
+        '<failure message="testlibs/minitest/tests/minitest_death_tests.cpp:36: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_death_tests.cpp:36: Error: Assertion failed child process failed but its stderr did not include the target string for DeathTest::WrongMessageNotFoundInNoMessage]]></failure>',
+        "</testcase>",
+        '<testcase name="WrongMessageNotFound" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="34">',
+        '<failure message="testlibs/minitest/tests/minitest_death_tests.cpp:34: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_death_tests.cpp:34: Error: Assertion failed child process failed but its stderr did not include the target string for DeathTest::WrongMessageNotFound]]></failure>',
+        "</testcase>",
+        '<testcase name="EmptyStringFoundInNoMessage" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="32"/>',
+        '<testcase name="EmptyStringFoundInLongMessage" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="30"/>',
+        '<testcase name="ExitSuccessFails" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="28">',
+        '<failure message="testlibs/minitest/tests/minitest_death_tests.cpp:28: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_death_tests.cpp:28: Error: Assertion failed exited with status 0 instead of an error for DeathTest::ExitSuccessFails]]></failure>',
+        "</testcase>",
+        '<testcase name="NoCrashFails" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="26">',
+        '<failure message="testlibs/minitest/tests/minitest_death_tests.cpp:26: Error: Assertion failed" type=""><![CDATA[testlibs/minitest/tests/minitest_death_tests.cpp:26: Error: Assertion failed did not exit for DeathTest::NoCrashFails]]></failure>',
+        "</testcase>",
+        '<testcase name="Correct" file="testlibs/minitest/tests/minitest_death_tests.cpp" line="24"/>',
+        "</testsuite>",
+        "</testsuites>",
+        "",
+    ],
+    expected_return_code = 1,
+    target_compatible_with = select({
+        "//testlibs/minitest:death_tests_supported": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    test_xml_output = True,
+)
+
+[
+    minitest_output_test(
+        name = "matcher_{}_test".format(test_macro.lower()),
+        srcs = ["matcher_test.cpp"],
+        expected_content = [
+            "testlibs/minitest/tests/matcher_test.cpp:92: Error: Assertion failed (calls_function(is_three))((4)) was false, expected to be true for CustomMatcherWithFunctionArg::Fails",
+            "testlibs/minitest/tests/matcher_test.cpp:83: Error: Assertion failed (::testing::ElementsAreArray({1, 2, 3}))((values)) was false, expected to be true for ElementsAreArrayMatcher::Fails",
+            "testlibs/minitest/tests/matcher_test.cpp:67: Error: Assertion failed (::testing::Each(1))((values)) was false, expected to be true for EachMatcher::Fails",
+            "testlibs/minitest/tests/matcher_test.cpp:55: Error: Assertion failed (::testing::Eq(3))((4)) was false, expected to be true for EqMatcher::Fails",
+            "testlibs/minitest/tests/matcher_test.cpp:51: Error: Assertion failed (::test::EqualsEither(1, 2))((3)) was false, expected to be true for CustomMatcherEqualsEither::Fails",
+            "testlibs/minitest/tests/matcher_test.cpp:44: Error: Assertion failed (::test::Equals(2))((1)) was false, expected to be true for CustomMatcherEquals::Fails",
+            "12 tests run. 6 PASSED. 6 FAILED",
+            "",
+        ],
+        expected_return_code = 1,
+        local_defines = [
+            "TEST_MACRO=" + test_macro,
+        ],
+        deps = [
+            "//testlibs/minitest",
+        ],
+    )
+    for test_macro in [
+        "ASSERT_THAT",
+        "EXPECT_THAT",
+    ]
+]
+
+[
+    minitest_output_test(
+        name = "matcher_{}_failure_test".format(test_macro.lower()),
+        srcs = ["matcher_failure_test.cpp"],
+        expected_content =
+            # ASSERT_THAT ends the test, EXPECT_THAT continues the test
+            ([
+                "testlibs/minitest/tests/matcher_failure_test.cpp:10: Error: Assertion failed (::testing::Eq(2))((1)) was false, expected to be true for CustomMatcherEquals::Fails",
+            ] if test_macro == "ASSERT_THAT" else [
+                "testlibs/minitest/tests/matcher_failure_test.cpp:10: Error: Assertion failed (::testing::Eq(2))((1)) was false, expected to be true for CustomMatcherEquals::Fails",
+                "testlibs/minitest/tests/matcher_failure_test.cpp:11: Error: Assertion failed (::testing::Eq(3))((1)) was false, expected to be true for CustomMatcherEquals::Fails",
+            ]) + [
+                "1 tests run. 0 PASSED. 1 FAILED",
+                "",
+            ],
+        expected_return_code = 1,
+        local_defines = [
+            "TEST_MACRO=" + test_macro,
+        ],
+        deps = [
+            "//testlibs/minitest",
+        ],
+    )
+    for test_macro in [
+        "ASSERT_THAT",
+        "EXPECT_THAT",
+    ]
+]
+
+cc_build_error_test(
+    name = "minitest_death_assertions_compile_fail_test",
+    src = "minitest_death_tests.cpp",
+    compile_stderr = matcher.contains_basic_regex("ASSERT_DEATH is not implemented on this platform"),
+    target_compatible_with = select({
+        "//testlibs/minitest:death_tests_supported": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    deps = ["//testlibs/minitest"],
+)

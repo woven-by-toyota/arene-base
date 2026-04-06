@@ -1,0 +1,547 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+package(default_visibility = ["//:__subpackages__"])
+
+cc_library_with_variants(
+    name = "any_all_test_utilities",
+    testonly = True,
+    hdrs = ["any_all_test_utilities.hpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_library_with_variants(
+    name = "generated_test_data",
+    testonly = True,
+    hdrs = [
+        "generated_test_data.hpp",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//testlibs/utilities:tuplet",
+    ],
+)
+
+cc_library_with_variants(
+    name = "test_helpers",
+    testonly = True,
+    hdrs = ["test_iterators.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:iterator_tags",
+    ],
+)
+
+cc_test_with_variants(
+    name = "all_of_test",
+    srcs = ["all_of_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":any_all_test_utilities",
+        "//arene/base:array",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "any_of_test",
+    srcs = ["any_of_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":any_all_test_utilities",
+        "//arene/base:array",
+        "//arene/base/algorithm:any_of",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "clamp_test",
+    srcs = ["clamp_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/algorithm:clamp",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:greater",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test(
+    name = "clamp_death_test",
+    srcs = ["clamp_death_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/algorithm:clamp",
+        "//arene/base/stdlib_choice:greater",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+# Cannot be made with_variants until array is supported.
+cc_test(
+    name = "copy_if_test",
+    srcs = ["copy_if_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:copy_if",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "copy_test",
+    srcs = ["copy_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:copy",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:make_signed",
+        "//arene/base/stdlib_choice:move_iterator",
+        "//testlibs:gtest",
+    ],
+)
+
+# Cannot be made with_variants as heavily dependent on stdlib types that won't be backported and gmock matchers.
+cc_test(
+    name = "equal_test",
+    srcs = ["equal_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:iterator",
+        "//arene/base:type_list",
+        "//arene/base/algorithm:equal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+# Cannot be made with_variants as heavily dependent on stdlib types that won't be backported and gmock matchers.
+cc_test(
+    name = "fill_test",
+    srcs = ["fill_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:fill",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+# Cannot be made with_variants until array is backported, and heavily dependent on stdlib types that won't be backported.
+cc_test(
+    name = "find_if_test",
+    srcs = ["find_if_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:find_if",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+# Cannot be made with_variants until array is backported, and heavily dependent on stdlib types that won't be backported.
+cc_test(
+    name = "find_test",
+    srcs = ["find_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:find",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "inner_product_test",
+    srcs = ["inner_product_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":transform_reduce",
+        ":transform_reduce_fwd",
+        "//arene/base/algorithm:inner_product",
+    ],
+)
+
+cc_test_with_variants(
+    name = "inplace_merge_test",
+    srcs = ["inplace_merge_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":generated_test_data",
+        "//arene/base:array",
+        "//arene/base:integer_sequences",
+        "//arene/base/algorithm:inplace_merge",
+        "//arene/base/algorithm:transform",
+        "//arene/base/algorithm/detail:heap_sort",
+        "//arene/base/math:log2",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_sorted",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:less",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+# Cannot be made with_variants until array is backported
+cc_test(
+    name = "iter_swap_test",
+    srcs = ["iter_swap_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:iter_swap",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_library_with_variants(
+    name = "iota_fwd",
+    testonly = True,
+    hdrs = ["iota_fwd.hpp"],
+    deps = [
+        "//arene/base/algorithm:iota",
+    ],
+)
+
+cc_library_with_variants(
+    name = "iota",
+    testonly = True,
+    hdrs = ["iota.hpp"],
+    deps = [
+        ":iota_fwd",
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:add_pointer",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counter_mixin",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iota_test",
+    srcs = ["iota_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":iota",
+    ],
+)
+
+# Cannot be made with_variants until array is backported, and heavily dependent on stdlib types that won't be backported.
+cc_test(
+    name = "lexicographical_compare_test",
+    srcs = ["lexicographical_compare_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:type_list",
+        "//arene/base/algorithm:lexicographical_compare",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+# Cannot be made with_variants until array is backported
+cc_test(
+    name = "move_test",
+    srcs = ["move_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:move",
+        "//testlibs:gtest",
+    ],
+)
+
+# Cannot be made with_variants until array is backported
+cc_test(
+    name = "move_backward_test",
+    srcs = ["move_backward_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:move_backward",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "rotate_test",
+    srcs = ["rotate_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/algorithm:copy",
+        "//arene/base/algorithm:equal",
+        "//arene/base/algorithm:rotate",
+        "//arene/base/iterator:distance",
+        "//arene/base/iterator:next",
+        "//arene/base/iterator:prev",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test_with_variants(
+    name = "rotate_death_test",
+    srcs = ["rotate_death_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/algorithm:rotate",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_library_with_variants(
+    name = "sort_fwd",
+    testonly = True,
+    hdrs = ["sort_fwd.hpp"],
+    deps = [
+        "//arene/base/algorithm:sort",
+    ],
+)
+
+cc_library_with_variants(
+    name = "sort",
+    testonly = True,
+    hdrs = [
+        "sort.hpp",
+    ],
+    deps = [
+        ":generated_test_data",
+        ":sort_fwd",
+        "//arene/base:array",
+        "//arene/base/algorithm:equal",
+        "//arene/base/algorithm:iota",
+        "//arene/base/iterator:reverse_iterator",
+        "//arene/base/math:log2",
+        "//arene/base/stdlib_choice:add_pointer",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:greater",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:less",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple:for_each",
+        "//arene/base/type_list:filter",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test_with_variants(
+    name = "stable_sort_test",
+    srcs = ["stable_sort_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":sort",
+        ":sort_fwd",
+        "//arene/base/algorithm:stable_sort",
+    ],
+)
+
+cc_test_with_variants(
+    name = "sort_test",
+    srcs = ["sort_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":sort",
+    ],
+)
+
+# Cannot be made with_variants as heavily dependent on stdlib types that won't be backported and gmock matchers.
+cc_test(
+    name = "swap_ranges_test",
+    srcs = ["swap_ranges_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/algorithm:swap_ranges",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "transform_test",
+    srcs = ["transform_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base:tuple",
+        "//arene/base:type_list",
+        "//arene/base/algorithm:transform",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_library_with_variants(
+    name = "transform_reduce_fwd",
+    testonly = True,
+    hdrs = ["transform_reduce_fwd.hpp"],
+    deps = [
+        "//arene/base/algorithm:transform_reduce",
+    ],
+)
+
+cc_library_with_variants(
+    name = "transform_reduce",
+    testonly = True,
+    hdrs = ["transform_reduce.hpp"],
+    deps = [
+        ":generated_test_data",
+        ":transform_reduce_fwd",
+        "//arene/base:array",
+        "//arene/base:integer_sequences",
+        "//arene/base/algorithm:transform",
+        "//arene/base/algorithm:transform_reduce",
+        "//arene/base/iterator:next",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:is_rvalue_reference",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:max_value_overload",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:multiplies",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:remove_cvref",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:counting_wrapper",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test_with_variants(
+    name = "transform_reduce_test",
+    srcs = ["transform_reduce_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":transform_reduce",
+    ],
+)

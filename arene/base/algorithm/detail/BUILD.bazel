@@ -1,0 +1,276 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "bind_back_with_iterator_hdrs",
+    srcs = ["bind_back_with_iterator.hpp"],
+)
+
+cc_library_with_variants(
+    name = "bind_back_with_iterator",
+    hdrs = [":bind_back_with_iterator_hdrs"],
+    visibility = [
+        "//arene/base/algorithm:__subpackages__",
+    ],
+    deps = [
+        ":traits",
+        "//arene/base/functional:invoke",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+filegroup(
+    name = "convert_to_hdrs",
+    srcs = ["convert_to.hpp"],
+)
+
+cc_library_with_variants(
+    name = "convert_to",
+    hdrs = [":convert_to_hdrs"],
+    visibility = [
+        "//arene/base/algorithm:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_convertible",
+    ],
+)
+
+filegroup(
+    name = "functional_hdrs",
+    srcs = ["functional.hpp"],
+)
+
+cc_library_with_variants(
+    name = "functional",
+    hdrs = [":functional_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+    ],
+)
+
+filegroup(
+    name = "generalized_transform_reduce_hdrs",
+    srcs = ["generalized_transform_reduce.hpp"],
+)
+
+cc_library_with_variants(
+    name = "generalized_transform_reduce",
+    hdrs = [":generalized_transform_reduce_hdrs"],
+    visibility = [
+        "//arene/base/algorithm:__subpackages__",
+        "//stdlib/include/stdlib_detail:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:move",
+    ],
+)
+
+filegroup(
+    name = "heap_sort_hdrs",
+    srcs = ["heap_sort.hpp"],
+)
+
+cc_library_with_variants(
+    name = "heap_sort",
+    hdrs = [":heap_sort_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":make_heap",
+        ":sort_heap",
+        ":traits",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_traits:is_compare",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+filegroup(
+    name = "inplace_merge_sort_hdrs",
+    srcs = ["inplace_merge_sort.hpp"],
+)
+
+cc_library_with_variants(
+    name = "inplace_merge_sort",
+    hdrs = [":inplace_merge_sort_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":traits",
+        "//arene/base/algorithm:inplace_merge",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:min_value_overload",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_traits:arithmetic_traits",
+        "//arene/base/type_traits:is_compare",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_movable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/type_traits:iterator_category_traits",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+filegroup(
+    name = "make_heap_hdrs",
+    srcs = ["make_heap.hpp"],
+)
+
+cc_library_with_variants(
+    name = "make_heap",
+    hdrs = [":make_heap_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":push_heap",
+        ":traits",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_compare",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+filegroup(
+    name = "pop_heap_hdrs",
+    srcs = ["pop_heap.hpp"],
+)
+
+cc_library_with_variants(
+    name = "pop_heap",
+    hdrs = [":pop_heap_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":traits",
+        "//arene/base:constraints",
+        "//arene/base/algorithm:iter_swap",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/iterator:distance",
+        "//arene/base/iterator:next",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/type_traits:arithmetic_traits",
+        "//arene/base/type_traits:is_compare",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+filegroup(
+    name = "push_heap_hdrs",
+    srcs = ["push_heap.hpp"],
+)
+
+cc_library_with_variants(
+    name = "push_heap",
+    hdrs = [":push_heap_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":functional",
+        ":traits",
+        "//arene/base:constraints",
+        "//arene/base/algorithm:iter_swap",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_traits:arithmetic_traits",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_compare",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+filegroup(
+    name = "sort_heap_hdrs",
+    srcs = ["sort_heap.hpp"],
+)
+
+cc_library_with_variants(
+    name = "sort_heap",
+    hdrs = [":sort_heap_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":pop_heap",
+        ":traits",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_compare",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+filegroup(
+    name = "traits_hdrs",
+    srcs = ["traits.hpp"],
+)
+
+cc_library_with_variants(
+    name = "traits",
+    hdrs = [":traits_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:iterator_traits",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = ["BUILD.bazel"] + glob(["*.hpp"]),
+    visibility = ["//arene/base/algorithm:__pkg__"],
+)

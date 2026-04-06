@@ -1,0 +1,221 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "compare_hdrs",
+    srcs = ["compare.hpp"],
+)
+
+cc_library_with_variants(
+    name = "compare",
+    hdrs = [":compare_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:type_traits",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_manipulation",
+    ],
+)
+
+filegroup(
+    name = "comparison_interface_hdrs",
+    srcs = [
+        "comparison_interface.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "comparison_interface",
+    hdrs = [":comparison_interface_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+filegroup(
+    name = "container_base_type_hdrs",
+    srcs = ["container_base_type.hpp"],
+)
+
+cc_library_with_variants(
+    name = "container_base_type",
+    hdrs = [":container_base_type_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "erased_member_function_hdrs",
+    srcs = ["erased_member_function.hpp"],
+)
+
+cc_library_with_variants(
+    name = "erased_member_function",
+    hdrs = [":erased_member_function_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        ":container_base_type",
+        "//arene/base:constraints",
+        "//arene/base:functional",
+        "//arene/base:type_list",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+filegroup(
+    name = "iterator_interface_hdrs",
+    srcs = ["iterator_interface.hpp"],
+)
+
+cc_library_with_variants(
+    name = "iterator_interface",
+    hdrs = [":iterator_interface_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+filegroup(
+    name = "lower_bound_index_hdrs",
+    srcs = ["lower_bound_index.hpp"],
+)
+
+cc_library_with_variants(
+    name = "lower_bound_index",
+    hdrs = [":lower_bound_index_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base:contracts",
+        "//arene/base:functional",
+    ],
+)
+
+filegroup(
+    name = "range_interface_hdrs",
+    srcs = ["range_interface.hpp"],
+)
+
+cc_library_with_variants(
+    name = "range_interface",
+    hdrs = [":range_interface_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:iterator",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_traits",
+    ],
+)
+
+filegroup(
+    name = "try_construct_interface_hdrs",
+    srcs = ["try_construct_interface.hpp"],
+)
+
+cc_library_with_variants(
+    name = "try_construct_interface",
+    hdrs = [":try_construct_interface_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:iterator",
+        "//arene/base:optional",
+        "//arene/base:type_list",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:move",
+    ],
+)
+
+filegroup(
+    name = "unsafe_element_storage_hdrs",
+    srcs = [
+        "unsafe_element_storage.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "unsafe_element_storage",
+    hdrs = [":unsafe_element_storage_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:is_destructible",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":compare_hdrs",
+        ":comparison_interface_hdrs",
+        ":container_base_type_hdrs",
+        ":erased_member_function_hdrs",
+        ":iterator_interface_hdrs",
+        ":lower_bound_index_hdrs",
+        ":range_interface_hdrs",
+        ":try_construct_interface_hdrs",
+        ":unsafe_element_storage_hdrs",
+    ],
+    visibility = ["//arene/base/inline_container:__pkg__"],
+)

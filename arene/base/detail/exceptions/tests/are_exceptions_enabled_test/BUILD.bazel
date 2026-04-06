@@ -1,0 +1,98 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_test")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+load(
+    "//rules:transitions.bzl",
+    "transition_use_exceptions",
+    "transition_use_toolchain_stdlib",
+)
+
+cc_library_with_variants(
+    name = "exceptions_disabled_by_use_exceptions",
+    testonly = True,
+    srcs = ["disabled_by_use_exceptions.cpp"],
+    tags = ["nocompdb"],
+    target_compatible_with = select({
+        "//configs:exceptions_disabled": [],
+        "//configs:exceptions_enabled": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        "//arene/base/detail/exceptions:are_exceptions_enabled",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+    alwayslink = True,
+)
+
+cc_test_with_variants(
+    name = "disabled_by_cxxopt",
+    srcs = ["disabled_by_use_exceptions.cpp"],
+    cxxopts = ["-fno-exceptions"],
+    # static assert evaluates to false
+    tags = ["no-arene-iwyu"],
+    deps = [
+        "//arene/base/detail/exceptions:are_exceptions_enabled",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "enabled_by_default_on_platform",
+    srcs = ["enabled_by_default_on_platform.cpp"],
+    deps = [
+        "//arene/base/detail/exceptions:are_exceptions_enabled",
+        "//arene/base/testing:gtest",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "with_default_constraints",
+    srcs = ["with_default_constraints.cpp"],
+    deps = [
+        "//arene/base/detail/exceptions:are_exceptions_enabled",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+transition_use_exceptions(
+    name = "exceptions_disabled_by_use_exceptions_wrapper",
+    testonly = True,
+    src = ":exceptions_disabled_by_use_exceptions",
+    value = False,
+)
+
+cc_test(
+    name = "exceptions_disabled_by_flag",
+    deps = [
+        ":exceptions_disabled_by_use_exceptions_wrapper",
+    ],
+)
+
+transition_use_exceptions(
+    name = "exceptions_disabled_by_use_exceptions_wrapper2.without_toolchain_stdlib",
+    testonly = True,
+    src = ":exceptions_disabled_by_use_exceptions.without_toolchain_stdlib",
+    value = False,
+)
+
+transition_use_toolchain_stdlib(
+    name = "exceptions_disabled_by_use_exceptions_wrapper.without_toolchain_stdlib",
+    testonly = True,
+    src = ":exceptions_disabled_by_use_exceptions_wrapper2.without_toolchain_stdlib",
+    value = False,
+)
+
+cc_test(
+    name = "exceptions_disabled_by_flag.without_toolchain_stdlib",
+    deps = [
+        ":exceptions_disabled_by_use_exceptions_wrapper.without_toolchain_stdlib",
+    ],
+)

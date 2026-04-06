@@ -1,0 +1,561 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+cc_library_with_variants(
+    name = "test_helpers",
+    testonly = True,
+    hdrs = [
+        "testing_types.hpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:remove_const",
+    ],
+)
+
+cc_test(
+    name = "external_vector_test",
+    srcs = [
+        "external_vector_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base:byte",
+        "//arene/base:span",
+        "//arene/base/inline_container:vector",
+        "//testlibs:gtest",
+        "//testlibs/utilities:counting_wrapper",
+        "//testlibs/utilities:has_broken_less_than",
+    ],
+)
+
+cc_test(
+    name = "external_vector_parameterized_test",
+    srcs = [
+        "external_vector_parameterized_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base:byte",
+        "//arene/base:span",
+        "//arene/base/inline_container:vector",
+        "//arene/base/inline_container/testing:external_vector",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "function_test",
+    srcs = [
+        "function_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:type_info",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/inline_container:inline_function",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:to_underlying",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "function_death_test",
+    srcs = [
+        "function_death_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/inline_container:inline_function",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/utility:to_underlying",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_library_with_variants(
+    name = "map_test_helpers",
+    srcs = ["map_test_helpers.hpp"],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base:contracts",
+        "//arene/base:inline_string",
+        "//arene/base/inline_container:map",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:remove_const",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_test",
+    srcs = [
+        "map_test.cpp",
+    ],
+    # build failure
+    #
+    # ERROR: /home/oliver-lee/repos/arene-base/arene/base/inline_container/tests/BUILD.bazel:120:22: Running AreneIwyu on #//arene/base/inline_container/tests:map_test.without_toolchain_stdlib failed: (Segmentation fault): include-what-you-use-prebuilt #failed: error executing AreneIwyu command (from target //arene/base/inline_container/tests:map_test.without_toolchain_stdlib) #bazel-out/k8-opt-exec-ST-d57f47055a04/bin/external/arene-iwyu~/iwyu/include-what-you-use-prebuilt -Xiwyu --no_internal_mappings #-Xiwyu '--regex=ecmascript' -Xiwyu --no_fwd_decls -Xiwyu ... (remaining 140 arguments skipped)
+    # bazel-out/k8-opt-exec-ST-d57f47055a04/bin/external/arene-iwyu~/iwyu/include-what-you-use-prebuilt: line 17:    37 Segmentation fault      (core dumped) "$iwyu" -Xiwyu --error=$IWYU_EXIT_CODE "$@" 2> "$OUTFILE"
+    tags = ["no-arene-iwyu"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":map_test_helpers",
+        "//arene/base:algorithm",
+        "//arene/base:compare",
+        "//arene/base:endian",
+        "//arene/base:inline_string",
+        "//arene/base:optional",
+        "//arene/base:type_traits",
+        "//arene/base/inline_container:map",
+        "//arene/base/inline_container:vector",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:make_tuple",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:reverse",
+        "//arene/base/stdlib_choice:sort",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:has_broken_less_than",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_at_test",
+    srcs = [
+        "map_at_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":map_test_helpers",
+        "//arene/base:algorithm",
+        "//arene/base:iterator",
+        "//arene/base/inline_container:map",
+        "//arene/base/inline_container:vector",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:reverse",
+        "//arene/base/stdlib_choice:sort",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/testing:gtest",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_death_test",
+    srcs = [
+        "map_death_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:inline_string",
+        "//arene/base:optional",
+        "//arene/base/inline_container:map",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:move",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_throw_test",
+    srcs = [
+        "map_throw_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/inline_container:map",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:make_tuple",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/stdlib_choice:tuple",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_reference_test",
+    srcs = ["map_reference_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:iterator",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/inline_container:map_reference",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_reference_throw_test",
+    srcs = ["map_reference_throw_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:type_traits",
+        "//arene/base/inline_container:map_reference",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_reference_death_test",
+    srcs = ["map_reference_death_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:iterator",
+        "//arene/base/inline_container:map_reference",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:pair",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_reference_iterator_test",
+    srcs = [
+        "map_reference_iterator_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:iterator",
+        "//arene/base:type_traits",
+        "//arene/base/inline_container:map_reference",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:pair",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "set_test",
+    srcs = [
+        "set_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:array",
+        "//arene/base:compare",
+        "//arene/base:inline_string",
+        "//arene/base:iterator",
+        "//arene/base:optional",
+        "//arene/base:type_traits",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/inline_container:set",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:remove_const",
+        "//arene/base/stdlib_choice:reverse",
+        "//arene/base/stdlib_choice:sort",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test_with_variants(
+    name = "set_death_test",
+    srcs = [
+        "set_death_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:iterator",
+        "//arene/base/inline_container:set",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/utility:safe_comparisons",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "set_throw_test",
+    srcs = [
+        "set_throw_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base/inline_container:set",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_test",
+    srcs = [
+        "vector_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/inline_container:vector",
+        "//arene/base/inline_container/testing:vector",
+        "//arene/base/stdlib_choice:accumulate",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counting_wrapper",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_basic_test",
+    srcs = [
+        "vector_basic_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base:inline_string",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/inline_container:vector",
+        "//arene/base/stdlib_choice:accumulate",
+        "//arene/base/stdlib_choice:is_destructible",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counting_wrapper",
+        "//testlibs/utilities:has_broken_less_than",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_death_test",
+    srcs = [
+        "vector_death_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/inline_container:vector",
+        "//arene/base/inline_container/testing:vector",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counting_wrapper",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_reference_test",
+    srcs = [
+        "vector_reference_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:type_traits",
+        "//arene/base/algorithm:copy",
+        "//arene/base/algorithm:find",
+        "//arene/base/inline_container:vector",
+        "//arene/base/stdlib_choice:basic_insert_iterator",
+        "//arene/base/stdlib_choice:begin",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:end",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:remove_if",
+        "//arene/base/stdlib_choice:sort",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_reference_death_test",
+    srcs = [
+        "vector_reference_death_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:type_traits",
+        "//arene/base/inline_container:vector",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "deque_test",
+    srcs = [
+        "deque_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:string_view",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/inline_container:circular_buffer",
+        "//arene/base/inline_container:deque",
+        "//arene/base/inline_container:vector",
+        "//arene/base/inline_container/testing:deque",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:move",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counting_wrapper",
+    ],
+)
+
+cc_test_with_variants(
+    name = "deque_throw_test",
+    srcs = [
+        "deque_throw_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/inline_container:deque",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)

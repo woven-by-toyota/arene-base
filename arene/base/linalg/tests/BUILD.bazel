@@ -1,0 +1,13 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+
+## The @lapack dependency is not yet publicly supported.
+# cc_test(
+#     name = "lapack_is_usable_test",
+#     srcs = ["lapack_is_usable_test.cpp"],
+#     deps = ["@lapack"],
+# )

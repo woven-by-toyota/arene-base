@@ -1,0 +1,41 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_test_with_variants(
+    name = "for_each_test",
+    srcs = ["for_each_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "apply_test",
+    srcs = ["apply_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/compiler_support:internal",
+        "//arene/base/detail:exceptions",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple:internal",
+        "//testlibs:gtest",
+    ],
+)

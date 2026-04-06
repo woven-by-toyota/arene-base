@@ -1,0 +1,209 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_library_with_variants(
+    name = "test_helpers",
+    testonly = True,
+    hdrs = ["type_list_test_common.hpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "apply_all_test",
+    srcs = [
+        "apply_all_test.cpp",
+    ],
+    deps = [":test_helpers"],
+)
+
+cc_test_with_variants(
+    name = "apply_each_test",
+    srcs = [
+        "apply_each_test.cpp",
+    ],
+    deps = [":test_helpers"],
+)
+
+cc_test_with_variants(
+    name = "at_test",
+    srcs = [
+        "at_test.cpp",
+    ],
+    deps = [":test_helpers"],
+)
+
+cc_test_with_variants(
+    name = "concat_test",
+    srcs = [
+        "concat_test.cpp",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/type_list:concat",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "concat_unique_test",
+    srcs = [
+        "concat_unique_test.cpp",
+    ],
+    local_defines = select({
+        "//conditions:default": ["INT_AND_INT32_RESULT=\"type_list<int>\""],
+    }),
+    deps = [
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_list:concat_unique",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "contains_test",
+    srcs = [
+        "contains_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:tuple",
+    ],
+)
+
+cc_test_with_variants(
+    name = "drop_test",
+    srcs = [
+        "drop_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+cc_test_with_variants(
+    name = "filter_test",
+    srcs = [
+        "filter_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:is_class",
+        "//arene/base/stdlib_choice:is_integral",
+    ],
+)
+
+cc_test_with_variants(
+    name = "flat_map_test",
+    srcs = [
+        "flat_map_test.cpp",
+    ],
+    deps = [":test_helpers"],
+)
+
+cc_test_with_variants(
+    name = "flatten_test",
+    srcs = [
+        "flatten_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
+
+cc_test_with_variants(
+    name = "index_of_test",
+    srcs = [
+        "index_of_test.cpp",
+    ],
+    deps = [":test_helpers"],
+)
+
+cc_test_with_variants(
+    name = "remove_duplicates_test",
+    srcs = [
+        "remove_duplicates_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
+
+cc_test_with_variants(
+    name = "remove_nth_test",
+    srcs = [
+        "remove_nth_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
+
+cc_test_with_variants(
+    name = "size_test",
+    srcs = [
+        "size_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:tuple",
+    ],
+)
+
+cc_test_with_variants(
+    name = "sort_test",
+    srcs = [
+        "sort_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:tuple",
+    ],
+)
+
+cc_test_with_variants(
+    name = "take_test",
+    srcs = [
+        "take_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+cc_test_with_variants(
+    name = "type_list_test",
+    srcs = [
+        "type_list_test.cpp",
+    ],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:tuple",
+    ],
+)

@@ -1,0 +1,52 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+filegroup(
+    name = "death_tests_srcs_posix",
+    srcs = ["death_tests_posix.cpp"],
+)
+
+filegroup(
+    name = "death_tests_hdrs",
+    srcs = [
+        "death_tests_disabled.hpp",
+        "death_tests_enabled.hpp",
+    ],
+)
+
+cc_library(
+    name = "death_tests",
+    srcs = select({
+        "//configs:posix": [
+            ":death_tests_srcs_posix",
+        ],
+        "//conditions:default": [],
+    }),
+    hdrs = [":death_tests_hdrs"],
+    defines = select({
+        "//testlibs/minitest:death_tests_supported": [
+            "MINITEST_DEATH_TESTS_ENABLED=1",
+        ],
+        "//conditions:default": [],
+    }),
+    include_prefix = "testlibs/minitest",
+    visibility = ["//testlibs/minitest:__pkg__"],
+    deps = [
+        "//testlibs/minitest:cstring",
+        "//testlibs/minitest:libc",
+        "//testlibs/minitest:utility_types",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":death_tests_hdrs",
+        ":death_tests_srcs_posix",
+    ],
+    visibility = ["//testlibs/minitest:__pkg__"],
+)

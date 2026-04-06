@@ -1,0 +1,25 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_FUNCTIONAL_
+#define INCLUDE_GUARD_STDLIB_FUNCTIONAL_
+
+#include "stdlib/include/stdlib_detail/divides.hpp"           // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/equal_to.hpp"          // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/greater.hpp"           // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/greater_equal.hpp"     // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/less.hpp"              // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/less_equal.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/logical_and.hpp"       // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/logical_or.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/minus.hpp"             // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/modulus.hpp"           // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/multiplies.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/negate.hpp"            // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/not_equal_to.hpp"      // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/plus.hpp"              // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/reference_wrapper.hpp" // IWYU pragma: export
+
+#endif

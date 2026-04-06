@@ -1,0 +1,397 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "apply_all_hdrs",
+    srcs = [
+        "apply_all.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "apply_all",
+    hdrs = [":apply_all_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "apply_each_hdrs",
+    srcs = [
+        "apply_each.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "apply_each",
+    hdrs = [":apply_each_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "at_hdrs",
+    srcs = [
+        "at.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "at",
+    hdrs = [":at_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":type_list",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/type_traits:type_identity",
+    ],
+)
+
+filegroup(
+    name = "concat_hdrs",
+    srcs = [
+        "concat.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "concat",
+    hdrs = [":concat_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":type_list",
+    ],
+)
+
+filegroup(
+    name = "concat_unique_hdrs",
+    srcs = [
+        "concat_unique.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "concat_unique",
+    hdrs = [":concat_unique_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":concat",
+        ":remove_duplicates",
+        ":type_list",
+    ],
+)
+
+filegroup(
+    name = "contains_hdrs",
+    srcs = [
+        "contains.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "contains",
+    hdrs = [":contains_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+filegroup(
+    name = "drop_hdrs",
+    srcs = [
+        "drop.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "drop",
+    hdrs = [":drop_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":at",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+    ],
+)
+
+filegroup(
+    name = "filter_hdrs",
+    srcs = [
+        "filter.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "filter",
+    hdrs = [":filter_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":flat_map",
+        ":type_list",
+        "//arene/base/stdlib_choice:conditional",
+    ],
+)
+
+filegroup(
+    name = "flat_map_hdrs",
+    srcs = [
+        "flat_map.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "flat_map",
+    hdrs = [":flat_map_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":apply_all",
+        ":concat",
+        ":type_list",
+        "//arene/base/type_traits:type_identity",
+    ],
+)
+
+filegroup(
+    name = "index_of_hdrs",
+    srcs = [
+        "index_of.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "index_of",
+    hdrs = [":index_of_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/type_traits:index_of",
+    ],
+)
+
+filegroup(
+    name = "remove_duplicates_hdrs",
+    srcs = [
+        "remove_duplicates.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "remove_duplicates",
+    hdrs = [":remove_duplicates_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":at",
+        ":size",
+        "//arene/base/algorithm:copy_if",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:not_equal_to",
+        "//arene/base/type_traits:index_of",
+        "//arene/base/type_traits:type_identity",
+    ],
+)
+
+filegroup(
+    name = "remove_nth_hdrs",
+    srcs = [
+        "remove_nth.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "remove_nth",
+    hdrs = [":remove_nth_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":at",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/type_traits:type_identity",
+    ],
+)
+
+filegroup(
+    name = "size_hdrs",
+    srcs = [
+        "size.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "size",
+    hdrs = [":size_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":type_list",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:tuple_size",
+    ],
+)
+
+filegroup(
+    name = "sort_hdrs",
+    srcs = [
+        "sort.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "sort",
+    hdrs = [":sort_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":apply_all",
+        ":concat",
+        ":type_list",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/type_traits:always_false",
+    ],
+)
+
+filegroup(
+    name = "take_hdrs",
+    srcs = [
+        "take.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "take",
+    hdrs = [":take_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":at",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+    ],
+)
+
+filegroup(
+    name = "type_list_hdrs",
+    srcs = [
+        "type_list.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "type_list",
+    hdrs = [":type_list_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":apply_all",
+        ":apply_each",
+        ":at",
+        ":concat",
+        ":concat_unique",
+        ":contains",
+        ":drop",
+        ":filter",
+        ":flat_map",
+        ":index_of",
+        ":remove_duplicates",
+        ":remove_nth",
+        ":size",
+        ":sort",
+        ":take",
+        ":type_list",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":apply_all_hdrs",
+        ":apply_each_hdrs",
+        ":at_hdrs",
+        ":concat_hdrs",
+        ":concat_unique_hdrs",
+        ":contains_hdrs",
+        ":drop_hdrs",
+        ":filter_hdrs",
+        ":flat_map_hdrs",
+        ":index_of_hdrs",
+        ":remove_duplicates_hdrs",
+        ":remove_nth_hdrs",
+        ":size_hdrs",
+        ":sort_hdrs",
+        ":take_hdrs",
+        ":type_list_hdrs",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

@@ -1,0 +1,22 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "dummy_gmock",
+    hdrs = ["gmock.h"],
+    include_prefix = "gmock",
+    visibility = ["//:__subpackages__"],
+    deps = ["//testlibs/minitest"],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "gmock.h",
+    ],
+    visibility = ["//testlibs:__pkg__"],
+)

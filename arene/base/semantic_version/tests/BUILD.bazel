@@ -1,0 +1,17 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_test_with_variants(
+    name = "semantic_version_test",
+    srcs = ["semantic_version_test.cpp"],
+    deps = [
+        "//arene/base:semantic_version",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)

@@ -1,0 +1,64 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@bazel_skylib//lib:shell.bzl", "shell")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("//rules:binary_log.bzl", "binary_log")
+load("//rules:cc_test.bzl", "cc_test")
+load(
+    "//rules:transitions.bzl",
+    "transition_capture_contract_stacktraces",
+)
+
+cc_test(
+    name = "contract_test",
+    srcs = ["contract_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:string_view",
+        "//arene/base/contracts:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+[
+    (
+        transition_capture_contract_stacktraces(
+            name = "contracts_stacktrace_{}".format(enabled),
+            src = "//arene/base/contracts:internal",
+            tags = ["manual"],
+            value = enabled == "enabled",
+        ),
+        cc_binary(
+            name = "contract_output_{}".format(enabled),
+            srcs = ["contract_output.cpp"],
+            tags = ["manual"],
+            deps = [
+                ":contracts_stacktrace_{}".format(enabled),
+            ],
+        ),
+        binary_log(
+            name = "contract_output_{}_out".format(enabled),
+            src = ":contract_output_{}".format(enabled),
+            file_descriptor = "stderr",
+            return_code = 134,
+        ),
+        sh_test(
+            name = "contract_output_{}_test".format(enabled),
+            srcs = ["contract_output_test.bash"],
+            args = [
+                "$(location :contract_output_{}_out)".format(enabled),
+                shell.quote(length),
+            ],
+            data = [":contract_output_{}_out".format(enabled)],
+        ),
+    )
+    for enabled, length in [
+        ("enabled", ">= 6"),
+        ("disabled", "== 2"),
+    ]
+]

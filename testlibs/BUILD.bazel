@@ -1,0 +1,49 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+selects.config_setting_group(
+    name = "death_tests_supported",
+    match_any = [
+        "//configs:posix",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+cc_library(
+    name = "gtest",
+    visibility = ["//:__subpackages__"],
+    deps = select({
+        "//configs:toolchain_stdlib_enabled": [
+            "@com_google_googletest//:gtest_main",
+        ],
+        "//configs:toolchain_stdlib_disabled": [
+            "//testlibs/dummy_gmock",
+            "//testlibs/dummy_gtest",
+        ],
+    }),
+)
+
+cc_library(
+    name = "death_test_support",
+    target_compatible_with = select({
+        ":death_tests_supported": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "//testlibs/dummy_gmock:package",
+        "//testlibs/dummy_gtest:package",
+        "//testlibs/minitest:package",
+        "//testlibs/utilities:package",
+    ],
+    visibility = ["//pkg:__pkg__"],
+)

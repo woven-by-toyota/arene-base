@@ -1,0 +1,298 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_test_with_variants(
+    name = "checked_math_test",
+    srcs = ["checked_math_test.cpp"],
+    deps = [
+        "//arene/base/mdspan/detail:checked_math",
+        "//arene/base/mdspan/tests:test_index_types",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "checked_math_death_test",
+    srcs = ["checked_math_death_test.cpp"],
+    deps = [
+        "//arene/base/mdspan/detail:checked_math",
+        "//arene/base/mdspan/tests:test_index_types",
+        "//arene/base/stdlib_choice:is_signed",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "count_test",
+    srcs = ["count_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/algorithm:transform",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/mdspan/detail:count",
+        "//arene/base/stdlib_choice:begin",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:end",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:safe_comparisons",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "de_ice_test",
+    srcs = ["de_ice_test.cpp"],
+    deps = [
+        "//arene/base/mdspan/detail:de_ice",
+        "//arene/base/mdspan/tests:test_index_types",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "map_rank_test",
+    srcs = ["map_rank_test.cpp"],
+    deps = [
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan/detail:map_rank",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "slice_lower_bound_test",
+    srcs = ["slice_lower_bound_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan/detail:slice_lower_bound",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "extent_sequence_test",
+    srcs = ["extent_sequence_test.cpp"],
+    deps = [
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/mdspan/detail:extent_sequence",
+        "//arene/base/stdlib_choice:equal_to",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_representable_as_test",
+    srcs = ["is_representable_as_test.cpp"],
+    deps = [
+        "//arene/base/mdspan/detail:is_representable_as",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:type_identity",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_valid_submdspan_slice_for_test",
+    srcs = ["is_valid_submdspan_slice_for_test.cpp"],
+    deps = [
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan/detail:is_valid_submdspan_slice_for",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_valid_submdspan_slice_type_for_test",
+    srcs = ["is_valid_submdspan_slice_type_for_test.cpp"],
+    deps = [
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan/detail:is_valid_submdspan_slice_type_for",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "rank_scan_test",
+    srcs = ["rank_scan_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/algorithm:transform",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/mdspan/detail:count",
+        "//arene/base/mdspan/detail:map_rank",
+        "//arene/base/mdspan/detail:rank_scan",
+        "//arene/base/mdspan/tests:test_index_types",
+        "//arene/base/stdlib_choice:begin",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:end",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "rank_scan_death_test",
+    srcs = ["rank_scan_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/mdspan/detail:rank_scan",
+        "//arene/base/stdlib_choice:ignore",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "representable_cast_test",
+    srcs = ["representable_cast_test.cpp"],
+    deps = [
+        "//arene/base/mdspan/detail:representable_cast",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:type_identity",
+        "//arene/base/utility:safe_comparisons",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "representable_cast_death_test",
+    srcs = ["representable_cast_death_test.cpp"],
+    deps = [
+        "//arene/base/mdspan/detail:representable_cast",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "submdspan_offset_test",
+    srcs = ["submdspan_offset_test.cpp"],
+    deps = [
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan/detail:submdspan_offset",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "submdspan_sub_strides_test",
+    srcs = ["submdspan_sub_strides_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan/detail:submdspan_sub_strides",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "submdspan_sub_strides_death_test",
+    srcs = ["submdspan_sub_strides_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan/detail:submdspan_sub_strides",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "slice_upper_bound_test",
+    srcs = ["slice_upper_bound_test.cpp"],
+    deps = [
+        "//arene/base:contracts",
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan/detail:slice_upper_bound",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "slice_upper_bound_death_test",
+    srcs = ["slice_upper_bound_death_test.cpp"],
+    deps = [
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan/detail:slice_upper_bound",
+        "//arene/base/stdlib_choice:cstdint",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "to_array_test",
+    srcs = ["to_array_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:integer_sequences",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan/detail:to_array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:remove_cvref",
+        "//testlibs:gtest",
+    ],
+)

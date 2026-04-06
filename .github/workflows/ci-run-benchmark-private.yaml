@@ -1,0 +1,80 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+---
+# yamllint disable
+# PoC for benchmark
+name: Benchmark
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # For OIDC
+  contents: read # For actions/checkout
+  actions: read # For codeql-action/upload-sarif
+  security-events: write # For codeql-action/upload-sarif
+
+jobs:
+  benchmark:
+    name: Benchmark
+    strategy:
+      matrix:
+        command:
+          - benchmark
+        include:
+          - # parameters for job `benchmark`
+            command: benchmark
+            file-sharing: { path: benchmark_result.* }
+    runs-on: sg-jpe-x64-ubuntu-latest-4core
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+          ssh-known-hosts: ${{ secrets.ARENE_GIT_SERVER_SSH_KNOWN_HOST }}
+          ssh-key: ${{ secrets.SVC_ARENE_OS_BOT_SSH_PRIVATE_KEY }}
+      - name: Setup Arene workspace
+        uses: ./.github/actions/setup-arene-workspace/
+        with:
+          ssh-known-hosts: ${{ secrets.ARENE_GIT_SERVER_SSH_KNOWN_HOST }}
+          ssh-private-key: ${{ secrets.SVC_ARENE_OS_BOT_SSH_PRIVATE_KEY }}
+          saas-artifactory-user: ${{ secrets.USG_ARTIFACTORY_CLOUD_USER }}
+          saas-artifactory-api-key: ${{ secrets.USG_ARTIFACTORY_CLOUD_KEY }}
+          usg-buildbuddy-api-key: ${{ secrets.USG_BUILDBUDDY_API_KEY }}
+      - name: Run ${{ matrix.command }}
+        uses: ./.github/actions/invoke-arene-run
+        with:
+          command: ${{ matrix.command }}
+          git-ssh-command:
+            ${{ steps.setup-arene-workspace.outputs.ssh-command }}
+          runner-id: ${RUNNER_TRACKING_ID}
+      - name: Upload to artifactory
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ matrix.command }}
+          path: ${{ matrix.file-sharing.path }}
+      - name: Clean up Arene workspace
+        if: ${{ always() }}
+        uses: ./.github/actions/clean-up-arene-workspace/
+
+  # Check point for all tasks.
+  all-jobs-passed:
+    runs-on: sg-jpe-x64-ubuntu-latest-2core
+
+    needs:
+      - benchmark
+    if: ${{!cancelled()}}
+    env:
+      HAD_FAILURE: ${{ contains(needs.*.result, 'failure') }}
+    steps:
+      - name: Results
+        run: echo "${{ toJSON(needs) }}"
+      - name: Exit on failure
+        if: ${{ env.HAD_FAILURE == 'true' }}
+        run: exit 1
+      - run: echo "Passed all jobs"

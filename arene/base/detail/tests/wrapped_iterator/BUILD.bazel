@@ -1,0 +1,90 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+cc_library_with_variants(
+    name = "helpers",
+    testonly = True,
+    hdrs = ["helpers.hpp"],
+    deps = [
+        "//arene/base:iterator",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/stdlib_choice:begin",
+        "//arene/base/stdlib_choice:end",
+    ],
+)
+
+cc_library_with_variants(
+    name = "test_template",
+    testonly = True,
+    hdrs = ["test_template.hpp"],
+    deps = [
+        ":helpers",
+        "//arene/base:iterator",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/stdlib_choice:begin",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:end",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "constexpr_types_test",
+    srcs = ["constexpr_types_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/stdlib_choice:begin",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "death_tests",
+    srcs = ["death_tests.cpp"],
+    deps = [
+        ":helpers",
+        ":test_template",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "nostdlib_types_test",
+    srcs = ["nostdlib_types_test.cpp"],
+    deps = [
+        ":helpers",
+        ":test_template",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs:gtest",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test(
+    name = "stdlib_types_test",
+    srcs = ["stdlib_types_test.cpp"],
+    deps = [
+        ":helpers",
+        ":test_template",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)

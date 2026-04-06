@@ -1,0 +1,131 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "traits_hdrs",
+    srcs = [
+        "traits.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "traits",
+    hdrs = [":traits_hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        "//arene/base:type_list",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+filegroup(
+    name = "variant_hdrs",
+    srcs = [
+        "variant.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "variant",
+    hdrs = [":variant_hdrs"],
+    visibility = [
+        ":__subpackages__",
+    ],
+    deps = [
+        ":traits",
+        "//arene/base:array",
+        "//arene/base:byte",
+        "//arene/base:compare",
+        "//arene/base:functional",
+        "//arene/base:memory",
+        "//arene/base:monostate",
+        "//arene/base:type_list",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:add_pointer",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:equal_to",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:less",
+        "//arene/base/stdlib_choice:max_initializer_list_overload",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_manipulation",
+        "//arene/base/utility:forward_like",
+        "//arene/base/variant/detail:bad_variant_access",
+    ],
+)
+
+filegroup(
+    name = "visit_hdrs",
+    srcs = [
+        "visit.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "visit",
+    hdrs = [":visit_hdrs"],
+    visibility = [
+        ":__subpackages__",
+    ],
+    deps = [
+        ":variant",
+        "//arene/base:algorithm",
+        "//arene/base:array",
+        "//arene/base:functional",
+        "//arene/base:memory",
+        "//arene/base:type_list",
+        "//arene/base:type_traits",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":traits",
+        ":variant",
+        ":visit",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "traits_hdrs",
+        "variant_hdrs",
+        "visit_hdrs",
+        "//arene/base/variant/detail:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

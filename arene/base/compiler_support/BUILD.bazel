@@ -1,0 +1,164 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//bazel_lib:if_host_platform.bzl", "if_host_platform")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "asan_annotations.hpp",
+        "attributes.hpp",
+        "builtin_types.hpp",
+        "expect.hpp",
+        "hardware_queries.hpp",
+        "integer_types.hpp",
+        "is_possibly_constant_evaluated.hpp",
+        "platform_queries.hpp",
+        "preprocessor.hpp",
+        "thread_safety_annotations.hpp",
+        "version.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "attributes",
+    hdrs = [
+        "attributes.hpp",
+        # Although these headers below *should* be defined in `srcs`, the
+        # `pkg_cmake` and `arene_cc_shared_library` rules require they by
+        # defined in `hdrs`.
+        #
+        # > Headers not meant to be included by a client of this library should
+        # > be listed in the srcs attribute
+        # https://bazel.build/reference/be/c-cpp#cc_library.hdrs
+        "//arene/base/compiler_support/attributes:hdrs",
+    ],
+)
+
+filegroup(
+    name = "cpp14_inline_hdrs",
+    srcs = ["cpp14_inline.hpp"],
+)
+
+cc_library_with_variants(
+    name = "cpp14_inline",
+    hdrs = [":cpp14_inline_hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":attributes",
+        ":platform_queries",
+        ":preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "hardware_queries",
+    hdrs = [
+        "hardware_queries.hpp",
+        "//arene/base/compiler_support/hardware_queries:detail_hdrs",
+        "//arene/base/compiler_support/hardware_queries:hdrs",
+    ],
+    deps = [
+        ":attributes",
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+cc_library_with_variants(
+    name = "platform_queries",
+    hdrs = [
+        "platform_queries.hpp",
+        "//arene/base/compiler_support/platform_queries:hdrs",
+    ],
+    deps = [
+        ":preprocessor",
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+cc_library_with_variants(
+    name = "preprocessor",
+    hdrs = [
+        "preprocessor.hpp",
+        "//arene/base/compiler_support/preprocessor:hdrs",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    srcs = [
+        "//arene/base/compiler_support/detail:hdrs",
+    ],
+    hdrs = [
+        ":hdrs",
+    ],
+    defines = select({
+        "//conditions:default": [],
+        "//configs:exceptions_disabled_by_flag": ["ARENE_EXCEPTIONS_ENABLED=0"],
+    }),
+    # <sanitizer/asan_interface.h> is not available for IWYU on macOS
+    tags = if_host_platform.is_macos(["no-arene-iwyu"]),
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":attributes",
+        ":cpp14_inline",
+        ":hardware_queries",
+        ":platform_queries",
+        ":preprocessor",
+        "//arene/base/detail:raw_c_string",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:forward",
+    ],
+)
+
+filegroup(
+    name = "diagnostics_hdrs",
+    srcs = [
+        "diagnostics.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "diagnostics",
+    hdrs = [
+        ":diagnostics_hdrs",
+    ],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":internal",
+    ],
+)
+
+cc_library_with_variants(
+    name = "compiler_support",
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":diagnostics",
+        ":internal",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":cpp14_inline_hdrs",
+        ":diagnostics_hdrs",
+        ":hdrs",
+        "//arene/base/compiler_support/attributes:package",
+        "//arene/base/compiler_support/detail:package",
+        "//arene/base/compiler_support/hardware_queries:package",
+        "//arene/base/compiler_support/platform_queries:package",
+        "//arene/base/compiler_support/preprocessor:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

@@ -1,0 +1,545 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load(
+    "//rules:transitions.bzl",
+    "transition_use_toolchain_stdlib",
+)
+
+# Check that the tests in `//stdlib/tests` fail to compile if the standard
+# library headers are included using system includes
+#
+cc_build_error_test(
+    name = "system_include_style_errs_with_stdlib_in_tests_test",
+    src = inline_src.cpp("""\
+#include <type_traits>
+"""),
+    compile_stderr = matcher.has_substr("error \"Include of standard library header <type_traits>\""),
+    deps = ["//stdlib/tests:testing_stdlib"],
+)
+
+# stdlib target that flips `//configs:use_toolchain_stdlib` to `False`
+#
+transition_use_toolchain_stdlib(
+    name = "testing_stdlib",
+    src = "//stdlib",
+    value = False,
+)
+
+# NOTE
+# C++TestPro does not run on these tests as they do not compile. These tests
+# should use system includes - as we would expect a consumer to do.
+#
+cc_build_error_test(
+    name = "finds_internal_stdlib_instead_of_toolchain_stdlib_test",
+    src = inline_src.cpp("""\
+#include <vector>
+"""),
+    compile_stderr = matcher.has_substr("error \"Include of standard library header <vector>\""),
+    deps = [":testing_stdlib"],
+)
+
+[
+    cc_build_error_test(
+        name = "integer_sequence_with_{}_test".format(category),
+        src = inline_src.cpp(
+            """\
+#include <utility>
+auto x = std::integer_sequence<{}>{{}};
+""".format(non_integer_type),
+        ),
+        compile_stderr = matcher.contains_basic_regex(
+            select({
+                "//configs/compiler:arm_clang": "static_assert failed.* \"'Type' must be an integer.",
+                "//conditions:default": "static assertion failed.*: 'Type' must be an integer.",
+            }),
+        ),
+        deps = [":testing_stdlib"],
+    )
+    for category, non_integer_type in [
+        ("nullptr_t", "decltype(nullptr)"),
+        ("pointer", "int*"),
+        ("reference", "int&"),
+    ]
+]
+
+cc_build_error_test(
+    name = "make_integer_sequence_with_negative_size_test",
+    src = inline_src.cpp("""\
+#include <utility>
+auto x = std::make_integer_sequence<int, -1>{};
+"""),
+    compile_stderr = matcher.has_substr("'Size' must be non-negative."),
+    copts = ["-w"],
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "move_algorithm_without_assign_test",
+    src = "move_algorithm_without_assign_test.cpp",
+    compile_stderr = matcher.has_substr("Must be able to move-assign to output from input"),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "count_if_algorithm_without_call_operator",
+    src = "count_if_algorithm_without_call_operator.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//conditions:default": "requirement .*is_predicate_v.* was not satisfied",
+            "//configs/compiler:gcc_or_qcc": "no matching function for call to",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "count_if_algorithm_not_an_iterator",
+    src = "count_if_algorithm_not_an_iterator.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//conditions:default": "requirement 'arene::base::is_input_iterator_v<.*>' was not satisfied",
+            "//configs/compiler:gcc_or_qcc": "is_input_iterator_v",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+[
+    cc_build_error_test(
+        name = "{insert_kind}_iterator_with_{category}_type_test".format(
+            category = category,
+            insert_kind = insert_kind,
+        ),
+        src = inline_src.cpp("""\
+#include <iterator>
+auto x = std::{insert_kind}_iterator<{type_param}>{{}};
+""".format(
+            insert_kind = insert_kind,
+            type_param = type_param,
+        )),
+        compile_stderr = matcher.has_substr(
+            select({
+                "//configs/compiler:arm_clang": "has_value_type_member_v<{}>' \"'Container' does not satisfy syntactic requirements".format(type_param),
+                "//configs/compiler:clang": "has_value_type_member_v<{}>': 'Container' does not satisfy syntactic requirements".format(type_param),
+                "//configs/compiler:gcc_or_qcc": "has_value_type_member_v<Container>",
+            }),
+        ),
+        deps = [":testing_stdlib"],
+    )
+    for insert_kind, category, type_param in [
+        ("back_insert", "non-referenceable", "void"),
+        ("back_insert", "non-container", "int"),
+        ("insert", "non-referenceable", "void"),
+        ("insert", "non-container", "int"),
+    ]
+]
+
+cc_build_error_test(
+    name = "insert_iterator_with_missing_iterator_typedef_test",
+    src = inline_src.cpp("""\
+#include <iterator>
+#include <type_traits>
+auto x = std::insert_iterator<std::true_type>{};
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:arm_clang": "has_iterator_member_v<std::integral_constant<bool, true>>' \"'Container' does not satisfy syntactic requirements",
+            "//configs/compiler:clang": "has_iterator_member_v<std::integral_constant<bool, true>>': 'Container' does not satisfy syntactic requirements",
+            "//configs/compiler:gcc_or_qcc": "has_iterator_member_v<Container>",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "accumulate_not_constexpr",
+    src = "accumulate_not_constexpr.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//configs/compiler:clang": "non-constexpr function .* cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "non-constexpr function .* cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "copy_n_not_constexpr",
+    src = "copy_n_not_constexpr.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//configs/compiler:clang": "non-constexpr function .* cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "non-constexpr function .* cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "none_of_not_constexpr",
+    src = "none_of_not_constexpr.cpp",
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//configs/compiler:clang": "non-constexpr function .* cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "non-constexpr function .* cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "numeric_limits_does_not_support_fastmath",
+    src = inline_src.cpp("""\
+#include <limits>
+"""),
+    compile_stderr = matcher.has_substr("Fast math not supported as does not conform to IEC559"),
+    copts = ["-ffast-math"],
+    deps = [
+        ":testing_stdlib",
+    ],
+)
+
+cc_build_error_test(
+    name = "tuple_element_out_of_bounds_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/tuple"
+using T = std::tuple_element_t<0, std::tuple<>>;
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:arm_clang": "error: static_assert failed due to requirement '0U < sizeof...(Types)' \"index out of range for the given tuple",
+            "//configs/compiler:clang": "error: static assertion failed due to requirement '0UL < sizeof...(Types)': index out of range for the given tuple",
+            "//configs/compiler:gcc_or_qcc": "error: static assertion failed: index out of range for the given tuple",
+        }),
+    ),
+    deps = [
+        ":testing_stdlib",
+    ],
+)
+
+cc_build_error_test(
+    name = "pair_tuple_element_out_of_bounds_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/utility"
+using T = std::tuple_element_t<2, std::pair<int, int>>;
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//conditions:default": "implicit instantiation of undefined template 'std::tuple_element<2, std::pair<int, int>>'",
+            "//configs/compiler:gcc_or_qcc": "invalid use of incomplete type 'class std::tuple_element<2, std::pair<int, int>",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "pair_get_out_of_bounds_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/utility"
+auto const _ = std::get<2>(std::make_pair(1, 2));
+"""),
+    compile_stderr = matcher.has_substr(
+        "no matching function for call to 'get",
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "tuple_get_out_of_bounds_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/tuple"
+auto const _ = std::get<2>(std::tuple<int, int>{});
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:arm_clang": "error: static_assert failed due to requirement '2U < sizeof...(Types)' \"index out of range for the given tuple",
+            "//configs/compiler:clang": "error: static assertion failed due to requirement '2UL < sizeof...(Types)': index out of range for the given tuple",
+            "//configs/compiler:gcc_or_qcc": "error: static assertion failed: index out of range for the given tuple",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "tuple_get_type_missing_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/tuple"
+auto const _ = std::get<double>(std::tuple<int, int>{});
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "error: (no member named 'value' in|'value' is not a member of) 'arene::base::index_of<double, int, int>'",
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "tuple_get_type_repeated_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/tuple"
+auto const _ = std::get<int>(std::tuple<int, int>{});
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:arm_clang": "error: static_assert failed due to requirement 'first_idx == last_idx' \"Type-based std::get<T>(std::tuple<Types...>) can only be used if T appears exactly once in Types, but it appears multiple times",
+            "//configs/compiler:clang": "error: static assertion failed due to requirement 'first_idx == last_idx': Type-based std::get<T>(std::tuple<Types...>) can only be used if T appears exactly once in Types, but it appears multiple times",
+            "//configs/compiler:gcc_or_qcc": "error: static assertion failed: Type-based std::get<T>(std::tuple<Types...>) can only be used if T appears exactly once in Types, but it appears multiple times",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "tuple_equality_with_different_size_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/tuple"
+auto const a = std::tuple<int, int, int>{};
+auto const b = std::tuple<int, int>{};
+bool const _ = a == b;
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "error: ({}|{})".format(
+            "pack expansion contains parameter packs 'LTypes' and 'RTypes' that have different lengths \\(3 vs. 2\\)",
+            "static assertion failed: Only tuples of the same size can be compared",
+        ),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "tuple_less_with_different_size_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/tuple"
+auto const a = std::tuple<int, int, int>{};
+auto const b = std::tuple<int, int>{};
+bool const _ = a < b;
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "error: ({}|{})".format(
+            "pack expansion contains parameter packs 'LTypes' and 'RTypes' that have different lengths \\(3 vs. 2\\)",
+            "static assertion failed: Only tuples of the same size can be compared",
+        ),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "inner_product_is_a_function_that_is_not_constexpr_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/functional"
+#include "stdlib/include/numeric"
+
+auto main(int argc, char*[]) -> int
+{
+  constexpr auto _ = std::inner_product(&argc, &argc, &argc, int{}, std::plus<>{}, std::plus<>{});
+}
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:clang": "note: non-constexpr function 'inner_product<int *, int *, int, std::plus<void>, std::plus<void>, nullptr>' cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "note: non-constexpr function 'inner_product<int *, int *, int, std::plus<void>, std::plus<void>, nullptr>' cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error: call to non-'constexpr' function 'Value std::inner_product(InputIt1, InputIt1, InputIt2, Value, Plus, Multiplies)",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "iota_is_a_function_that_is_not_constexpr_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/numeric"
+
+auto main(int argc, char*[]) -> int
+{
+  constexpr auto _ = (std::iota(&argc, &argc, 0), true);
+}
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:clang": "note: non-constexpr function 'iota<int *, int, nullptr>' cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "note: non-constexpr function 'iota<int *, int, nullptr>' cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error: call to non-'constexpr' function 'void std::iota(ForwardIt, ForwardIt, Value)",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+[
+    cc_build_error_test(
+        name = "{}_is_a_function_that_is_not_constexpr_test".format(flavor),
+        src = inline_src.cpp("""\
+#include "stdlib/include/algorithm"
+
+auto main(int argc, char*[]) -> int
+{{
+  constexpr auto _ = (std::{}(&argc, &argc), true);
+}}
+""".format(flavor)),
+        compile_stderr = matcher.has_substr(
+            select({
+                "//configs/compiler:clang": "note: non-constexpr function '{}<int *, void>' cannot be used in a constant expression".format(
+                    flavor,
+                ),
+                "//configs/compiler:arm_clang": "note: non-constexpr function '{}<int *, void>' cannot be used in a constant expression".format(
+                    flavor,
+                ),
+                "//configs/compiler:gcc_or_qcc": "error: call to non-'constexpr' function 'void std::{}(I, I)".format(
+                    flavor,
+                ),
+            }),
+        ),
+        deps = [":testing_stdlib"],
+    )
+    for flavor in [
+        "stable_sort",
+        "sort",
+    ]
+]
+
+cc_build_error_test(
+    name = "ratio_with_zero_denominator_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/ratio"
+constexpr auto _ = std::ratio<1, 0>{};
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:arm_clang": "error: static_assert failed due to requirement '0LL != 0' \"Denominator of a ratio must not be 0",
+            "//configs/compiler:clang": "error: static assertion failed due to requirement '0L != 0': Denominator of a ratio must not be 0",
+            "//configs/compiler:gcc_or_qcc": "error: static assertion failed: Denominator of a ratio must not be 0",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "ratio_with_intmin_numerator_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/cstdint"
+#include "stdlib/include/limits"
+#include "stdlib/include/ratio"
+constexpr auto _ = std::ratio<std::numeric_limits<std::intmax_t>::min(), 1>{};
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:arm_clang": "error: static_assert failed due to requirement '-9223372036854775808LL != numeric_limits<long long>::min()' \"Numerator of ratio must have a representable absolute value",
+            "//configs/compiler:clang": "error: static assertion failed due to requirement '-9223372036854775808L != numeric_limits<long>::min()': Numerator of ratio must have a representable absolute value",
+            "//configs/compiler:gcc_or_qcc": "error: static assertion failed: Numerator of ratio must have a representable absolute value",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "ratio_with_intmin_denominator_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/cstdint"
+#include "stdlib/include/limits"
+#include "stdlib/include/ratio"
+constexpr auto _ = std::ratio<1, std::numeric_limits<std::intmax_t>::min()>{};
+"""),
+    compile_stderr = matcher.has_substr(
+        select({
+            "//configs/compiler:arm_clang": "error: static_assert failed due to requirement '-9223372036854775808LL != numeric_limits<long long>::min()' \"Denominator of ratio must have a representable absolute value",
+            "//configs/compiler:clang": "error: static assertion failed due to requirement '-9223372036854775808L != numeric_limits<long>::min()': Denominator of ratio must have a representable absolute value",
+            "//configs/compiler:gcc_or_qcc": "error: static assertion failed: Denominator of ratio must have a representable absolute value",
+        }),
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "ratio_multiply_out_of_bounds_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/cstdint"
+#include "stdlib/include/limits"
+#include "stdlib/include/ratio"
+using max_ratio = std::ratio<std::numeric_limits<std::intmax_t>::max(), 1>;
+constexpr auto _ = std::ratio_multiply<max_ratio, max_ratio>{};
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "(error: integer overflow in expression|note: value [0-9]+ is outside the range of representable values)",
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "ratio_divide_out_of_bounds_is_ill_formed_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/cstdint"
+#include "stdlib/include/limits"
+#include "stdlib/include/ratio"
+using max_ratio = std::ratio<std::numeric_limits<std::intmax_t>::max(), 1>;
+constexpr auto _ = std::ratio_divide<max_ratio, std::ratio<1, max_ratio::num>>{};
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "(error: integer overflow in expression|note: value [0-9]+ is outside the range of representable values)",
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "duration_with_duration_as_rep",
+    src = inline_src.cpp("""\
+#include "stdlib/include/chrono"
+#include "stdlib/include/ratio"
+constexpr auto _ = std::chrono::duration<std::chrono::duration<int, std::ratio<1>>, std::ratio<1>>{};
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "Rep must not be a specialization of std::chrono::duration",
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "duration_with_non_ratio_period",
+    src = inline_src.cpp("""\
+#include "stdlib/include/chrono"
+constexpr auto _ = std::chrono::duration<int, int>{};
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "Period must be a specialization of std::ratio",
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "duration_with_negative_period",
+    src = inline_src.cpp("""\
+#include "stdlib/include/chrono"
+#include "stdlib/include/ratio"
+constexpr auto _ = std::chrono::duration<int, std::ratio<-1>>{};
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "Period must be positive",
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "time_point_with_non_duration",
+    src = inline_src.cpp("""\
+#include "stdlib/include/chrono"
+struct dummy_clock {
+  using rep = long;
+  using period = std::ratio<1>;
+  using duration = std::chrono::duration<rep, period>;
+  using time_point = std::chrono::time_point<dummy_clock>;
+
+  static constexpr bool is_steady{true};
+
+  static constexpr auto now() noexcept -> time_point { return {}; }
+};
+
+constexpr auto _ = std::chrono::time_point<dummy_clock, int>{};
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "The Duration of a std::time_point must be an instance of std::chrono::duration",
+    ),
+    deps = [":testing_stdlib"],
+)

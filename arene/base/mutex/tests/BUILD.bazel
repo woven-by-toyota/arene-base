@@ -1,0 +1,44 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test")
+
+cc_test(
+    name = "lock_guard_test",
+    srcs = ["lock_guard_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:mutex",
+        "//arene/base/compiler_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "mutex_test",
+    srcs = ["mutex_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:mutex",
+        "//arene/base/compiler_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "timed_mutex_test",
+    srcs = ["timed_mutex_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:mutex",
+        "//arene/base/compiler_support",
+        "//testlibs:gtest",
+    ],
+)

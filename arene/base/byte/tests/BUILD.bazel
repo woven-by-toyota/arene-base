@@ -1,0 +1,43 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "byte_test",
+    srcs = ["byte_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/byte:internal",
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_destructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_trivially_copyable",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "byte_death_test",
+    srcs = ["byte_death_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/byte:internal",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
