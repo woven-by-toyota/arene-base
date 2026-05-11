@@ -1,0 +1,21 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+######
+# Configuration for Github Workflows
+#####
+
+# These options take precedence over workspace bazelrc options
+#
+# See the invoke-arene-run GitHub action and
+# https://bazel.build/run/bazelrc#bazelrc-file-locations
+
+common --announce_rc=true
+common --show_timestamps=true
+common --color=yes
+
+common --remote_upload_local_results=true
+common --remote_download_outputs=minimal
+
+test --cache_test_results=yes

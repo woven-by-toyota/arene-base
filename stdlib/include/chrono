@@ -1,0 +1,12 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_CHRONO_
+#define INCLUDE_GUARD_STDLIB_CHRONO_
+
+#include "stdlib/include/stdlib_detail/duration.hpp"    // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/time_point.hpp"  // IWYU pragma: export
+
+#endif  // INCLUDE_GUARD_STDLIB_CHRONO_

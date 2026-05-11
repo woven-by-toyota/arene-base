@@ -1,0 +1,31 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_ALGORITHM_
+#define INCLUDE_GUARD_STDLIB_ALGORITHM_
+
+#include "stdlib/include/stdlib_detail/adjacent_find.hpp"      // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/copy_n.hpp"             // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/count_if.hpp"           // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/find_if_not.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_sorted.hpp"          // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/iter_swap.hpp"          // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/lower_bound.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/max.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/max_element.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/min.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/min_element.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/minmax_element.hpp"     // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/move_algorithm.hpp"     // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/none_of.hpp"            // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/partial_sort_copy.hpp"  // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/remove_if.hpp"          // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/reverse.hpp"            // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/stable_sort.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/sort.hpp"               // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/unique.hpp"             // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/upper_bound.hpp"        // IWYU pragma: export
+
+#endif

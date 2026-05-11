@@ -1,0 +1,66 @@
+From e4ae0e4f382ad371a5d572c5a6306caa2c1b1eb9 Mon Sep 17 00:00:00 2001
+From: Oliver Lee <oliver.lee@woven-planet.global>
+Date: Tue, 28 Apr 2026 11:47:07 -0700
+Subject: [PATCH 2/2] honor root module's dev_dependency setting in `cu_nr`
+ extension
+
+The `cu_nr` extension previously always declared `cargo_bazel_bootstrap`
+(and other internal deps) as non-dev root direct deps via
+extension_metadata. For most users this is fine: they don't `use_repo`
+`cargo_bazel_bootstrap` directly, so the mismatch with a dev-only
+`cu_nr` usage never surfaces.
+
+However, Arene Base needs to override `cargo_bazel_bootstrap` in order to
+hard-code the linker path (our build environment doesn't expose `cc` on
+`PATH`, and the bootstrap can't use our hermetic toolchains because it
+runs during the loading phase). Overriding the repo requires
+`use_repo`'ing it, which then requires the dev-ness of the `use_repo` to
+match the extension's metadata declaration.
+
+In Arene Base, `rules_rust` is a dev_dependency (since Rust is only used
+for internal tooling and shouldn't leak into consumer module graphs),
+and Bazel rejects the configuration as inconsistent: the extension
+claims a non-dev root direct dep but the root has no non-dev usages.
+
+Fix this by branching on `module_ctx.root_module_has_non_dev_dependency`
+and placing the direct deps in the matching list. Users of `cu_nr` as a
+non-dev extension are unaffected; users of `cu_nr` as a dev-only
+extension can now `use_repo` `cargo_bazel_bootstrap` without the
+metadata check failing.
+---
+ .../private/internal_extensions.bzl           | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/crate_universe/private/internal_extensions.bzl b/crate_universe/private/internal_extensions.bzl
+index 98a8f26ef..9db73bf56 100644
+--- a/crate_universe/private/internal_extensions.bzl
++++ b/crate_universe/private/internal_extensions.bzl
+@@ -40,13 +40,18 @@ def _internal_non_reproducible_deps_impl(module_ctx):
+         compressed_windows_toolchain_names = False,
+     ))
+ 
+-    # is_dev_dep is ignored here. It's not relevant for internal_deps, as dev
+-    # dependencies are only relevant for module extensions that can be used
+-    # by other MODULES.
+-    return module_ctx.extension_metadata(
+-        root_module_direct_deps = [repo.repo for repo in direct_deps],
+-        root_module_direct_dev_deps = [],
+-    )
++    # Match however this extension is used in the root module
++    deps = [repo.repo for repo in direct_deps]
++    if module_ctx.root_module_has_non_dev_dependency:
++        return module_ctx.extension_metadata(
++            root_module_direct_deps = deps,
++            root_module_direct_dev_deps = [],
++        )
++    else:
++        return module_ctx.extension_metadata(
++            root_module_direct_deps = [],
++            root_module_direct_dev_deps = deps,
++        )
+ 
+ # This is named a single character to reduce the size of path names when running build scripts, to reduce the chance
+ # of hitting the 260 character windows path name limit.
+-- 
+2.44.1
+

@@ -1,0 +1,38 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "internal",
+    srcs = select({
+        "//configs:full_libc_enabled": ["contract.cpp"],
+        "//configs:full_libc_disabled": ["contract_restricted_libc.cpp"],
+    }),
+    hdrs = ["contract.hpp"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/contracts/detail",
+        "//arene/base/detail:raw_c_string",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:terminate",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "//arene/base/contracts/detail:package",
+    ] + glob(
+        ["contract*"],
+        allow_empty = False,
+    ),
+    visibility = ["//arene/base:__pkg__"],
+)

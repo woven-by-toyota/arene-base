@@ -1,0 +1,73 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "optional_test",
+    srcs = ["optional_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:string_view",
+        "//arene/base:utility",
+        "//arene/base/optional:internal",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:swap",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:has_broken_less_than",
+    ],
+)
+
+cc_test_with_variants(
+    name = "optional_exceptions_enabled_test",
+    srcs = ["optional_exceptions_enabled_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/optional:internal",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:nothrow_t",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/testing:gtest",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "optional_resetter_test",
+    srcs = ["optional_resetter_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:string_view",
+        "//arene/base/optional:internal",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

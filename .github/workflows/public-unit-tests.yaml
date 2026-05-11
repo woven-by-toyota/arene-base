@@ -1,0 +1,35 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+---
+name: Public unit tests
+run-name: Running public unit tests
+on:
+  push:
+    branches:
+      - main
+jobs:
+  ubuntu-default-compilers:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v5
+      - name: Install libc++
+        run: |
+          sudo apt update
+          sudo apt install -y libc++-dev libc++abi-dev
+      - name: >
+          Build and test //arene/base/... and //stdlib/... with default clang
+          and libc++
+        run: |
+          bazelisk \
+            --bazelrc=.github/ci.bazelrc \
+            test \
+            --keep_going \
+            --config=local_toolchain \
+            --action_env=CC=clang \
+            --copt=-stdlib=libc++ \
+            --linkopt=-lc++ \
+            -- \
+            //:everything //arene/base/... //stdlib/...

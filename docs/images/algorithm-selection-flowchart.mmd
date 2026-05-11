@@ -1,0 +1,157 @@
+---
+title: Algorithm Selection Flowchart
+config:
+  layout: elk
+  flowchart:
+    curve: step
+  elk:
+    nodePlacementStrategy: LINEAR_SEGMENTS
+---
+   flowchart LR
+
+   classDef base_algorithm fill:#fe7070
+   classDef std_algorithm fill:#6db1ff
+
+   subgraph Key
+       decision_example{"`Question`"}
+       base_example["`Algorithms from Arene Base`"]
+       std_example["`Algorithms from the C++ Standard Library`"]
+
+       class base_example base_algorithm;
+       class std_example std_algorithm;
+
+       decision_example -- "Option Description" --> base_example
+       decision_example -- "Option Description" --> std_example
+   end
+
+   top{"`Do you wish to operate on **individual values** or a **range**?`"}
+
+   range{"`Do you wish to **modify** a range, **query** a range without modifying it, or **create** a new range?`"}
+   single{"`What do you wish to do with the values?`"}
+
+   top -- "range" --> range
+   top -- "individual values" --> single
+
+   clamp["`**arene::base::clamp**`"]
+   swap["`**arene::base::swap**`"]
+   iter_swap["`**arene::base::iter_swap**`"]
+
+   class clamp,swap,iter_swap base_algorithm;
+
+   single -- "`Ensure a value is within specified limits, clamping out-of-range values to the limits`" --> clamp
+   single -- "`Swap specific elements`" --> swap
+   single -- "`Swap elements referred to by iterators`" --> iter_swap
+
+   modify{"`How do you wish to **modify** the range?`"}
+   query{"`What information do you wish to **query** from the range?`"}
+   create{"`How do you wish to **create** a new range from the old range?`"}
+
+   range -- "modify" --> modify
+   range -- "query" ---> query
+   range -- "create" --> create
+
+   sort["`**arene::base::sort**`"]
+   rotate["` **arene::base::rotate**`"]
+   fill["` **arene::base::fill**`"]
+   generate["` **std::generate**`"]
+   generate_n["` **std::generate_n**`"]
+   reverse["` **std::reverse**`"]
+   partition["`**std::partition**`"]
+   remove["`**std::remove**`"]
+   remove_if["`**std::remove_if**`"]
+   unique["`**std::unique**`"]
+
+   class sort,rotate,fill base_algorithm;
+   class generate,generate_n,reverse,partition,remove,remove_if,unique std_algorithm;
+
+   modify -- "**Sort** the range" --> sort
+   modify -- "**Rotate** the range" --> rotate
+   modify -- "**Fill** with copies of a single value" --> fill
+   modify -- "**Fill** with generated values" --> generate
+   modify -- "**Fill** with a specific number of generated values" --> generate_n
+   modify -- "**Reverse** the sequence of values" --> reverse
+   modify -- "**Partition** into elements before/after a chosen element" --> partition
+   modify -- "**Remove** elements that match a **specific value** by moving them to the end of the range" --> remove
+   modify -- "**Remove** elements that satisfy a **condition** by moving them to the end of the range" --> remove_if
+   modify -- "**Remove duplicate** elements by overwriting them, leaving moved-from elements at the end of the range" --> unique
+
+   element_properties{"`Which properties do you want to query?`"}
+   comparisons{"`How do you want to compare the ranges?`"}
+   searching{"`Which properties do you want to search for?`"}
+
+   query -- "`Query aggregate properties of the whole range`" ---> element_properties
+   query -- "`Compare the range as a whole against another range`" --> comparisons
+   query -- "`Find an element with specific properties`" --> searching
+
+   all_of["`**arene::base::all_of**`"]
+   any_of["`**arene::base::all_of**`"]
+   none_of["`**std::none_of**`"]
+   min["`**std::min**`"]
+   min_element["`**std::min_element**`"]
+   max["`**std::max**`"]
+   max_element["`**std::max_element**`"]
+   binary_search["`**std::binary_search**`"]
+   reduce["`**std::accumulate**`"]
+
+   class all_of,any_of,none_of base_algorithm;
+   class min,min_element,max,max_element,binary_search,reduce std_algorithm;
+
+   element_properties -- "`Do **all** elements meet a condition?`" --> all_of
+   element_properties -- "`Is there **at least one** element that meets a condition?`" --> any_of
+   element_properties -- "`Do **no** elements meet a condition?`" --> none_of
+   element_properties -- "`What is the **minimum** value?`" --> min
+   element_properties -- "`What is the **element** with minimum value?`" --> min_element
+   element_properties -- "`What is the **maximum** value?`" --> max
+   element_properties -- "`What is the **Element** with the maximum value?`" --> max_element
+   element_properties -- "`Is an element present in a sorted range?`" --> binary_search
+   element_properties -- "`What is the result of **reducing** a range to a single value using a binary operation (e.g. summation)`" --> reduce
+
+   equal["`**arene::base::equal**`"]
+   lexicographical_compare["`**arene::base::lexicographical_compare**`"]
+   lexicographical_compare_three_way["`**arene::base::lexicographical_compare_three_way**`"]
+
+   class equal,lexicographical_compare,lexicographical_compare_three_way base_algorithm;
+
+   comparisons -- "`Are they **equal**?`" --> equal
+   comparisons -- "`Is one **ordered before** the other?`" --> lexicographical_compare
+   comparisons -- "`Is one **ordered before, after, or the same as** the other?`" --> lexicographical_compare_three_way
+
+   find["`**arene::base::find**`"]
+   find_if["`**arene::base::find_if**`"]
+   find_if_not["`**std::find_if_not**`"]
+   search["`**std::search**`"]
+   search_n["`**std::search_n**`"]
+   lower_bound["`**std::lower_bound**`"]
+   upper_bound["`**std::upper_bound**`"]
+   equal_range["`**std::equal_range**`"]
+
+   class find,find_if base_algorithm;
+   class find_if_not,search,search_n,lower_bound,upper_bound,equal_range std_algorithm;
+
+   searching -- "`A **value**`" --> find
+   searching -- "`An element that satisfies a **condition**`" --> find_if
+   searching -- "`An element that **does not** satisfy a **condition**`" --> find_if_not
+   searching -- "`A **sequence**`" --> search
+   searching -- "`**Multiple identical** values`" --> search_n
+   searching -- "`The location of the **first** matching element, or the location where it would be, in a **sorted** range`" --> lower_bound
+   searching -- "`The after the **last** matching element, or the location after where it would be, in a **sorted** range`" --> upper_bound
+   searching -- "`The **subrange** of elements matching a value, in a **sorted** range`" --> equal_range
+
+   copy["`**arene::base::copy**`"]
+   copy_if["`**arene::base::copy_if**`"]
+   transform["`**arene::base::transform**`"]
+   move["`**arene::base::move**`"]
+   move_backward["`**arene::base::move_backward**`"]
+   partial_sum["`**std::partial_sum**`"]
+   adjacent_difference["`**std::adjacent_difference**`"]
+
+   class copy,copy_if,transform,move,move_backward base_algorithm;
+   class partial_sum,adjacent_difference std_algorithm;
+
+   create -- "`**Copy all** elements from one range to another`" --> copy
+   create -- "`**Copy** elements that meet a **condition** from one range to another`" --> copy_if
+   create -- "`Store elements that are the result of **transforming** the elements from the original range by calling a function`" --> transform
+   create -- "`**Move** all elements from one range to another`" --> move
+   create -- "`**Move** all elements from one range to another **in reverse order**`" --> move_backward
+   create -- "`Store the **partial sum** of elements in one range into another`" --> partial_sum
+   create -- "`Store the **difference** between adjacent elements in one range into another`" --> adjacent_difference

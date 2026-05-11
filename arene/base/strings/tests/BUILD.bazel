@@ -1,0 +1,219 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "inline_string_at_test",
+    srcs = [
+        "inline_string_at_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/strings:inline_string_internal",
+        "//arene/base/testing:gtest",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "inline_string_constexpr_test",
+    srcs = [
+        "inline_string_constexpr_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:type_traits",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_destructible",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/strings:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "inline_string_test",
+    srcs = [
+        "inline_string_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:array",
+        "//arene/base:optional",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_destructible",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:reverse",
+        "//arene/base/strings:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test_with_variants(
+    name = "inline_string_death_test",
+    srcs = [
+        "inline_string_death_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/strings:internal",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "inline_string_std_string_test",
+    srcs = [
+        "inline_string_std_string_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:optional",
+        "//arene/base/strings:inline_string_internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "inline_string_ref_at_test",
+    srcs = [
+        "inline_string_ref_at_test.cpp",
+    ],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/strings:inline_string_internal",
+        "//arene/base/testing:gtest",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "inline_string_ref_test",
+    srcs = [
+        "inline_string_ref_test.cpp",
+    ],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:compare",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/strings:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "inline_string_ref_std_string_test",
+    srcs = [
+        "inline_string_ref_std_string_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/strings:inline_string_internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "null_terminated_string_view_test",
+    srcs = [
+        "null_terminated_string_view_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/strings:null_terminated_string_view_internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "string_view_test",
+    srcs = [
+        "string_view_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:iterator",
+        "//arene/base/strings:string_view_internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "string_view_death_test",
+    srcs = [
+        "string_view_death_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/strings:string_view_internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

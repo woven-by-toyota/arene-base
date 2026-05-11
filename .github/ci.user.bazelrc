@@ -1,0 +1,10 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+# Unlike ci.home.bazelrc, these options are *NOT* used in Bazel-in-Bazel tests
+
+# # CI runners may use older OS versions with an older glibc than the default
+# toolchains_llvm toolchain requires. Override with a compatible toolchain to
+# avoid "GLIBC_2.XX not found" errors at runtime.
+build --@arene-base//configs:toolchains_llvm_toolchain_override="@llvm13_toolchain//:all"

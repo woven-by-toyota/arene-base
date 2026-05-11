@@ -1,0 +1,85 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "base_kind_set.hpp",
+        "combine_kinds.hpp",
+        "common_units.hpp",
+        "explicit_base_set.hpp",
+        "has_explicit_units.hpp",
+        "has_parent_kind.hpp",
+        "is_base_quantity_kind.hpp",
+        "is_explicit.hpp",
+        "is_implicit.hpp",
+        "is_kind_with_exponent.hpp",
+        "is_possible_unit_for.hpp",
+        "is_quantity_kind.hpp",
+        "is_unit.hpp",
+        "kind_with_exponent.hpp",
+        "kind_with_exponent_fwd.hpp",
+        "quantity.hpp",
+        "quantity_kind.hpp",
+        "quantity_origin.hpp",
+        "quantity_unit.hpp",
+        "scaled_unit.hpp",
+        "selected_unit_for.hpp",
+        "unit_kind.hpp",
+        "units_conversion_traits.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    hdrs = [":hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:math",
+        "//arene/base:type_info",
+        "//arene/base:type_list",
+        "//arene/base:type_traits",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/algorithm:transform",
+        "//arene/base/functional:bind_front",
+        "//arene/base/stdlib_choice:common_type",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_class",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:multiplies",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:ratio",
+        "//arene/base/stdlib_choice:remove_const",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/type_manipulation:consume_values",
+        "//arene/base/type_traits:conditional",
+        "//arene/base/units/detail:is_bipartite_match",
+        "//arene/base/units/detail:missing",
+        "//arene/base/units/detail:sum",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+        "//arene/base/units/detail:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

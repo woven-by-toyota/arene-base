@@ -1,0 +1,17 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_UTILITY_
+#define INCLUDE_GUARD_STDLIB_UTILITY_
+
+#include "stdlib/include/stdlib_detail/declval.hpp"           // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/exchange.hpp"          // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/forward.hpp"           // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/integer_sequence.hpp"  // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/move.hpp"              // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/pair.hpp"              // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/swap.hpp"              // IWYU pragma: export
+
+#endif

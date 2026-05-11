@@ -1,0 +1,77 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "are_exceptions_enabled_hdrs",
+    srcs = [
+        "are_exceptions_enabled.hpp",
+        "are_exceptions_enabled_disabled.hpp",
+        "are_exceptions_enabled_enabled.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "are_exceptions_enabled",
+    hdrs = [":are_exceptions_enabled_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+filegroup(
+    name = "mixin_at_hdrs",
+    srcs = [
+        "mixin_at.hpp",
+        "mixin_at_exceptions_disabled.hpp",
+        "mixin_at_exceptions_enabled.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "mixin_at",
+    hdrs = [":mixin_at_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":are_exceptions_enabled",
+    ] + select({
+        "//configs:exceptions_enabled": [
+            "//arene/base:constraints",
+            "//arene/base/stdlib_choice:declval",
+            "//arene/base/stdlib_choice:enable_if",
+            "//arene/base/stdlib_choice:move",
+            "//arene/base/stdlib_choice:stdexcept",
+        ],
+        "//configs:exceptions_disabled": [],
+    }),
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":are_exceptions_enabled",
+        ":mixin_at",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":are_exceptions_enabled_hdrs",
+        ":mixin_at_hdrs",
+    ],
+    visibility = ["//arene/base/detail:__pkg__"],
+)

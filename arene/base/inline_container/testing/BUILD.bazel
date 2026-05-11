@@ -1,0 +1,261 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "customization_hdrs",
+    srcs = [
+        "customization.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "customization",
+    testonly = True,
+    hdrs = [":customization_hdrs"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/inline_container/detail:iterator_interface",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_array",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_floating_point",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_signed",
+        "//arene/base/stdlib_choice:is_unsigned",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:make_signed",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_traits:remove_cvref",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+filegroup(
+    name = "unique_test_value_hdrs",
+    srcs = [
+        "unique_test_value.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "unique_test_value",
+    testonly = True,
+    hdrs = [":unique_test_value_hdrs"],
+    # IWYU removes a required forward declaration and I have not found a way to suppress
+    # https://github.com/include-what-you-use/include-what-you-use/issues/1573
+    tags = ["no-arene-iwyu"],
+    visibility = [":__subpackages__"],
+    deps = [
+        ":customization",
+        "//arene/base:type_info",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:terminate",
+        "//arene/base/type_traits:conditional",
+    ],
+)
+
+filegroup(
+    name = "default_constructible_properties_hdrs",
+    srcs = [
+        "default_constructible_properties.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "default_constructible_properties",
+    testonly = True,
+    hdrs = [":default_constructible_properties_hdrs"],
+    visibility = [":__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:type_info",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:terminate",
+        "//testlibs/utilities:constexpr_traits",
+    ],
+)
+
+filegroup(
+    name = "vector_hdrs",
+    srcs = [
+        "vector.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "vector",
+    testonly = True,
+    hdrs = [":vector_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        ":customization",
+        ":default_constructible_properties",
+        ":unique_test_value",
+        "//arene/base:array",
+        "//arene/base:optional",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/algorithm:equal",
+        "//arene/base/compiler_support",
+        "//arene/base/inline_container:vector",
+        "//arene/base/iterator:reverse_iterator",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_rvalue_reference",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:move_iterator",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:reference_wrapper",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_manipulation:consume_values",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/utility:swap",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+filegroup(
+    name = "external_vector_hdrs",
+    srcs = [
+        "external_vector.hpp",
+    ],
+)
+
+cc_library(
+    name = "external_vector",
+    testonly = True,
+    hdrs = [":external_vector_hdrs"],
+    tags = ["no-arene-iwyu"],  # build failure
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        ":customization",
+        "//arene/base:array",
+        "//arene/base:optional",
+        "//arene/base/compiler_support",
+        "//arene/base/inline_container:internal",
+        "//arene/base/testing:gtest",
+    ],
+)
+
+filegroup(
+    name = "deque_hdrs",
+    srcs = [
+        "deque.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "deque",
+    testonly = True,
+    hdrs = [":deque_hdrs"],
+    visibility = [
+        "//arene/base/inline_container:__subpackages__",
+    ],
+    deps = [
+        ":customization",
+        ":default_constructible_properties",
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base/algorithm:equal",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/inline_container:deque",
+        "//arene/base/iterator:distance",
+        "//arene/base/iterator:next",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_trivially_copyable",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_copyable",
+        "//arene/base/type_traits:is_implicitly_constructible",
+        "//arene/base/type_traits:is_movable",
+        "//arene/base/type_traits:iterator_category_traits",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_library(
+    name = "testing",
+    testonly = True,
+    visibility = [
+        "//:__pkg__",
+    ],
+    deps = [
+        ":deque",
+        ":external_vector",
+        ":vector",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":customization_hdrs",
+        ":default_constructible_properties_hdrs",
+        ":deque_hdrs",
+        ":external_vector_hdrs",
+        ":unique_test_value_hdrs",
+        ":vector_hdrs",
+    ],
+    visibility = ["//arene/base/inline_container:__pkg__"],
+)

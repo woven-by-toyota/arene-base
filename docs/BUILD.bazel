@@ -1,0 +1,7 @@
+exports_files(
+    [
+        "doxygen-awesome.css",
+        "doxygen-awesome-sidebar-only.css",
+    ],
+    visibility = ["//:__subpackages__"],
+)

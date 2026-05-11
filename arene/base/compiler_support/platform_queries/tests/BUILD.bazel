@@ -1,0 +1,253 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_test")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+load("//rules:transitions.bzl", "transition_use_exceptions")
+
+cc_test_with_variants(
+    name = "arene_debug_test",
+    srcs = ["arene_debug_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "asan_enabled_test",
+    srcs = ["asan_enabled_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "compiler_info_test",
+    srcs = ["compiler_info_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "coverage_info_test",
+    srcs = ["coverage_info_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_builtin_test",
+    srcs = ["has_builtin_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_builtin_abs_test",
+    srcs = ["has_builtin_abs_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_builtin_is_constant_evaluated_test",
+    srcs = ["has_builtin_is_constant_evaluated_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_inline_variables_test",
+    srcs = ["has_inline_variables_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_native_char8_t_test",
+    srcs = ["has_native_char8_t_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_starts_ends_with_test",
+    srcs = ["has_starts_ends_with_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_string_contains_test",
+    srcs = ["has_string_contains_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_native_string_view_test",
+    srcs = ["has_native_string_view_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_thread_safety_analysis_test",
+    srcs = ["has_thread_safety_analysis_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_uncaught_exceptions_test",
+    srcs = ["has_uncaught_exceptions_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "stdlib_info_arenecxx_off_if_toolchain_used_test",
+    srcs = ["stdlib_info_arenecxx_off_if_toolchain_used_test.cpp"],
+    local_defines = ["ARENE_TEST_MACRO=ARENE_IS_OFF"],
+    target_compatible_with = select({
+        "//configs:toolchain_stdlib_enabled": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "stdlib_info_arenecxx_on_if_toolchain_not_used_test",
+    srcs = ["stdlib_info_arenecxx_off_if_toolchain_used_test.cpp"],
+    local_defines = ["ARENE_TEST_MACRO=ARENE_IS_ON"],
+    target_compatible_with = select({
+        "//configs:toolchain_stdlib_disabled": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "stdlib_info_test",
+    srcs = ["stdlib_info_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_noexcept_function_type_test",
+    srcs = ["has_noexcept_function_type_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_builtin_atomic_test",
+    srcs = ["has_builtin_atomic_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_library_with_variants(
+    name = "exception_check_test_source",
+    testonly = True,
+    srcs = ["exceptions_enabled_or_disabled_test.cpp"],
+    cxxopts = select({
+        "//configs:exceptions_enabled": [""],
+        "//configs:exceptions_disabled": ["-fno-exceptions"],
+    }),
+    defines = select({
+        "//configs:exceptions_enabled": ["TEST_EXCEPTIONS_ENABLED=1"],
+        "//configs:exceptions_disabled": ["TEST_EXCEPTIONS_ENABLED=0"],
+    }),
+    deps = [
+        "//arene/base/compiler_support:internal",
+        "//testlibs:gtest",
+    ],
+    alwayslink = True,
+)
+
+transition_use_exceptions(
+    name = "exceptions_check_exceptions_disabled",
+    testonly = True,
+    src = ":exception_check_test_source",
+    value = False,
+)
+
+cc_test_with_variants(
+    name = "exceptions_disabled_by_flag",
+    deps = [
+        ":exceptions_check_exceptions_disabled",
+    ],
+)
+
+cc_test_with_variants(
+    name = "exceptions_default_for_platform",
+    deps = [
+        ":exception_check_test_source",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

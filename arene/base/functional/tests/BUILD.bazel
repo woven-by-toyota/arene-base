@@ -1,0 +1,121 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "bind_overloads_test",
+    srcs = ["bind_overloads_test.cpp"],
+    deps = [
+        "//arene/base:optional",
+        "//arene/base/functional:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "function_ref_test",
+    srcs = [
+        "function_ref_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/functional:internal",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:conditional",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "function_ref_death_test",
+    srcs = [
+        "function_ref_death_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/functional:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "function_traits_test",
+    srcs = [
+        "function_traits_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:type_list",
+        "//arene/base/functional:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "identity_test",
+    srcs = [
+        "identity_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/functional:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "invoke_test",
+    srcs = [
+        "invoke_test.cpp",
+    ],
+    # IWYU is suggesting forward includes even though the option is disabled.
+    # Possibly
+    # https://github.com/include-what-you-use/include-what-you-use/issues/1831
+    tags = ["no-arene-iwyu"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:exceptions",
+        "//arene/base/functional:internal",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:make_tuple",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:reference_wrapper",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_noexcept_part_of_function_type_test",
+    srcs = ["is_noexcept_part_of_function_type_test.cpp"],
+    deps = [
+        "//arene/base:functional",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

@@ -1,0 +1,11 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_LIMITS_
+#define INCLUDE_GUARD_STDLIB_LIMITS_
+
+#include "stdlib/include/stdlib_detail/numeric_limits.hpp"           // IWYU pragma: export
+
+#endif

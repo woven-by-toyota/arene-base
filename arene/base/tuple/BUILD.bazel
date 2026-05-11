@@ -1,0 +1,124 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "apply_hdrs",
+    srcs = ["apply.hpp"],
+)
+
+cc_library_with_variants(
+    name = "apply",
+    hdrs = [":apply_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:invoke",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple/detail:get",
+    ],
+)
+
+filegroup(
+    name = "for_each_hdrs",
+    srcs = ["for_each.hpp"],
+)
+
+cc_library_with_variants(
+    name = "for_each",
+    hdrs = [":for_each_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:monostate",
+        "//arene/base/functional:invoke",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple/detail:get",
+        "//arene/base/type_manipulation:consume_values",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+filegroup(
+    name = "tuple_cat_hdrs",
+    srcs = ["tuple_cat.hpp"],
+)
+
+cc_library_with_variants(
+    name = "tuple_cat",
+    hdrs = [":tuple_cat_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:integer_sequences",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:forward_as_tuple",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple/detail:as_type_list",
+        "//arene/base/tuple/detail:get",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_traits:all_of",
+        "//arene/base/type_traits:is_tuple_like",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "apply.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":apply",
+        ":for_each",
+        ":tuple_cat",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":apply_hdrs",
+        ":for_each_hdrs",
+        ":tuple_cat_hdrs",
+        "//arene/base/tuple/detail:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

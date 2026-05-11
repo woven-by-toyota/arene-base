@@ -1,0 +1,24 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+cc_test(
+    name = "impl_test",
+    srcs = ["impl_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/contracts/detail/stacktrace/noop",
+        "//arene/base/testing:gtest",
+        "//arene/base/testing/filesystem:create_temporary_directory",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

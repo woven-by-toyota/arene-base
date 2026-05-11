@@ -1,0 +1,5 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+#error "Include of standard library header <forward_list>"

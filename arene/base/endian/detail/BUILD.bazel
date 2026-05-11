@@ -1,0 +1,46 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "byte_swap16.hpp",
+        "byte_swap16_bswap16.hpp",
+        "byte_swap16_raw.hpp",
+        "byte_swap32.hpp",
+        "byte_swap32_bswap32.hpp",
+        "byte_swap32_raw.hpp",
+        "byte_swap64.hpp",
+        "byte_swap64_bswap64.hpp",
+        "byte_swap64_raw.hpp",
+        "byte_swap_constants.hpp",
+        "endian_generic_impl.hpp",
+        "endian_specified_byte_order_impl.hpp",
+        "endian_windows_impl.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "detail",
+    hdrs = [":hdrs"],
+    visibility = [
+        "//arene/base/endian:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:common_type",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+    ],
+    visibility = ["//arene/base/endian:__pkg__"],
+)

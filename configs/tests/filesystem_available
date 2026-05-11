@@ -1,0 +1,26 @@
+#!/bin/bash
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+set -e
+
+echo "Checking filesystem is in :everything"
+# shellcheck disable=SC2086
+result=$(bazelisk $BAZEL_STARTUP_OPTION cquery "--config=${COMPILER}" --copt "-std=${CPP_VERSION}" \
+  'somepath(//:everything, //arene/base/filesystem:internal)' --noshow_progress)
+
+if [[ -z "$result" ]]; then
+  echo "Missing package"
+  exit 1
+fi
+
+echo "Checking filesystem supported explicitly"
+# shellcheck disable=SC2086
+result=$(bazelisk $BAZEL_STARTUP_OPTION cquery "--config=${COMPILER}" --copt "-std=${CPP_VERSION}" \
+  'somepath(//:filesystem, //arene/base/filesystem:internal)' --noshow_progress)
+
+if [[ -z "$result" ]]; then
+  echo "Missing package"
+  exit 1
+fi

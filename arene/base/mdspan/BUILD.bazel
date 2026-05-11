@@ -1,0 +1,408 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+package(default_visibility = [
+    "//arene/base:__subpackages__",
+])
+
+cc_library_with_variants(
+    name = "default_accessor",
+    hdrs = ["default_accessor.hpp"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_abstract",
+        "//arene/base/stdlib_choice:is_array",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_object",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_accessor_policy",
+    hdrs = ["is_accessor_policy.hpp"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_abstract",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/type_traits:is_copyable",
+        "//arene/base/type_traits:is_swappable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "extents",
+    hdrs = ["extents.hpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:span",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/functional:not_fn",
+        "//arene/base/mdspan/detail:deduced_static_extent",
+        "//arene/base/mdspan/detail:extent_sequence",
+        "//arene/base/mdspan/detail:extract_dynamic_extents_for",
+        "//arene/base/mdspan/detail:to_array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/type_traits:all_of",
+        "//arene/base/type_traits:remove_cvref",
+        "//arene/base/utility:safe_comparisons",
+    ],
+)
+
+cc_library_with_variants(
+    name = "full_extent",
+    hdrs = ["full_extent.hpp"],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_layout_mapping",
+    hdrs = ["is_layout_mapping.hpp"],
+    deps = [
+        ":extents",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_copyable",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_submdspan_slice",
+    hdrs = ["is_submdspan_slice.hpp"],
+    deps = [
+        ":full_extent",
+        ":slice",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/type_traits:is_instantiation_of",
+        "//arene/base/type_traits:is_tuple_like",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_sliceable_mapping",
+    hdrs = ["is_sliceable_mapping.hpp"],
+)
+
+cc_library_with_variants(
+    name = "layout_stride",
+    hdrs = ["layout_stride.hpp"],
+    deps = [
+        ":is_layout_mapping",
+        ":is_sliceable_mapping",
+        ":submdspan_extents",
+        ":submdspan_mapping_result",
+        ":submdspan_subextents_type",
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:span",
+        "//arene/base/mdspan/detail:all_valid_submdspan_slice_types_for",
+        "//arene/base/mdspan/detail:layout_common",
+        "//arene/base/mdspan/detail:strided_mapping_base",
+        "//arene/base/mdspan/detail:submdspan_offset",
+        "//arene/base/mdspan/detail:submdspan_sub_strides",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/utility:safe_comparisons",
+    ],
+)
+
+cc_library_with_variants(
+    name = "layout_right",
+    hdrs = ["layout_right.hpp"],
+    deps = [
+        ":is_sliceable_mapping",
+        ":submdspan_subextents_type",
+        "//arene/base:constraints",
+        "//arene/base/mdspan/detail:all_valid_submdspan_slice_types_for",
+        "//arene/base/mdspan/detail:is_submdspan_layout_preserving",
+        "//arene/base/mdspan/detail:layout_common",
+        "//arene/base/mdspan/detail:strided_mapping_base",
+        "//arene/base/mdspan/detail:submdspan_mapping_impl",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:move",
+    ],
+)
+
+cc_library_with_variants(
+    name = "layout_left",
+    hdrs = ["layout_left.hpp"],
+    deps = [
+        ":is_sliceable_mapping",
+        ":submdspan_subextents_type",
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/mdspan/detail:all_valid_submdspan_slice_types_for",
+        "//arene/base/mdspan/detail:checked_math",
+        "//arene/base/mdspan/detail:is_submdspan_layout_preserving",
+        "//arene/base/mdspan/detail:layout_common",
+        "//arene/base/mdspan/detail:strided_mapping_base",
+        "//arene/base/mdspan/detail:submdspan_mapping_impl",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:move",
+    ],
+)
+
+cc_library_with_variants(
+    name = "layout",
+    hdrs = ["layout.hpp"],
+    deps = [
+        ":layout_left",
+        ":layout_right",
+        ":layout_stride",
+    ],
+)
+
+cc_library_with_variants(
+    name = "mdspan",
+    hdrs = ["mdspan.hpp"],
+    deps = [
+        ":default_accessor",
+        ":extents",
+        ":is_accessor_policy",
+        ":layout",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/mdspan/detail:representable_cast",
+        "//arene/base/mdspan/detail:tuple_span",
+        "//arene/base/stdlib_choice:common_type",
+        "//arene/base/tuple:apply",
+        "//arene/base/utility:safe_comparisons",
+        "//arene/base/utility:swap",
+    ],
+)
+
+cc_library_with_variants(
+    name = "make_mdspan",
+    hdrs = ["make_mdspan.hpp"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":extents",
+        ":mdspan",
+        "//arene/base:array",
+        "//arene/base:span",
+        "//arene/base:type_traits",
+        "//arene/base/mdspan/detail:deduced_static_extent",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:extent",
+        "//arene/base/stdlib_choice:is_array",
+        "//arene/base/stdlib_choice:is_pointer",
+        "//arene/base/stdlib_choice:rank",
+        "//arene/base/stdlib_choice:remove_all_extents",
+        "//arene/base/stdlib_choice:remove_pointer",
+        "//arene/base/stdlib_choice:remove_reference",
+    ],
+)
+
+cc_library_with_variants(
+    name = "slice",
+    hdrs = ["slice.hpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/type_traits:is_integral_constant_like",
+    ],
+)
+
+cc_library_with_variants(
+    name = "submdspan_canonicalize_slices",
+    hdrs = ["submdspan_canonicalize_slices.hpp"],
+    deps = [
+        ":extents",
+        ":is_submdspan_slice",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/mdspan/detail:canonical_slice",
+        "//arene/base/mdspan/detail:is_valid_submdspan_slice_for",
+        "//arene/base/mdspan/detail:is_valid_submdspan_slice_type_for",
+        "//arene/base/mdspan/detail:mandate_each_argtype_is_submdspan_slice",
+        "//arene/base/mdspan/detail:to_array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:logical_and",
+        "//arene/base/stdlib_choice:make_tuple",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/tuple/detail:tuple_transform_reduce",
+        "//arene/base/type_traits:all_of",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "submdspan_extents",
+    hdrs = ["submdspan_extents.hpp"],
+    deps = [
+        ":extents",
+        ":full_extent",
+        ":slice",
+        ":submdspan_canonicalize_slices",
+        ":submdspan_subextents_type",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/mdspan/detail:canonical_slice",
+        "//arene/base/mdspan/detail:mandate_each_argtype_is_submdspan_slice",
+        "//arene/base/mdspan/detail:map_rank",
+        "//arene/base/mdspan/detail:to_array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/tuple/detail:get",
+        "//arene/base/tuple/detail:tuple_transform",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "submdspan_mapping_result",
+    hdrs = ["submdspan_mapping_result.hpp"],
+    deps = [
+        ":is_layout_mapping",
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+cc_library_with_variants(
+    name = "submdspan_subextents_type",
+    hdrs = ["submdspan_subextents_type.hpp"],
+    deps = [
+        ":extents",
+        ":full_extent",
+        ":slice",
+        "//arene/base/mdspan/detail:canonical_slice",
+        "//arene/base/mdspan/detail:deduced_static_extent",
+        "//arene/base/mdspan/detail:is_valid_submdspan_slice_type_for",
+        "//arene/base/mdspan/detail:map_rank",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/type_list",
+        "//arene/base/type_list:at",
+        "//arene/base/type_traits:all_of",
+    ],
+)
+
+cc_library_with_variants(
+    name = "submdspan",
+    hdrs = ["submdspan.hpp"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":is_sliceable_mapping",
+        ":is_submdspan_slice",
+        ":mdspan",
+        ":submdspan_canonicalize_slices",
+        ":submdspan_extents",
+        ":submdspan_mapping_result",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_front",
+        "//arene/base/mdspan/detail:canonical_slice",
+        "//arene/base/mdspan/detail:do_submdspan_mapping",
+        "//arene/base/mdspan/detail:mandate_each_argtype_is_submdspan_slice",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/tuple:apply",
+        "//arene/base/tuple/detail:get",
+        "//arene/base/type_traits:all_of",
+        "//arene/base/type_traits:is_instantiation_of",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    deps = [
+        ":default_accessor",
+        ":extents",
+        ":full_extent",
+        ":is_accessor_policy",
+        ":is_layout_mapping",
+        ":is_submdspan_slice",
+        ":layout",
+        ":make_mdspan",
+        ":mdspan",
+        ":slice",
+        ":submdspan",
+        ":submdspan_canonicalize_slices",
+        ":submdspan_mapping_result",
+        ":submdspan_subextents_type",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = ["BUILD.bazel"] + glob(["*.hpp"]) + [
+        "//arene/base/mdspan/detail:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

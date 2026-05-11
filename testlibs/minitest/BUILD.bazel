@@ -1,0 +1,186 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+selects.config_setting_group(
+    name = "death_tests_supported",
+    match_any = [
+        "//testlibs:death_tests_supported",
+    ],
+    visibility = [":__subpackages__"],
+)
+
+
+filegroup(
+    name = "assertion_strings_hdrs",
+    srcs = ["assertion_strings.hpp"],
+)
+
+cc_library_with_variants(
+    name = "assertion_strings",
+    hdrs = [":assertion_strings_hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base/testing:__pkg__",
+    ],
+)
+
+filegroup(
+    name = "cstring_hdrs",
+    srcs = ["cstring.hpp"],
+)
+
+cc_library_with_variants(
+    name = "cstring",
+    hdrs = [":cstring_hdrs"],
+    visibility = [":__subpackages__"],
+)
+
+filegroup(
+    name = "line_number_hdrs",
+    srcs = ["line_number.hpp"],
+)
+
+cc_library_with_variants(
+    name = "line_number",
+    hdrs = [":line_number_hdrs"],
+    visibility = [":__subpackages__"],
+)
+
+filegroup(
+    name = "source_location_hdrs",
+    srcs = ["source_location.hpp"],
+)
+
+cc_library_with_variants(
+    name = "source_location",
+    hdrs = [":source_location_hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base/testing:__pkg__",
+    ],
+    deps = [
+        ":line_number",
+    ],
+)
+
+filegroup(
+    name = "test_context_hdrs",
+    srcs = ["test_context.hpp"],
+)
+
+cc_library_with_variants(
+    name = "test_context",
+    hdrs = [":test_context_hdrs"],
+    visibility = [":__subpackages__"],
+    deps = [
+        ":line_number",
+    ],
+)
+
+filegroup(
+    name = "type_name_hdrs",
+    srcs = ["type_name.hpp"],
+)
+
+cc_library_with_variants(
+    name = "type_name",
+    hdrs = [":type_name_hdrs"],
+    visibility = [":__subpackages__"],
+    deps = [":cstring"],
+)
+
+filegroup(
+    name = "libc_srcs",
+    srcs = [
+        "libc.hpp",
+        "libc_armv8-r/libc.cpp",
+        "libc_default/libc.cpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "libc",
+    srcs = select({
+        "//configs/compiler:arm_clang": [
+            "libc_armv8-r/libc.cpp",
+        ],
+        "//conditions:default": [
+            "libc_default/libc.cpp",
+        ],
+    }),
+    hdrs = ["libc.hpp"],
+    visibility = [":__subpackages__"],
+    deps = select({
+        "//conditions:default": [
+        ],
+    }),
+)
+
+filegroup(
+    name = "minitest_srcs",
+    srcs = [
+        "death_tests.hpp",
+        "functional.hpp",
+        "matcher.hpp",
+        "minitest.cpp",
+        "minitest_output.cpp",
+        "minitest_output.hpp",
+        "utility.hpp",
+    ],
+)
+
+filegroup(
+    name = "minitest_hdrs",
+    srcs = [
+        "minitest.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "minitest",
+    srcs = [":minitest_srcs"],
+    hdrs = [":minitest_hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":assertion_strings",
+        ":cstring",
+        ":libc",
+        ":line_number",
+        ":source_location",
+        ":test_context",
+        ":type_name",
+        "//testlibs/minitest/detail:death_tests",
+    ],
+)
+
+cc_library_with_variants(
+    name = "public",
+    hdrs = [":minitest_hdrs"],
+    include_prefix = "minitest/",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":minitest",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":assertion_strings_hdrs",
+        ":cstring_hdrs",
+        ":libc_srcs",
+        ":line_number_hdrs",
+        ":minitest_hdrs",
+        ":minitest_srcs",
+        ":source_location_hdrs",
+        ":test_context_hdrs",
+        ":type_name_hdrs",
+        "//testlibs/minitest/detail:package",
+    ],
+    visibility = ["//testlibs:__pkg__"],
+)

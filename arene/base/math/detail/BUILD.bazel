@@ -1,0 +1,64 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+filegroup(
+    name = "abs_hdrs",
+    srcs = [
+        "builtin_abs_float.hpp",
+        "custom_abs_float.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "abs",
+    hdrs = [":abs_hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base/math:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/math:float_properties",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_floating_point",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+filegroup(
+    name = "abs_if_needed_hdrs",
+    srcs = ["abs_if_needed.hpp"],
+)
+
+cc_library_with_variants(
+    name = "abs_if_needed",
+    hdrs = [":abs_if_needed_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/math:abs",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_arithmetic",
+        "//arene/base/stdlib_choice:remove_reference",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":abs_hdrs",
+        ":abs_if_needed_hdrs",
+    ],
+    visibility = ["//arene/base:__subpackages__"],
+)

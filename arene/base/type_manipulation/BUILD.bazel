@@ -1,0 +1,197 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "consume_values_hdrs",
+    srcs = ["consume_values.hpp"],
+)
+
+cc_library_with_variants(
+    name = "consume_values",
+    hdrs = [":consume_values_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+filegroup(
+    name = "ebo_holder_hdrs",
+    srcs = ["ebo_holder.hpp"],
+)
+
+cc_library_with_variants(
+    name = "ebo_holder",
+    hdrs = [":ebo_holder_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_class",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_final",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_list",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+filegroup(
+    name = "give_qualifiers_to_hdrs",
+    srcs = ["give_qualifiers_to.hpp"],
+)
+
+cc_library_with_variants(
+    name = "give_qualifiers_to",
+    hdrs = [":give_qualifiers_to_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":static_if",
+    ],
+)
+
+filegroup(
+    name = "implicit_constructor_base_hdrs",
+    srcs = ["implicit_constructor_base.hpp"],
+)
+
+cc_library_with_variants(
+    name = "implicit_constructor_base",
+    hdrs = [":implicit_constructor_base_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:is_constructible",
+    ],
+)
+
+filegroup(
+    name = "non_constructible_dummy_hdrs",
+    srcs = ["non_constructible_dummy.hpp"],
+)
+
+cc_library_with_variants(
+    name = "non_constructible_dummy",
+    hdrs = [":non_constructible_dummy_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "repeat_type_hdrs",
+    srcs = ["repeat_type.hpp"],
+)
+
+cc_library_with_variants(
+    name = "repeat_type",
+    hdrs = [":repeat_type_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+filegroup(
+    name = "smallest_integer_for_hdrs",
+    srcs = ["smallest_integer_for.hpp"],
+)
+
+cc_library_with_variants(
+    name = "smallest_integer_for",
+    hdrs = [":smallest_integer_for_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/type_traits:conditional",
+    ],
+)
+
+filegroup(
+    name = "static_if_hdrs",
+    srcs = ["static_if.hpp"],
+)
+
+cc_library_with_variants(
+    name = "static_if",
+    hdrs = [":static_if_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+    ],
+    deps = [
+        ":consume_values",
+        ":ebo_holder",
+        ":give_qualifiers_to",
+        ":implicit_constructor_base",
+        ":non_constructible_dummy",
+        ":repeat_type",
+        ":smallest_integer_for",
+        ":static_if",
+    ],
+)
+
+cc_library_with_variants(
+    name = "type_manipulation",
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":internal",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":consume_values_hdrs",
+        ":ebo_holder_hdrs",
+        ":give_qualifiers_to_hdrs",
+        ":implicit_constructor_base_hdrs",
+        ":non_constructible_dummy_hdrs",
+        ":repeat_type_hdrs",
+        ":smallest_integer_for_hdrs",
+        ":static_if_hdrs",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

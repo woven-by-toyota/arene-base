@@ -1,0 +1,16 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+///
+/// @file bit.hpp
+/// @brief Public export header for the bit subpackage
+///
+#ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_BIT_HPP_
+#define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_BIT_HPP_
+
+// parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
+#include "arene/base/bit/bit_cast.hpp"  // IWYU pragma: export
+// parasoft-end-suppress AUTOSAR-A16_2_2-a-2
+
+#endif  // INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_BIT_HPP_
