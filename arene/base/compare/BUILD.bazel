@@ -1,0 +1,102 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "compare_three_way_hdrs",
+    srcs = ["compare_three_way.hpp"],
+)
+
+cc_library_with_variants(
+    name = "compare_three_way",
+    hdrs = [":compare_three_way_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":strong_ordering",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:equal_to",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_pointer",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:less",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/utility:safe_comparisons",
+    ],
+)
+
+filegroup(
+    name = "operators_hdrs",
+    srcs = ["operators.hpp"],
+)
+
+cc_library_with_variants(
+    name = "operators",
+    hdrs = [":operators_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":compare_three_way",
+        ":strong_ordering",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/type_traits:comparison_traits",
+    ],
+)
+
+filegroup(
+    name = "strong_ordering_hdrs",
+    srcs = ["strong_ordering.hpp"],
+)
+
+cc_library_with_variants(
+    name = "strong_ordering",
+    hdrs = [":strong_ordering_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:contracts",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_transparent_comparator_for",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":compare_three_way",
+        ":operators",
+        ":strong_ordering",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":compare_three_way_hdrs",
+        ":operators_hdrs",
+        ":strong_ordering_hdrs",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

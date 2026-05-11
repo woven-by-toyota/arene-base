@@ -1,0 +1,159 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "null_terminated_string_view_hdrs",
+    srcs = [
+        "null_terminated_string_view.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "null_terminated_string_view_internal",
+    hdrs = [":null_terminated_string_view_hdrs"],
+    visibility = [
+        ":__subpackages__",
+    ],
+    deps = [
+        ":string_view_internal",
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:iterator",
+        "//arene/base:span",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:string",
+        "//arene/base/strings/detail:null_terminated_string_view",
+    ],
+)
+
+filegroup(
+    name = "string_view_hdrs",
+    srcs = [
+        "string_view.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "string_view_internal",
+    srcs = ["//arene/base/strings/detail:string_view_srcs"],
+    hdrs = [":string_view_hdrs"],
+    visibility = [
+        ":__subpackages__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:iterator",
+        "//arene/base:span",
+        "//arene/base:utility",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:min",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:string",
+        "//arene/base/strings/detail:string_view",
+    ],
+)
+
+cc_library_with_variants(
+    name = "string_view",
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":null_terminated_string_view_internal",
+        ":string_view_internal",
+    ],
+)
+
+filegroup(
+    name = "inline_string_hdrs",
+    srcs = [
+        "inline_string.hpp",
+        "inline_string_reference.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "inline_string_internal",
+    hdrs = [":inline_string_hdrs"],
+    visibility = [
+        ":__subpackages__",
+    ],
+    deps = [
+        ":string_view",
+        "//arene/base:array",
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:iterator",
+        "//arene/base:math",
+        "//arene/base:optional",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:exceptions",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:min",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/strings/detail:inline_string",
+        "//arene/base/type_manipulation",
+    ],
+)
+
+cc_library_with_variants(
+    name = "inline_string",
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":inline_string_internal",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":inline_string",
+        ":string_view",
+        "//arene/base/strings/algorithm",
+        "//arene/base/strings/format:to_inline_string",
+        "//arene/base/strings/utf",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":inline_string_hdrs",
+        ":null_terminated_string_view_hdrs",
+        ":string_view_hdrs",
+        "//arene/base/strings/algorithm:package",
+        "//arene/base/strings/detail:package",
+        "//arene/base/strings/format:package",
+        "//arene/base/strings/utf:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

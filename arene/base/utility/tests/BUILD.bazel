@@ -1,0 +1,163 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_test(
+    name = "alignment_death_test",
+    srcs = ["alignment_death_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/utility:alignment",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "alignment_test",
+    srcs = ["alignment_test.cpp"],
+    deps = [
+        "//arene/base:byte",
+        "//arene/base:tuple",
+        "//arene/base/math:log2",
+        "//arene/base/math:power_of_2",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:make_tuple",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:remove_duplicates",
+        "//arene/base/utility:alignment",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "as_const_test",
+    srcs = [
+        "as_const_test.cpp",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:as_const",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "forward_like_test",
+    srcs = ["forward_like_test.cpp"],
+    deps = [
+        "//arene/base:type_list",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:add_lvalue_reference",
+        "//arene/base/stdlib_choice:add_rvalue_reference",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_lvalue_reference",
+        "//arene/base/stdlib_choice:is_rvalue_reference",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:forward_like",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "in_place_test",
+    srcs = ["in_place_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:is_trivially_copyable",
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:in_place",
+        "//testlibs:gtest",
+    ],
+)
+
+# Cannot use cc_test_with_variants because it heavily relies on gmock features.
+cc_test(
+    name = "make_subrange_test",
+    srcs = ["make_subrange_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:make_subrange",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "safe_comparisons_test",
+    srcs = ["safe_comparisons_test.cpp"],
+    deps = [
+        "//arene/base:type_list",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:safe_comparisons",
+        "//testlibs:gtest",
+    ],
+)
+
+# Cannot use cc_test_with_variants because it heavily relies on gmock features.
+cc_test(
+    name = "swap_test",
+    srcs = ["swap_test.cpp"],
+    deps = [
+        "//arene/base:byte",
+        "//arene/base:type_list",
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:swap",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "to_underlying_test",
+    srcs = ["to_underlying_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/utility:to_underlying",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
+cc_build_error_test(
+    name = "forward_like_ill_formed_with_non_referenceable_type_test",
+    src = inline_src.cpp(
+        """\
+#include "arene/base/utility/forward_like.hpp"
+
+auto main() -> int
+{
+  arene::base::forward_like<void>(0);
+}
+""",
+    ),
+    compile_stderr = matcher.contains_extended_regex(
+        "error: (cannot form a reference|forming reference)",
+    ),
+    deps = [
+        "//arene/base/utility:forward_like",
+    ],
+)

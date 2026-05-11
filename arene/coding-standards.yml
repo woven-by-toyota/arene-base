@@ -1,0 +1,217 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+# yamllint disable rule:document-start
+# yamllint disable rule:line-length
+# Rules are disabled to meet deviation file requirements
+# Deviation files must follow the format defined by CodeQL
+# Reference: https://github.com/github/codeql-coding-standards/blob/main/docs/user_manual.md
+
+# deviation template
+# mandatory fields are marked
+# - rule-id: mandatory
+#   query-id: mandatory
+#   justification: mandatory
+#   scope:
+#   background:
+#   requirements:
+#   paths:
+#   code-identifier:
+#   permit-id:
+#   raised-by:
+#     name:
+#     id:
+#   approved by:
+#     name:
+#     id:
+
+# Example:
+# deviations:
+# - rule-id: "A18-1-1"
+#   query-id: "cpp/autosar/c-style-arrays-used"
+#   justification: "C-style arrays are required for compatibility with the X third-party library."
+# - rule-id: "A18-5-1"
+#   query-id: "cpp/autosar/functions-malloc-calloc-realloc-and-free-used"
+#   justification: "malloc used in adopted code."
+#   paths:
+#    - "foo/bar"
+# - rule-id: A0-4-2
+#     justification: "long double is required for interaction with third-party libraries."
+#     code-identifier: a-0-4-2-deviation
+
+deviations:
+  - rule-id: "CWE-570"
+    query-id: "cpp/incorrect-allocation-error-handling"
+    justification:
+      "False positives on placement-new construction, where error handling is
+      for the ctor of the constructed object not the allocation"
+    code-identifier: CODEQLFP(CWE-570-allocation-error-handling)
+    #
+  - rule-id: "CTR55-CPP"
+    query-id: "cpp/cert/do-not-use-an-additive-operator-on-an-iterator"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/374"
+    code-identifier: CODEQLFP(CTR55-CPP)
+    #
+  - rule-id: "DCL51-CPP"
+    query-id: "cpp/cert/object-reuses-reserved-name"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/148"
+    code-identifier: CODEQLFP(DCL51-CPP)
+    #
+  - rule-id: "DCL51-CPP"
+    query-id: "cpp/cert/function-reuses-reserved-name"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/148"
+    code-identifier: CODEQLFP(DCL51-CPP)
+    #
+  - rule-id: "EXP52-CPP"
+    query-id: "cpp/cert/do-not-rely-on-side-effects-in-type-id-operand"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/369"
+    code-identifier: CODEQLFP(EXP52-CPP)
+    #
+  - rule-id: "A0-1-1"
+    query-id: "cpp/autosar/useless-assignment"
+    justification: "False positive"
+    code-identifier: CODEQLFP(A0-1-1)
+    #
+  - rule-id: "A4-7-1"
+    query-id: "cpp/autosar/integer-expression-lead-to-data-loss"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/396"
+    code-identifier: CODEQLFP(A4-7-1)
+    #
+  - rule-id: "A5-0-2"
+    query-id: "cpp/autosar/non-boolean-iteration-condition"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/373"
+    code-identifier: CODEQLFP(A5-0-2)
+    #
+  - rule-id: "A5-1-1"
+    query-id: "cpp/autosar/literal-value-used-outside-type-init"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/371"
+    code-identifier: CODEQLFP(A5-1-1)
+    #
+  - rule-id: "A5-2-6"
+    query-id: "cpp/autosar/operands-of-a-logical-and-or-not-parenthesized"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/231"
+    code-identifier: CODEQLFP(A5-2-6)
+    #
+  - rule-id: "M5-3-1"
+    query-id: "cpp/autosar/each-operand-of-the-operator-the-logical-and-or-the-logical-operators-shall-have-type-bool"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/373"
+    code-identifier: CODEQLFP(M5-3-1)
+    #
+  - rule-id: "M5-3-3"
+    query-id: "cpp/autosar/unary-operator-overloaded"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/363"
+    code-identifier: CODEQLFP(M5-3-3)
+    #
+  - rule-id: "M5-14-1"
+    query-id: "cpp/autosar/right-hand-operand-of-a-logical-and-operators-contain-side-effects"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/375"
+    code-identifier: CODEQLFP(M5-14-1)
+    #
+  - rule-id: "M6-5-5"
+    query-id: "cpp/autosar/loop-control-variable-modified-in-loop-condition"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/380"
+    code-identifier: CODEQLFP(M6-5-5)
+    #
+  - rule-id: "A7-1-1"
+    query-id: "cpp/autosar/declaration-unmodified-object-missing-const-specifier"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/367"
+    code-identifier: CODEQLFP(A7-1-1)
+    #
+  - rule-id: "A7-1-1"
+    query-id: "cpp/autosar/declaration-unmodified-param-missing-const-specifier"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/367"
+    code-identifier: CODEQLFP(A7-1-1)
+    #
+  - rule-id: "A7-1-2"
+    query-id: "cpp/autosar/variable-missing-constexpr"
+    justification: "False positive"
+    code-identifier: CODEQLFP(A7-1-2)
+    #
+  - rule-id: "A7-1-5"
+    query-id: "cpp/autosar/auto-specifier-not-used-appropriately-in-function-definition"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/395"
+    code-identifier: CODEQLFP(A7-1-5)
+    #
+  - rule-id: "M7-3-6"
+    query-id: "cpp/autosar/using-declarations-used-in-header-files"
+    justification:
+      "The using declarations are used for backwards compatibility. The old
+      arene::foo implementations have been moved to arene::base::foo, which are
+      now accessed by #include <arene/base/foo.hpp> rather than #include
+      <arene/foo.hpp>. The backwards compatibility headers are accessed by the
+      old names #include <arene/foo.hpp> and used to reintroduce the names back
+      to the arene namespace, so that existing code doesn't need to change.
+      These headers are the only place these names are introduced into the arene
+      namespace."
+    code-identifier: CODEQLDEV(M7-3-6-back-compat)
+    raised-by:
+      name: "@anthony-williams_stargate"
+      date: "October 24, 2023"
+    approved-by:
+      name: "@anthony-williams_stargate"
+      date: "October 24, 2023"
+      #
+  - rule-id: "M8-5-2"
+    query-id: "cpp/autosar/nested-zero-value-initialization"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/393"
+    code-identifier: CODEQLFP(M8-5-2)
+    #
+  - rule-id: "M8-5-2"
+    query-id: "cpp/autosar/missing-explicit-initializers"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/393"
+    code-identifier: CODEQLFP(M8-5-2)
+    #
+  - rule-id: "M9-3-3"
+    query-id: "cpp/autosar/member-function-const-if-possible"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/381"
+    code-identifier: CODEQLFP(M9-3-3)
+    #
+  - rule-id: "M9-3-3"
+    query-id: "cpp/autosar/member-function-static-if-possible"
+    justification:
+      "False positive:
+      https://github.com/github/codeql-coding-standards/issues/381"
+    code-identifier: CODEQLFP(M9-3-3)
+    #
+  - rule-id: "A15-4-4"
+    query-id: "cpp/autosar/missing-no-except"
+    justification: "False positive"
+    code-identifier: CODEQLFP(A15-4-4)
+    #

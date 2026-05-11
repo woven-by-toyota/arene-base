@@ -1,0 +1,228 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "alignment_hdrs",
+    srcs = [
+        "alignment.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "alignment",
+    hdrs = [":alignment_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/math:power_of_2",
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_unsigned",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+filegroup(
+    name = "as_const_hdrs",
+    srcs = [
+        "as_const.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "as_const",
+    hdrs = [":as_const_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:add_const",
+    ],
+)
+
+filegroup(
+    name = "forward_like_hdrs",
+    srcs = [
+        "forward_like.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "forward_like",
+    hdrs = [":forward_like_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:attributes",
+        "//arene/base/stdlib_choice:is_const",
+        "//arene/base/stdlib_choice:is_lvalue_reference",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_traits:conditional",
+    ],
+)
+
+filegroup(
+    name = "in_place_hdrs",
+    srcs = [
+        "in_place.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "in_place",
+    hdrs = [":in_place_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+filegroup(
+    name = "make_subrange_hdrs",
+    srcs = [
+        "make_subrange.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "make_subrange",
+    hdrs = [":make_subrange_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+        "//testlibs/utilities:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_traits:denotes_range",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+filegroup(
+    name = "safe_comparisons_hdrs",
+    srcs = [
+        "safe_comparisons.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "safe_comparisons",
+    hdrs = [":safe_comparisons_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_signed",
+        "//arene/base/stdlib_choice:is_unsigned",
+        "//arene/base/stdlib_choice:make_unsigned",
+    ],
+)
+
+filegroup(
+    name = "swap_hdrs",
+    srcs = [
+        "swap.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "swap",
+    hdrs = [":swap_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_fundamental",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_traits:is_swappable",
+    ],
+)
+
+filegroup(
+    name = "to_underlying_hdrs",
+    srcs = [
+        "to_underlying.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "to_underlying",
+    hdrs = [":to_underlying_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:underlying_type",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":alignment",
+        ":as_const",
+        ":forward_like",
+        ":in_place",
+        ":make_subrange",
+        ":safe_comparisons",
+        ":swap",
+        ":to_underlying",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "to_underlying_hdrs",
+        ":alignment_hdrs",
+        ":as_const_hdrs",
+        ":forward_like_hdrs",
+        ":in_place_hdrs",
+        ":make_subrange_hdrs",
+        ":safe_comparisons_hdrs",
+        ":swap_hdrs",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

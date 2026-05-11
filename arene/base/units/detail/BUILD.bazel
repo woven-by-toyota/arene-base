@@ -1,0 +1,66 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "is_bipartite_match_hdrs",
+    srcs = ["is_bipartite_match.hpp"],
+)
+
+cc_library_with_variants(
+    name = "is_bipartite_match",
+    hdrs = [":is_bipartite_match_hdrs"],
+    visibility = [
+        "//arene/base/units:__subpackages__",
+    ],
+    deps = [
+        ":sum",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+filegroup(
+    name = "missing_hdrs",
+    srcs = ["missing.hpp"],
+)
+
+cc_library_with_variants(
+    name = "missing",
+    hdrs = [":missing_hdrs"],
+    visibility = [
+        "//arene/base/units:__subpackages__",
+    ],
+)
+
+filegroup(
+    name = "sum_hdrs",
+    srcs = ["sum.hpp"],
+)
+
+cc_library_with_variants(
+    name = "sum",
+    hdrs = [":sum_hdrs"],
+    visibility = [
+        "//arene/base/units:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:initializer_list",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":is_bipartite_match_hdrs",
+        ":missing_hdrs",
+        ":sum_hdrs",
+    ],
+    visibility = ["//arene/base/units:__pkg__"],
+)

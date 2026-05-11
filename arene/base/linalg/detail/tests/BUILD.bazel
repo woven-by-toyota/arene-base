@@ -1,0 +1,47 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+cc_test_with_variants(
+    name = "mandates_test",
+    srcs = ["mandates_test.cpp"],
+    deps = [
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/linalg/tests:test_helpers",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_manipulation:static_if",
+        "//arene/base/type_traits:give_cv_to",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "preconditions_test",
+    srcs = ["preconditions_test.cpp"],
+    deps = [
+        "//arene/base/algorithm:all_of",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg/detail:preconditions",
+        "//arene/base/linalg/tests:test_helpers",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:cartesian_product",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+    ],
+)

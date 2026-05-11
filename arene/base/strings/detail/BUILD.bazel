@@ -1,0 +1,92 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "helper_hdrs",
+    srcs = [
+        "lexicographic_string_compare.hpp",
+        "string_length.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "helpers",
+    hdrs = [":helper_hdrs"],
+    visibility = [
+        "//arene/base/strings:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base:contracts",
+        "//arene/base:iterator",
+        "//arene/base:span",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:raw_c_string",
+        "//arene/base/detail:wrapped_iterator",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:min_value_overload",
+    ],
+)
+
+cc_library_with_variants(
+    name = "null_terminated_string_view",
+    visibility = [
+        "//arene/base/strings:__pkg__",
+    ],
+    deps = [
+        ":helpers",
+    ] + select({
+        "//configs:toolchain_stdlib_enabled": ["//arene/base/strings/detail/with_toolchain_std:null_terminated_string_view"],
+        "//configs:toolchain_stdlib_disabled": ["//arene/base/strings/detail/with_arene_std:null_terminated_string_view"],
+    }),
+)
+
+filegroup(
+    name = "string_view_srcs",
+    srcs = select({
+        "//configs:toolchain_stdlib_enabled": ["//arene/base/strings/detail/with_toolchain_std:string_view_srcs"],
+        "//configs:toolchain_stdlib_disabled": ["//arene/base/strings/detail/with_arene_std:string_view_srcs"],
+    }),
+    visibility = [
+        "//arene/base/strings:__pkg__",
+    ],
+)
+
+cc_library_with_variants(
+    name = "string_view",
+    visibility = [
+        "//arene/base/strings:__pkg__",
+    ],
+    deps = [
+        ":helpers",
+    ] + select({
+        "//configs:toolchain_stdlib_enabled": ["//arene/base/strings/detail/with_toolchain_std:string_view"],
+        "//configs:toolchain_stdlib_disabled": ["//arene/base/strings/detail/with_arene_std:string_view"],
+    }),
+)
+
+cc_library_with_variants(
+    name = "inline_string",
+    visibility = [
+        "//arene/base/strings:__pkg__",
+    ],
+    deps = select({
+        "//configs:toolchain_stdlib_enabled": ["//arene/base/strings/detail/with_toolchain_std:inline_string"],
+        "//configs:toolchain_stdlib_disabled": ["//arene/base/strings/detail/with_arene_std:inline_string"],
+    }),
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":helper_hdrs",
+        "//arene/base/strings/detail/with_arene_std:package",
+        "//arene/base/strings/detail/with_toolchain_std:package",
+    ],
+    visibility = ["//arene/base/strings:__pkg__"],
+)

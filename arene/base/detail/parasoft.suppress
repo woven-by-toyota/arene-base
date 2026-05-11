@@ -1,0 +1,4 @@
+suppression-begin
+file: wrapped_iterator.hpp
+message: The 'arene_contract_make_info' function is not used in the current translation unit
+suppression-end

@@ -1,0 +1,28 @@
+#!/bin/bash
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+set -e
+
+echo "Checking filesystem is not in :everything if disabled"
+# shellcheck disable=SC2086
+result=$(bazelisk $BAZEL_STARTUP_OPTION cquery "--config=${COMPILER}" --copt "-std=${CPP_VERSION}" \
+  --no//configs:use_filesystem 'somepath(//:everything, //arene/base/filesystem:internal)' --noshow_progress)
+
+if [[ -n "$result" ]]; then
+  echo "Unexpected result:"
+  echo "$result"
+  exit 1
+fi
+
+echo "Checking filesystem not supported explicitly if disabled"
+# shellcheck disable=SC2086
+result=$(bazelisk $BAZEL_STARTUP_OPTION cquery "--config=${COMPILER}" --copt "-std=${CPP_VERSION}" \
+  --no//configs:use_filesystem 'somepath(//:filesystem, //arene/base/filesystem:internal)' --noshow_progress)
+
+if [[ -n "$result" ]]; then
+  echo "Unexpected result:"
+  echo "$result"
+  exit 1
+fi

@@ -1,0 +1,17 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+cc_binary(
+    name = "benchmark",
+    srcs = [
+        "inline_vector_push_back_bm.cpp",
+    ],
+    deps = [
+        "//:inline_container",
+        "//configs:incompatible_with_toolchain_stdlib_disabled",
+        "@google_benchmark//:benchmark_main",
+    ],
+)

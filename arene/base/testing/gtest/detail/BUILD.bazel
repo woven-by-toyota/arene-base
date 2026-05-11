@@ -1,0 +1,47 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "conditional_assertions_helpers.hpp",
+        "conditional_assertions_with_static.hpp",
+        "conditional_assertions_without_static.hpp",
+        "static_assertions_disabled.hpp",
+        "static_assertions_enabled.hpp",
+        "static_assertions_helpers.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "detail",
+    hdrs = [":hdrs"],
+    visibility = [
+        "//arene/base/testing/gtest:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:type_list",
+        "//arene/base/math:abs",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:forward",
+    ] +
+    # exclude gtest dependency when exporting for cmake
+    # we shall not bundle gtest
+    select({
+        "//configs:export_cmake": [],
+        "//conditions:default": ["//testlibs:gtest"],
+    }),
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+    ],
+    visibility = ["//arene/base/testing/gtest:__pkg__"],
+)

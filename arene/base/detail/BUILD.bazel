@@ -1,0 +1,83 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "wrapped_iterator_hdrs",
+    srcs = ["wrapped_iterator.hpp"],
+)
+
+cc_library_with_variants(
+    name = "wrapped_iterator",
+    hdrs = [":wrapped_iterator_hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base:contracts",
+        "//arene/base:iterator",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_pointer",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+filegroup(
+    name = "raw_c_string_hdrs",
+    srcs = ["raw_c_string.hpp"],
+)
+
+cc_library_with_variants(
+    name = "raw_c_string",
+    hdrs = [":raw_c_string_hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [],
+)
+
+filegroup(
+    name = "dynamic_extent_hdrs",
+    srcs = ["dynamic_extent.hpp"],
+)
+
+cc_library_with_variants(
+    name = "dynamic_extent",
+    hdrs = [":dynamic_extent_hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+filegroup(
+    name = "exceptions_hdr",
+    srcs = ["exceptions.hpp"],
+)
+
+cc_library_with_variants(
+    name = "exceptions",
+    hdrs = [":exceptions_hdr"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/detail/exceptions:internal",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":dynamic_extent_hdrs",
+        ":exceptions_hdr",
+        ":raw_c_string_hdrs",
+        ":wrapped_iterator_hdrs",
+        "//arene/base/detail/exceptions:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

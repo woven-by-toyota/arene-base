@@ -1,0 +1,174 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "integer_sequence_ops_test",
+    srcs = [
+        "integer_sequence_ops_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:integer_sequences",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "sequential_values_test",
+    srcs = [
+        "sequential_values_test.cpp",
+    ],
+    # Includes were determined manually by commenting out
+    # `count<max_number_of_elements>`. Otherwise, this take *way* too long for a
+    # single target (aborted after 3 minutes).
+    tags = ["no-arene-iwyu"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:integer_sequences",
+        "//arene/base/stdlib_choice:max_element",
+        "//arene/base/stdlib_choice:min_element",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "make_index_sequence_repeat_n_test",
+    srcs = [
+        "make_index_sequence_repeat_n_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:integer_sequences",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "make_integer_sequence_test",
+    srcs = [
+        "make_integer_sequence_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:integer_sequences",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+[
+    cc_build_error_test(
+        name = "make_integer_sequence_ordered_{}_test".format(i),
+        src = inline_src.cpp("""\
+#include "arene/base/integer_sequences.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+
+auto main() -> int
+{{
+  using T = arene::base::make_integer_sequence_between<{element_type}, 1, 0>;
+  (void)T{{}};
+}}
+""".format(
+            element_type = param["element_type"],
+        )),
+        compile_stderr = matcher.has_substr("Precondition Begin <= End not satisfied"),
+        deps = [
+            "//arene/base:integer_sequences",
+            "//arene/base/stdlib_choice:cstdint",
+        ],
+    )
+    for i, param in enumerate([
+        {
+            "element_type": "std::uint8_t",
+        },
+        {
+            "element_type": "std::uint64_t",
+        },
+        {
+            "element_type": "std::int8_t",
+        },
+        {
+            "element_type": "std::int64_t",
+        },
+    ])
+]
+
+cc_build_error_test(
+    name = "make_integer_sequence_negative_size_test",
+    src = inline_src.cpp("""\
+#include "arene/base/integer_sequences.hpp"
+
+auto main() -> int
+{{
+  using T = arene::base::make_integer_sequence_from<int, 1, -1>;
+  (void)T{{}};
+}}
+"""),
+    compile_stderr = matcher.has_substr("Size must be non-negative"),
+    deps = [
+        "//arene/base:integer_sequences",
+    ],
+)
+
+[
+    cc_build_error_test(
+        name = "make_integer_sequence_overflow_{}_test".format(i),
+        src = inline_src.cpp("""\
+#include "arene/base/integer_sequences.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+#include "arene/base/stdlib_choice/numeric_limits.hpp"
+
+auto main() -> int
+{{
+  constexpr auto max = std::numeric_limits<{element_type}>::max();
+  using T = arene::base::make_integer_sequence_from<{element_type}, max, 2>;
+  (void)T{{}};
+}}
+""".format(
+            element_type = param["element_type"],
+        )),
+        compile_stderr = matcher.has_substr("Sequence with the given Begin and Size would overflow the representable range of Type"),
+        deps = [
+            "//arene/base:integer_sequences",
+            "//arene/base/stdlib_choice:cstdint",
+            "//arene/base/stdlib_choice:numeric_limits",
+        ],
+    )
+    for i, param in enumerate([
+        {
+            "element_type": "std::uint8_t",
+        },
+        {
+            "element_type": "std::uint64_t",
+        },
+        {
+            "element_type": "std::int8_t",
+        },
+        {
+            "element_type": "std::int64_t",
+        },
+    ])
+]
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

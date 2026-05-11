@@ -1,0 +1,121 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_test_with_variants(
+    name = "as_type_list_test",
+    srcs = ["as_type_list_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/tuple/detail:as_type_list",
+        "//arene/base/type_list",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "get_test",
+    srcs = ["get_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple/detail:get",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "reverse_as_tuple_test",
+    srcs = ["reverse_as_tuple_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:make_tuple",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple/detail:reverse_as_tuple",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counting_wrapper",
+    ],
+)
+
+cc_test_with_variants(
+    name = "tuple_transform_test",
+    srcs = ["tuple_transform_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/functional:identity",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:negate",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple/detail:tuple_transform",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "tuple_transform_reduce_test",
+    srcs = ["tuple_transform_reduce_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/functional:identity",
+        "//arene/base/stdlib_choice:make_tuple",
+        "//arene/base/stdlib_choice:multiplies",
+        "//arene/base/stdlib_choice:negate",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple/detail:tuple_transform_reduce",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "tuple_zip_test",
+    srcs = ["tuple_zip_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:make_tuple",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple/detail:tuple_zip",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

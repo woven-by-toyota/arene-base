@@ -1,0 +1,70 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_TYPE_TRAITS_
+#define INCLUDE_GUARD_STDLIB_TYPE_TRAITS_
+
+#include "stdlib/include/stdlib_detail/add_const.hpp"                  // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/add_cv.hpp"                     // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/add_lvalue_reference.hpp"       // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/add_pointer.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/add_rvalue_reference.hpp"       // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/add_volatile.hpp"               // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/common_type.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/conditional.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/decay.hpp"                      // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/enable_if.hpp"                  // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/extent.hpp"                     // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/integral_constant.hpp"          // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_arithmetic.hpp"              // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_abstract.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_array.hpp"                   // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_assignable.hpp"              // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_base_of.hpp"                 // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_class.hpp"                   // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_const.hpp"                   // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_constructible.hpp"           // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_convertible.hpp"             // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_copy_assignable.hpp"         // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_copy_constructible.hpp"      // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_default_constructible.hpp"   // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_destructible.hpp"            // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_empty.hpp"                   // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_enum.hpp"                    // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_final.hpp"                   // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_floating_point.hpp"          // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_function.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_fundamental.hpp"             // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_integral.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_lvalue_reference.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_move_assignable.hpp"         // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_member_function_pointer.hpp" // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_member_object_pointer.hpp"   // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_member_pointer.hpp"          // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_move_constructible.hpp"      // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_object.hpp"                  // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_pointer.hpp"                 // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_reference.hpp"               // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_rvalue_reference.hpp"        // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_same.hpp"                    // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_signed.hpp"                  // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_trivially_copyable.hpp"      // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_unsigned.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_void.hpp"                    // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/is_volatile.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/make_signed.hpp"                // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/make_unsigned.hpp"              // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/remove_all_extents.hpp"         // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/remove_const.hpp"               // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/remove_cv.hpp"                  // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/remove_extent.hpp"              // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/remove_pointer.hpp"             // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/remove_reference.hpp"           // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/rank.hpp"                       // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/remove_volatile.hpp"            // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/underlying_type.hpp"            // IWYU pragma: export
+#include "stdlib/include/stdlib_detail/void_t.hpp"                     // IWYU pragma: export
+
+#endif

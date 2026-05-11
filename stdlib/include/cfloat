@@ -1,0 +1,11 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_CFLOAT_
+#define INCLUDE_GUARD_STDLIB_CFLOAT_
+
+#include <float.h>  // IWYU pragma: export
+
+#endif  // INCLUDE_GUARD_STDLIB_CFLOAT_

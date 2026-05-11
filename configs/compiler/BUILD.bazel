@@ -1,0 +1,45 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# Alias config settings from `@rules_cc` so that we can use the same package for
+# all the compilers we work with
+alias(
+    name = "gcc",
+    actual = "@rules_cc//cc/compiler:gcc",
+)
+
+alias(
+    name = "clang",
+    actual = "@rules_cc//cc/compiler:clang",
+)
+
+config_setting(
+    name = "qcc",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "qcc"},
+)
+
+# This config will need to be updated if the compiler name is ever fixed
+# https://bazel.build/rules/lib/toplevel/cc_common#create_cc_toolchain_config_info
+config_setting(
+    name = "arm_clang",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "arm-6.16"},
+)
+
+selects.config_setting_group(
+    name = "gcc_or_qcc",
+    match_any = [
+        ":gcc",
+        ":qcc",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+    ],
+    visibility = ["//:__subpackages__"],
+)

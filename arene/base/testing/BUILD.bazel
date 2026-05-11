@@ -1,0 +1,150 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "gtest",
+    hdrs = ["gtest.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/testing/gtest:gtest_internal",
+    ],
+)
+
+cc_library_with_variants(
+    name = "prng_xoshiro",
+    testonly = True,
+    hdrs = ["prng_xoshiro.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
+
+cc_library_with_variants(
+    name = "bitwise_uniform_distribution",
+    testonly = True,
+    hdrs = ["bitwise_uniform_distribution.hpp"],
+    tags = [
+        # this file does not contain tests
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_unsigned",
+        "//arene/base/stdlib_choice:make_unsigned",
+    ],
+)
+
+cc_library_with_variants(
+    name = "property_assertions",
+    testonly = True,
+    hdrs = ["property_assertions.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":property_error",
+        "//arene/base/testing/detail:property_context",
+    ],
+)
+
+cc_library_with_variants(
+    name = "property_config",
+    testonly = True,
+    hdrs = ["property_config.hpp"],
+    tags = [
+        # this is not product code
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
+
+cc_library_with_variants(
+    name = "property_error",
+    testonly = True,
+    hdrs = ["property_error.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/stdlib_choice:cstdint",
+        "//testlibs/minitest:assertion_strings",
+        "//testlibs/minitest:source_location",
+    ],
+)
+
+cc_library_with_variants(
+    name = "property_summary",
+    testonly = True,
+    hdrs = ["property_summary.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":property_error",
+        "//arene/base:optional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
+
+cc_library_with_variants(
+    name = "run_property",
+    testonly = True,
+    hdrs = ["run_property.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":prng_xoshiro",
+        ":property_config",
+        ":property_error",
+        ":property_summary",
+        "//arene/base/functional:function_traits",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing/detail:property_context",
+        "//arene/base/tuple:apply",
+        "//arene/base/tuple:tuple_cat",
+        "//arene/base/tuple/detail:tuple_transform",
+        "//arene/base/type_list:apply_all",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:drop",
+        "//arene/base/type_traits:type_identity",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "//arene/base/testing/detail:package",
+        "//arene/base/testing/filesystem:package",
+        "//arene/base/testing/gtest:package",
+    ] + glob(["*.hpp"]),
+    visibility = ["//arene/base:__pkg__"],
+)

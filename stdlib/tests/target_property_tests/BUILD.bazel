@@ -1,0 +1,65 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("//rules:compile_command.bzl", "compile_command")
+load("//rules:grep.bzl", "grep", "grep_test")
+
+package(default_visibility = ["//:__subpackages__"])
+
+# This target does not need to be built and does not build with GCC since
+# `<stdlib.h>` will include `<cstdlib>`.
+# ```
+# bazel build --config=gcc8 //stdlib/tests/target_property_tests:uses_stdlib
+# ...
+# In file included from external/arene-toolchains~~arene_non_module_deps~arene-toolchains-gcc-8-linux-x86_64/x86_64-arene-linux-gnu/include/c++/8.3.0/stdlib.h:36,
+#                  from ./stdlib/include/stdlib_detail/terminate.hpp:15,
+#                  from bazel-out/k8-fastbuild/bin/stdlib/_virtual_includes/stdlib/exception:5,
+#                  from stdlib/tests/target_property_tests/uses_stdlib.cpp:6:
+# bazel-out/k8-fastbuild/bin/stdlib/_virtual_includes/stdlib/cstdlib:1:2: error: #error "Include of standard library header <cstdlib>"
+#  #error "Include of standard library header <cstdlib>"
+# ```
+#
+# The contents of `stdlib.h` can be found here:
+# https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=libstdc%2B%2B-v3/include/c_compatibility/stdlib.h;hb=HEAD
+cc_binary(
+    name = "uses_stdlib",
+    srcs = ["uses_stdlib.cpp"],
+    tags = ["manual"],
+    deps = ["//stdlib"],
+)
+
+compile_command(
+    name = "uses_stdlib_compile_command",
+    srcs = [":uses_stdlib"],
+    tags = ["manual"],
+)
+
+grep(
+    name = "uses_stdlib_isystem_flags",
+    srcs = [":uses_stdlib_compile_command"],
+    additional_options = ["--only-matching"],
+    pattern_syntax = "extended_regexp",
+    patterns = ["-isystem[[:space:]]*[^[:space:]]+"],
+    require_match = False,
+)
+
+grep_test(
+    name = "uses_stdlib_does_not_use_isystem_test",
+    srcs = [":uses_stdlib_isystem_flags"],
+    additional_options = ["--invert-match"],
+    patterns = select({
+        "//conditions:default": [
+            # most toolchains use `-isystem` for builtin include directories
+            # so we filter these out
+            "-isystem[[:space:]]*external/.*toolchain.*/.*",
+        ],
+        "//configs/compiler:arm_clang": [
+            # this compiler should never use `-isystem` so we provide an
+            # unmatchable pattern to filter out nothing
+            "$.",
+        ],
+    }),
+    return_code = "no_match",
+)

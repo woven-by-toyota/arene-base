@@ -1,0 +1,22 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "dummy_gtest",
+    hdrs = ["gtest.h"],
+    include_prefix = "gtest",
+    visibility = ["//:__subpackages__"],
+    deps = ["//testlibs/minitest"],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "gtest.h",
+    ],
+    visibility = ["//testlibs:__pkg__"],
+)

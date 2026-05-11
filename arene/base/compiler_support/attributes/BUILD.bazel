@@ -1,0 +1,25 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "deprecated.hpp",
+        "has_attribute.hpp",
+        "may_alias.hpp",
+        "maybe_unused.hpp",
+        "nodiscard.hpp",
+        "noreturn.hpp",
+    ],
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+    ],
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)

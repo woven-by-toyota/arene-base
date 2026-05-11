@@ -1,0 +1,168 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+load(
+    "//rules:transitions.bzl",
+    "transition_use_exceptions",
+)
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_test_with_variants(
+    name = "traits_test",
+    srcs = ["traits_test.cpp"],
+    deps = [
+        "//arene/base:monostate",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//arene/base/variant:traits",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_library_with_variants(
+    name = "variant_get_exceptions_disabled_test",
+    testonly = True,
+    srcs = ["variant_get_exceptions_disabled_test.cpp"],
+    tags = ["nocompdb"],
+    target_compatible_with = select({
+        "//configs:exceptions_disabled": [],
+        "//configs:exceptions_enabled": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        "//arene/base:contracts",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/variant",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+    alwayslink = True,
+)
+
+cc_test(
+    name = "variant_get_exceptions_disabled_by_cxxopt_test",
+    cxxopts = ["-fno-exceptions"],
+    deps = [
+        ":variant_get_exceptions_disabled_test",
+    ],
+)
+
+transition_use_exceptions(
+    name = "variant_get_exceptions_disabled_by_use_exceptions_test_wrapper",
+    testonly = True,
+    src = ":variant_get_exceptions_disabled_test",
+    value = False,
+)
+
+cc_test(
+    name = "variant_get_exceptions_disabled_by_flag_test",
+    deps = [
+        ":variant_get_exceptions_disabled_by_use_exceptions_test_wrapper",
+    ],
+)
+
+cc_test_with_variants(
+    name = "variant_get_exceptions_enabled_test",
+    srcs = ["variant_get_exceptions_enabled_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/variant",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "variant_get_test",
+    srcs = ["variant_get_test.cpp"],
+    deps = [
+        "//arene/base:monostate",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:max",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/testing:gtest",
+        "//arene/base/variant",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "variant_test",
+    srcs = ["variant_test.cpp"],
+    deps = [
+        "//arene/base:inline_string",
+        "//arene/base:monostate",
+        "//arene/base/inline_container",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:max_value_overload",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/testing:gtest",
+        "//arene/base/variant",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:has_broken_less_than",
+    ],
+)
+
+cc_test_with_variants(
+    name = "visit_test",
+    srcs = ["visit_test.cpp"],
+    deps = [
+        "//arene/base:optional",
+        "//arene/base:string_view",
+        "//arene/base:type_list",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:decay",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:is_const",
+        "//arene/base/stdlib_choice:is_rvalue_reference",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:max_value_overload",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/testing:gtest",
+        "//arene/base/variant:visit",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "variant_valueless_by_exception_test",
+    srcs = ["variant_valueless_by_exception_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/variant",
+        "//arene/base/variant:traits",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

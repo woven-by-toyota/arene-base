@@ -1,0 +1,32 @@
+# Copyright 2024, Toyota Motor Corporation
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+cc_library(
+    name = "subpackages",
+    srcs = [
+        "optional.cpp",
+        "units_examples.cpp",
+    ],
+    deps = [
+        "//:everything",
+    ],
+)
+
+cc_binary(
+    name = "bit_examples",
+    srcs = ["bit_examples.cpp"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//:everything",
+    ],
+)
+
+cc_binary(
+    name = "variant_examples",
+    srcs = ["variant_examples.cpp"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//:everything",
+    ],
+)

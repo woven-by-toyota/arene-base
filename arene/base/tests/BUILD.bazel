@@ -1,0 +1,383 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "algorithm_test",
+    srcs = ["algorithm_test.cpp"],
+    deps = [
+        "//arene/base:algorithm",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "array_test",
+    srcs = ["array_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "bit_test",
+    srcs = ["bit_test.cpp"],
+    deps = [
+        "//arene/base:bit",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "byte_test",
+    srcs = ["byte_test.cpp"],
+    deps = [
+        "//arene/base:byte",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "constraints_test",
+    srcs = ["constraints_test.cpp"],
+    deps = [
+        "//arene/base:constraints",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "contracts_test",
+    srcs = ["contracts_test.cpp"],
+    deps = [
+        "//arene/base:contracts",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "endian_test",
+    srcs = ["endian_test.cpp"],
+    deps = [
+        "//arene/base:endian",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "filesystem_test",
+    srcs = [
+        "filesystem_test.cpp",
+    ],
+    deps = [
+        "//arene/base:filesystem",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "functional_test",
+    srcs = ["functional_test.cpp"],
+    deps = [
+        "//arene/base:functional",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "inline_string_test",
+    srcs = ["inline_string_test.cpp"],
+    deps = [
+        "//arene/base:inline_string",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "integer_sequences_test",
+    srcs = ["integer_sequences_test.cpp"],
+    deps = [
+        "//arene/base:integer_sequences",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "intrusive_test",
+    srcs = ["intrusive_test.cpp"],
+    deps = [
+        "//arene/base:intrusive",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iterator_test",
+    srcs = ["iterator_test.cpp"],
+    deps = [
+        "//arene/base:iterator",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "linalg_test",
+    srcs = ["linalg_test.cpp"],
+    deps = [
+        "//arene/base:linalg",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "math_test",
+    srcs = ["math_test.cpp"],
+    deps = [
+        "//arene/base:math",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "mdspan_test",
+    srcs = ["mdspan_test.cpp"],
+    deps = [
+        "//arene/base:mdspan",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "memory_test",
+    srcs = [
+        "memory_test.cpp",
+    ],
+    deps = [
+        "//arene/base:memory",
+        "//arene/base:type_traits",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "monostate_test",
+    srcs = [
+        "monostate_test.cpp",
+    ],
+    deps = [
+        "//arene/base:monostate",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "mutex_test",
+    srcs = [
+        "mutex_test.cpp",
+    ],
+    deps = [
+        "//arene/base:mutex",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "optional_test",
+    srcs = [
+        "optional_test.cpp",
+    ],
+    deps = [
+        "//arene/base:optional",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "pointer_test",
+    srcs = ["pointer_test.cpp"],
+    deps = [
+        "//arene/base:pointer",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "result_test",
+    srcs = [
+        "result_test.cpp",
+    ],
+    deps = [
+        "//arene/base:result",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "scope_guard_test",
+    srcs = [
+        "scope_guard_test.cpp",
+    ],
+    deps = [
+        "//arene/base:scope_guard",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "semantic_version_test",
+    srcs = [
+        "semantic_version_test.cpp",
+    ],
+    deps = [
+        "//arene/base:semantic_version",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "source_location_test",
+    srcs = [
+        "source_location_test.cpp",
+    ],
+    deps = [
+        "//arene/base:source_location",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "span_test",
+    srcs = ["span_test.cpp"],
+    deps = [
+        "//arene/base:span",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "string_algorithms_test",
+    srcs = ["string_algorithms_test.cpp"],
+    deps = [
+        "//arene/base:string_algorithms",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "string_view_test",
+    srcs = ["string_view_test.cpp"],
+    deps = [
+        "//arene/base:string_view",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "tuple_test",
+    srcs = [
+        "tuple_test.cpp",
+    ],
+    deps = [
+        "//arene/base:tuple",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "type_info_test",
+    srcs = ["type_info_test.cpp"],
+    deps = [
+        "//arene/base:type_info",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "type_list_test",
+    srcs = ["type_list_test.cpp"],
+    deps = [
+        "//arene/base:type_list",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "type_manipulation_test",
+    srcs = ["type_manipulation_test.cpp"],
+    deps = [
+        "//arene/base/type_manipulation",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "type_traits_test",
+    srcs = ["type_traits_test.cpp"],
+    deps = [
+        "//arene/base:type_traits",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "units_test",
+    srcs = [
+        "units_test.cpp",
+    ],
+    deps = [
+        "//arene/base:units",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "utility_test",
+    srcs = [
+        "utility_test.cpp",
+    ],
+    deps = [
+        "//arene/base:utility",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "variant_test",
+    srcs = [
+        "variant_test.cpp",
+    ],
+    deps = [
+        "//arene/base:variant",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_test",
+    srcs = [
+        "vector_test.cpp",
+    ],
+    deps = [
+        "//arene/base/inline_container:vector",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_reference_test",
+    srcs = [
+        "vector_reference_test.cpp",
+    ],
+    deps = [
+        "//arene/base/inline_container:vector",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

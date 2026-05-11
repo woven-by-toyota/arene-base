@@ -1,0 +1,104 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_test_with_variants(
+    name = "for_each_test",
+    srcs = ["for_each_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "apply_test",
+    srcs = ["apply_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/compiler_support:internal",
+        "//arene/base/detail:exceptions",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple:internal",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_library_with_variants(
+    name = "value_category_probe",
+    testonly = True,
+    hdrs = ["value_category_probe.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/stdlib_choice:tuple_size",
+    ],
+)
+
+cc_library_with_variants(
+    name = "tuple_cat_fwd",
+    testonly = True,
+    hdrs = ["tuple_cat_fwd.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/tuple:tuple_cat",
+    ],
+)
+
+cc_library_with_variants(
+    name = "tuple_cat",
+    testonly = True,
+    hdrs = ["tuple_cat.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":tuple_cat_fwd",
+        "//arene/base/stdlib_choice:forward_as_tuple",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "tuple_cat_test",
+    srcs = ["tuple_cat_test.cpp"],
+    deps = [
+        ":tuple_cat",
+        ":value_category_probe",
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:tuple",
+    ],
+)
+
+exports_files(
+    glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)
