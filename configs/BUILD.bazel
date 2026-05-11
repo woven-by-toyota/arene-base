@@ -1,0 +1,346 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load(":inverse_match.bzl", "inverse_match")
+
+# implementation detail of inverse_match
+bool_flag(
+    name = "config_always_matches_flag",
+    build_setting_default = True,
+)
+
+config_setting(
+    name = "always_matches",
+    flag_values = {
+        ":config_always_matches_flag": "True",
+    },
+)
+
+config_setting(
+    name = "never_matches",
+    flag_values = {
+        ":config_always_matches_flag": "False",
+    },
+)
+
+# platform and os and cpu configs
+config_setting(
+    name = "linux",
+    constraint_values = [
+        "@platforms//os:linux",
+    ],
+)
+
+config_setting(
+    name = "macos",
+    constraint_values = [
+        "@platforms//os:macos",
+    ],
+)
+
+config_setting(
+    name = "qnx",
+    constraint_values = [
+        "@platforms//os:qnx",
+    ],
+)
+
+config_setting(
+    name = "linux_x86-64",
+    constraint_values = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+)
+
+cc_library(
+    name = "incompatible_with_arm_clang",
+    target_compatible_with = select({
+        "//configs/compiler:arm_clang": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//:__subpackages__"],
+)
+
+cc_library(
+    name = "incompatible_with_macos",
+    target_compatible_with = select({
+        "@platforms//os:macos": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//:__subpackages__"],
+)
+
+# filesystem
+bool_flag(
+    name = "use_filesystem",
+    build_setting_default = True,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "filesystem_enabled_by_flag",
+    flag_values = {
+        ":use_filesystem": "True",
+    },
+)
+
+config_setting(
+    name = "filesystem_disabled_by_flag",
+    flag_values = {
+        ":use_filesystem": "False",
+    },
+)
+
+inverse_match(
+    name = "filesystem_enabled",
+    source = ":filesystem_disabled",
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
+    name = "filesystem_disabled",
+    match_any = [
+        ":filesystem_disabled_by_flag",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+# exceptions
+bool_flag(
+    name = "use_exceptions",
+    build_setting_default = True,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "copt_noexceptions",
+    values = {
+        "copt": "-fno-exceptions",
+    },
+)
+
+config_setting(
+    name = "cxxopt_noexceptions",
+    values = {
+        "cxxopt": "-fno-exceptions",
+    },
+)
+
+config_setting(
+    name = "exceptions_enabled_by_flag",
+    flag_values = {
+        ":use_exceptions": "True",
+    },
+)
+
+config_setting(
+    name = "exceptions_disabled_by_flag",
+    flag_values = {
+        ":use_exceptions": "False",
+    },
+)
+
+inverse_match(
+    name = "exceptions_enabled",
+    source = ":exceptions_disabled",
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
+    name = "exceptions_disabled",
+    match_any = [
+        ":copt_noexceptions",
+        ":cxxopt_noexceptions",
+        ":exceptions_disabled_by_flag",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+cc_library(
+    name = "incompatible_with_exceptions_disabled",
+    target_compatible_with = select({
+        ":exceptions_enabled": [],
+        ":exceptions_disabled": ["@platforms//:incompatible"],
+    }),
+    visibility = ["//:__subpackages__"],
+)
+
+# specifies if the toolchain provides a C++ standard library
+bool_flag(
+    name = "use_toolchain_stdlib",
+    build_setting_default = True,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "toolchain_stdlib_enabled_by_flag",
+    flag_values = {
+        ":use_toolchain_stdlib": "True",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "toolchain_stdlib_disabled_by_flag",
+    flag_values = {
+        ":use_toolchain_stdlib": "False",
+    },
+    visibility = ["//visibility:public"],
+)
+
+inverse_match(
+    name = "toolchain_stdlib_enabled",
+    source = ":toolchain_stdlib_disabled",
+    visibility = ["//visibility:public"],
+)
+
+selects.config_setting_group(
+    name = "toolchain_stdlib_disabled",
+    match_any = [
+        ":toolchain_stdlib_disabled_by_flag",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "incompatible_with_toolchain_stdlib_disabled",
+    target_compatible_with = select({
+        ":toolchain_stdlib_enabled": [],
+        ":toolchain_stdlib_disabled": ["@platforms//:incompatible"],
+    }),
+    visibility = ["//:__subpackages__"],
+)
+
+# Specifies if the toolchain provides a complete libc -- i.e. it is not partial
+# missing headers such as `stdlib.h` and `stdio.h`.
+#
+# This should be set to `False` if the current toolchain is missing headers, or
+# if Arene Base should be built with restricted use of libc.
+bool_flag(
+    name = "toolchain_provides_full_libc",
+    build_setting_default = True,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "full_libc_enabled_by_flag",
+    flag_values = {
+        ":toolchain_provides_full_libc": "True",
+    },
+)
+
+config_setting(
+    name = "full_libc_disabled_by_flag",
+    flag_values = {
+        ":toolchain_provides_full_libc": "False",
+    },
+)
+
+inverse_match(
+    name = "full_libc_enabled",
+    source = ":full_libc_disabled",
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
+    name = "full_libc_disabled",
+    match_any = [
+        ":full_libc_disabled_by_flag",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+# This allows specifying if stacktraces should be captured, if supported, in contract assertions.
+bool_flag(
+    name = "capture_contract_stacktraces",
+    build_setting_default = True,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "contract_stacktraces_enabled_by_flag",
+    flag_values = {
+        ":capture_contract_stacktraces": "True",
+    },
+)
+
+config_setting(
+    name = "contract_stacktraces_disabled_by_flag",
+    flag_values = {
+        ":capture_contract_stacktraces": "False",
+    },
+)
+
+selects.config_setting_group(
+    name = "os_provides_execinfo",
+    match_any = [
+        ":linux",
+        ":macos",
+    ],
+)
+
+selects.config_setting_group(
+    name = "posix",
+    match_any = [
+        ":linux",
+        ":macos",
+        ":qnx",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
+    name = "contract_stacktraces_enabled",
+    match_all = [
+        ":contract_stacktraces_enabled_by_flag",
+        ":os_provides_execinfo",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+inverse_match(
+    name = "contract_stacktraces_disabled",
+    source = ":contract_stacktraces_enabled",
+    visibility = ["//visibility:public"],
+)
+
+# Override the toolchains_llvm toolchain used by transition_extra_toolchain_binary.
+#
+# When set to a non-empty value, transition_extra_toolchain_binary targets using
+# USE_TOOLCHAINS_LLVM_TOOLCHAIN will use specified flag value instead of the
+# auto-detected default.
+string_flag(
+    name = "toolchains_llvm_toolchain_override",
+    build_setting_default = "",
+)
+
+string_flag(
+    name = "export_type",
+    build_setting_default = "default",
+    values = [
+        "default",
+        "cmake",
+    ],
+)
+
+config_setting(
+    name = "export_cmake",
+    flag_values = {
+        ":export_type": "cmake",
+    },
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "//configs/compiler:package",
+    ] + glob(["*.bzl"]),
+    visibility = ["//:__subpackages__"],
+)

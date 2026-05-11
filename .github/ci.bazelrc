@@ -1,0 +1,4 @@
+common --keep_going
+common --config=local_toolchain
+import %workspace%/.github/ci.home.bazelrc
+build --workspace_status_command=true

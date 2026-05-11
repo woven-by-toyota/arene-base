@@ -1,0 +1,1619 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load(
+    "//rules:transitions.bzl",
+    "transition_use_toolchain_stdlib",
+)
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+# All tests in this package should use this target. It will cause a compilation
+# failure if system includes are used.
+#
+transition_use_toolchain_stdlib(
+    name = "testing_stdlib",
+    src = "//testlibs/utilities:require_quote_include",
+    value = False,
+    visibility = [":__subpackages__"],
+)
+
+cc_test(
+    name = "adjacent_find_test",
+    srcs = ["adjacent_find_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:test_helpers.without_toolchain_stdlib",
+        "//arene/base/iterator:next.without_toolchain_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "compiler_support_stdlib_info_test",
+    srcs = ["compiler_support_stdlib_info_test.cpp"],
+    target_compatible_with = select({
+        "//configs:toolchain_stdlib_disabled": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "compiler_support_diagnostics_test",
+    srcs = ["compiler_support_diagnostics_test.cpp"],
+    copts = select({
+        "//configs/compiler:clang": ["-Wc++11-narrowing"],
+        "//configs/compiler:gcc": ["-Wnarrowing"],
+        # assume any other compiler is GCC-like
+        "//conditions:default": ["-Wnarrowing"],
+    }),
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "accumulate_test",
+    srcs = ["accumulate_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_traits:iterator_category_traits.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_library(
+    name = "iterator_types",
+    hdrs = ["iterator_types.hpp"],
+    deps = [
+        ":testing_stdlib",
+    ],
+)
+
+cc_test(
+    name = "addressof_test",
+    srcs = ["addressof_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "add_const_test",
+    srcs = ["add_const_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "add_cv_test",
+    srcs = ["add_cv_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "add_lvalue_reference_test",
+    srcs = ["add_lvalue_reference_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "add_pointer_test",
+    srcs = ["add_pointer_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "add_rvalue_reference_test",
+    srcs = ["add_rvalue_reference_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "add_volatile_test",
+    srcs = ["add_volatile_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "arene_base_components_usable_test",
+    srcs = ["arene_base_components_usable_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_traits:iterator_category_traits.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "back_insert_iterator_test",
+    srcs = ["back_insert_iterator_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_traits:iterator_category_traits.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "basic_iterator_test",
+    srcs = ["basic_iterator_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "begin_test",
+    srcs = ["begin_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "cfloat_test",
+    srcs = ["cfloat_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "climits_test",
+    srcs = ["climits_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "common_type_test",
+    srcs = ["common_type_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base:constraints",
+        "//arene/base/type_list:apply_all.without_toolchain_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//arene/base/type_list:type_list.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "copy_n_test",
+    srcs = ["copy_n_test.cpp"],
+    deps = [
+        ":iterator_types",
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "cstddef_test",
+    srcs = ["cstddef_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "cstdint_test",
+    srcs = ["cstdint_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "comparison_test",
+    srcs = ["comparison_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "conditional_test",
+    srcs = ["conditional_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "count_if_test",
+    srcs = ["count_if_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "decay_test",
+    srcs = ["decay_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "declval_test",
+    srcs = ["declval_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "divides_test",
+    srcs = ["divides_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "duration_test",
+    srcs = ["duration_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test(
+    name = "enable_if_test",
+    srcs = ["enable_if_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "end_test",
+    srcs = ["end_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "equal_to_test",
+    srcs = ["equal_to_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "exchange_test",
+    srcs = ["exchange_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "extent_test",
+    srcs = ["extent_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "find_if_not_test",
+    srcs = ["find_if_not_test.cpp"],
+    deps = [
+        ":iterator_types",
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "forward_as_tuple_test",
+    srcs = ["forward_as_tuple_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test(
+    name = "forward_test",
+    srcs = ["forward_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "greater_test",
+    srcs = ["greater_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "greater_equal_test",
+    srcs = ["greater_equal_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "hash_test",
+    srcs = ["hash_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base:constraints",
+        "//arene/base:type_traits",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "ignore_test",
+    srcs = ["ignore_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "initializer_list_test",
+    srcs = ["initializer_list_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "insert_iterator_test",
+    srcs = ["insert_iterator_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//arene/base/type_traits:iterator_category_traits.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "integral_constant_test",
+    srcs = ["integral_constant_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "integer_sequence_test",
+    srcs = ["integer_sequence_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "inner_product_test",
+    srcs = ["inner_product_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/tests:transform_reduce.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:transform_reduce_fwd.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "iota_test",
+    srcs = ["iota_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/tests:iota.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:iota_fwd.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_abstract_test",
+    srcs = ["is_abstract_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_arithmetic_test",
+    srcs = ["is_arithmetic_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_array_test",
+    srcs = ["is_array_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_assignable_test",
+    srcs = ["is_assignable_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_base_of_test",
+    srcs = ["is_base_of_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_class_test",
+    srcs = ["is_class_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_const_test",
+    srcs = ["is_const_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_constructible_test",
+    srcs = ["is_constructible_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_convertible_test",
+    srcs = ["is_convertible_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_copy_assignable_test",
+    srcs = ["is_copy_assignable_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_copy_constructible_test",
+    srcs = ["is_copy_constructible_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_default_constructible_test",
+    srcs = ["is_default_constructible_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_destructible_test",
+    srcs = ["is_destructible_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_empty_test",
+    srcs = ["is_empty_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_enum_test",
+    srcs = ["is_enum_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_final_test",
+    srcs = ["is_final_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_floating_point_test",
+    srcs = ["is_floating_point_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_function_test",
+    srcs = ["is_function_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_fundamental_test",
+    srcs = ["is_fundamental_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_integral_test",
+    srcs = ["is_integral_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_lvalue_reference_test",
+    srcs = ["is_lvalue_reference_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_member_function_pointer_test",
+    srcs = ["is_member_function_pointer_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_member_object_pointer_test",
+    srcs = ["is_member_object_pointer_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_member_pointer_test",
+    srcs = ["is_member_pointer_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_move_assignable_test",
+    srcs = ["is_move_assignable_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_move_constructible_test",
+    srcs = ["is_move_constructible_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_object_test",
+    srcs = ["is_object_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_pointer_test",
+    srcs = ["is_pointer_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_reference_test",
+    srcs = ["is_reference_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_rvalue_reference_test",
+    srcs = ["is_rvalue_reference_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_same_test",
+    srcs = ["is_same_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_signed_test",
+    srcs = ["is_signed_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_sorted_test",
+    srcs = ["is_sorted_test.cpp"],
+    deps = [
+        ":iterator_types",
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_trivially_copyable_test",
+    srcs = ["is_trivially_copyable_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "is_unsigned_test",
+    srcs = ["is_unsigned_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_void_test",
+    srcs = ["is_void_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "is_volatile_test",
+    srcs = ["is_volatile_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "iterator_tags_test",
+    srcs = ["iterator_tags_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "iterator_traits_test",
+    srcs = ["iterator_traits_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base:constraints",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "iter_swap_test",
+    srcs = ["iter_swap_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "less_test",
+    srcs = ["less_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "less_equal_test",
+    srcs = ["less_equal_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "logical_and_test",
+    srcs = ["logical_and_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_traits:is_transparent_comparator_for",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "logical_or_test",
+    srcs = ["logical_or_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_traits:is_transparent_comparator_for",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "lower_bound_test",
+    srcs = ["lower_bound_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/iterator:next.without_toolchain_stdlib",
+        "//arene/base/math:log2.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "make_tuple_test",
+    srcs = ["make_tuple_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm:all_of.without_toolchain_stdlib",
+        "//arene/base/type_list:size.without_toolchain_stdlib",
+        "//arene/base/type_list:type_list.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test(
+    name = "make_signed_test",
+    srcs = ["make_signed_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "make_unsigned_test",
+    srcs = ["make_unsigned_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_traits:priority_tag.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "max_element_test",
+    srcs = ["max_element_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "max_test",
+    srcs = ["max_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:counted_algorithm",
+    ],
+)
+
+cc_test(
+    name = "memcpy_test",
+    srcs = ["memcpy_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "min_element_test",
+    srcs = ["min_element_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "minmax_element_test",
+    srcs = ["minmax_element_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/iterator:next.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:constexpr_traits",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "min_test",
+    srcs = ["min_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:counted_algorithm",
+    ],
+)
+
+cc_test(
+    name = "min_max_death_test",
+    srcs = ["min_max_death_test.cpp"],
+    target_compatible_with = select({
+        "//testlibs/minitest:death_tests_supported": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "minus_test",
+    srcs = ["minus_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "modulus_test",
+    srcs = ["modulus_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "move_algorithm_test",
+    srcs = ["move_algorithm_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "move_iterator_test",
+    srcs = ["move_iterator_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base:array.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "move_test",
+    srcs = ["move_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "multiplies_test",
+    srcs = ["multiplies_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "negate_test",
+    srcs = ["negate_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "new_test",
+    srcs = ["new_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "none_of_test",
+    srcs = ["none_of_test.cpp"],
+    deps = [
+        ":iterator_types",
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "not_equal_to_test",
+    srcs = ["not_equal_to_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "nothrow_t_test",
+    srcs = ["nothrow_t_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "numeric_limits_test",
+    srcs = ["numeric_limits_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "pair_test",
+    size = "medium",
+    srcs = ["pair_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//arene/base/type_traits:comparison_traits.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_implicitly_constructible.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_swappable.without_toolchain_stdlib",
+        "//arene/base/utility:as_const.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "partial_sort_copy_test",
+    timeout = "eternal",
+    srcs = ["partial_sort_copy_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base:array.without_toolchain_stdlib",
+        "//arene/base:math.without_toolchain_stdlib",
+        "//arene/base:optional.without_toolchain_stdlib",
+        "//arene/base:utility.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "plus_test",
+    srcs = ["plus_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "pointer_traits_test",
+    srcs = ["pointer_traits_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "ratio_test",
+    srcs = ["ratio_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base:contracts.without_toolchain_stdlib",
+        "//arene/base/math:abs.without_toolchain_stdlib",
+        "//arene/base/math:gcd.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "reference_wrapper_test",
+    srcs = ["reference_wrapper_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "rank_test",
+    srcs = ["rank_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "remove_all_extents_test",
+    srcs = ["remove_all_extents_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "remove_const_test",
+    srcs = ["remove_const_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "remove_cv_test",
+    srcs = ["remove_cv_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "remove_extent_test",
+    srcs = ["remove_extent_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "remove_pointer_test",
+    srcs = ["remove_pointer_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "remove_reference_test",
+    srcs = ["remove_reference_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "remove_volatile_test",
+    srcs = ["remove_volatile_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "reverse_iterator_test",
+    srcs = ["reverse_iterator_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/iterator:reverse_iterator.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "reverse_test",
+    srcs = ["reverse_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/tests:test_helpers.without_toolchain_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "remove_if_test",
+    srcs = ["remove_if_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "stable_sort_test",
+    srcs = ["stable_sort_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/tests:sort.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:sort_fwd.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "sort_test",
+    srcs = ["sort_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/tests:sort.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:sort_fwd.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "stdexcept_test",
+    srcs = ["stdexcept_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/strings/algorithm:length.without_toolchain_stdlib",
+        "//arene/base/type_list:concat.without_toolchain_stdlib",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//configs:incompatible_with_macos",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "swap_test",
+    srcs = ["swap_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "terminate_test",
+    srcs = ["terminate_test.cpp"],
+    target_compatible_with = select({
+        "//testlibs/minitest:death_tests_supported": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "time_point_test",
+    srcs = ["time_point_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/compiler_support:compiler_support.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_invocable.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test(
+    name = "tuple_test",
+    srcs = ["tuple_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm:all_of.without_toolchain_stdlib",
+        "//arene/base/compiler_support:compiler_support.without_toolchain_stdlib",
+        "//arene/base/tuple:apply.without_toolchain_stdlib",
+        "//arene/base/tuple:for_each.without_toolchain_stdlib",
+        "//arene/base/type_list:concat.without_toolchain_stdlib",
+        "//arene/base/type_traits:all_of.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_implicitly_constructible.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_invocable.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_only_explicitly_constructible.without_toolchain_stdlib",
+        "//arene/base/utility:forward_like.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:constexpr_traits",
+        "//testlibs/utilities:counting_wrapper",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "tuple_cat_test",
+    srcs = ["tuple_cat_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/tuple/tests:tuple_cat.without_toolchain_stdlib",
+        "//arene/base/tuple/tests:tuple_cat_fwd.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "tuple_element_test",
+    srcs = ["tuple_element_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:at.without_toolchain_stdlib",
+        "//arene/base/type_manipulation:consume_values.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "tuple_size_test",
+    srcs = ["tuple_size_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/tuple:for_each.without_toolchain_stdlib",
+        "//arene/base/type_list:at.without_toolchain_stdlib",
+        "//arene/base/type_manipulation:consume_values.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "upper_bound_test",
+    srcs = ["upper_bound_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/iterator:next.without_toolchain_stdlib",
+        "//arene/base/math:log2.without_toolchain_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "underlying_type_test",
+    srcs = ["underlying_type_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//testlibs/minitest",
+    ],
+)
+
+cc_test(
+    name = "unique_test",
+    srcs = ["unique_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "void_t_test",
+    srcs = ["void_t_test.cpp"],
+    deps = [
+        ":testing_stdlib",
+        "//testlibs/minitest",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

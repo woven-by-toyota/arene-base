@@ -1,0 +1,77 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "array.hpp",
+    ],
+)
+
+filegroup(
+    name = "exceptions_enabled_srcs",
+    srcs = [
+        "array_exceptions_enabled.cpp",
+    ],
+)
+
+filegroup(
+    name = "exceptions_disabled_srcs",
+    srcs = [
+        "array_exceptions_disabled.cpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    srcs = select({
+        "//configs:exceptions_enabled": [":exceptions_enabled_srcs"],
+        "//configs:exceptions_disabled": [":exceptions_disabled_srcs"],
+    }),
+    hdrs = [":hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:iterator",
+        "//arene/base:span",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/algorithm:equal",
+        "//arene/base/algorithm:lexicographical_compare",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:exceptions",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:exchange",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_array",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/stdlib_choice:tuple_size",
+    ] + select({
+        "//configs:exceptions_enabled": [
+            "//arene/base/stdlib_choice:stdexcept",
+        ],
+        "//configs:exceptions_disabled": [],
+    }),
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":exceptions_disabled_srcs",
+        ":exceptions_enabled_srcs",
+        ":hdrs",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

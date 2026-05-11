@@ -1,0 +1,67 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "non_null_aliases_hdrs",
+    srcs = [
+        "non_null_aliases.hpp",
+    ],
+)
+
+filegroup(
+    name = "util_hdrs",
+    srcs = [
+        "to_address.hpp",
+        "type_traits.hpp",
+    ],
+)
+
+cc_library(
+    name = "non_null_aliases",
+    hdrs = [":non_null_aliases_hdrs"],
+    tags = ["no-arene-iwyu"],  # pulls in <memory> from toolchain stdlib
+    visibility = ["//arene/base/pointer:__subpackages__"],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:forward",
+    ],
+)
+
+cc_library_with_variants(
+    name = "utils",
+    hdrs = [":util_hdrs"],
+    visibility = ["//arene/base/pointer:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_function",
+        "//arene/base/stdlib_choice:is_pointer",
+        "//arene/base/stdlib_choice:pointer_traits",
+    ],
+)
+
+cc_library(
+    name = "detail",
+    visibility = ["//arene/base/pointer:__subpackages__"],
+    deps = [
+        ":non_null_aliases",
+        ":utils",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":non_null_aliases_hdrs",
+        ":util_hdrs",
+    ],
+    visibility = ["//arene/base/pointer:__pkg__"],
+)

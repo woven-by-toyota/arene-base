@@ -1,0 +1,11 @@
+// Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_INITIALIZER_LIST_
+#define INCLUDE_GUARD_STDLIB_INITIALIZER_LIST_
+
+#include "stdlib/include/stdlib_detail/initializer_list.hpp" // IWYU pragma: export
+
+#endif

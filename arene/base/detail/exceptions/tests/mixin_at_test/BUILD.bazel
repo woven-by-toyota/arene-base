@@ -1,0 +1,120 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_test")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+load(
+    "//rules:transitions.bzl",
+    "transition_use_exceptions",
+    "transition_use_toolchain_stdlib",
+)
+
+cc_library_with_variants(
+    name = "simple_container",
+    testonly = True,
+    hdrs = ["simple_container.hpp"],
+    tags = ["manual"],
+    deps = [
+        "//arene/base:type_list",
+        "//arene/base/detail/exceptions:mixin_at",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_reference",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:conditional",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "exceptions_enabled",
+    srcs = ["exceptions_enabled.cpp"],
+    deps = [
+        ":simple_container",
+        "//arene/base:constraints",
+        "//arene/base:type_list",
+        "//arene/base/detail/exceptions:mixin_at",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/testing:gtest",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_library_with_variants(
+    name = "exceptions_disabled_by_use_exceptions",
+    testonly = True,
+    srcs = ["exceptions_disabled_by_use_exceptions.cpp"],
+    tags = ["nocompdb"],
+    target_compatible_with = select({
+        "//configs:exceptions_disabled": [],
+        "//configs:exceptions_enabled": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":simple_container",
+    ],
+    alwayslink = True,
+)
+
+cc_test_with_variants(
+    name = "exceptions_disabled_by_cxxopt",
+    srcs = ["exceptions_disabled_by_use_exceptions.cpp"],
+    cxxopts = ["-fno-exceptions"],
+    # static assert evaluates to false
+    tags = ["no-arene-iwyu"],
+    deps = [
+        ":simple_container",
+    ],
+)
+
+transition_use_exceptions(
+    name = "exceptions_disabled_by_use_exceptions_wrapper",
+    testonly = True,
+    src = ":exceptions_disabled_by_use_exceptions",
+    value = False,
+)
+
+cc_test(
+    name = "exceptions_disabled_by_flag",
+    deps = [
+        ":exceptions_disabled_by_use_exceptions_wrapper",
+    ],
+)
+
+transition_use_exceptions(
+    name = "exceptions_disabled_by_use_exceptions_wrapper2.without_toolchain_stdlib",
+    testonly = True,
+    src = ":exceptions_disabled_by_use_exceptions.without_toolchain_stdlib",
+    value = False,
+)
+
+transition_use_toolchain_stdlib(
+    name = "exceptions_disabled_by_use_exceptions_wrapper.without_toolchain_stdlib",
+    testonly = True,
+    src = ":exceptions_disabled_by_use_exceptions_wrapper2.without_toolchain_stdlib",
+    value = False,
+)
+
+cc_test(
+    name = "exceptions_disabled_by_flag.without_toolchain_stdlib",
+    deps = [
+        ":exceptions_disabled_by_use_exceptions_wrapper.without_toolchain_stdlib",
+    ],
+)
+
+exports_files(
+    glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)

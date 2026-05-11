@@ -1,0 +1,28 @@
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "property_context",
+    testonly = True,
+    srcs = ["property_context.cpp"],
+    hdrs = ["property_context.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//arene/base/testing:__subpackages__"],
+    deps = [
+        "//arene/base:optional",
+        "//arene/base/testing:property_error",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+    ] + glob([
+        "*.hpp",
+        "*.cpp",
+    ]),
+    visibility = ["//arene/base/testing:__pkg__"],
+)

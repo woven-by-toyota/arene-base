@@ -1,0 +1,40 @@
+From 6d291421ab90390d056fcc135d423b9e9ce23625 Mon Sep 17 00:00:00 2001
+From: Oliver Lee <oliver.lee@woven-planet.global>
+Date: Wed, 15 Apr 2026 13:40:28 -0700
+Subject: [PATCH] enable default shell env with rustc
+
+---
+ rust/private/rustc.bzl | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/rust/private/rustc.bzl b/rust/private/rustc.bzl
+index 42616d886..8ecb5a69e 100644
+--- a/rust/private/rustc.bzl
++++ b/rust/private/rustc.bzl
+@@ -1509,6 +1509,7 @@ def rustc_compile_action(
+             executable = ctx.executable._process_wrapper,
+             inputs = compile_inputs,
+             outputs = action_outputs,
++            use_default_shell_env = True,
+             env = env,
+             arguments = args.all,
+             mnemonic = "Rustc",
+@@ -1527,6 +1528,7 @@ def rustc_compile_action(
+                 executable = ctx.executable._process_wrapper,
+                 inputs = compile_inputs,
+                 outputs = [build_metadata] + [x for x in [rustc_rmeta_output] if x],
++                use_default_shell_env = True,
+                 env = env,
+                 arguments = args_metadata.all,
+                 mnemonic = "RustcMetadata",
+@@ -1548,6 +1550,7 @@ def rustc_compile_action(
+             inputs = compile_inputs,
+             outputs = action_outputs,
+             env = env,
++            use_default_shell_env = True,
+             arguments = [args.rustc_path, args.rustc_flags],
+             mnemonic = "Rustc",
+             progress_message = "Compiling Rust (without process_wrapper) {} {}{} ({} file{})".format(
+-- 
+2.44.1
+

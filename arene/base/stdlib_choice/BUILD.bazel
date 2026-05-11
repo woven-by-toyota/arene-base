@@ -1,0 +1,61 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:stdlib_redirect_library.bzl", "stdlib_redirect_library")
+load(":components.bzl", "COMPONENTS")
+
+exports_files(["components.bzl"])
+
+_PUBLIC_COMPONENTS = [
+    component
+    for component in COMPONENTS
+    if component.public_header != None
+]
+
+[
+    stdlib_redirect_library(
+        name = component.name,
+        include_prefix = "arene/base/stdlib_choice",
+        source = component.name + ".hpp",
+        target = select({
+            "//configs:toolchain_stdlib_enabled": "<{}>".format(component.public_header),
+            "//configs:toolchain_stdlib_disabled": "\"stdlib/include/stdlib_detail/{}.hpp\"".format(component.name),
+        }),
+        visibility = ["//:__subpackages__"],
+        deps = select({
+            "//configs:toolchain_stdlib_enabled": [],
+            "//configs:toolchain_stdlib_disabled": [
+                "//stdlib/include/stdlib_detail:" + component.name,
+            ],
+        }),
+    )
+    for component in _PUBLIC_COMPONENTS
+]
+
+stdlib_redirect_library(
+    name = "terminate",
+    include_prefix = "arene/base/stdlib_choice",
+    source = "terminate.hpp",
+    target = select({
+        "//configs:toolchain_stdlib_enabled": "<exception>",
+        "//configs:toolchain_stdlib_disabled": "\"stdlib/terminate.hpp\"",
+    }),
+    visibility = ["//:__subpackages__"],
+    deps = select({
+        "//configs:toolchain_stdlib_enabled": [],
+        "//configs:toolchain_stdlib_disabled": ["//stdlib:terminate"],
+    }),
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "components.bzl",
+    ] + [
+        component.name
+        for component in _PUBLIC_COMPONENTS
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

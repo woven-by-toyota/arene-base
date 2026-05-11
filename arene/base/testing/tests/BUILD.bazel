@@ -1,0 +1,241 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@local_config_platform//:constraints.bzl", "HOST_CONSTRAINTS")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+load("//rules:diff_test.bzl", "diff_test")
+
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
+cc_test_with_variants(
+    name = "gtest_test",
+    srcs = ["gtest_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "property_assertions_test",
+    srcs = ["property_assertions_test.cpp"],
+    deps = [
+        "//arene/base:string_view",
+        "//arene/base/testing:gtest",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing/detail:property_context",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "run_property_test",
+    srcs = ["run_property_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/testing:prng_xoshiro",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_config",
+        "//arene/base/testing:property_error",
+        "//arene/base/testing:run_property",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "prng_xoshiro_test",
+    srcs = ["prng_xoshiro_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/math:power_of_2",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/testing:gtest",
+        "//arene/base/testing:prng_xoshiro",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_binary(
+    name = "prng_xoshiro_dump",
+    testonly = True,
+    srcs = ["prng_xoshiro_dump.cpp"],
+    # This binary is only used as a genrule tool during the execution phase
+    target_compatible_with = HOST_CONSTRAINTS,
+    deps = [
+        "//arene/base/testing:prng_xoshiro",
+        "//configs:incompatible_with_toolchain_stdlib_disabled",
+    ],
+)
+
+rust_binary(
+    name = "rand_xoshiro256plusplus_dump_base",
+    testonly = True,
+    srcs = ["rand_xoshiro256plusplus_dump.rs"],
+    edition = "2018",
+    tags = ["manual"],
+    # This binary is only used as a genrule tool during the execution phase
+    target_compatible_with = HOST_CONSTRAINTS,
+    deps = [
+        "@crates//:libc",
+        "@crates//:rand_xoshiro",
+    ],
+)
+
+
+alias(
+    name = "rand_xoshiro256plusplus_dump",
+    actual = select({
+        # OSS build does not use hermetic toolchains
+        "//conditions:default": "rand_xoshiro256plusplus_dump_base",
+    }),
+    tags = ["manual"],
+)
+
+_TEST_SEEDS_U64 = [
+    0,
+    1,
+    42,
+    0xfedcba9876543210,
+]
+
+_TEST_SIZE = "256M"
+
+[
+    genrule(
+        name = name,
+        testonly = True,
+        outs = [name + ".txt"],
+        cmd = "$(location :{binary}) {seed} | head -c {size} > $@".format(
+            size = size,
+            binary = binary,
+            seed = seed,
+        ),
+        tools = [":" + binary],
+    )
+    for binary in [
+        "prng_xoshiro_dump",
+        "rand_xoshiro256plusplus_dump",
+    ]
+    for seed in _TEST_SEEDS_U64
+    for size in [_TEST_SIZE]
+    for name in [
+        "{}_seed_{}_size_{}_data".format(
+            binary,
+            seed,
+            size,
+        ),
+    ]
+]
+
+test_suite(
+    name = "xoshiro_reference_test",
+    tests = [
+        name
+        for seed in _TEST_SEEDS_U64
+        for size in [_TEST_SIZE]
+        for name in ["xoshiro_seed_{}_reference_test".format(seed)]
+        for _ in [diff_test(
+            name = name,
+            file1 = ":{}_seed_{}_size_{}_data".format(
+                "prng_xoshiro_dump",
+                seed,
+                size,
+            ),
+            file2 = ":{}_seed_{}_size_{}_data".format(
+                "rand_xoshiro256plusplus_dump",
+                seed,
+                size,
+            ),
+        )]
+    ],
+)
+
+cc_test_with_variants(
+    name = "bitwise_uniform_distribution_test",
+    srcs = ["bitwise_uniform_distribution_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/inline_container",
+        "//arene/base/math:power_of_2",
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:is_signed",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:bitwise_uniform_distribution",
+        "//arene/base/testing:gtest",
+        "//arene/base/testing:prng_xoshiro",
+        "//arene/base/type_list:cartesian_product",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_build_error_test(
+    name = "bitwise_uniform_distribution_nonzero_min_test",
+    src = inline_src.cpp("""\
+#include "arene/base/testing/bitwise_uniform_distribution.hpp"
+#include "arene/base/testing/prng_xoshiro.hpp"
+class prng_with_min : public arene::base::testing::prng_xoshiro {
+ public:
+  static constexpr auto min() noexcept -> std::uint64_t { return 8U; }
+};
+auto main() -> int {
+  arene::base::testing::bitwise_uniform_distribution<int> dist{};
+  prng_with_min prng{};
+  return dist(prng);
+}
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "error: {static_assert} failed{requirement}".format(
+            requirement = "( due to requirement 'prng_with_min::min\\(\\) == unsigned long\\{\\}')?",
+            static_assert = "(static_assert|static assertion)",
+        ),
+    ),
+    deps = [
+        "//arene/base/testing:bitwise_uniform_distribution",
+        "//arene/base/testing:prng_xoshiro",
+    ],
+)
+
+cc_build_error_test(
+    name = "bitwise_uniform_distribution_lower_max_test",
+    src = inline_src.cpp("""\
+#include "arene/base/testing/bitwise_uniform_distribution.hpp"
+#include "arene/base/testing/prng_xoshiro.hpp"
+class prng_with_max : public arene::base::testing::prng_xoshiro {
+ public:
+  static constexpr auto max() noexcept -> std::uint64_t { return 255U; }
+};
+auto main() -> int {
+  arene::base::testing::bitwise_uniform_distribution<int> dist{};
+  prng_with_max prng{};
+  return dist(prng);
+}
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "error: {static_assert} failed{requirement}".format(
+            requirement = "( due to requirement 'prng_with_max::max\\(\\) == static_cast<unsigned long>\\(~unsigned long\\{\\}\\)')?",
+            static_assert = "(static_assert|static assertion)",
+        ),
+    ),
+    deps = [
+        "//arene/base/testing:bitwise_uniform_distribution",
+        "//arene/base/testing:prng_xoshiro",
+    ],
+)

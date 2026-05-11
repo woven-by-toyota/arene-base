@@ -1,0 +1,80 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//rules:cc_test.bzl", "cc_test")
+
+cc_library(
+    name = "helpers",
+    testonly = True,
+    hdrs = [
+        "mock_mutex.hpp",
+        "mutex_test_base.hpp",
+    ],
+    target_compatible_with = selects.with_or({
+        # gmock doesn't compile on QNX and with the Clang ARM compiler, unfortunately.
+        ("@platforms//os:qnx", "@platforms//cpu:aarch64"): ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        "//arene/base/compiler_support",
+        "//configs:incompatible_with_toolchain_stdlib_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "has_native_handle_test",
+    srcs = ["has_native_handle_test.cpp"],
+    deps = [
+        "//arene/base/mutex/detail",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "lock_guard_test",
+    srcs = ["lock_guard_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/compiler_support",
+        "//arene/base/mutex/detail",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "mutex_test",
+    srcs = ["mutex_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/compiler_support",
+        "//arene/base/mutex/detail",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "timed_mutex_test",
+    srcs = ["timed_mutex_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/compiler_support",
+        "//arene/base/mutex/detail",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)

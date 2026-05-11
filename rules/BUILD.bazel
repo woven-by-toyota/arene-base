@@ -1,0 +1,26 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+exports_files(
+    [
+        "redirect.hpp.in",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "cc_library_with_variants.bzl",
+        "cc_test.bzl",
+        "diff_test.bzl",
+        "local_platform_config.bzl",
+        "redirect.hpp.in",
+        "stdlib_redirect_library.bzl",
+        "transition_binary.bzl",
+        "transitions.bzl",
+    ],
+    visibility = ["//pkg:__pkg__"],
+)

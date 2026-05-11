@@ -1,0 +1,20 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+
+# we don't track the lock file
+MODULE.bazel.lock
+
+# override bazelisk home directory
+.bazelisk/
+
+# ignore all bazel-* symlinks.
+/bazel-*
+
+# ignore standard local bazelrc file
+# https://bazel.build/configure/best-practices#bazelrc-file
+user.bazelrc
+
+# ignore generated files used to bootstrap bazelisk
+.bazel-wrapper/

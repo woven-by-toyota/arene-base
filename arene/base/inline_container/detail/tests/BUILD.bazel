@@ -1,0 +1,62 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test")
+
+cc_test(
+    name = "compare_test",
+    srcs = [
+        "compare_test.cpp",
+    ],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base/inline_container/detail:compare",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "lower_bound_index_test",
+    srcs = [
+        "lower_bound_index_test.cpp",
+    ],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base/inline_container/detail:lower_bound_index",
+        "//arene/base/math:log2",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "range_interface_test",
+    srcs = [
+        "range_interface_test.cpp",
+    ],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/inline_container/detail:range_interface",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:conditional",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

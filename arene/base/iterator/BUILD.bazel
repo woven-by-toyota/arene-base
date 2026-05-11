@@ -1,0 +1,163 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "distance_hdrs",
+    srcs = ["distance.hpp"],
+)
+
+cc_library_with_variants(
+    name = "distance",
+    hdrs = [":distance_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:iterator_traits",
+    ],
+)
+
+filegroup(
+    name = "advance_hdrs",
+    srcs = ["advance.hpp"],
+)
+
+cc_library_with_variants(
+    name = "advance",
+    hdrs = [":advance_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+filegroup(
+    name = "next_hdrs",
+    srcs = ["next.hpp"],
+)
+
+cc_library_with_variants(
+    name = "next",
+    hdrs = [":next_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":advance",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+filegroup(
+    name = "prev_hdrs",
+    srcs = ["prev.hpp"],
+)
+
+cc_library_with_variants(
+    name = "prev",
+    hdrs = [":prev_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":advance",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+filegroup(
+    name = "reverse_iterator_hdrs",
+    srcs = [
+        "detail/std_reverse_iterator_disabled.hpp",
+        "detail/std_reverse_iterator_enabled.hpp",
+        "reverse_iterator.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "reverse_iterator",
+    hdrs = [":reverse_iterator_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":distance",
+        ":next",
+        ":prev",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compare:compare_three_way",
+        "//arene/base/compare:operators",
+        "//arene/base/compare:strong_ordering",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_pointer",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/type_manipulation",
+        "//arene/base/type_traits:arithmetic_traits",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":advance",
+        ":distance",
+        ":next",
+        ":prev",
+        ":reverse_iterator",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":advance_hdrs",
+        ":distance_hdrs",
+        ":next_hdrs",
+        ":prev_hdrs",
+        ":reverse_iterator_hdrs",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

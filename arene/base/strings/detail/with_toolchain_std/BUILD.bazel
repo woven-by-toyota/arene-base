@@ -1,0 +1,86 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+filegroup(
+    name = "string_view_srcs",
+    srcs = [
+        "string_view.cpp",
+    ],
+    visibility = [
+        "//arene/base/strings/detail:__pkg__",
+    ],
+)
+
+filegroup(
+    name = "string_view_hdrs",
+    srcs = [
+        "string_view_ostream_mixin.hpp",
+    ],
+)
+
+cc_library(
+    name = "null_terminated_string_view",
+    hdrs = [":string_view_hdrs"],
+    include_prefix = "arene/base/strings/detail",
+    # ambiguous due to use use of stdlib_choice for ignore and <ostream>
+    tags = ["no-arene-iwyu"],
+    visibility = [
+        "//arene/base/strings/detail:__pkg__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/strings:string_view_internal",
+    ],
+)
+
+cc_library(
+    name = "string_view",
+    hdrs = [":string_view_hdrs"],
+    include_prefix = "arene/base/strings/detail",
+    # ambiguous due to use use of stdlib_choice for ignore and <ostream>
+    tags = ["no-arene-iwyu"],
+    visibility = [
+        "//arene/base/strings/detail:__pkg__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:ignore",
+    ],
+)
+
+filegroup(
+    name = "inline_string_hdrs",
+    srcs = [
+        "inline_string_std_string_mixin.hpp",
+    ],
+)
+
+cc_library(
+    name = "inline_string",
+    hdrs = [":inline_string_hdrs"],
+    include_prefix = "arene/base/strings/detail",
+    visibility = [
+        "//arene/base/strings/detail:__pkg__",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:string",
+        "//arene/base/strings:string_view_internal",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":inline_string_hdrs",
+        ":string_view_hdrs",
+        ":string_view_srcs",
+    ],
+    visibility = [
+        "//arene/base/strings/detail:__pkg__",
+    ],
+)

@@ -1,0 +1,73 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "result.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    hdrs = [":hdrs"],
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:monostate",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/functional:invoke",
+        "//arene/base/memory:construct_at",
+        "//arene/base/result/detail:in_place_error",
+        "//arene/base/result/detail:in_place_value",
+        "//arene/base/result/detail:result_base",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:hash",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_object",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:is_void",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_const",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_traits:all_of",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:conditional",
+        "//arene/base/type_traits:decays_to",
+        "//arene/base/type_traits:has_overloaded_address_operator",
+        "//arene/base/type_traits:is_instantiation_of",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/type_traits:remove_cvref",
+        "//arene/base/utility:forward_like",
+        "//arene/base/utility:swap",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+        "//arene/base/result/detail:package",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

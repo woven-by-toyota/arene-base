@@ -1,0 +1,60 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "construct_at",
+    hdrs = ["construct_at.hpp"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:new",
+        "//arene/base/type_manipulation:give_qualifiers_to",
+    ],
+)
+
+cc_library_with_variants(
+    name = "destroy_at",
+    hdrs = ["destroy_at.hpp"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_array",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":construct_at",
+        ":destroy_at",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "construct_at.hpp",
+        "destroy_at.hpp",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

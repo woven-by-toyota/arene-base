@@ -1,0 +1,12 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "if_host_platform.bzl",
+    ],
+    visibility = ["//pkg:__pkg__"],
+)
