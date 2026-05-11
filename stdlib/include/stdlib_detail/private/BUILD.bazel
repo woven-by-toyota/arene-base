@@ -1,0 +1,23 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+exports_files(
+    [
+        "stdlib_component_mapping.bash",
+        "stdlib_detail_build_snippet.bash",
+    ],
+    visibility = ["//stdlib/include/stdlib_detail:__pkg__"],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "generate_stdlib_bazel_files.bzl",
+        "stdlib_component_mapping.bash",
+        "stdlib_detail_build_snippet.bash",
+        "stdlib_detail_component_library.bzl",
+    ],
+    visibility = ["//stdlib/include/stdlib_detail:__pkg__"],
+)

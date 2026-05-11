@@ -1,0 +1,6 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+BAZELISK_HOME=.bazelisk
+USE_BAZEL_VERSION=7.5.0

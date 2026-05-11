@@ -1,0 +1,220 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "as_type_list_hdrs",
+    srcs = ["as_type_list.hpp"],
+)
+
+cc_library_with_variants(
+    name = "as_type_list",
+    hdrs = [":as_type_list_hdrs"],
+    visibility = [
+        "//arene/base/tuple:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/type_list",
+        "//arene/base/type_traits:is_instantiation_of",
+    ],
+)
+
+filegroup(
+    name = "get_hdrs",
+    srcs = ["get.hpp"],
+)
+
+cc_library_with_variants(
+    name = "get",
+    hdrs = [":get_hdrs"],
+    visibility = [
+        "//arene/base/mdspan:__subpackages__",
+        "//arene/base/tuple:__subpackages__",
+        "//arene/base/type_traits:__pkg__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/type_traits:priority_tag",
+    ],
+)
+
+filegroup(
+    name = "reverse_as_tuple_hdrs",
+    srcs = ["reverse_as_tuple.hpp"],
+)
+
+cc_library_with_variants(
+    name = "reverse_as_tuple",
+    hdrs = [":reverse_as_tuple_hdrs"],
+    visibility = [
+        "//arene/base/mdspan:__subpackages__",
+        "//arene/base/tuple:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple/detail:get",
+    ],
+)
+
+filegroup(
+    name = "tuple_reduce_hdrs",
+    srcs = ["tuple_reduce.hpp"],
+)
+
+cc_library_with_variants(
+    name = "tuple_reduce",
+    hdrs = [":tuple_reduce_hdrs"],
+    visibility = [
+        "//arene/base/mdspan:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple/detail:get",
+        "//arene/base/type_manipulation:consume_values",
+    ],
+)
+
+filegroup(
+    name = "tuple_transform_hdrs",
+    srcs = ["tuple_transform.hpp"],
+)
+
+cc_library_with_variants(
+    name = "tuple_transform",
+    hdrs = [":tuple_transform_hdrs"],
+    visibility = [
+        "//arene/base/mdspan:__subpackages__",
+        "//arene/base/testing:__subpackages__",
+        "//arene/base/tuple:__subpackages__",
+    ],
+    deps = [
+        ":get",
+        ":tuple_zip",
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_front",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:forward_as_tuple",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_void",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple:apply",
+    ],
+)
+
+filegroup(
+    name = "tuple_transform_reduce_hdrs",
+    srcs = ["tuple_transform_reduce.hpp"],
+)
+
+cc_library_with_variants(
+    name = "tuple_transform_reduce",
+    hdrs = [":tuple_transform_reduce_hdrs"],
+    visibility = [
+        "//arene/base/mdspan:__subpackages__",
+        "//arene/base/tuple:__subpackages__",
+    ],
+    deps = [
+        ":get",
+        ":tuple_reduce",
+        ":tuple_zip",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_front",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:forward_as_tuple",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/tuple:apply",
+    ],
+)
+
+filegroup(
+    name = "tuple_zip_hdrs",
+    srcs = ["tuple_zip.hpp"],
+)
+
+cc_library_with_variants(
+    name = "tuple_zip",
+    hdrs = [":tuple_zip_hdrs"],
+    visibility = [
+        "//arene/base/tuple:__subpackages__",
+    ],
+    deps = [
+        ":get",
+        "//arene/base:constraints",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:equal_to",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:forward_as_tuple",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_element",
+        "//arene/base/stdlib_choice:tuple_size",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":as_type_list_hdrs",
+        ":get_hdrs",
+        ":reverse_as_tuple_hdrs",
+        ":tuple_reduce_hdrs",
+        ":tuple_transform_hdrs",
+        ":tuple_transform_reduce_hdrs",
+        ":tuple_zip_hdrs",
+    ],
+    visibility = ["//arene/base/tuple:__pkg__"],
+)

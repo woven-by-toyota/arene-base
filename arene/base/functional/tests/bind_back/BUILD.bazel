@@ -1,0 +1,66 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "bind_back_test",
+    srcs = [
+        "bind_back_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:optional",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:minus",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/stdlib_choice:reference_wrapper",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_build_error_test(
+    name = "bound_arguments_must_be_capturable",
+    src = "bound_arguments_must_be_capturable.cpp",
+    compile_stderr = matcher.has_substr("Bound arguments must be capturable from input."),
+    deps = ["//arene/base/functional:internal"],
+)
+
+cc_build_error_test(
+    name = "bound_arguments_must_be_move_constructible_test",
+    src = "bound_arguments_must_be_move_constructible_test.cpp",
+    compile_stderr = matcher.has_substr("Bound arguments must be move-constructible."),
+    deps = ["//arene/base/functional:internal"],
+)
+
+cc_build_error_test(
+    name = "function_object_must_be_move_constructible_test",
+    src = "function_object_must_be_move_constructible_test.cpp",
+    compile_stderr = matcher.has_substr("Bound function must be move-constructible."),
+    deps = ["//arene/base/functional:internal"],
+)
+
+cc_build_error_test(
+    name = "not_constructible_from_function_test",
+    src = "not_constructible_from_function_test.cpp",
+    compile_stderr = matcher.has_substr("Bound function must be constructible from input."),
+    deps = ["//arene/base/functional:internal"],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

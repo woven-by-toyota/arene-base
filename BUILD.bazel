@@ -1,0 +1,301 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+# This provides a set of aliases to allow stable and ergonomic bazel targets for
+# external users of arene_base.
+#
+# In general, it should mimic the taxonomy under src/lib/arene/ 1:1, whith each
+# sublibrary having a single target, named after the sublibrary.
+
+alias(
+    name = "everything",
+    actual = "//arene/base:internal",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "algorithm",
+    actual = "//arene/base:algorithm",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "array",
+    actual = "//arene/base:array",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "atomic",
+    actual = "//arene/base:atomic",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "bit",
+    actual = "//arene/base:bit",
+    visibility = ["//visibility:public"],
+)
+
+
+alias(
+    name = "byte",
+    actual = "//arene/base:byte",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "compare",
+    actual = "//arene/base:compare",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "compiler_support",
+    actual = "//arene/base/compiler_support",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "constraints",
+    actual = "//arene/base:constraints",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "contracts",
+    actual = "//arene/base:contracts",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "endian",
+    actual = "//arene/base:endian",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "filesystem",
+    actual = "//arene/base:filesystem",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "functional",
+    actual = "//arene/base:functional",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "inline_container",
+    actual = "//arene/base/inline_container",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "inline_container_testing",
+    testonly = True,
+    actual = "//arene/base/inline_container/testing",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "inline_string",
+    actual = "//arene/base:inline_string",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "integer_sequences",
+    actual = "//arene/base:integer_sequences",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "intrusive",
+    actual = "//arene/base/intrusive",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "iterator",
+    actual = "//arene/base:iterator",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "linalg",
+    actual = "//arene/base:linalg",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "math",
+    actual = "//arene/base:math",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "mdspan",
+    actual = "//arene/base:mdspan",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "memory",
+    actual = "//arene/base:memory",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "monostate",
+    actual = "//arene/base:monostate",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "mutex",
+    actual = "//arene/base:mutex",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "optional",
+    actual = "//arene/base:optional",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "pointer",
+    actual = "//arene/base:pointer",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "result",
+    actual = "//arene/base:result",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "source_location",
+    actual = "//arene/base:source_location",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "scope_guard",
+    actual = "//arene/base:scope_guard",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "semantic_version",
+    actual = "//arene/base:semantic_version",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "span",
+    actual = "//arene/base:span",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "string_algorithms",
+    actual = "//arene/base:string_algorithms",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "string_view",
+    actual = "//arene/base:string_view",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "strings",
+    actual = "//arene/base/strings:internal",
+    visibility = ["//visibility:public"],
+)
+
+
+alias(
+    name = "synchronization",
+    actual = "//arene/base/synchronization",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "tuple",
+    actual = "//arene/base:tuple",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "testing/gtest",
+    actual = "//arene/base/testing:gtest",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "type_info",
+    actual = "//arene/base:type_info",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "type_list",
+    actual = "//arene/base:type_list",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "type_manipulation",
+    actual = "//arene/base/type_manipulation",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "type_traits",
+    actual = "//arene/base:type_traits",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "unicode",
+    actual = "//arene/base:unicode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "units",
+    actual = "//arene/base:units",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "utility",
+    actual = "//arene/base:utility",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "variant",
+    actual = "//arene/base:variant",
+    visibility = ["//visibility:public"],
+)
+
+exports_files([
+    "BUILD.bazel",
+    "MODULE.bazel",
+    "WORKSPACE.bazel",
+])
+
+
+alias(
+    name = "minitest",
+    actual = "//testlibs/minitest:public",
+    visibility = ["//visibility:public"],
+)

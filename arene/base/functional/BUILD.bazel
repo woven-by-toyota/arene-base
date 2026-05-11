@@ -1,0 +1,272 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "function_traits_hdrs",
+    srcs = [
+        "function_traits.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "function_traits",
+    hdrs = [":function_traits_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_noexcept_part_of_function_type",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/type_list",
+    ],
+)
+
+filegroup(
+    name = "invoke_hdrs",
+    srcs = [
+        "invoke.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "invoke",
+    hdrs = [":invoke_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_member_function_pointer",
+        "//arene/base/stdlib_choice:is_member_object_pointer",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_reference_wrapper",
+        "//arene/base/type_traits:member_pointer_class_type",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+filegroup(
+    name = "is_noexcept_part_of_function_type_hdrs",
+    srcs = ["is_noexcept_part_of_function_type.hpp"],
+)
+
+cc_library_with_variants(
+    name = "is_noexcept_part_of_function_type",
+    hdrs = [":is_noexcept_part_of_function_type_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+    ],
+)
+
+filegroup(
+    name = "perfect_forward_call_wrapper_hdrs",
+    srcs = ["perfect_forward_call_wrapper.hpp"],
+)
+
+cc_library_with_variants(
+    name = "perfect_forward_call_wrapper",
+    hdrs = [":perfect_forward_call_wrapper_hdrs"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:type_traits",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:forward_as_tuple",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/type_manipulation:ebo_holder",
+        "//arene/base/type_traits:decays_to",
+        "//arene/base/type_traits:give_cvref_to",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+filegroup(
+    name = "bind_back_hdrs",
+    srcs = ["bind_back.hpp"],
+)
+
+cc_library_with_variants(
+    name = "bind_back",
+    hdrs = [":bind_back_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":invoke",
+        ":perfect_forward_call_wrapper",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:tuple",
+    ],
+)
+
+filegroup(
+    name = "bind_front_hdrs",
+    srcs = ["bind_front.hpp"],
+)
+
+cc_library_with_variants(
+    name = "bind_front",
+    hdrs = [":bind_front_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":invoke",
+        ":perfect_forward_call_wrapper",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:tuple",
+    ],
+)
+
+filegroup(
+    name = "bind_overloads_hdrs",
+    srcs = ["bind_overloads.hpp"],
+)
+
+cc_library_with_variants(
+    name = "bind_overloads",
+    hdrs = [":bind_overloads_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:decay",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:move",
+    ],
+)
+
+filegroup(
+    name = "not_fn_hdrs",
+    srcs = ["not_fn.hpp"],
+)
+
+cc_library_with_variants(
+    name = "not_fn",
+    hdrs = [":not_fn_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        ":invoke",
+        ":perfect_forward_call_wrapper",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_constructible",
+    ],
+)
+
+filegroup(
+    name = "function_ref_hdrs",
+    srcs = [
+        "function_ref.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "function_ref",
+    hdrs = [":function_ref_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:byte",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:type_traits",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:is_function",
+        "//arene/base/stdlib_choice:is_fundamental",
+        "//arene/base/stdlib_choice:is_trivially_copyable",
+        "//arene/base/stdlib_choice:is_void",
+        "//arene/base/stdlib_choice:max",
+        "//arene/base/stdlib_choice:memcpy",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_traits:conditional",
+    ],
+)
+
+filegroup(
+    name = "identity_hdrs",
+    srcs = ["identity.hpp"],
+)
+
+cc_library_with_variants(
+    name = "identity",
+    hdrs = [":identity_hdrs"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:forward",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":bind_back",
+        ":bind_front",
+        ":bind_overloads",
+        ":function_ref",
+        ":function_traits",
+        ":identity",
+        ":invoke",
+        ":is_noexcept_part_of_function_type",
+        ":not_fn",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":bind_back_hdrs",
+        ":bind_front_hdrs",
+        ":bind_overloads_hdrs",
+        ":function_ref_hdrs",
+        ":function_traits_hdrs",
+        ":identity_hdrs",
+        ":invoke_hdrs",
+        ":is_noexcept_part_of_function_type_hdrs",
+        ":not_fn_hdrs",
+        ":perfect_forward_call_wrapper_hdrs",
+    ],
+    visibility = ["//arene/base:__pkg__"],
+)

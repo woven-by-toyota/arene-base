@@ -1,0 +1,79 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+SRCS_LINUX = ["linux_temp_file.cpp"]
+
+SRCS_DEFAULT = ["generic_temp_file.cpp"]
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "directory_handle.cpp",
+        "error_code.cpp",
+        "file_handle.cpp",
+        "scoped_change_directory.cpp",
+        "temporary_directory.cpp",
+    ],
+)
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "directory_handle.hpp",
+        "error_code.hpp",
+        "file_handle.hpp",
+        "open_flags.hpp",
+        "path_string.hpp",
+        "scoped_change_directory.hpp",
+        "temporary_directory.hpp",
+    ],
+)
+
+cc_library(
+    name = "internal",
+    srcs = [
+        ":srcs",
+    ] + select({
+        "@platforms//os:linux": SRCS_LINUX,
+        "//conditions:default": SRCS_DEFAULT,
+    }),
+    hdrs = [
+        ":hdrs",
+    ],
+    target_compatible_with = select({
+        "//configs:filesystem_enabled": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    visibility = [
+        ":__subpackages__",
+        "//arene/base:__pkg__",
+        "//arene/base/testing/filesystem:__pkg__",
+    ],
+    deps = [
+        "//arene/base:contracts",
+        "//arene/base:endian",
+        "//arene/base:inline_string",
+        "//arene/base:optional",
+        "//arene/base:result",
+        "//arene/base:span",
+        "//arene/base:string_algorithms",
+        "//arene/base:string_view",
+        "//arene/base/compiler_support",
+        "//arene/base/filesystem/detail",
+        "//configs:incompatible_with_exceptions_disabled",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+        ":srcs",
+        "//arene/base/filesystem/detail:package",
+    ] + SRCS_LINUX + SRCS_DEFAULT,
+    visibility = ["//arene/base:__pkg__"],
+)

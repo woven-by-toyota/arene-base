@@ -1,0 +1,135 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+package(
+    default_visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+)
+
+cc_test(
+    name = "scoped_change_directory_test",
+    srcs = [
+        "scoped_change_directory_test.cpp",
+    ],
+    deps = [
+        "//arene/base/filesystem:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "directory_handle_test",
+    srcs = [
+        "directory_handle_test.cpp",
+    ],
+    deps = [
+        "//arene/base:inline_string",
+        "//arene/base:span",
+        "//arene/base:string_view",
+        "//arene/base/filesystem:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "error_code_test",
+    srcs = [
+        "error_code_test.cpp",
+    ],
+    deps = [
+        "//arene/base/filesystem:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "file_handle_test",
+    srcs = [
+        "file_handle_test.cpp",
+    ],
+    deps = [
+        "//arene/base/filesystem:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "path_string_test",
+    srcs = [
+        "path_string_test.cpp",
+    ],
+    deps = [
+        "//arene/base/filesystem:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "temporary_directory_test",
+    srcs = [
+        "temporary_directory_test.cpp",
+    ],
+    flaky = True,
+    deps = [
+        "//arene/base/filesystem:internal",
+        "//arene/base/testing/filesystem:create_temporary_directory",
+        "//testlibs:gtest",
+    ],
+)
+
+# This is used to avoid compilation for the repeated targets below. We can't
+# use this for the cc_test above as the test specification scripts don't handle
+# this.
+#
+# The symlinked file is used to bypass filename-based test specification check
+# scripts. This should no longer be necessary after merging changes from the
+# 'lka-stdlib-features' branch.
+#
+cc_library(
+    name = "intermediate_temporary_directory_test",
+    srcs = [
+        "temporary_directory_symlink.cpp",
+    ],
+    deps = [
+        "//arene/base/filesystem:internal",
+        "//arene/base/testing/filesystem:create_temporary_directory",
+        "//testlibs:gtest",
+    ],
+)
+
+MANUAL_TEMPORARY_DIRECTORY_TEST_NUM_RUNS = 50
+
+[
+    cc_test(
+        name = "manual_temporary_directory_{}_test".format(i),
+        tags = [
+            "external",
+            "manual",
+        ],
+        deps = [
+            ":intermediate_temporary_directory_test",
+        ],
+    )
+    for i in range(MANUAL_TEMPORARY_DIRECTORY_TEST_NUM_RUNS)
+]
+
+test_suite(
+    name = "manual_temporary_directory_flaky_test",
+    tags = [
+        "manual",
+    ],
+    tests = [
+        ":manual_temporary_directory_{}_test".format(i)
+        for i in range(MANUAL_TEMPORARY_DIRECTORY_TEST_NUM_RUNS)
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

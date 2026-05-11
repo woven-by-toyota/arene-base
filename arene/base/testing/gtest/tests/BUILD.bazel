@@ -1,0 +1,201 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+cc_test_with_variants(
+    name = "conditional_typed_test_macros_test",
+    srcs = ["conditional_typed_test_macros_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_arithmetic",
+        "//arene/base/testing/gtest:gtest_internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "constexpr_test_macros_test",
+    srcs = ["constexpr_test_macros_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing/gtest:gtest_internal",
+        "//testlibs:gtest",
+    ],
+)
+
+CONSTEXPR_TYPED_TEST_SUITE_SETUP = """\
+template <class T> struct ConstexprTest : ::testing::Test {};
+using test_types = ::testing::Types<int, unsigned>;
+TYPED_TEST_SUITE(ConstexprTest, test_types, );
+"""
+
+[
+    cc_build_error_test(
+        name = "{test_macro}_with_non-constexpr-functions_test".format(
+            test_macro = test_macro.lower(),
+        ),
+        src = inline_src.cpp("""\
+#include "arene/base/testing/gtest/constexpr_test.hpp"
+#include <gtest/gtest.h>
+
+namespace {{
+
+auto non_constexpr_func() -> bool {{ return true; }}
+
+{test_suite_setup}
+{test_declaration}(ConstexprTest, InvokeNonConstexprFunction{test_conditional})
+{{
+  auto const value = non_constexpr_func();
+  CONSTEXPR_ASSERT(value);
+}}
+
+}}
+""".format(
+            test_conditional = ", true" if test_macro == "CONDITIONALLY_CONSTEXPR_TYPED_TEST" else "",
+            test_declaration = test_macro,
+            test_suite_setup = "" if test_macro == "CONSTEXPR_TEST" else CONSTEXPR_TYPED_TEST_SUITE_SETUP,
+        )),
+        compile_stderr = matcher.contains_basic_regex(
+            select({
+                "//configs/compiler:gcc_or_qcc": "call to non-.*constexpr.* function '.*bool .*::non_constexpr_func().*'",
+                "//conditions:default": "non-constexpr function 'non_constexpr_func' cannot be used in a constant expression",
+            }),
+        ),
+        deps = [
+            "//arene/base/testing/gtest:gtest_internal",
+            "//testlibs:gtest",
+        ],
+    )
+    for test_macro in [
+        "CONSTEXPR_TEST",
+        "CONSTEXPR_TYPED_TEST",
+        "CONDITIONALLY_CONSTEXPR_TYPED_TEST",
+    ]
+]
+
+[
+    cc_build_error_test(
+        name = "{test_macro}_with_assertion_failure_test".format(
+            test_macro = test_macro.lower(),
+        ),
+        src = inline_src.cpp("""\
+#include "arene/base/testing/gtest/constexpr_test.hpp"
+#include <gtest/gtest.h>
+
+namespace {{
+
+{test_suite_setup}
+{test_declaration}(ConstexprTest, InvokeWithFailure)
+{{
+  CONSTEXPR_ASSERT(1 == 1 + 1);
+}}
+
+}}
+""".format(
+            test_declaration = test_macro,
+            test_suite_setup = "" if test_macro == "CONSTEXPR_TEST" else CONSTEXPR_TYPED_TEST_SUITE_SETUP,
+        )),
+        compile_stderr = matcher.contains_basic_regex(
+            select({
+                "//configs/compiler:gcc_or_qcc": "\\({pattern}\\)".format(
+                    pattern = "\\|".join([
+                        "CONSTEXPR_ASSERT(1 == 1 + 1)",
+                        "testing::do_constexpr_assert_eq<bool, bool>(true, (1 == (1 + 1)),",
+                    ]),
+                ),
+                "//conditions:default": "CONSTEXPR_ASSERT(1 == 1 + 1)",
+            }),
+        ),
+        deps = [
+            "//arene/base/testing/gtest:gtest_internal",
+            "//testlibs:gtest",
+        ],
+    )
+    for test_macro in [
+        "CONSTEXPR_TEST",
+        "CONSTEXPR_TYPED_TEST",
+    ]
+]
+
+cc_build_error_test(
+    name = "constexpr_assert_false_failure_test",
+    src = inline_src.cpp("""\
+#include "arene/base/testing/gtest/constexpr_test.hpp"
+#include <gtest/gtest.h>
+
+namespace {
+
+CONSTEXPR_TEST(ConstexprTest, InvokeWithFailure)
+{
+  CONSTEXPR_ASSERT_FALSE(1 == 1);
+}
+
+}
+"""),
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//configs/compiler:gcc_or_qcc": "\\({pattern}\\)".format(
+                pattern = "\\|".join([
+                    "CONSTEXPR_ASSERT_FALSE(1 == 1)",
+                    "testing::do_constexpr_assert_eq<bool, bool>(false, (1 == 1),",
+                ]),
+            ),
+            "//conditions:default": "CONSTEXPR_ASSERT_FALSE(1 == 1)",
+        }),
+    ),
+    deps = [
+        "//arene/base/testing/gtest:gtest_internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "static_assertions_config_enabled_test",
+    srcs = ["static_assertions_config_enabled_test.cpp"],
+    defines = ["ARENE_GTEST_STATIC_ASSERTIONS=1"],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/testing/gtest:gtest_internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "static_assertions_config_disabled_test",
+    srcs = ["static_assertions_config_disabled_test.cpp"],
+    defines = ["ARENE_GTEST_STATIC_ASSERTIONS=0"],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/testing/gtest:gtest_internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "static_assertions_config_test",
+    srcs = ["static_assertions_config_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/testing/gtest:gtest_internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "static_assertions_test",
+    srcs = ["static_assertions_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing/gtest:gtest_internal",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

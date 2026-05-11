@@ -1,0 +1,56 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "optional_base.hpp",
+        "optional_value_interface.hpp",
+        "optional_value_interface_exceptions_disabled.hpp",
+        "optional_value_interface_exceptions_enabled.hpp",
+    ],
+)
+
+cc_library_with_variants(
+    name = "detail",
+    hdrs = [":hdrs"],
+    visibility = [
+        "//arene/base/optional:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:type_traits",
+        "//arene/base:utility",
+        "//arene/base/compiler_support",
+        "//arene/base/detail:exceptions",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_copy_assignable",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_destructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:move",
+    ] + select({
+        "//configs:exceptions_enabled": [
+            "//arene/base/stdlib_choice:stdexcept",
+        ],
+        "//configs:exceptions_disabled": [],
+    }),
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+    ],
+    visibility = ["//arene/base/optional:__pkg__"],
+)

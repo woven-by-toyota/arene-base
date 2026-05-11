@@ -1,0 +1,149 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load(
+    "//rules:transitions.bzl",
+    "transition_use_toolchain_stdlib",
+)
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "include/algorithm",
+        "include/array",
+        "include/atomic",
+        "include/bitset",
+        "include/cassert",
+        "include/ccomplex",
+        "include/cctype",
+        "include/cerrno",
+        "include/cfenv",
+        "include/cfloat",
+        "include/chrono",
+        "include/cinttypes",
+        "include/ciso646",
+        "include/climits",
+        "include/clocale",
+        "include/cmath",
+        "include/codecvt",
+        "include/complex",
+        "include/condition_variable",
+        "include/csetjmp",
+        "include/csignal",
+        "include/cstdalign",
+        "include/cstdarg",
+        "include/cstdbool",
+        "include/cstddef",
+        "include/cstdint",
+        "include/cstdio",
+        "include/cstdlib",
+        "include/cstring",
+        "include/ctgmath",
+        "include/ctime",
+        "include/cuchar",
+        "include/cwchar",
+        "include/cwctype",
+        "include/deque",
+        "include/exception",
+        "include/forward_list",
+        "include/fstream",
+        "include/functional",
+        "include/future",
+        "include/initializer_list",
+        "include/iomanip",
+        "include/ios",
+        "include/iosfwd",
+        "include/iostream",
+        "include/istream",
+        "include/iterator",
+        "include/limits",
+        "include/list",
+        "include/locale",
+        "include/map",
+        "include/memory",
+        "include/mutex",
+        "include/new",
+        "include/numeric",
+        "include/ostream",
+        "include/queue",
+        "include/random",
+        "include/ratio",
+        "include/regex",
+        "include/scoped_allocator",
+        "include/set",
+        "include/sstream",
+        "include/stack",
+        "include/stdexcept",
+        "include/streambuf",
+        "include/string",
+        "include/strstream",
+        "include/system_error",
+        "include/thread",
+        "include/tuple",
+        "include/type_info",
+        "include/type_traits",
+        "include/typeindex",
+        "include/typeinfo",
+        "include/unordered_map",
+        "include/unordered_set",
+        "include/utility",
+        "include/valarray",
+        "include/vector",
+    ],
+    visibility = [
+        ":__subpackages__",
+        "//testlibs/utilities:__subpackages__",
+    ],
+)
+
+cc_library(
+    name = "terminate",
+    srcs = select({
+        "//configs:full_libc_enabled": ["terminate.cpp"],
+        "//configs:full_libc_disabled": ["terminate_restricted_libc.cpp"],
+    }),
+    hdrs = ["terminate.hpp"],
+    visibility = ["//:__subpackages__"],
+)
+
+cc_library(
+    name = "deps_with_source_files",
+    tags = ["manual"],
+    deps = [
+        ":terminate",
+    ],
+)
+
+transition_use_toolchain_stdlib(
+    name = "deps_with_source_files_without_toolchain_stdlib",
+    src = "deps_with_source_files",
+    value = False,
+)
+
+cc_library(
+    name = "stdlib",
+    hdrs = [":hdrs"],
+    include_prefix = "",
+    strip_include_prefix = "include/",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":deps_with_source_files_without_toolchain_stdlib",
+        "//stdlib/include/stdlib_detail",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+        "//stdlib/include/stdlib_detail:package",
+    ] + glob(
+        ["terminate*"],
+        allow_empty = False,
+    ),
+    visibility = ["//pkg:__pkg__"],
+)

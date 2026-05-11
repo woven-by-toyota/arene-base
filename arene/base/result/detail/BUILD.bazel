@@ -1,0 +1,69 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "in_place_error",
+    hdrs = [
+        "in_place_error.hpp",
+    ],
+    visibility = [
+        "//arene/base/result:__subpackages__",
+    ],
+)
+
+cc_library_with_variants(
+    name = "in_place_value",
+    hdrs = [
+        "in_place_value.hpp",
+    ],
+    visibility = [
+        "//arene/base/result:__subpackages__",
+    ],
+)
+
+cc_library_with_variants(
+    name = "result_base",
+    hdrs = [
+        "result_base.hpp",
+    ],
+    visibility = [
+        "//arene/base/result:__subpackages__",
+    ],
+    deps = [
+        ":in_place_error",
+        ":in_place_value",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base:monostate",
+        "//arene/base/compiler_support",
+        "//arene/base/memory:construct_at",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_destructible",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_manipulation:give_qualifiers_to",
+        "//arene/base/type_manipulation:non_constructible_dummy",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:conditional",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "in_place_error.hpp",
+        "in_place_value.hpp",
+        "result_base.hpp",
+    ],
+    visibility = ["//arene/base/result:__pkg__"],
+)

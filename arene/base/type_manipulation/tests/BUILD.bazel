@@ -1,0 +1,84 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+cc_test(
+    name = "consume_values_test",
+    srcs = ["consume_values_test.cpp"],
+    deps = [
+        "//arene/base/type_manipulation",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "ebo_holder_test",
+    srcs = ["ebo_holder_test.cpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_manipulation:ebo_holder",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "give_qualifiers_to_test",
+    srcs = ["give_qualifiers_to_test.cpp"],
+    deps = [
+        "//arene/base/type_manipulation",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "non_constructible_dummy_test",
+    srcs = ["non_constructible_dummy_test.cpp"],
+    deps = [
+        "//arene/base/testing:gtest",
+        "//arene/base/type_manipulation",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "repeat_type_test",
+    srcs = ["repeat_type_test.cpp"],
+    deps = [
+        "//arene/base/type_manipulation",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "smallest_integer_for_test",
+    srcs = ["smallest_integer_for_test.cpp"],
+    deps = [
+        "//arene/base/type_manipulation",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test(
+    name = "static_if_test",
+    srcs = ["static_if_test.cpp"],
+    deps = [
+        "//arene/base/type_manipulation",
+        "//testlibs:gtest",
+    ],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

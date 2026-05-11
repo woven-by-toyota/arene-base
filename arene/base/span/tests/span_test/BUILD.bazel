@@ -1,0 +1,391 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+cc_library_with_variants(
+    name = "equivalent_span_to",
+    testonly = True,
+    hdrs = [
+        "equivalent_span_to.hpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/span:internal",
+        "//arene/base/stdlib_choice:cstddef",
+        "//configs:incompatible_with_toolchain_stdlib_disabled",
+        "//testlibs:gtest",
+    ],
+)
+
+span_value_types = [
+    "arene::base::byte",
+    "char",
+    "uchar",  # this has an alias in helpers.hpp
+    "int",
+    "uint",  # this has an alias in helpers.hpp
+    "std::int64_t",
+    "std::uint64_t",
+    "float",
+    "double",
+]
+
+structured_tests = [
+    (
+        cc_library_with_variants(
+            name = "helpers_{}".format(type_name),
+            testonly = True,
+            hdrs = [
+                "helpers.hpp",
+            ],
+            defines = ["TEST_VALUE_TYPE={}".format(value_type)],
+            tags = tags,
+            visibility = [
+                "//tools/compdb:__subpackages__",
+            ],
+            deps = [
+                "//arene/base:byte",
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:begin",
+                "//arene/base/stdlib_choice:cstddef",
+                "//arene/base/stdlib_choice:end",
+                "//arene/base/stdlib_choice:integral_constant",
+                "//arene/base/stdlib_choice:min_value_overload",
+                "//arene/base/type_list:concat",
+                "//arene/base/type_list:concat_unique",
+                "//arene/base/type_list:flat_map",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "as_bytes_{}_test".format(type_name),
+            srcs = [
+                "as_bytes.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:byte",
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:min",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "construction_default_{}_test".format(type_name),
+            srcs = [
+                "construction_default.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base/span:internal",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "construction_from_c_array_{}_test".format(type_name),
+            srcs = [
+                "construction_from_c_array.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:array",
+                "//arene/base/span:internal",
+                "//testlibs:gtest",
+            ],
+        ),
+        # currently depends on std::vector so cannot be with_variants
+        cc_test(
+            name = "construction_from_fixed_size_container_{}_test".format(type_name),
+            srcs = [
+                "construction_from_fixed_size_container.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "construction_from_pointer_and_size_{}_test".format(type_name),
+            srcs = [
+                "construction_from_pointer_and_size.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:cstddef",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "detail_{}_test".format(type_name),
+            srcs = [
+                "details.cpp",
+            ],
+            tags = tags,
+            deps = [
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:cstddef",
+                "//arene/base/stdlib_choice:numeric_limits",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "element_access_{}_test".format(type_name),
+            srcs = [
+                "element_access.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:cstddef",
+                "//arene/base/stdlib_choice:declval",
+                "//arene/base/stdlib_choice:ignore",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test(
+            name = "element_access_{}_death_test".format(type_name),
+            srcs = [
+                "element_access_death_test.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:ignore",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "first_in_bounds_{}_test".format(type_name),
+            srcs = [
+                "first_in_bounds.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":equivalent_span_to",
+                ":helpers_{}".format(type_name),
+                "//arene/base/span:internal",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "first_out_of_bounds_{}_test".format(type_name),
+            srcs = [
+                "first_out_of_bounds.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base/span:internal",
+                "//arene/base/testing:gtest",
+                "//testlibs:death_test_support",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "index_operator_{}_test".format(type_name),
+            srcs = [
+                "index_operator.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:declval",
+                "//arene/base/stdlib_choice:min_value_overload",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "index_operator_{}_death_test".format(type_name),
+            srcs = [
+                "index_operator_death_test.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:ignore",
+                "//arene/base/stdlib_choice:min_value_overload",
+                "//arene/base/testing:gtest",
+                "//testlibs:death_test_support",
+                "//testlibs:gtest",
+            ],
+        ),
+        # Cannot with_variants as it depends on vector
+        cc_test(
+            name = "iteration_{}_test".format(type_name),
+            srcs = [
+                "iteration.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "last_in_bounds_{}_test".format(type_name),
+            srcs = [
+                "last_in_bounds.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":equivalent_span_to",
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "last_out_of_bounds_{}_test".format(type_name),
+            srcs = [
+                "last_out_of_bounds.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//arene/base/testing:gtest",
+                "//testlibs:death_test_support",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "static_properties_{}_test".format(type_name),
+            srcs = [
+                "static_properties.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base:type_traits",
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:add_lvalue_reference",
+                "//arene/base/stdlib_choice:add_pointer",
+                "//arene/base/stdlib_choice:cstddef",
+                "//arene/base/stdlib_choice:iterator_traits",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "subspan_{}_death_test".format(type_name),
+            srcs = [
+                "subspan_death_test.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base/span:internal",
+                "//testlibs:death_test_support",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "subspan_dynamic_extents_{}_test".format(type_name),
+            srcs = [
+                "subspan_dynamic_extents.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:declval",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "subspan_in_bounds_{}_test".format(type_name),
+            srcs = [
+                "subspan_in_bounds.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":equivalent_span_to",
+                ":helpers_{}".format(type_name),
+                "//arene/base:iterator",
+                "//arene/base/span:internal",
+                "//arene/base/testing:gtest",
+                "//testlibs:gtest",
+            ],
+        ),
+        cc_test_with_variants(
+            name = "subspan_static_extents_{}_test".format(type_name),
+            srcs = [
+                "subspan_static_extents.cpp",
+            ],
+            tags = tags,
+            deps = [
+                ":helpers_{}".format(type_name),
+                "//arene/base/span:internal",
+                "//arene/base/stdlib_choice:declval",
+                "//testlibs:gtest",
+            ],
+        ),
+    )
+    for type_name, value_type, tags in [
+        (
+            value_type.replace("::", "_"),
+            value_type,
+            [] if value_type == span_value_types[0] else [
+                # Only run IWYU on one of the tests
+                "no-arene-iwyu",
+            ],
+        )
+        for value_type in span_value_types
+    ]
+]
+
+flattened_tests = [
+    individual_test
+    for tests_per_type in structured_tests
+    for test_variants in tests_per_type
+    for individual_test in test_variants
+    if individual_test.endswith("_test")
+]
+
+test_suite(
+    name = "span_test",
+    tests = flattened_tests,
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+)
+
+exports_files(
+    glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)

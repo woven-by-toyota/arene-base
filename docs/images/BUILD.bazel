@@ -1,0 +1,6 @@
+exports_files(
+    [
+        "arene-os-logo.png",
+    ],
+    visibility = ["//:__subpackages__"],
+)

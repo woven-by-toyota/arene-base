@@ -1,0 +1,100 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+module(
+    name = "arene-base",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_cc", version = "0.1.1")
+
+bazel_dep(name = "buildifier_prebuilt", version = "8.0.1", dev_dependency = True)
+bazel_dep(name = "google_benchmark", version = "1.9.4", dev_dependency = True)
+bazel_dep(name = "rules_rust", version = "0.69.0", dev_dependency = True)
+
+
+# Patch rules_rust to work with the PATH set by our Nix shell and to allow
+# override of cargo-bazel-bootstrap
+[
+    archive_override(
+        module_name = "rules_rust",
+        integrity = "sha256-13DC4rKnqqsHK6oXrbVSDgn1Xs07uSe4T5h7QKfWqrU=",
+        patch_strip = 1,
+        patches = [
+            # https://github.com/bazelbuild/rules_rust/issues/2177
+            "//:patches/rules_rust/0001-enable-default-shell-env-with-rustc.patch",
+            # Allow the cu_nr extension be used as a dev_dependency by
+            # honoring the root module's dev-ness when declaring direct deps. This
+            # is required so we can override cargo_bazel_bootstrap to hard-code the
+            # linker path (see cargo_bazel_bootstrap.bzl) while keeping rules_rust
+            # dev-only, so it doesn't leak into consumer module graphs.
+            "//:patches/rules_rust/0002-honor-root-module-s-dev_dependency-setting-in-cu_nr-.patch",
+        ],
+        strip_prefix = "rules_rust-{}".format(version),
+        urls = [
+            "https://github.com/bazelbuild/rules_rust/archive/refs/tags/{}.tar.gz".format(version),
+        ],
+    )
+    for version in ["0.69.0"]
+]
+
+rust = use_extension(
+    "@rules_rust//rust:extensions.bzl",
+    "rust",
+    dev_dependency = True,
+)
+rust.toolchain(versions = ["1.94.1"])
+use_repo(rust, "rust_toolchains")
+
+register_toolchains(
+    "@rust_toolchains//:all",
+    dev_dependency = True,
+)
+
+crate = use_extension(
+    "@rules_rust//crate_universe:extensions.bzl",
+    "crate",
+    dev_dependency = True,
+)
+crate.spec(
+    package = "libc",
+    version = "0.2.185",
+)
+crate.spec(
+    package = "rand_xoshiro",
+    version = "0.8.0",
+)
+crate.from_specs(name = "crates")
+use_repo(crate, "crates")
+
+# cargo-bazel is built during the loading phase by the cu_nr (crate universe
+# non-reproducible) extension. Because this happens inside a repository rule,
+# Bazel's C++ toolchain is not available, so the build relies on finding `cc`
+# on the PATH. In locked-down build environments where `cc` is not on the PATH,
+# this fails. The override below substitutes a cargo_bazel_bootstrap that
+# hard-codes the linker path, scoped only to this bootstrap build.
+cargo_bootstrap_override_linker = use_extension(
+    "//extensions:cargo_bazel_bootstrap.bzl",
+    "cargo_bootstrap_override_linker",
+    dev_dependency = True,
+)
+use_repo(cargo_bootstrap_override_linker, "cargo_bazel_bootstrap_override_linker")
+
+cu_nr = use_extension(
+    "@rules_rust//crate_universe/private:internal_extensions.bzl",
+    "cu_nr",
+    dev_dependency = True,
+)
+use_repo(cu_nr, "cargo_bazel_bootstrap")
+
+override_repo(
+    cu_nr,
+    cargo_bazel_bootstrap = "cargo_bazel_bootstrap_override_linker",
+)
+
+
+bazel_dep(name = "googletest", version = "1.14.0", repo_name = "com_google_googletest")
+bazel_dep(name = "rules_build_error", version = "0.8.6", dev_dependency = True)

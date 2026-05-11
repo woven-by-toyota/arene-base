@@ -1,0 +1,48 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
+load("//rules:cc_test.bzl", "cc_test")
+
+cc_test(
+    name = "not_fn_test",
+    srcs = [
+        "not_fn_test.cpp",
+    ],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:optional",
+        "//arene/base:tuple",
+        "//arene/base:type_list",
+        "//arene/base/functional:internal",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_empty",
+        "//arene/base/stdlib_choice:pair",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_build_error_test(
+    name = "function_object_must_be_move_constructible_test",
+    src = "function_object_must_be_move_constructible_test.cpp",
+    compile_stderr = matcher.has_substr("Bound function must be move-constructible."),
+    deps = ["//arene/base/functional:internal"],
+)
+
+cc_build_error_test(
+    name = "not_constructible_from_function_test",
+    src = "not_constructible_from_function_test.cpp",
+    compile_stderr = matcher.has_substr("Bound function must be constructible from input."),
+    deps = ["//arene/base/functional:internal"],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)

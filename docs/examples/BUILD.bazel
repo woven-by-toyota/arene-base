@@ -1,0 +1,86 @@
+# Copyright 2024, Toyota Motor Corporation
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "atomic_counter_examples.cpp",
+        "compiler_support_examples.cpp",
+        "constraints_examples.cpp",
+        "expect_examples.cpp",
+        "inline_container_examples.cpp",
+        "ordering_examples.cpp",
+        "result_examples.cpp",
+        "scope_guard_examples.cpp",
+        "type_name_examples.cpp",
+        "type_traits_examples.cpp",
+        "use_span_examples.cpp",
+        "utility_examples.cpp",
+    ],
+)
+
+cc_library(
+    name = "examples",
+    srcs = [":srcs"],
+    visibility = [
+        "//visibility:private",
+    ],
+    deps = [
+        "//:everything",
+    ],
+)
+
+cc_binary(
+    name = "type_list",
+    srcs = [
+        "type_list_examples.cpp",
+    ],
+    deps = [
+        "//:type_list",
+    ],
+)
+
+cc_binary(
+    name = "scope_guard_examples",
+    srcs = [
+        "scope_guard_examples.cpp",
+    ],
+    visibility = [
+        "//visibility:private",
+    ],
+    deps = [
+        "//:everything",
+    ],
+)
+
+filegroup(
+    name = "test_srcs",
+    srcs = [
+        "external_vector_test_examples.cpp",
+        "inline_vector_test_examples.cpp",
+    ],
+)
+
+cc_test(
+    name = "test_examples",
+    srcs = [":test_srcs"],
+    visibility = [
+        "//visibility:private",
+    ],
+    deps = [
+        "//:everything",
+        "//:inline_container_testing",
+        "//testlibs:gtest",
+    ],
+)
+
+#! [type_traits_build_example]
+cc_library(
+    name = "type_traits_tutorial",
+    srcs = ["type_traits_tutorial.cpp"],
+    deps = [
+        "@arene-base//:type_traits",
+    ],
+)
+#! [type_traits_build_example]

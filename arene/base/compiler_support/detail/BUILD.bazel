@@ -1,0 +1,25 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "asan_annotations_disabled.hpp",
+        "asan_annotations_enabled.hpp",
+        "expect_builtin.hpp",
+        "expect_plain.hpp",
+        "thread_safety_annotations_disabled.hpp",
+        "thread_safety_annotations_enabled.hpp",
+    ],
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        ":hdrs",
+    ],
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)

@@ -1,0 +1,64 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+common --enable_bzlmod
+common --enable_platform_specific_config
+
+# Empty glob patterns probably means a file is missing
+build --incompatible_disallow_empty_glob=True
+
+# Enable strict action env (mainly for LD_LIBRARY_PATH). We inherit PATH as that
+# is externally set to paths in the Nix store.
+build --incompatible_strict_action_env=True
+build --action_env=PATH
+
+######
+# Configuration for C++ compiler options that are used across all compilers.
+#####
+
+# We always want Werror on, even if `treat_warnings_as_errors` isn't a toolchain feature.
+build --copt -Werror
+
+# always use registered toolchains instead of auto detecting.
+common --incompatible_enable_cc_toolchain_resolution
+common --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+common --repo_env="BAZEL_USE_CPP_ONLY_TOOLCHAIN=1"
+
+# configuration to explicitly use the local toolchain
+build:local_toolchain --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=0
+build:local_toolchain --extra_toolchains=@local_config_cc_toolchains//:all
+
+# Time trace configuration
+# Users on macOS may need to disable default_link_libs if using GCC
+# build:time-trace --features=-default_link_libs
+build:time-trace --aspects=//aspects:time_trace.bzl%time_trace
+build:time-trace --output_groups=time_trace
+
+# https://github.com/bazelbuild/bazel/issues/23312
+# https://github.com/bazelbuild/rules_cc/blob/71bdd947587c95c147687d0ac2aacdd1c25e3fcd/cc/private/toolchain/unix_cc_toolchain_config.bzl#L1726-L1741
+build:macos --host_features=-macos_default_link_flags
+build:macos --features=-macos_default_link_flags
+build:macos --linkopt=-no-canonical-prefixes
+
+#####
+# Config for coverage generation
+#####
+coverage --combined_report=lcov
+coverage --experimental_generate_llvm_lcov
+
+# https://github.com/bazelbuild/bazel/issues/14970#issuecomment-1894565761
+coverage:macos --copt=-ffile-compilation-dir=.
+
+# Enable color in gtest test summaries
+test --test_env=GTEST_COLOR=1
+
+# Enable failing tests to be displayed by default
+test --test_output=errors
+
+common --@rules_rust//rust/settings:toolchain_linker_preference=cc
+common --@rules_rust//rust/settings:experimental_use_cc_common_link=True
+common --@rules_rust//rust/settings:experimental_use_allocator_libraries_with_mangled_symbols=True
+
+
+try-import %workspace%/user.bazelrc

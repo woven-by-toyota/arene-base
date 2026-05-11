@@ -1,0 +1,395 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools/compdb:__subpackages__"])
+
+test_suite(
+    name = "choose_quantity_kind_base_error_test",
+    tests = [
+        subtest
+        for subtest, _ in [
+            (
+                "choose_quantity_kind_base_error_{}_test".format(i),
+                cc_build_error_test(
+                    name = "choose_quantity_kind_base_error_{}_test".format(i),
+                    src = inline_src.cpp("""\
+            #include "arene/base/units.hpp"
+
+            class base_kind;
+            class base_unit : public arene::base::quantity_unit<base_unit, base_kind> {{}};
+            class base_kind : public arene::base::quantity_kind<base_kind, base_unit> {{}};
+            class my_origin : public arene::base::quantity_origin<my_origin> {{}};
+
+            auto main() -> int {{
+                class my_kind : public arene::base::quantity_kind<{args}> {{}};
+            }}
+            """.format(
+                        args = args,
+                    )),
+                    compile_stderr = matcher.has_substr(expected_message),
+                    deps = ["//arene/base:units"],
+                ),
+            )
+            for i, (args, expected_message) in enumerate([
+                ("my_kind, int", "The specified parent kind must be a quantity kind"),
+                ("my_kind, base_unit, my_origin", "The specified parent kind must not be a unit"),
+                ("my_kind, base_unit, base_kind", "The specified parent kind must not be a unit"),
+                ("my_kind, my_origin, base_kind", "The specified unit must be a quantity unit"),
+                ("my_kind, int, base_kind", "The specified parent kind must be a quantity kind"),
+                ("my_kind, int, my_origin", "The specified parent kind must be a quantity kind"),
+                ("my_kind, my_origin, int", "The specified unit must be a quantity unit"),
+                ("my_kind, base_kind, base_unit, my_origin", "The specified origin must be a quantity origin"),
+                ("my_kind, my_origin, base_kind, base_unit", "The specified parent kind must be a quantity kind"),
+                ("my_kind, base_unit, my_origin, base_kind", "The specified parent kind must not be a unit"),
+                ("my_kind, int, my_origin, base_unit", "The specified parent kind must be a quantity kind"),
+                ("my_kind, base_kind, int, base_unit", "The specified origin must be a quantity origin"),
+                ("my_kind, base_kind, my_origin, int", "The specified unit must be a quantity unit"),
+            ])
+        ]
+    ],
+)
+
+cc_build_error_test(
+    name = "backward_relative_quantity_origin_error_test",
+    src = inline_src.cpp("""\
+    #include "arene/base/units.hpp"
+
+    class my_origin : public arene::base::quantity_origin<my_origin> {};
+    class relative_to_my_origin : public arene::base::relative_origin<relative_to_my_origin, my_origin> {};
+    class base_kind : public arene::base::quantity_kind<base_kind, relative_to_my_origin> {};
+    class child_kind : public arene::base::quantity_kind<child_kind, base_kind, my_origin> {};
+    """),
+    compile_stderr = matcher.has_substr("If the parent of a derived quantity kind has an origin, the derived kind's origin must be relative to it"),
+    deps = ["//arene/base:units"],
+)
+
+cc_build_error_test(
+    name = "origin_relative_to_non_origin_error_test",
+    src = inline_src.cpp("""\
+    #include "arene/base/units.hpp"
+
+    class bad_relative_origin : public arene::base::relative_origin<bad_relative_origin, int> {};
+    """),
+    compile_stderr = matcher.has_substr("The base origin supplied to relative_origin must actually be a quantity origin"),
+    deps = ["//arene/base:units"],
+)
+
+cc_test_with_variants(
+    name = "base_kind_set_test",
+    srcs = [
+        "base_kind_set_test.cpp",
+    ],
+    deps = [
+        "//arene/base:units",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "base_kind_set_death_test",
+    srcs = [
+        "base_kind_set_death_test.cpp",
+    ],
+    deps = [
+        "//arene/base:units",
+        "//testlibs:death_test_support",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "common_units_test",
+    srcs = [
+        "common_units_test.cpp",
+    ],
+    deps = [
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+test_suite(
+    name = "explicit_base_set_error_test",
+    tests = [
+        subtest
+        for subtest, _ in [
+            (
+                "explicit_base_set_error_{}_test".format(i),
+                cc_build_error_test(
+                    name = "explicit_base_set_error_{}_test".format(i),
+                    src = inline_src.cpp("""\
+            #include "arene/base/units.hpp"
+
+            class length : public arene::base::quantity_kind<length> {{}};
+
+            auto main() -> int
+            {{
+                arene::base::units_detail::explicit_base_set<{type}>;
+            }}
+            """.format(
+                        type = type,
+                    )),
+                    compile_stderr = matcher.has_substr("explicit base set cannot be determined for invalid quantity kind"),
+                    deps = ["//arene/base:units"],
+                ),
+            )
+            for i, type in enumerate([
+                "int",
+                "length*",
+                "length&",
+                "length&&",
+            ])
+        ]
+    ],
+)
+
+cc_test_with_variants(
+    name = "explicit_base_set_test",
+    srcs = [
+        "explicit_base_set_test.cpp",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:units",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:ratio",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "quantity_test",
+    srcs = [
+        "quantity_test.cpp",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:type_traits",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:ratio",
+        "//arene/base/testing:gtest",
+        "//arene/base/units:internal",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "quantity_combine_test",
+    srcs = [
+        "quantity_combine_test.cpp",
+    ],
+    deps = [
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:ratio",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "quantity_exponent_test",
+    srcs = [
+        "quantity_exponent_test.cpp",
+    ],
+    deps = [
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "quantity_implicitly_convertible_test",
+    srcs = [
+        "quantity_implicitly_convertible_test.cpp",
+    ],
+    deps = [
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "quantity_in_test",
+    srcs = [
+        "quantity_in_test.cpp",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "quantity_kinds_test",
+    srcs = [
+        "quantity_kinds_test.cpp",
+    ],
+    deps = [
+        "//arene/base:compare",
+        "//arene/base:constraints",
+        "//arene/base:type_traits",
+        "//arene/base:units",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:ratio",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_test_with_variants(
+    name = "scaled_unit_test",
+    srcs = [
+        "scaled_unit_test.cpp",
+    ],
+    deps = [
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:ratio",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
+cc_build_error_test(
+    name = "integer_scale_factor_error_test",
+    src = inline_src.cpp("""\
+    #include "arene/base/units.hpp"
+
+    class my_kind : public arene::base::quantity_kind<my_kind> {};
+    class my_unit : public arene::base::quantity_unit<my_unit, my_kind> {};
+
+    using scaled = arene::base::scaled_unit<my_unit, int>;
+    """),
+    compile_stderr = matcher.has_substr("The scale factor must be a ratio or a class wrapping a floating point scale"),
+    deps = ["//arene/base:units"],
+)
+
+cc_build_error_test(
+    name = "class_scale_factor_error_test",
+    src = inline_src.cpp("""\
+    #include "arene/base/units.hpp"
+
+    class my_kind : public arene::base::quantity_kind<my_kind> {};
+    class my_unit : public arene::base::quantity_unit<my_unit, my_kind> {};
+    class some_class{};
+
+    using scaled = arene::base::scaled_unit<my_unit, some_class>;
+    """),
+    compile_stderr = matcher.has_substr("The scale factor must be a ratio or a class wrapping a floating point scale"),
+    deps = ["//arene/base:units"],
+)
+
+cc_build_error_test(
+    name = "infinite_scale_factor_error_test",
+    src = inline_src.cpp("""\
+    #include "arene/base/units.hpp"
+    #include "arene/base/stdlib_choice/numeric_limits.hpp"
+
+    class my_kind : public arene::base::quantity_kind<my_kind> {};
+    class my_unit : public arene::base::quantity_unit<my_unit, my_kind> {};
+    class some_class{
+    public:
+      static constexpr double value = std::numeric_limits<double>::infinity();
+    };
+
+    using scaled = arene::base::scaled_unit<my_unit, some_class>;
+    """),
+    compile_stderr = matcher.has_substr("The scale factor must be a ratio or a class wrapping a floating point scale"),
+    deps = [
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+cc_build_error_test(
+    name = "nan_scale_factor_error_test",
+    src = inline_src.cpp("""\
+    #include "arene/base/units.hpp"
+    #include "arene/base/stdlib_choice/numeric_limits.hpp"
+
+    class my_kind : public arene::base::quantity_kind<my_kind> {};
+    class my_unit : public arene::base::quantity_unit<my_unit, my_kind> {};
+    class some_class{
+    public:
+      static constexpr double value = std::numeric_limits<double>::quiet_NaN();
+    };
+
+    using scaled = arene::base::scaled_unit<my_unit, some_class>;
+    """),
+    compile_stderr = matcher.has_substr("The scale factor must be a ratio or a class wrapping a floating point scale"),
+    deps = [
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+cc_build_error_test(
+    name = "zero_scale_factor_error_test",
+    src = inline_src.cpp("""\
+    #include "arene/base/units.hpp"
+    #include "arene/base/stdlib_choice/numeric_limits.hpp"
+
+    class my_kind : public arene::base::quantity_kind<my_kind> {};
+    class my_unit : public arene::base::quantity_unit<my_unit, my_kind> {};
+    class some_class{
+    public:
+      static constexpr double value = 0;
+    };
+
+    using scaled = arene::base::scaled_unit<my_unit, some_class>;
+    """),
+    compile_stderr = matcher.has_substr("The scale factor must be a ratio or a class wrapping a floating point scale"),
+    deps = [
+        "//arene/base:units",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+cc_build_error_test(
+    name = "bad_base_unit_error_test",
+    src = inline_src.cpp("""\
+    #include "arene/base/units.hpp"
+
+    class my_kind : public arene::base::quantity_kind<my_kind> {};
+
+    using scaled = arene::base::scaled_unit<my_kind, std::kilo>;
+    """),
+    compile_stderr = matcher.has_substr("The supplied BaseUnit must be a valid quantity unit"),
+    deps = ["//arene/base:units"],
+)
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
