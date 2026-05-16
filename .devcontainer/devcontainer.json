@@ -1,0 +1,45 @@
+{
+  "name": "Arene Base C++ Development",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "remoteUser": "ubuntu",
+  
+  "remoteEnv": {
+    "USE_BAZEL_VERSION": "7.5.0"
+  },
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "clangd.cpptools-clangd",
+        "ms-vscode.makefile-tools",
+        "eamodio.gitlens",
+        "ms-vscode.cmake-tools",
+        "charliermarsh.ruff",
+        "xaver.clang-format"
+      ],
+      "settings": {
+        "C_Cpp.default.compilerPath": "/usr/bin/clang",
+        "C_Cpp.default.cppStandard": "c++14",
+        "C_Cpp.clang_format_fallbackStyle": "LLVM",
+        "[cpp]": {
+          "editor.defaultFormatter": "xaver.clang-format",
+          "editor.formatOnSave": true
+        },
+        "[c]": {
+          "editor.defaultFormatter": "xaver.clang-format",
+          "editor.formatOnSave": true
+        }
+      },
+      "terminal.integrated.env.linux": {
+        "BASH_COMPLETION_COMPAT_DIR": "/etc/bash_completion.d"
+      }
+    }
+  },
+  
+  "postCreateCommand": "chown -R ubuntu:ubuntu /workspace && bash -c 'mkdir -p ~/.local/share/bash-completion/completions/ && bazel completion bash > ~/.local/share/bash-completion/completions/bazel' && bazel --version && clang --version && git --version"
+}
