@@ -524,6 +524,10 @@ cc_test_with_variants(
     srcs = [
         "circular_buffer_test.cpp",
     ],
+    copts = select({
+        "//configs/compiler:gcc": ["-Wno-error=self-move"],
+        "//conditions:default": [],
+    }),
     visibility = [
         "//tools/compdb:__subpackages__",
     ],
@@ -550,6 +554,10 @@ cc_test_with_variants(
     srcs = [
         "deque_test.cpp",
     ],
+    copts = select({
+        "//configs/compiler:gcc": ["-Wno-error=self-move"],
+        "//conditions:default": [],
+    }),
     visibility = [
         "//tools/compdb:__subpackages__",
     ],

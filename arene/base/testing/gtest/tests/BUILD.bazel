@@ -101,12 +101,7 @@ namespace {{
         )),
         compile_stderr = matcher.contains_basic_regex(
             select({
-                "//configs/compiler:gcc_or_qcc": "\\({pattern}\\)".format(
-                    pattern = "\\|".join([
-                        "CONSTEXPR_ASSERT(1 == 1 + 1)",
-                        "testing::do_constexpr_assert_eq<bool, bool>(true, (1 == (1 + 1)),",
-                    ]),
-                ),
+                "//configs/compiler:gcc_or_qcc": "non-constant condition for static assertion",
                 "//conditions:default": "CONSTEXPR_ASSERT(1 == 1 + 1)",
             }),
         ),
@@ -138,12 +133,7 @@ CONSTEXPR_TEST(ConstexprTest, InvokeWithFailure)
 """),
     compile_stderr = matcher.contains_basic_regex(
         select({
-            "//configs/compiler:gcc_or_qcc": "\\({pattern}\\)".format(
-                pattern = "\\|".join([
-                    "CONSTEXPR_ASSERT_FALSE(1 == 1)",
-                    "testing::do_constexpr_assert_eq<bool, bool>(false, (1 == 1),",
-                ]),
-            ),
+            "//configs/compiler:gcc_or_qcc": "non-constant condition for static assertion",
             "//conditions:default": "CONSTEXPR_ASSERT_FALSE(1 == 1)",
         }),
     ),

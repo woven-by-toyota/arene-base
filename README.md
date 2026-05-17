@@ -41,26 +41,26 @@ toolchains. Supported toolchains and platforms may be added in the future.
 
 ### How to build and test
 
-To build all targets:
+To build all targets using the local toolchain:
 
 ```shell
-bazelisk build --  //arene/base/... //stdlib/...
+bazelisk build  --config=local_toolchain --  //arene/base/... //stdlib/...
 ```
 
 To run all tests:
 
 ```shell
-bazelisk test --  //arene/base/... //stdlib/...
+bazelisk test --config=local_toolchain --  //arene/base/... //stdlib/...
 ```
 
 To run specific tests:
 
 ```shell
 # Run tests for a specific component
-bazelisk test -- //arene/base/array/tests:all
+bazelisk test --config=local_toolchain -- //arene/base/array/tests:all
 
 # Run tests matching a pattern
-bazelisk test -- //arene/base/math/tests:all
+bazelisk test --config=local_toolchain -- //arene/base/math/tests:all
 ```
 
 If you are using Bazel without Bazelisk, replace `bazelisk` with your `bazel`
