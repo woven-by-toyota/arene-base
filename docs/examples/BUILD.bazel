@@ -1,4 +1,6 @@
 # Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 

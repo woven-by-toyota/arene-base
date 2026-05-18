@@ -1,4 +1,8 @@
-<!-- Copyright 2026, Toyota Motor Corporation -->
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->

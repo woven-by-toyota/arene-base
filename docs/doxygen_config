@@ -1,4 +1,10 @@
-# Copyright 2024, Toyota Motor Corporation
+# Doxygen explanatory text
+# SPDX-FileCopyrightText: Copyright © 1997-2024 by Dimitri van Heesch.
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+# Woven by Toyota configuration-specific additions
+# SPDX-FileCopyrightText: Copyright 2024, Toyota Motor Corporation
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 # Doxyfile 1.9.8
 

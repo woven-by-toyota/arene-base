@@ -1,3 +1,7 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 """Bazel rule for generating Doxygen documentation.
 
 Runs Doxygen with a provided configuration file and produces an output

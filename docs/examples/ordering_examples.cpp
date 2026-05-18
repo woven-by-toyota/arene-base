@@ -1,4 +1,6 @@
 // Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // Examples from the documentation of the \ref compare subpackage
 
