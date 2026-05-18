@@ -1,3 +1,9 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 <!-- markdownlint-disable MD041 MD013 -->
 <!-- prettier-ignore -->
 \page extern_constexpr Defining compile-time constants for use in multiple translation units

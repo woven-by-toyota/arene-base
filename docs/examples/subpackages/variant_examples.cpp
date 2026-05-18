@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 ///
 /// @example examples/subpackages/variant.cpp
 /// @brief Examples for the variant subpackage documentation

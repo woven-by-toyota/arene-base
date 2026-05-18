@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #include "arene/base/array.hpp"
 #include "arene/base/inline_container/testing/vector.hpp"
 

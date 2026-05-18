@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TESTING_PROPERTY_CONFIG_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TESTING_PROPERTY_CONFIG_HPP_
 

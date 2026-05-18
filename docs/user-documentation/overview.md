@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 
