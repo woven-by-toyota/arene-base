@@ -12,15 +12,15 @@ on:
 jobs:
   ubuntu-default-compilers:
     strategy:
-    matrix:
-      # Define a custom object for each matrix tier
-      environment:
-        - name: github-default
-          runner_group: Default
-          os_label: ubuntu-24.04
-        - name: arene
-          runner_group: Arene
-          os_label: arene-otemachi-arm64-ubuntu-22.04-256core
+      matrix:
+        # Define a custom object for each matrix tier
+        environment:
+          - name: github-default
+            runner_group: Default
+            os_label: ubuntu-24.04
+          - name: arene
+            runner_group: Arene
+            os_label: arene-otemachi-arm64-ubuntu-22.04-256core
 
     runs-on:
       group: ${{ matrix.environment.runner_group }}
