@@ -7,9 +7,7 @@ name: Public unit tests
 run-name: Running public unit tests
 on:
   push:
-    branches:
-      - main
-      - '**'
+
 jobs:
   ubuntu-default-compilers:
     runs-on:
