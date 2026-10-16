@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/tests/test_iterators.hpp"
+#include "arene/base/functional/detail/operator_equal.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/type_list/concat_unique.hpp"
 #include "stdlib/include/algorithm"
@@ -14,6 +14,7 @@
 #include "testlibs/minitest/minitest.hpp"
 #include "testlibs/utilities/common_test_types.hpp"
 #include "testlibs/utilities/counted_algorithm.hpp"
+#include "testlibs/utilities/functional.hpp"
 #include "testlibs/utilities/iterator_types.hpp"
 
 namespace {
@@ -246,7 +247,7 @@ TEST(AdjacentFindTest, MeetsComplexityRequirementWhenNoAdjacentElements) {
         FUNCTION_LIFT(std::adjacent_find),
         begin,
         end,
-        arene::base::algorithm_detail::operator_equal
+        arene::base::functional_detail::operator_equal
     );
 
     ASSERT_TRUE(result.applications == complexity_limit);
@@ -286,7 +287,7 @@ TEST(AdjacentFindTest, MeetsComplexityRequirementWhenAdjacentElements) {
         FUNCTION_LIFT(std::adjacent_find),
         begin,
         end,
-        arene::base::algorithm_detail::operator_equal
+        arene::base::functional_detail::operator_equal
     );
 
     ASSERT_TRUE(info.applications == complexity_limit);

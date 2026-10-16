@@ -5,13 +5,20 @@
 load("@rules_cc//cc:defs.bzl", "cc_test")
 load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_test(
     name = "concatenate_test",
     srcs = ["concatenate_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support:preprocessor",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -19,9 +26,9 @@ cc_test(
     name = "define_configuration_test",
     srcs = ["define_configuration_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support:preprocessor",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -29,8 +36,8 @@ cc_test(
     name = "require_semicolon_test",
     srcs = ["require_semicolon_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support/preprocessor:require_semicolon",
+        "//testlibs:test_main",
     ],
 )
 
@@ -39,8 +46,8 @@ cc_build_error_test(
     src = "require_semicolon_no_semicolon_test.cpp",
     compile_stderr = matcher.has_substr("expected ';'"),
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support/preprocessor:require_semicolon",
+        "//testlibs:test_main",
     ],
 )
 
@@ -48,13 +55,8 @@ cc_test(
     name = "stringize_test",
     srcs = ["stringize_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support:preprocessor",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

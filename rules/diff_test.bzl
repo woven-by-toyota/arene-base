@@ -38,6 +38,9 @@ def _runfiles_path(f):
 
 def _diff_test_impl(ctx):
     test_bin = ctx.actions.declare_file(ctx.label.name + "-test.sh")
+
+    diff_bin = ctx.executable._diff
+
     ctx.actions.write(
         output = test_bin,
         content = r"""#!/usr/bin/env bash
@@ -64,7 +67,11 @@ if ! {diff} "$RF1" "$RF2"; then
   exit 1
 fi
 """.format(
-            diff = ctx.attr.diff,
+            diff = " ".join(
+                (
+                    [_runfiles_path(diff_bin)] if diff_bin != None else ["diff"]
+                ) + ctx.attr.diff_opts,
+            ),
             fail_msg = shell.quote(ctx.attr.failure_message),
             file1 = _runfiles_path(ctx.file.file1),
             file2 = _runfiles_path(ctx.file.file2),
@@ -74,7 +81,13 @@ fi
     return DefaultInfo(
         executable = test_bin,
         files = depset(direct = [test_bin]),
-        runfiles = ctx.runfiles(files = [test_bin, ctx.file.file1, ctx.file.file2]),
+        runfiles = ctx.runfiles(
+            files = [
+                test_bin,
+                ctx.file.file1,
+                ctx.file.file2,
+            ] + ([diff_bin] if diff_bin != None else []),
+        ),
     )
 
 diff_test = rule(
@@ -96,14 +109,17 @@ diff_test = rule(
         "failure_message": attr.string(
             doc = "Additional message to log if the files' contents do not match.",
         ),
-
-        # SPDX-SnippetBegin
-        # SPDX-SnippetCopyrightText: 2026, Toyota Motor Corporation
-        "diff": attr.string(
-            default = "diff --color=always",
-            doc = "diff command to use",
+        "diff_opts": attr.string_list(
+            default = [
+                "--color=always",
+            ],
+            doc = "diff options to use",
         ),
-        # SPDX-SnippetEnd
+        "_diff": attr.label(
+            doc = "diff command to use",
+            executable = True,
+            cfg = "exec",
+        ),
     },
     test = True,
     implementation = _diff_test_impl,

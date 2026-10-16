@@ -7,9 +7,11 @@
 /// @brief Unit tests for concatenate.hpp
 ///
 
+#include "arene/base/compiler_support/preprocessor/concatenate.hpp"
+
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/preprocessor/stringize.hpp"
 #include "arene/base/testing/gtest.hpp"
 
 namespace {
@@ -24,7 +26,7 @@ TEST(Concatenate, NormalTokensCanBeConcatenated) {
 /// @test `ARENE_CONCATENATE` applied to `__LINE__` concatenates the line number rather than the token `__LINE__`
 TEST(Concatenate, LineCanBeConcatenated) {
   constexpr auto value = ARENE_STRINGIZE(ARENE_CONCATENATE(testing_, __LINE__));
-  STATIC_ASSERT_STREQ(value, "testing_26");
+  STATIC_ASSERT_STREQ(value, "testing_28");
 }
 
 }  // namespace

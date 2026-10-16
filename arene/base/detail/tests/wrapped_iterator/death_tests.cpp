@@ -12,7 +12,7 @@
 
 #include "arene/base/detail/tests/wrapped_iterator/helpers.hpp"
 #include "arene/base/detail/tests/wrapped_iterator/test_template.hpp"
-#include "arene/base/type_list.hpp"
+#include "arene/base/type_list/concat.hpp"
 
 namespace wrapped_iterator_tests {
 

@@ -1,0 +1,142 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load(
+    "//rules:cc_build_error.bzl",
+    "cc_build_error_test",
+    "inline_src",
+    "mandate_error_matcher",
+)
+
+cc_build_error_test(
+    name = "scaled_accessor_element_type_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/scaled_accessor.hpp"
+#include "arene/base/mdspan/default_accessor.hpp"
+
+// Returning a reference from multiplication causes element_type to become a reference (which is illegal).
+struct evil_int {
+  int value;
+
+  friend evil_int& operator*(evil_int left, evil_int right) {
+    static evil_int result;
+    result.value = left.value * right.value;
+    return result;
+  }
+};
+
+auto main() -> int {{
+  arene::base::linalg::scaled_accessor<evil_int, arene::base::default_accessor<evil_int>> acc;
+  return acc.scaling_factor().value;
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "Element type must not be a reference",
+        requirement = "!std::is_reference<.+>::value",
+    ),
+    deps = [
+        "//arene/base/linalg:scaled_accessor",
+        "//arene/base/mdspan:default_accessor",
+    ],
+)
+
+cc_build_error_test(
+    name = "scaled_accessor_reference_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/scaled_accessor.hpp"
+#include "arene/base/mdspan/default_accessor.hpp"
+#include "testlibs/utilities/configurable_value.hpp"
+
+using not_copyable = testing::configurable_value<
+    int,
+    testing::throws_on::nothing,
+    testing::disable::copy_construct | testing::disable::copy_assign
+>;
+
+auto main() -> int {{
+  arene::base::linalg::scaled_accessor<not_copyable, arene::base::default_accessor<not_copyable>> acc;
+  return acc.scaling_factor().value;
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "Reference type must be copy-constructible",
+        requirement = "std::is_copy_constructible<.+>::value",
+    ),
+    deps = [
+        "//arene/base/linalg:scaled_accessor",
+        "//arene/base/mdspan:default_accessor",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_build_error_test(
+    name = "scaled_accessor_scaling_factor_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/scaled_accessor.hpp"
+#include "arene/base/mdspan/default_accessor.hpp"
+#include "testlibs/utilities/configurable_value.hpp"
+
+// A non-assignable type is not semiregular and therefore is not a linalg scalar.
+using not_assignable = testing::configurable_value<
+    int,
+    testing::throws_on::nothing,
+    testing::disable::copy_assign | testing::disable::move_assign
+>;
+
+auto main() -> int {{
+  arene::base::linalg::scaled_accessor<not_assignable, arene::base::default_accessor<not_assignable>> acc;
+  return acc.scaling_factor().value;
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "ScalingFactor must be a linalg scalar",
+        requirement = "arene::base::linalg::is_scalar_v<.+>",
+    ),
+    deps = [
+        "//arene/base/linalg:scaled_accessor",
+        "//arene/base/mdspan:default_accessor",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_build_error_test(
+    name = "scaled_accessor_accessor_policy_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/scaled_accessor.hpp"
+#include "arene/base/mdspan/default_accessor.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+// This is almost, but not quite, a valid mdspan accessor policy.
+class malformed_accessor {
+ public:
+  using element_type = int;
+  using reference = int&;
+  using data_handle_type = int*;
+  using offset_policy = malformed_accessor;
+
+  // This function should return "reference" but returns "element_type" instead.
+  constexpr auto access(data_handle_type handle, std::size_t index) const noexcept -> element_type {
+    return handle[index];
+  }
+
+  constexpr auto offset(data_handle_type handle, std::size_t index) const noexcept -> data_handle_type {
+    return handle + index;
+  }
+};
+
+auto main() -> int {{
+  arene::base::linalg::scaled_accessor<int, malformed_accessor> acc;
+  return acc.scaling_factor();
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "NestedAccessor must be a valid accessor policy",
+        requirement = "arene::base::is_accessor_policy_v<.+>",
+    ),
+    deps = [
+        "//arene/base/linalg:scaled_accessor",
+        "//arene/base/mdspan:default_accessor",
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)

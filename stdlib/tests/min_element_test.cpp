@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "arene/base/algorithm/detail/functional.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
 #include "stdlib/include/algorithm"
 #include "stdlib/include/cstddef"
 #include "stdlib/include/initializer_list"
@@ -10,6 +10,7 @@
 #include "stdlib/include/type_traits"
 #include "testlibs/minitest/minitest.hpp"
 #include "testlibs/utilities/counted_algorithm.hpp"
+#include "testlibs/utilities/functional.hpp"
 #include "testlibs/utilities/iterator_types.hpp"
 
 // NOLINTBEGIN(readability-identifier-length)
@@ -140,7 +141,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(MinElement, MeetsComplexityRequirement, using
         FUNCTION_LIFT(std::min_element),
         begin,
         end,
-        arene::base::algorithm_detail::operator_less
+        arene::base::functional_detail::operator_less
     );
 
     if (n == 0U) {

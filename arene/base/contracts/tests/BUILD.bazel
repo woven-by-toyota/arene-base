@@ -11,17 +11,16 @@ load(
     "transition_capture_contract_stacktraces",
 )
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test(
     name = "contract_test",
     srcs = ["contract_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:string_view",
         "//arene/base/contracts:internal",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -30,15 +29,16 @@ cc_test(
         transition_capture_contract_stacktraces(
             name = "contracts_stacktrace_{}".format(enabled),
             src = "//arene/base/contracts:internal",
-            tags = ["manual"],
+            # checked in the src target
+            tags = ["no-arene-iwyu"],
             value = enabled == "enabled",
         ),
         cc_binary(
             name = "contract_output_{}".format(enabled),
             srcs = ["contract_output.cpp"],
-            tags = ["manual"],
             deps = [
                 ":contracts_stacktrace_{}".format(enabled),
+                "//arene/base/stdlib_choice:terminate",
             ],
         ),
         binary_log(

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -13,7 +17,7 @@ to be `true` most of the time. The public header is:
 #include "arene/base/compiler_support/expect.hpp
 ```
 
-## Using ARENE_EXPECT to optimize conditionals {#using-arene_expect-to-optimize-conditionals}
+# Using ARENE_EXPECT to optimize conditionals {#subpackages-compiler-support-expect-using-arene_expect-to-optimize-conditionals}
 
 The `ARENE_EXPECT` macro takes a boolean expression as an argument, which is
 _expected_ to be `true` most of the time. This expectation is passed to the

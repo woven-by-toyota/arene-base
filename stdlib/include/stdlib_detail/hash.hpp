@@ -15,8 +15,10 @@
 #include "stdlib/include/stdlib_detail/enable_if.hpp"
 #include "stdlib/include/stdlib_detail/integral_constant.hpp"
 #include "stdlib/include/stdlib_detail/is_enum.hpp"
+#include "stdlib/include/stdlib_detail/is_floating_point.hpp"
 #include "stdlib/include/stdlib_detail/is_fundamental.hpp"
 #include "stdlib/include/stdlib_detail/is_pointer.hpp"
+#include "stdlib/include/stdlib_detail/remove_cv.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 // The iwyu-private pragma below will direct users to include '<functional>' for use
@@ -76,6 +78,36 @@ constexpr uint64_t fnv_offset_basis_v<uint64_t, Dummy>{14695981039346656037ULL};
 template <class Dummy>
 constexpr uint32_t fnv_offset_basis_v<uint32_t, Dummy>{2166136261UL};
 
+/// @brief Canonicalize any special values of the given type that compare equal, so their hashes will be equal too
+/// @tparam T Type of the value to canonicalize; SFINAE overload for floating point
+/// @param value Value to canonicalize
+/// @return The unique canonical representative of <c>value</c>'s equivalence class
+template <class T, arene::base::constraints<std::enable_if_t<std::is_floating_point_v<T>>> = nullptr>
+constexpr auto canonicalize_special_values(T value) noexcept -> T {
+  // Canonicalize both +0.0 and -0.0 to +0.0
+  // parasoft-begin-suppress AUTOSAR-M6_2_2-a "std::hash is required to reflect exact equality so we must check for it"
+  ARENE_IGNORE_START();
+  ARENE_IGNORE_ALL("-Wfloat-equal", "Checking specifically for exact 0.0 so it can be specially handled");
+  if (value == T{}) {
+    return T{};
+  }
+  ARENE_IGNORE_END();
+  // parasoft-end-suppress AUTOSAR-M6_2_2-a
+  return value;
+}
+
+/// @brief Canonicalize any special values of the given type that compare equal, so their hashes will be equal too
+/// @tparam T Type of the value to canonicalize; SFINAE overload for non-floating point
+/// The value to canonicalize is passed as @c value.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param value The value to canonicalize
+/// @endcond
+/// @return The unique canonical representative of <c>value</c>'s equivalence class
+template <class T, arene::base::constraints<std::enable_if_t<!std::is_floating_point_v<T>>> = nullptr>
+constexpr auto canonicalize_special_values(T value) noexcept -> T {
+  return value;
+}
+
 /// @brief FNV-1a hash algorithm
 /// @tparam T the type to hash
 ///
@@ -93,6 +125,13 @@ constexpr uint32_t fnv_offset_basis_v<uint32_t, Dummy>{2166136261UL};
 /// @endcode
 template <typename T>
 class fnv1a_hash {
+  // parasoft-begin-suppress AUTOSAR-A0_4_2-a "This assertion exists to prevent users from using long double"
+  static_assert(
+      !is_same_v<remove_cv_t<T>, long double>,
+      "long double is not supported in the Arene Base Standard Library"
+  );
+  // parasoft-end-suppress AUTOSAR-A0_4_2-a
+
  public:
   /// @brief The type of the result of the function call operator
   using result_type = size_t;
@@ -102,7 +141,9 @@ class fnv1a_hash {
   /// @brief Calculate the hash of a value
   /// @param value The value to hash
   /// @return The hash of the value
-  auto operator()(T const& value) const noexcept -> size_t {
+  auto operator()(T value) const noexcept -> size_t {
+    value = ::std::hash_detail::canonicalize_special_values(value);
+
     using scalar_type = conditional_t<sizeof(size_t) == sizeof(uint32_t), uint32_t, uint64_t>;
 
     scalar_type hash{fnv_offset_basis_v<scalar_type>};

@@ -4,17 +4,12 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "detail",
+    hdrs = [
         "bit_cast_builtin.hpp",
         "bit_cast_memcpy.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "detail",
-    hdrs = [":hdrs"],
     visibility = [
         "//arene/base/bit:__subpackages__",
     ],
@@ -29,7 +24,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/bit:__pkg__"],
 )

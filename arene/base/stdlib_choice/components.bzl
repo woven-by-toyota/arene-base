@@ -75,6 +75,10 @@ COMPONENTS = [
         public_header = "type_traits",
     ),
     struct(
+        name = "complex",
+        public_header = "complex",
+    ),
+    struct(
         name = "conditional",
         public_header = "type_traits",
     ),
@@ -184,10 +188,6 @@ COMPONENTS = [
     ),
     struct(
         name = "internal_partition_point",
-        public_header = None,
-    ),
-    struct(
-        name = "internal_relative_find",
         public_header = None,
     ),
     struct(

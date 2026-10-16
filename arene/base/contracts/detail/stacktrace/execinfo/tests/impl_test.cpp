@@ -30,7 +30,7 @@ using ::arene::base::contracts_detail::stacktrace_is_noop;
 using ::arene::base::contracts_detail::symbolize_stack_trace_to_impl;
 
 /// @test Given the execinfo-based backend, ::arene::base::contracts_detail::native_handle_t is `void*`.
-TEST(NativeHandleT, IsVoidPtr) { ::testing::StaticAssertTypeEq<native_handle_t, void*>(); }
+TEST(NativeHandleTExecInfoBackend, IsVoidPtr) { ::testing::StaticAssertTypeEq<native_handle_t, void*>(); }
 
 /// @test Given the execinfo-based backend, ::arene::base::contracts_detail::stacktrace_is_noop is `false`.
 TEST(StacktraceIsNoop, IsFalse) { STATIC_ASSERT_FALSE(stacktrace_is_noop); }

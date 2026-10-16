@@ -10,9 +10,11 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_DIAGNOSTICS_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_DIAGNOSTICS_HPP_
 
+#include "arene/base/compiler_support/platform_queries/compiler_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
+#include "arene/base/compiler_support/preprocessor/require_semicolon.hpp"
+#include "arene/base/compiler_support/preprocessor/stringize.hpp"
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
@@ -119,6 +121,10 @@ static_assert(false, "Unsupported compiler");
 #ifndef ARENE_IGNORE_ALL
 #define ARENE_IGNORE_ALL(s, comment) ARENE_REQUIRE_SEMICOLON
 #endif  // ARENE_IGNORE_ALL
+
+#if defined(ARENE_DOC_GENERATION_RUNNING) && !defined(ARENE_IGNORE_WSELFMOVE)
+#define ARENE_IGNORE_WSELFMOVE(comment) ARENE_REQUIRE_SEMICOLON
+#endif
 
 /// @brief Begins a region of a suppressed diagnostic
 /// @note There must be a call to @c ARENE_IGNORE_END() for each call to @c ARENE_IGNORE_START() .

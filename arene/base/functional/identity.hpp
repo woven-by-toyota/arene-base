@@ -30,8 +30,11 @@ class identity {
     return std::forward<T>(value);
   }
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: identifier 'is_transparent' does not hide an identifier
+  // in class identity"
   /// @brief Indicates that this function object can be used with transparent comparisons.
   using is_transparent = void;
+  // parasoft-end-suppress AUTOSAR-A2_10_1-e
 };
 
 // parasoft-end-suppress AUTOSAR-A2_7_3-a

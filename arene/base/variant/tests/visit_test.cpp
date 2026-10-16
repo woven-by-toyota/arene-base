@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "arene/base/compiler_support/diagnostics.hpp"
+#include "arene/base/compiler_support/platform_queries/exceptions_enabled.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 
 ARENE_IGNORE_START();
 ARENE_IGNORE_ALL("-Wfloat-equal", "Comparisons are against copied values, no maths performed");
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/constraints/substitution_succeeds.hpp"
 #include "arene/base/optional/optional.hpp"

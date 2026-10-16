@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -17,7 +21,7 @@ target is convenient for prototyping when evaluating `arene_base`, but should
 generally not be depended on directly in production as it may include content
 not suitable for a given domain, and may also needlessly slow compile times.
 
-## Available Subpackages {#available-subpackages}
+# Available Subpackages {#subpackages-intro-available-subpackages}
 
 - \subpage algorithm
 - \subpage array
@@ -43,6 +47,7 @@ not suitable for a given domain, and may also needlessly slow compile times.
 - \subpage mutex
 - \subpage optional
 - \subpage pointer
+- \subpage ranges
 - \subpage result
 - \subpage scope_guard
 - \subpage semantic_version

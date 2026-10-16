@@ -4,6 +4,8 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 exports_files(
     glob(["*.cpp"]),
     visibility = ["//:__subpackages__"],
@@ -25,6 +27,6 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:pair",
         "//arene/base/testing:gtest",
         "//arene/base/type_traits:is_invocable",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )

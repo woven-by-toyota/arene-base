@@ -14,6 +14,7 @@ using ::arene::base::byte_swap_detail::byte_swap_raw;
 
 using uint_t = std::uint64_t;
 
+/// @test `byte_swap_raw` reverses the bytes of a 64-bit integer in a `constexpr` context
 TEST(ByteSwap, Uint64Constexpr) {
   STATIC_ASSERT_EQ(
       byte_swap_raw(static_cast<uint_t>(0x0102030405060708ULL)),

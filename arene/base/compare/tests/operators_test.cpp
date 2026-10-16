@@ -8,7 +8,7 @@
 
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"

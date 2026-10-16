@@ -6,8 +6,9 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
@@ -640,6 +641,11 @@ TEST(NullTerminatedStringViewStreamOperator, IsEquivalentToPrintingUnderlyingStr
 #else
   GTEST_SKIP() << "No stream operator when using Arene Base stdlib implementation";
 #endif
+}
+
+/// @test Given a @c null_terminated_string_view, when @c enable_borrowed_range is queried, then its value is @c true .
+TEST(NullTerminatedStringView, IsBorrowedRange) {
+  STATIC_ASSERT_TRUE(::arene::base::ranges::enable_borrowed_range_v<null_terminated_string_view>);
 }
 
 }  // namespace

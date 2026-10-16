@@ -11,9 +11,9 @@
 // IWYU pragma: private, include <algorithm>
 // IWYU pragma: friend "stdlib_detail/.*"
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
+#include "arene/base/functional/detail/operator_equal.hpp"
 #include "arene/base/type_traits/is_predicate.hpp"
 #include "arene/base/type_traits/iterator_category_traits.hpp"
 #include "stdlib/include/stdlib_detail/enable_if.hpp"
@@ -96,13 +96,13 @@ template <
     arene::base::constraints<
         std::enable_if_t<arene::base::is_forward_iterator_v<ForwardIterator>>,
         std::enable_if_t<arene::base::is_predicate_v<
-            arene::base::algorithm_detail::operator_equal_t&,
+            arene::base::functional_detail::operator_equal_t&,
             arene::base::algorithm_detail::iter_reference_t<ForwardIterator>,
             arene::base::algorithm_detail::iter_reference_t<ForwardIterator>>>> = nullptr>
 auto adjacent_find(ForwardIterator first, ForwardIterator last) noexcept(
-    noexcept(std::adjacent_find(first, last, arene::base::algorithm_detail::operator_equal))
+    noexcept(std::adjacent_find(first, last, arene::base::functional_detail::operator_equal))
 ) -> ForwardIterator {
-  return std::adjacent_find(first, last, arene::base::algorithm_detail::operator_equal);
+  return std::adjacent_find(first, last, arene::base::functional_detail::operator_equal);
 }
 
 }  // namespace std

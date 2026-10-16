@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #include "arene/base/array.hpp"
 #include "arene/base/inline_container/testing/external_vector.hpp"
 
@@ -39,10 +43,10 @@ using external_vector_test::my_other_class;
 
 template <>
 auto const arene::base::testing::test_value_array<my_class> =
-    arene::base::to_array<my_class>({my_class{1}, my_class{2}, my_class{3}, my_class{4}, my_class{5}});
+    arene::base::to_array({my_class{1}, my_class{2}, my_class{3}, my_class{4}, my_class{5}});
 
 template <>
-auto const arene::base::testing::test_value_array<my_other_class> = arene::base::to_array<my_other_class>(
+auto const arene::base::testing::test_value_array<my_other_class> = arene::base::to_array(
     {my_other_class{1, 29},
      my_other_class{2, 213},
      my_other_class{3, 99},
@@ -51,19 +55,19 @@ auto const arene::base::testing::test_value_array<my_other_class> = arene::base:
 );
 
 template <>
-constexpr auto arene::base::testing::test_value_array<std::uint64_t> = arene::base::to_array<std::uint64_t>(
-    {1,
+constexpr auto arene::base::testing::test_value_array<std::uint64_t> = arene::base::to_array_of<std::uint64_t>(
+    {1ULL,
      1'234'567'890'123'456'789ULL,
-     2,
-     6,
-     24,
+     2ULL,
+     6ULL,
+     24ULL,
      11'988'127'746'783'356'837ULL,
-     120,
-     720,
-     5'040,
-     40'320,
-     362'880,
-     3'628'800,
+     120ULL,
+     720ULL,
+     5'040ULL,
+     40'320ULL,
+     362'880ULL,
+     3'628'800ULL,
      15'234'563'734'998ULL}
 );
 

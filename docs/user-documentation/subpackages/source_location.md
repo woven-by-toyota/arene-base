@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -23,7 +27,7 @@ The Bazel target is
 //:source_location
 ```
 
-## Source Locations {#source-locations}
+# Source Locations {#subpackages-source-location-source-locations}
 
 `arene::base::src_line_info` stores information about a line of code: the name
 of the source file where it is located, the name of the function where it is

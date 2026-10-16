@@ -94,6 +94,10 @@ class env_var_restorer {
 /// @return the created @c temporary_directory value
 ///
 inline auto create_temporary_directory() -> arene::base::filesystem::temporary_directory {
+  // parasoft-begin-suppress AUTOSAR-A27_0_4-d "'const char *' value constructed from string literal always has the
+  // correct buffer size and a static lifetime"
+  // parasoft-begin-suppress AUTOSAR-A3_9_1-b "Using a char for compatibility with OS functions"
+  // parasoft-begin-suppress AUTOSAR-M3_4_1-a "False positive: 'test_tmpdir' is captured as locally as possible"
   if (char const* const test_tmpdir{getenv("TEST_TMPDIR")}) {  // NOLINT(concurrency-mt-unsafe)
     // parasoft-begin-suppress AUTOSAR-M0_1_3-a "False positive: this is a scope guard, it's used by destroying it"
     detail::env_var_restorer const restorer{"TMPDIR"};
@@ -105,6 +109,9 @@ inline auto create_temporary_directory() -> arene::base::filesystem::temporary_d
 
     return arene::base::filesystem::temporary_directory{arene::base::filesystem::path_string{test_tmpdir}};
   }
+  // parasoft-end-suppress AUTOSAR-M3_4_1-a
+  // parasoft-end-suppress AUTOSAR-A3_9_1-b
+  // parasoft-end-suppress AUTOSAR-A27_0_4-d
 
   return arene::base::filesystem::temporary_directory{};
 }

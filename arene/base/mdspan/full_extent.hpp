@@ -28,7 +28,6 @@ class full_extent_t {
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
-/// @def arene::base::full_extent
 /// @brief tag specifying the full extent of an mdspan
 ///
 /// @c full_extent is a disambiguation tag that can be passed to @c submdspan to

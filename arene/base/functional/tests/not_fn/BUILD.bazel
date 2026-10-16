@@ -5,25 +5,25 @@
 load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
 load("//rules:cc_test.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test(
     name = "not_fn_test",
     srcs = [
         "not_fn_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:optional",
         "//arene/base:tuple",
-        "//arene/base:type_list",
-        "//arene/base/functional:internal",
+        "//arene/base/functional:bind_front",
+        "//arene/base/functional:not_fn",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:is_empty",
         "//arene/base/stdlib_choice:pair",
         "//arene/base/stdlib_choice:tuple",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
     ],
 )

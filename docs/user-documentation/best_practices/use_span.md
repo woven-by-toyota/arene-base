@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -37,9 +41,9 @@ the original range of elements.
 
 > **Guideline: Replace uses of pointer+length with `arene::base::span`**
 
-## Examples {#examples}
+# Examples {#best-practices-use-span-examples}
 
-### Reading From a Buffer {#reading-from-a-buffer}
+## Reading From a Buffer {#best-practices-use-span-reading-from-a-buffer}
 
 You can use `arene::base::span` with a `const` element type as a replacement for
 read-only input buffers.
@@ -71,7 +75,7 @@ range-based `for` loop instead, thus eliminating the indexing entirely:
 
 \snippet docs/examples/use_span_examples.cpp for_loop_read_example
 
-### Returning A Portion of a Buffer {#returning-a-portion-of-a-buffer}
+### Returning A Portion of a Buffer {#best-practices-use-span-returning-a-portion-of-a-buffer}
 
 Functions that fill a buffer, like `read` and `snprintf`, need some mechanism
 for communicating how much of the buffer was filled. Such functions can end up

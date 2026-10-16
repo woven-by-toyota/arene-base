@@ -15,7 +15,7 @@
 #include "arene/base/array/array.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
@@ -104,11 +104,13 @@ class inline_string_base {
   /// @brief The difference type between two iterators.
   using difference_type = typename iterator::difference_type;
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Get the length of the string
   ///
   /// @return The number of characters in the string, non-inclusive of the null-terminator. Equivalent to
   /// @c distance(begin(),end())
   constexpr auto size() const noexcept -> size_type { return string_length_; }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Get the length of the string
   ///
@@ -204,10 +206,12 @@ class inline_string
   /// @brief Default-construct an empty string
   constexpr inline_string() noexcept = default;
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "False positive: All base classes have protected copy constructor"
   // parasoft-begin-suppress CERT_C-EXP37-a-3 "False positive: The rule does not mention naming all parameters"
   /// @brief Default copy construction
   constexpr inline_string(inline_string const&) = default;
   // parasoft-end-suppress CERT_C-EXP37-a-3
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
   // parasoft-begin-suppress CERT_C-EXP37-a-3 "False positive: The rule does not mention naming all parameters"
   /// @brief Default move construction
@@ -273,6 +277,7 @@ class inline_string
   // parasoft-end-suppress AUTOSAR-A12_1_1-a-2
   // parasoft-end-suppress AUTOSAR-A7_1_3-a
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: 'try_construct' does not hide anything"
   // parasoft-begin-suppress AUTOSAR-A7_1_3-a "False positive: const is placed on the right hand side"
   /// @brief Attempt to construct from a @c string_view .
   ///
@@ -287,6 +292,7 @@ class inline_string
     return {inline_string{str}};
   }
   // parasoft-end-suppress AUTOSAR-A7_1_3-a
+  // parasoft-end-suppress AUTOSAR-A2_10_1-e
 
   // parasoft-begin-suppress AUTOSAR-A12_1_1-a-2 "False positive: This constructor delegates to another, which does
   // initialize the base class"
@@ -337,6 +343,7 @@ class inline_string
 
   // parasoft-end-suppress AUTOSAR-A12_1_1-a
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: 'try_construct' does not hide anything"
   /// @brief Attempt to construct from another @c inline_string with a capacity that is less than or equal to the
   /// capacity of this.
   ///
@@ -359,6 +366,7 @@ class inline_string
     }
     return {inline_string{str}};
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-e
 
   // parasoft-begin-suppress AUTOSAR-A12_1_1-a-2 "False positive: This constructor delegates to another, which does
   // initialize the base class"
@@ -378,6 +386,7 @@ class inline_string
   }
   // parasoft-end-suppress AUTOSAR-A12_1_1-a-2
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: 'try_construct' does not hide anything"
   /// @brief Attempt to construct from a sequence of characters.
   ///
   /// @param first An iterator referring to the start of the source string
@@ -395,19 +404,25 @@ class inline_string
         last
     );
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-e
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "False positive: All base classes have protected assignment"
   // parasoft-begin-suppress CERT_C-EXP37-a-3 "False positive: The rule does not mention naming all parameters"
   /// @brief Default copy assignment
   /// @return A reference to @c *this
   constexpr auto operator=(inline_string const&) -> inline_string& = default;
   // parasoft-end-suppress CERT_C-EXP37-a-3
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "False positive: All base classes have protected assignment"
   // parasoft-begin-suppress CERT_C-EXP37-a-3 "False positive: The rule does not mention naming all parameters"
   /// @brief Default move assignment
   /// @return A reference to @c *this
   constexpr auto operator=(inline_string&&) -> inline_string& = default;
   // parasoft-end-suppress CERT_C-EXP37-a-3
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "False positive: All base classes have protected assignment"
   /// @brief Assign from a string_view.
   ///
   /// @param str The source string
@@ -419,7 +434,9 @@ class inline_string
     copy_from(str);
     return *this;
   }
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "False positive: All base classes have protected assignment"
   /// @brief Assign from a nul-terminated string
   ///
   /// @param str The source string
@@ -432,7 +449,9 @@ class inline_string
     copy_from(str);
     return *this;
   }
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "False positive: All base classes have protected assignment"
   /// @brief Assign from an initializer list.
   ///
   /// @param str The source string
@@ -444,7 +463,9 @@ class inline_string
     copy_from(string_view(str.begin(), str.size()));
     return *this;
   }
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "False positive: All base classes have protected assignment"
   /// @brief Assign from a single character
   ///
   /// @param chr The source character
@@ -455,7 +476,9 @@ class inline_string
     copy_from_unchecked(string_view(&chr, 1U));
     return *this;
   }
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "False positive: All base classes have protected assignment"
   /// @brief Assign from another string.
   ///
   /// @tparam OtherMaxLength the max length of the other string
@@ -469,6 +492,7 @@ class inline_string
     copy_from(other);
     return *this;
   }
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
   /// @brief Assign from a string_view.
   ///
@@ -1126,13 +1150,17 @@ class inline_string
   /// @return a pointer to the NUL-terminated string held in @c *this
   ARENE_NODISCARD constexpr auto data() noexcept -> detail::character* { return buffer_.data(); }
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: 'capacity' does not hide anything"
   /// @brief The maximum length of the string
   /// @return size_type @c MaxSize
   static constexpr auto capacity() -> std::size_t { return MaxSize; }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-e
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: 'max_size' does not hide anything"
   /// @brief The maximum length of the string
   /// @return size_type @c MaxSize
   static constexpr auto max_size() -> std::size_t { return capacity(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-e
 
   /// @brief Clear the string, so it is empty.
   /// @post size()==0 .
@@ -1213,6 +1241,7 @@ class inline_string
     return buffer_[this->size() - 1U];
   }
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'begin' does not hide anything"
   /// @brief Iterator to the first position in the string.
   ///
   /// @return iterator An iterator to that refers to the first element if the string is not empty, or @c end()
@@ -1233,7 +1262,9 @@ class inline_string
   /// @return const_iterator An iterator to that refers to the first element if the string is not empty, or @c end()
   ///          otherwise
   ARENE_NODISCARD constexpr auto cbegin() const noexcept -> const_iterator { return begin(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'end' does not hide anything"
   /// @brief The one-past-the-last position in the string.
   ///
   /// @return iterator An iterator to that refers to one-past-the-last position in the string.
@@ -1251,6 +1282,7 @@ class inline_string
   ///
   /// @return const_iterator An iterator to that refers to one-past-the-last position in the string.
   ARENE_NODISCARD constexpr auto cend() const noexcept -> const_iterator { return end(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Return an iterator to the start of the reversed string
   ///
@@ -2321,7 +2353,6 @@ class make_inline_string_impl_fn {
 
 }  // namespace inline_string_detail
 
-/// @def arene::base::make_inline_string
 /// @brief helper for constructing an @c inline_string that deduces the capacity template parameter
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."

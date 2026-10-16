@@ -5,11 +5,11 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_IS_POSSIBLY_CONSTANT_EVALUATED_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_IS_POSSIBLY_CONSTANT_EVALUATED_HPP_
 
+#include "arene/base/compiler_support/platform_queries/has_builtin_is_constant_evaluated.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 // parasoft-begin-suppress AUTOSAR-A7_1_5-a-2 "Trailing return syntax permitted by A7-1-5 Permit #1 v1.0.0"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
@@ -38,13 +38,13 @@ namespace base {
 /// @note This API is similar, but not identical to,
 ///   C++20's @c [std::is_constant_evaluated](https://en.cppreference.com/w/cpp/types/is_constant_evaluated) .
 ///   Determining if the current execution context is constant-evaluated requires compiler support through an intrinsic
-///   added specifically to allow the implementation of @c std::is_constant_evaluated . Therefor on compilers lacking
+///   added specifically to allow the implementation of @c std::is_constant_evaluated . Therefore on compilers lacking
 ///   these intrinsics, it is not possible to determine if the current context is constant-evaluated. As such, the name
-///   has been changed to reflex the loosened semantics; while @c is_constant_evaluated returns @c true IFF the current
-///   context is a constant evaluated context, @c is_possible_constant_evaluated returns @c fase IFF the current context
-///   is **not** a constant evaluated context. Relaxing this constraint allows code to be written in pre-C++20 contexts
-///   to perform this query, and if the compiler version supports it, benefit, while always safely falling back to the
-///   @c constexpr compatible implementation when compiled with compilers which do not support the intrinsic.
+///   has been changed to reflect the loosened semantics: while @c is_constant_evaluated returns @c true IFF the current
+///   context is a constant evaluated context, @c is_possibly_constant_evaluated returns @c false IFF the current
+///   context is **not** a constant evaluated context. Relaxing this constraint allows code to be written in pre-C++20
+///   contexts to perform this query, and if the compiler version supports it, benefit, while always safely falling back
+///   to the @c constexpr compatible implementation when compiled with compilers which do not support the intrinsic.
 constexpr auto is_possibly_constant_evaluated() noexcept -> bool {
   return ARENE_IS_POSSIBLY_CONSTANT_EVALUATED_RETURN_EXPRESSION;
 }

@@ -2,11 +2,172 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-load("@rules_cc//cc:defs.bzl", "cc_test")
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
-load("//rules:cc_test.bzl", "cc_test_with_variants")
+load("//rules:cc_output_test.bzl", "cc_output_test")
+load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
 
 package(default_visibility = ["//tools:__subpackages__"])
+
+cc_library_with_variants(
+    name = "configurable_scalar_value",
+    testonly = True,
+    hdrs = ["configurable_scalar_value.hpp"],
+    visibility = ["//arene/base/linalg:__subpackages__"],
+    deps = [
+        "//arene/base/mdspan",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/type_traits:give_cv_to",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_library_with_variants(
+    name = "fp_bit_fmt",
+    testonly = True,
+    hdrs = ["fp_bit_fmt.hpp"],
+    visibility = ["//arene/base/linalg:__subpackages__"],
+    deps = [
+        "//arene/base/bit:bit_cast",
+        "//configs:incompatible_with_toolchain_stdlib_disabled",
+    ],
+)
+
+cc_library_with_variants(
+    name = "property_compare",
+    testonly = True,
+    hdrs = ["property_compare.hpp"],
+    visibility = ["//arene/base/linalg:__subpackages__"],
+    deps = [
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/compiler_support:platform_queries",
+        "//arene/base/compiler_support:preprocessor",
+        "//arene/base/functional/detail:operator_equal",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+    ] + select({
+        "//configs:toolchain_stdlib_disabled": [
+            "//arene/base/stdlib_choice:ignore",
+        ],
+        "//configs:toolchain_stdlib_enabled": [
+            ":fp_bit_fmt",
+        ],
+    }),
+)
+
+cc_library_with_variants(
+    name = "test_array",
+    testonly = True,
+    hdrs = ["test_array.hpp"],
+    visibility = ["//arene/base/linalg:__subpackages__"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base/math:complex_decomp",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan/detail:to_array",
+        "//arene/base/mdspan/tests:mdspan_test_utilities",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_arithmetic",
+        "//arene/base/stdlib_choice:is_floating_point",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:array_distribution",
+        "//arene/base/testing:bitwise_uniform_distribution",
+        "//arene/base/testing:default_distribution",
+        "//arene/base/testing:nan_rejecting_distribution",
+        "//arene/base/type_traits:is_instantiation_of",
+        "//arene/base/type_traits:remove_cvref",
+        "//testlibs/utilities:counting_wrapper",
+    ],
+)
+
+cc_library_with_variants(
+    name = "test_helpers",
+    testonly = True,
+    hdrs = ["test_helpers.hpp"],
+    visibility = ["//arene/base/linalg:__subpackages__"],
+    deps = [
+        "//arene/base:contracts",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:remove_const",
+        "//arene/base/type_list",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:filter",
+        "//arene/base/type_list:flat_map",
+        "//arene/base/type_list:size",
+        "//arene/base/type_traits:disjunction",
+        "//testlibs:test_library",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_library_with_variants(
+    name = "lapack_overload",
+    testonly = True,
+    hdrs = ["lapack_overload.hpp"],
+    visibility = ["//arene/base/linalg:__subpackages__"],
+    deps = [
+        "//arene/base/stdlib_choice:complex",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:remove_const",
+        "//arene/base/stdlib_choice:remove_pointer",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/type_list",
+        "//arene/base/type_list:index_of",
+        "//arene/base/type_traits:disjunction",
+        "//arene/base/type_traits:type_identity",
+    ],
+)
+
+cc_library_with_variants(
+    name = "transpose_test_helpers",
+    testonly = True,
+    hdrs = ["transpose_test_helpers.hpp"],
+    visibility = ["//arene/base/linalg:__subpackages__"],
+    deps = [
+        "//arene/base/linalg:layout_transpose",
+        "//arene/base/mdspan/detail:reverse_extents",
+        "//arene/base/mdspan/tests:mdspan_test_utilities",
+        "//arene/base/mdspan/tests:test_layout_types",
+    ],
+)
+
+cc_output_test(
+    name = "property_compare_binary_test",
+    srcs = ["property_compare_binary.cpp"],
+    expected_output = select({
+        "//configs:toolchain_stdlib_enabled": "expected_property_compare_output.googletest.log",
+        "//configs:toolchain_stdlib_disabled": "expected_property_compare_output.minitest.log",
+    }),
+    expected_return_code = 1,
+    tags = [
+        # does not contain tests for production-intent code
+        "no-test-spec",
+    ],
+    deps = [
+        ":property_compare",
+        "//arene/base/bit:bit_cast",
+        "//arene/base/math:ulp_tolerance",
+        "//arene/base/stdlib_choice:cstdint",
+        "//testlibs:test_main",
+    ],
+)
 
 
 ## The @lapack dependency is not yet publicly supported.
@@ -16,25 +177,319 @@ package(default_visibility = ["//tools:__subpackages__"])
 #     deps = ["@lapack"],
 # )
 
-cc_library_with_variants(
-    name = "test_helpers",
-    testonly = True,
-    hdrs = ["test_helpers.hpp"],
-    visibility = ["//arene/base/linalg:__subpackages__"],
+cc_test_with_variants(
+    name = "constant_test",
+    srcs = ["constant_test.cpp"],
     deps = [
+        "//arene/base/detail:index_permutation_range",
+        "//arene/base/linalg:constant",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan/detail:to_array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "diagonal_tags_test",
+    srcs = ["diagonal_tags_test.cpp"],
+    deps = [
+        "//arene/base/linalg:diagonal_tags",
+        "//arene/base/linalg:triangular_tags",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_only_explicitly_constructible",
+        "//arene/base/type_traits:remove_cvref",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "matrix_observers_test",
+    srcs = ["matrix_observers_test.cpp"],
+    deps = [
+        ":test_array",
+        ":test_helpers",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg:matrix_observers",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "row_column_view_test",
+    srcs = ["row_column_view_test.cpp"],
+    deps = [
+        ":test_helpers",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg:equal_elements",
+        "//arene/base/linalg:row_column_view",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:submdspan",
+        "//arene/base/mdspan/tests:mdspan_test_utilities",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "copy_elements_test",
+    srcs = ["copy_elements_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/linalg:copy_elements",
+        "//arene/base/linalg:equal_elements",
+        "//arene/base/linalg/tests:test_array",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan/tests:mdspan_test_utilities",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "copy_elements_death_test",
+    srcs = ["copy_elements_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/linalg:copy_elements",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "dot_test",
+    srcs = ["dot_test.cpp"],
+    deps = [
+        ":configurable_scalar_value",
+        ":property_compare",
+        ":test_array",
+        ":test_helpers",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/functional:bind_overloads",
+        "//arene/base/linalg:dot",
+        "//arene/base/math:ulp_tolerance",
         "//arene/base/mdspan",
         "//arene/base/mdspan:extents",
         "//arene/base/mdspan:layout",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
-        "//arene/base/type_list",
-        "//arene/base/type_list:apply_each",
-        "//arene/base/type_list:filter",
-        "//arene/base/type_list:flat_map",
-        "//arene/base/type_list:size",
-        "//arene/base/type_traits:disjunction",
-        "//testlibs:gtest",
+        "//arene/base/stdlib_choice:equal_to",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:is_volatile",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "dot_death_test",
+    srcs = ["dot_death_test.cpp"],
+    deps = [
+        ":test_array",
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/linalg:dot",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "elementwise_binary_transform_test",
+    srcs = ["elementwise_binary_transform_test.cpp"],
+    deps = [
+        "//arene/base/linalg:elementwise_binary_transform",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:minus",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "elementwise_binary_transform_death_test",
+    srcs = ["elementwise_binary_transform_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/linalg:elementwise_binary_transform",
+        "//arene/base/mdspan",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "elementwise_unary_transform_test",
+    srcs = ["elementwise_unary_transform_test.cpp"],
+    deps = [
+        "//arene/base/functional:identity",
+        "//arene/base/linalg:elementwise_unary_transform",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:negate",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "elementwise_unary_transform_death_test",
+    srcs = ["elementwise_unary_transform_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/linalg:elementwise_unary_transform",
+        "//arene/base/mdspan",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "equal_elements_test",
+    srcs = ["equal_elements_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/linalg:equal_elements",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:negate",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "equal_elements_death_test",
+    srcs = ["equal_elements_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/linalg:equal_elements",
+        "//arene/base/mdspan",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "factor_result_test",
+    srcs = ["factor_result_test.cpp"],
+    deps = [
+        "//arene/base/linalg:factor_result",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_implicitly_constructible",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "factor_result_death_test",
+    srcs = ["factor_result_death_test.cpp"],
+    deps = [
+        "//arene/base/linalg:factor_result",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "identity_matrix_test",
+    srcs = ["identity_matrix_test.cpp"],
+    deps = [
+        ":test_helpers",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/linalg:identity_matrix",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/math:arithmetic_identities",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:filter",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "identity_matrix_death_test",
+    srcs = ["identity_matrix_death_test.cpp"],
+    deps = [
+        ":test_helpers",
+        "//arene/base/linalg:identity_matrix",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/type_list:filter",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
     ],
 )
 
@@ -46,7 +501,58 @@ cc_test_with_variants(
         "//arene/base:constraints",
         "//arene/base/linalg:math_traits",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "matrix_vector_product_test",
+    srcs = ["matrix_vector_product_test.cpp"],
+    deps = [
+        ":configurable_scalar_value",
+        ":test_array",
+        ":test_helpers",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/algorithm:fill",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/iterator:next",
+        "//arene/base/linalg:equal_elements",
+        "//arene/base/linalg:matrix_observers",
+        "//arene/base/linalg:matrix_vector_product",
+        "//arene/base/math:arithmetic_identities",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:default_accessor",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:is_const",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:remove_const",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_list:filter",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "matrix_vector_product_death_test",
+    srcs = ["matrix_vector_product_death_test.cpp"],
+    deps = [
+        ":test_array",
+        ":test_helpers",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg:matrix_observers",
+        "//arene/base/linalg:matrix_vector_product",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:default_accessor",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:remove_const",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
     ],
 )
 
@@ -58,6 +564,339 @@ cc_test_with_variants(
         "//arene/base/linalg:object_traits",
         "//arene/base/mdspan",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "swap_elements_test",
+    srcs = ["swap_elements_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/linalg:equal_elements",
+        "//arene/base/linalg:swap_elements",
+        "//arene/base/linalg/tests:test_array",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan/tests:mdspan_test_utilities",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/utility:swap",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "swap_elements_death_test",
+    srcs = ["swap_elements_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/linalg:swap_elements",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "swap_rows_test",
+    srcs = ["swap_rows_test.cpp"],
+    deps = [
+        ":test_array",
+        ":test_helpers",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/linalg:equal_elements",
+        "//arene/base/linalg:object_traits",
+        "//arene/base/linalg:swap_rows",
+        "//arene/base/math:abs",
+        "//arene/base/mdspan/tests:mdspan_test_utilities",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:filter",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:counting_wrapper",
+    ],
+)
+
+cc_test_with_variants(
+    name = "swap_rows_death_test",
+    srcs = ["swap_rows_death_test.cpp"],
+    deps = [
+        ":test_array",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg:swap_rows",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "layout_constant_diagonal_test",
+    srcs = ["layout_constant_diagonal_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg:layout_constant_diagonal",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:is_layout_mapping",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan/detail:reverse_extents",
+        "//arene/base/mdspan/tests:mdspan_test_utilities",
+        "//arene/base/mdspan/tests:test_layout_types",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:concat",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "transposed_test",
+    srcs = ["transposed_test.cpp"],
+    deps = [
+        ":test_array",
+        "//arene/base/linalg:transposed",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan/detail:reverse_extents",
+        "//arene/base/mdspan/tests:test_layout_types",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "triangular_tags_test",
+    srcs = ["triangular_tags_test.cpp"],
+    deps = [
+        "//arene/base/linalg:diagonal_tags",
+        "//arene/base/linalg:triangular_tags",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_only_explicitly_constructible",
+        "//arene/base/type_traits:remove_cvref",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "layout_transpose_test",
+    srcs = ["layout_transpose_test.cpp"],
+    deps = [
+        ":transpose_test_helpers",
+        "//arene/base:array",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg:layout_transpose",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:is_layout_mapping",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan/detail:reverse_extents",
+        "//arene/base/mdspan/tests:test_layout_types",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "layout_transpose_submdspan_test",
+    srcs = ["layout_transpose_submdspan_test.cpp"],
+    deps = [
+        ":transpose_test_helpers",
+        "//arene/base:array",
+        "//arene/base/linalg:layout_transpose",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:is_sliceable_mapping",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan:slice",
+        "//arene/base/mdspan:submdspan",
+        "//arene/base/mdspan:submdspan_mapping_result",
+        "//arene/base/mdspan/detail:do_submdspan_mapping",
+        "//arene/base/mdspan/detail:reverse_extents",
+        "//arene/base/mdspan/tests:mdspan_test_utilities",
+        "//arene/base/mdspan/tests:test_layout_types",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "layout_transpose_death_test",
+    srcs = ["layout_transpose_death_test.cpp"],
+    deps = [
+        "//arene/base/linalg:layout_transpose",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan/tests:test_layout_types",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "matrix_one_norm_test",
+    srcs = ["matrix_one_norm_test.cpp"],
+    deps = [
+        ":property_compare",
+        ":test_array",
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/detail:index_permutation_range",
+        "//arene/base/functional:identity",
+        "//arene/base/linalg:matrix_one_norm",
+        "//arene/base/linalg:row_column_view",
+        "//arene/base/linalg:vector_abs_sum",
+        "//arene/base/math:float_properties",
+        "//arene/base/math:ulp_tolerance",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan:submdspan",
+        "//arene/base/mdspan/detail:to_array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//arene/base/tuple:apply",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "matrix_rank_1_update_constraint_test",
+    srcs = ["matrix_rank_1_update_constraint_test.cpp"],
+    deps = [
+        ":configurable_scalar_value",
+        "//arene/base/linalg:matrix_rank_1_update",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "scaled_accessor_test",
+    srcs = ["scaled_accessor_test.cpp"],
+    deps = [
+        ":test_array",
+        ":test_helpers",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/linalg:elementwise_unary_transform",
+        "//arene/base/linalg:equal_elements",
+        "//arene/base/linalg:scaled_accessor",
+        "//arene/base/math:float_properties",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:default_accessor",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:addressof",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_floating_point",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/stdlib_choice:remove_const",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_traits:remove_cvref",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_abs_sum_test",
+    srcs = ["vector_abs_sum_test.cpp"],
+    deps = [
+        ":configurable_scalar_value",
+        ":test_array",
+        ":test_helpers",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/functional:identity",
+        "//arene/base/linalg:vector_abs_sum",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_idx_abs_max_test",
+    srcs = ["vector_idx_abs_max_test.cpp"],
+    deps = [
+        ":test_array",
+        ":test_helpers",
+        "//arene/base:array",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/functional:identity",
+        "//arene/base/linalg:vector_idx_abs_max",
+        "//arene/base/math:complex_norm",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
     ],
 )

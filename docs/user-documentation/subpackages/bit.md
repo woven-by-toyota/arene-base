@@ -1,4 +1,8 @@
-<!-- Copyright 2026, Toyota Motor Corporation -->
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -19,7 +23,7 @@ The Bazel target is
 //:bit
 ```
 
-## `bit_cast` {#bit_cast}
+# `bit_cast` {#subpackages-bit-bit_cast}
 
 `arene::base::bit_cast<To>(from)` returns a value of type `To` whose object
 representation is bit-identical to that of `from`.
@@ -33,7 +37,7 @@ resolution only when:
 
 \snippet docs/examples/subpackages/bit_examples.cpp basic_usage
 
-### `constexpr` Availability {#constexpr-availability}
+## `constexpr` Availability {#subpackages-bit-constexpr-availability}
 
 `bit_cast` is usable in a constant expression only when the compiler provides
 `__builtin_bit_cast` (Clang 9+, GCC 11+). On toolchains without it (e.g. GCC 8),

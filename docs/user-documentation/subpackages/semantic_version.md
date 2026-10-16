@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ The Bazel target is
 //:semantic_version
 ```
 
-## Semantic Versions {#semantic-versions}
+# Semantic Versions {#subpackages-semantic-version-semantic-versions}
 
 `arene::base::semantic_version` holds a version number with 3 parts: the
 **major** version, the **minor** version, and the **patch** version, like

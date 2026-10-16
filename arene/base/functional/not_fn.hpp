@@ -91,8 +91,7 @@ class not_fn_impl {
 
 }  // namespace not_fn_detail
 
-/// @def arene::base::not_fn
-/// @copydoc arene::base::not_fn_detail::not_fn_impl::operator()
+/// @brief Create a function object that negates the result of an invocable.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

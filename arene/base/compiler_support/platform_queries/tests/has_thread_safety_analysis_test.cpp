@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/compiler_support/platform_queries/compiler_info.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/testing/gtest.hpp"
 
 namespace {

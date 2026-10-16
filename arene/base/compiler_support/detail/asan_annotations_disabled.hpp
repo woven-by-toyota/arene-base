@@ -7,8 +7,8 @@
 /// @brief Definitions for when a platform does not provide <sanitizer/asan_interface.h>
 ///
 
-// IWYU pragma: private
-// IWYU pragma: friend "arene/base/compiler_support/asan_annotations.hpp"
+// IWYU pragma: private, include "arene/base/compiler_support/asan_annotations.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_DETAIL_ASAN_ANNOTATIONS_DISABLED_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_DETAIL_ASAN_ANNOTATIONS_DISABLED_HPP_

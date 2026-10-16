@@ -12,7 +12,7 @@
 
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/stdlib_choice/string.hpp"
 #include "arene/base/strings/string_view.hpp"
 
@@ -24,6 +24,19 @@ namespace base {
 template <class InlineString>
 class inline_string_std_string_mixin {
  protected:
+  /// @brief Do-nothing default constructor
+  constexpr inline_string_std_string_mixin() = default;
+  /// @brief Do-nothing destructor
+  ~inline_string_std_string_mixin() = default;
+  /// @brief Do-nothing copy constructor
+  constexpr inline_string_std_string_mixin(inline_string_std_string_mixin const&) = default;
+  /// @brief Do-nothing move constructor
+  constexpr inline_string_std_string_mixin(inline_string_std_string_mixin&&) = default;
+  /// @brief Do-nothing copy assignment operator
+  constexpr auto operator=(inline_string_std_string_mixin const&) -> inline_string_std_string_mixin& = default;
+  /// @brief Do-nothing move assignment operator
+  constexpr auto operator=(inline_string_std_string_mixin&&) -> inline_string_std_string_mixin& = default;
+
   /// @brief Compare two strings for lexicographical ordering.
   ///
   /// @param lhs The first string

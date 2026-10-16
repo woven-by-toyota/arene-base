@@ -4,18 +4,13 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library(
+    name = "internal",
+    hdrs = [
         "lock_guard.hpp",
         "mutex.hpp",
         "timed_mutex.hpp",
     ],
-)
-
-cc_library(
-    name = "internal",
-    hdrs = [":hdrs"],
     visibility = [
         ":__subpackages__",
         "//arene/base:__pkg__",
@@ -30,8 +25,7 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
         "//arene/base/mutex/detail:package",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

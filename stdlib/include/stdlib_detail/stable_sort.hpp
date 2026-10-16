@@ -11,10 +11,10 @@
 // IWYU pragma: private, include <algorithm>
 // IWYU pragma: friend "stdlib_detail/.*"
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/algorithm/stable_sort.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/move.hpp"
 #include "arene/base/type_traits/is_compare.hpp"
@@ -119,14 +119,14 @@ template <
         arene::base::is_swappable_v<arene::base::algorithm_detail::iter_reference_t<I>> &&
         arene::base::is_movable_v<arene::base::remove_cvref_t<arene::base::algorithm_detail::iter_reference_t<I>>> &&
         arene::base::is_compare_v<
-            decltype(arene::base::algorithm_detail::operator_less)&,
+            decltype(arene::base::functional_detail::operator_less)&,
             arene::base::algorithm_detail::iter_reference_t<I>>
         >
     >
 auto stable_sort(I first, I last) noexcept(  //
-    arene::base::is_nothrow_invocable_v<decltype(arene::base::stable_sort), I&&, I&&, decltype(arene::base::algorithm_detail::operator_less)>
+    arene::base::is_nothrow_invocable_v<decltype(arene::base::stable_sort), I&&, I&&, decltype(arene::base::functional_detail::operator_less)>
 ) -> void {
-  return arene::base::stable_sort(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less);
+  return arene::base::stable_sort(std::move(first), std::move(last), arene::base::functional_detail::operator_less);
 }
 
 }  // namespace std

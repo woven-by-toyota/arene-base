@@ -1,0 +1,60 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load(
+    "//rules:cc_build_error.bzl",
+    "cc_build_error_test",
+    "inline_src",
+    "mandate_error_matcher",
+)
+
+cc_build_error_test(
+    name = "dot_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/dot.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int {{
+  arene::base::mdspan<int, arene::base::extents<int, 1>> left_vec{nullptr};
+  arene::base::mdspan<int, arene::base::extents<int, 2>> right_vec{nullptr};
+
+  arene::base::linalg::dot(left_vec, right_vec);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "Operands to dot must have the same extents",
+        requirement = "possibly_comparable_v<.+>",
+    ),
+    deps = [
+        "//arene/base/linalg:dot",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+    ],
+)
+
+cc_build_error_test(
+    name = "dot_with_offset_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/dot.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int {{
+  arene::base::mdspan<int, arene::base::extents<int, 1>> left_vec{nullptr};
+  arene::base::mdspan<int, arene::base::extents<int, 2>> right_vec{nullptr};
+
+  arene::base::linalg::dot(left_vec, right_vec, 0);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "Operands to dot must have the same extents",
+        requirement = "possibly_comparable_v<.+>",
+    ),
+    deps = [
+        "//arene/base/linalg:dot",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+    ],
+)

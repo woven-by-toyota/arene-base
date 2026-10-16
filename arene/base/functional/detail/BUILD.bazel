@@ -1,0 +1,72 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+cc_library_with_variants(
+    name = "flip",
+    hdrs = ["flip.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:forward",
+    ],
+)
+
+cc_library_with_variants(
+    name = "max_fn",
+    hdrs = ["max_fn.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_reference",
+        "//arene/base/type_manipulation:ebo_holder",
+        "//arene/base/type_traits:is_compare",
+    ],
+)
+
+cc_library_with_variants(
+    name = "operator_equal",
+    hdrs = ["operator_equal.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+    ],
+)
+
+cc_library_with_variants(
+    name = "operator_less",
+    hdrs = ["operator_less.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:forward",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+    ] + glob(["*.hpp"]),
+    visibility = ["//arene/base/functional:__pkg__"],
+)

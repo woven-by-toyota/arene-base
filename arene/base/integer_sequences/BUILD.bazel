@@ -4,14 +4,26 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "make_index_sequence_repeat_n_hdrs",
-    srcs = ["make_index_sequence_repeat_n.hpp"],
+cc_library_with_variants(
+    name = "integer_sequence_ops",
+    hdrs = ["integer_sequence_ops.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/iterator:next",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/type_traits:conditional",
+    ],
 )
 
 cc_library_with_variants(
     name = "make_index_sequence_repeat_n",
-    hdrs = [":make_index_sequence_repeat_n_hdrs"],
+    hdrs = ["make_index_sequence_repeat_n.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -24,32 +36,48 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "integer_sequence_ops.hpp",
-        "make_integer_sequence.hpp",
-        "sequential_values.hpp",
+cc_library_with_variants(
+    name = "make_integer_sequence",
+    hdrs = ["make_integer_sequence.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+cc_library_with_variants(
+    name = "sequential_values",
+    hdrs = ["sequential_values.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":make_integer_sequence",
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
     ],
 )
 
 cc_library_with_variants(
     name = "internal",
-    hdrs = [":hdrs"],
     visibility = [
         ":__subpackages__",
         "//arene/base:__pkg__",
     ],
     deps = [
+        ":integer_sequence_ops",
         ":make_index_sequence_repeat_n",
-        "//arene/base:array",
-        "//arene/base:constraints",
-        "//arene/base/stdlib_choice:cstddef",
-        "//arene/base/stdlib_choice:enable_if",
-        "//arene/base/stdlib_choice:initializer_list",
-        "//arene/base/stdlib_choice:integer_sequence",
-        "//arene/base/stdlib_choice:integral_constant",
-        "//arene/base/type_traits:conditional",
+        ":make_integer_sequence",
+        ":sequential_values",
     ],
 )
 
@@ -57,8 +85,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-        ":make_index_sequence_repeat_n_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

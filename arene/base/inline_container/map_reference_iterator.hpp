@@ -13,17 +13,15 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/constraints/constraints.hpp"
-#include "arene/base/inline_container/detail/iterator_interface.hpp"
+#include "arene/base/detail/iterator_interface.hpp"
 #include "arene/base/inline_container/map.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
-#include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_base_of.hpp"
 #include "arene/base/stdlib_choice/is_const.hpp"
 #include "arene/base/stdlib_choice/iterator_tags.hpp"
 #include "arene/base/stdlib_choice/iterator_traits.hpp"
-#include "arene/base/stdlib_choice/numeric_limits.hpp"
 #include "arene/base/stdlib_choice/remove_reference.hpp"
 #include "arene/base/type_traits/conditional.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a
@@ -59,11 +57,11 @@ auto value_at_index() -> void;
 ///
 template <class MapBase, bool IsConst>
 class inline_map_reference_iterator
-    : public inline_container_detail::iterator_interface<inline_map_reference_iterator<MapBase, IsConst>>
+    : public detail::iterator_interface<inline_map_reference_iterator<MapBase, IsConst>>
     , inline_map_detail::inline_map_passkey_base<MapBase> {
   /// @brief alias to @c iterator_interface base type
   ///
-  using iterator_interface = inline_container_detail::iterator_interface<inline_map_reference_iterator>;
+  using iterator_interface = detail::iterator_interface<inline_map_reference_iterator>;
 
   /// @brief add @c const if @c IsConst is @c true
   /// @tparam T type to possible add @c const to
@@ -106,10 +104,10 @@ class inline_map_reference_iterator
   };
 
   /// @brief index type of this iterator
-  /// @note set to the maximum possible @c index_type of any @c inline_map
-  /// @note @c inline_map can never have an @c index_type larger than 16 bits
+  /// @note must be wide enough to index any @c inline_map regardless of its
+  ///   capacity, so it is set to @c std::size_t
   ///
-  using index_type = std::uint16_t;
+  using index_type = std::size_t;
 
   // parasoft-begin-suppress CERT_C-EXP37-b "False positive: The rule does not mention naming all parameters"
 
@@ -160,16 +158,14 @@ class inline_map_reference_iterator
   /// @brief basis function for increment
   /// @param iter iterator to increment
   ///
-  friend auto
-  step_forward(inline_container_detail::iterator_interface_tag, inline_map_reference_iterator& iter) noexcept -> void {
+  friend auto step_forward(detail::iterator_interface_tag, inline_map_reference_iterator& iter) noexcept -> void {
     ++iter.pos_;
   }
 
   /// @brief basis function for decrement
   /// @param iter iterator to decrement
   ///
-  friend auto
-  step_backward(inline_container_detail::iterator_interface_tag, inline_map_reference_iterator& iter) noexcept -> void {
+  friend auto step_backward(detail::iterator_interface_tag, inline_map_reference_iterator& iter) noexcept -> void {
     --iter.pos_;
   }
 
@@ -236,17 +232,7 @@ class inline_map_reference_iterator
         non_const_erased_index_{&value_in_map<false, typename I::inline_map_type>},
         const_erased_index_{&value_in_map<true, typename I::inline_map_type>},
         map_{itr.get_map(inline_map_passkey{})},
-        pos_{itr.get_index(inline_map_passkey{})} {
-    constexpr auto capacity = I::inline_map_type::capacity;
-
-    // parasoft-begin-suppress CERT_C-PRE31-c "False positive: numeric_limits::max() is constexpr and has no side
-    // effects"
-    static_assert(
-        capacity <= std::numeric_limits<std::uint16_t>::max(),
-        "'index_type' is defined based on an upper limit for 'Capacity' which is no longer valid"
-    );
-    // parasoft-end-suppress CERT_C-PRE31-c
-  }
+        pos_{itr.get_index(inline_map_passkey{})} {}
 
   /// @brief implictly construct from a non-const @c inline_map_reference_iterator
   /// @tparam OtherConst specifies if the other iterator is @c const

@@ -37,6 +37,8 @@ namespace arene {
 namespace base {
 namespace submdspan_extents_detail {
 
+// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: inline function used in multiple translation units"
+// parasoft-begin-suppress AUTOSAR-A0_1_4-a "False positive: parameter 'tuple' is used"
 /// @brief filter tuple elements using a compile-time inverse mapping
 /// @tparam Is index sequence corresponding to the elements of the *filtered* tuple
 /// @tparam Tuple input tuple type
@@ -58,6 +60,7 @@ constexpr auto filter_impl(std::index_sequence<Is...>, Tuple&& tuple, LiftedInve
       tuple_detail::get<LiftedInverseMapping::value[Is]>(std::forward<Tuple>(tuple))...
   };
 }
+// parasoft-end-suppress AUTOSAR-A0_1_4-a
 
 /// @brief filter tuple elements using a compile-time inverse mapping
 /// @tparam Tuple input tuple type
@@ -84,6 +87,7 @@ constexpr auto filter(Tuple tuple, LiftedInverseMapping) noexcept  //
       LiftedInverseMapping{}
   );
 }
+// parasoft-end-suppress AUTOSAR-M3_3_2-a
 
 /// @brief compute the extents of a submdspan defined by slice specifiers
 ///
@@ -210,8 +214,7 @@ class submdspan_extents_fn {
 
 }  // namespace submdspan_extents_detail
 
-/// @def arene::base::submdspan_extents
-/// @copydoc arene::base::submdspan_extents_detail::submdspan_extents_fn::operator()
+/// @brief Compute the extents of an mdspan after slicing.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

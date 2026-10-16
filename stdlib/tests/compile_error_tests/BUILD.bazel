@@ -155,13 +155,21 @@ auto x = std::insert_iterator<std::true_type>{};
 )
 
 cc_build_error_test(
-    name = "accumulate_not_constexpr",
-    src = "accumulate_not_constexpr.cpp",
-    compile_stderr = matcher.contains_basic_regex(
+    name = "accumulate_is_a_function_that_is_not_constexpr_test",
+    src = inline_src.cpp("""\
+#include "stdlib/include/functional"
+#include "stdlib/include/numeric"
+
+auto main(int argc, char*[]) -> int
+{
+  constexpr auto _ = std::accumulate(&argc, &argc, int{}, std::plus<>{});
+}
+"""),
+    compile_stderr = matcher.has_substr(
         select({
-            "//configs/compiler:clang": "non-constexpr function .* cannot be used in a constant expression",
-            "//configs/compiler:arm_clang": "non-constexpr function .* cannot be used in a constant expression",
-            "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function",
+            "//configs/compiler:clang": "note: non-constexpr function 'accumulate<int *, int, std::plus<void>, nullptr>' cannot be used in a constant expression",
+            "//configs/compiler:arm_clang": "note: non-constexpr function 'accumulate<int *, int, std::plus<void>, nullptr>' cannot be used in a constant expression",
+            "//configs/compiler:gcc_or_qcc": "error: call to non-'constexpr' function 'Value std::accumulate(InputIt, InputIt, Value, Plus)",
         }),
     ),
     deps = [":testing_stdlib"],
@@ -421,6 +429,42 @@ auto main(int argc, char*[]) -> int
     ]
 ]
 
+[
+    # The C++ standard is set via `--cxxopt=-std=...`, an accumulating string
+    # flag that `config_setting`/`select()` cannot inspect.
+    # Instead we branch in the source on `__cplusplus` instead. c++14 builds
+    # should not be constexpr, c++17 builds trigger the static assert.
+    cc_build_error_test(
+        name = "{}_is_a_function_that_is_not_constexpr_in_cpp14_test".format(flavor),
+        src = inline_src.cpp("""\
+#include "stdlib/include/algorithm"
+
+auto main(int argc, char*[]) -> int
+{{
+  constexpr auto _ = (static_cast<void>(std::{}(&argc, &argc)), true);
+}}
+
+
+#if __cplusplus >= 201703L
+static_assert(false, "no error with c++17");
+#endif
+""".format(flavor)),
+        compile_stderr = matcher.contains_basic_regex(
+            select({
+                "//configs/compiler:clang": "error: constexpr variable '_' must be initialized by a constant expression\\|no error with c++17",
+                "//configs/compiler:arm_clang": "error: constexpr variable '_' must be initialized by a constant expression\\|no error with c++17",
+                "//configs/compiler:gcc_or_qcc": "in 'constexpr' expansion of 'std::{}<int\\*>((& argc), (& argc))'\\|no error with c++17".format(
+                    flavor,
+                ),
+            }),
+        ),
+        deps = [":testing_stdlib"],
+    )
+    for flavor in [
+        "max_element",
+    ]
+]
+
 cc_build_error_test(
     name = "ratio_with_zero_denominator_is_ill_formed_test",
     src = inline_src.cpp("""\
@@ -560,6 +604,18 @@ constexpr auto _ = std::chrono::time_point<dummy_clock, int>{};
 """),
     compile_stderr = matcher.contains_extended_regex(
         "The Duration of a std::time_point must be an instance of std::chrono::duration",
+    ),
+    deps = [":testing_stdlib"],
+)
+
+cc_build_error_test(
+    name = "hash_of_long_double",
+    src = inline_src.cpp("""\
+#include "stdlib/include/functional"
+constexpr auto _ = std::hash<long double>{};
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "long double is not supported in the Arene Base Standard Library",
     ),
     deps = [":testing_stdlib"],
 )

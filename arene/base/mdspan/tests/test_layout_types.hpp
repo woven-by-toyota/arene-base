@@ -16,6 +16,7 @@
 #include "arene/base/mdspan/detail/to_array.hpp"
 #include "arene/base/mdspan/extents.hpp"
 #include "arene/base/mdspan/layout.hpp"
+#include "arene/base/mdspan/submdspan_mapping_result.hpp"
 #include "arene/base/stdlib_choice/conditional.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
@@ -221,11 +222,101 @@ using extents_with_different_static_part = typename extents_with_different_stati
 
 // --- //
 
+/// @brief A minimal layout mapping policy that wraps a one-parameter mapping template
+/// @tparam LayoutMapping The one-parameter mapping template this policy exposes as its @c mapping member
+template <template <typename> class LayoutMapping>
+class basic_mapping_policy {
+ public:
+  template <typename E>
+  using mapping = LayoutMapping<E>;
+};
+
+/// @brief A valid layout mapping that deliberately provides no @c submdspan_mapping overload
+/// @tparam Extents The @c extents type of this mapping
+///
+/// It satisfies @c is_layout_mapping_v but not @c is_sliceable_mapping_v because no @c submdspan_mapping is reachable
+/// by argument-dependent lookup. The member functions are declaration-only, so this type is usable only in unevaluated
+/// (type-trait) contexts, never instantiated as an object.
+template <typename Extents>
+class basic_layout_mapping {
+ public:
+  using rank_type = std::size_t;
+  using extents_type = Extents;
+  using index_type = typename Extents::index_type;
+
+  using layout_type = basic_mapping_policy<basic_layout_mapping>;
+
+  auto operator==(basic_layout_mapping const&) const -> bool;
+
+  auto extents() const -> extents_type const&;
+  template <typename... Indices>
+  auto operator()(Indices...) const -> index_type;
+
+  auto required_span_size() const -> index_type;
+  auto is_unique() const -> bool;
+  auto is_exhaustive() const -> bool;
+  auto is_strided() const -> bool;
+
+  auto stride(rank_type rank) const -> index_type;
+
+  static constexpr auto is_always_unique() -> bool { return false; }
+  static constexpr auto is_always_exhaustive() -> bool { return false; }
+  static constexpr auto is_always_strided() -> bool { return false; }
+};
+
+/// @brief A valid layout mapping whose @c submdspan_mapping is unconstrained, so it accepts invalid slice specifiers
+/// @tparam Extents The @c extents type of this mapping
+///
+/// A sliceable mapping requires @c submdspan_mapping(m, invalid_slices...) to be ill-formed. This overload is templated
+/// on an unconstrained slice pack and always returns a valid, correctly-shaped result, so it is invocable even with
+/// invalid slices; that lack of constraints is what makes it (and any @c layout_transpose of it) non-sliceable. The
+/// behavior is rank-generic: callers pick the @c Extents that isolates the requirement they are exercising.
+template <typename Extents>
+class unconstrained_submdspan_mapping_layout {
+ public:
+  using rank_type = std::size_t;
+  using extents_type = Extents;
+  using index_type = typename Extents::index_type;
+
+  using layout_type = basic_mapping_policy<unconstrained_submdspan_mapping_layout>;
+
+  auto operator==(unconstrained_submdspan_mapping_layout const&) const -> bool;
+
+  auto extents() const -> extents_type const&;
+  template <typename... Indices>
+  auto operator()(Indices...) const -> index_type;
+
+  auto required_span_size() const -> index_type;
+  auto is_unique() const -> bool;
+  auto is_exhaustive() const -> bool;
+  auto is_strided() const -> bool;
+
+  auto stride(rank_type rank) const -> index_type;
+
+  static constexpr auto is_always_unique() -> bool { return false; }
+  static constexpr auto is_always_exhaustive() -> bool { return false; }
+  static constexpr auto is_always_strided() -> bool { return false; }
+
+  // Deliberately unconstrained: accepts any slice specifiers (including invalid ones) and always returns a valid,
+  // correctly-shaped result. The lack of constraints is exactly what must make this layout non-sliceable.
+  template <class... CanonicalSliceSpecifiers>
+  friend constexpr auto
+  submdspan_mapping(unconstrained_submdspan_mapping_layout const&, CanonicalSliceSpecifiers...) noexcept
+      -> arene::base::submdspan_mapping_result<arene::base::layout_left::mapping<extents_type>> {
+    return {};
+  }
+};
+
 // these need to be defined in a separate header to satisfy IWYU
 // https://github.com/include-what-you-use/include-what-you-use/issues/1707
 
 /// @brief A layout which changes whether or not it reports being strided/exhaustive/unique based on template params
-template <bool Strided, bool Exhaustive, bool Unique>
+/// @tparam Strided The value reported by @c is_always_strided()
+/// @tparam Exhaustive The value reported by @c is_always_exhaustive() and @c is_exhaustive()
+/// @tparam Unique The value reported by @c is_always_unique() and @c is_unique()
+/// @tparam SubmdspanNoexcept Whether this layout's forwarding @c submdspan_mapping is declared @c noexcept; set to
+/// @c false to model a sliceable-but-potentially-throwing user-defined layout
+template <bool Strided, bool Exhaustive, bool Unique, bool SubmdspanNoexcept = true>
 class user_defined_layout {
  public:
   /// @brief A user-defined type with the basic interface of a layout mapping but no constructors or data
@@ -239,11 +330,23 @@ class user_defined_layout {
     using typename base_type::rank_type;
     using layout_type = user_defined_layout;
 
+    /// @brief Default construct; the runtime @c is_strided() reports the static @c Strided value
+    constexpr mapping() noexcept = default;
+
+    /// @brief Construct with an explicit runtime @c is_strided() value
+    /// @param is_strided The value the runtime @c is_strided() will report
+    ///
+    /// This allows expressing a "sometimes strided" mapping, i.e. one whose @c is_always_strided() is @c false but
+    /// whose runtime @c is_strided() is @c true. @c is_strided() is a non-static member (as in the standard layout
+    /// specification), so it can carry a runtime value rather than folding to a per-instantiation constant.
+    constexpr explicit mapping(bool is_strided) noexcept
+        : is_strided_{is_strided} {}
+
     static constexpr auto is_always_strided() noexcept -> bool { return Strided; }
     static constexpr auto is_always_exhaustive() noexcept -> bool { return Exhaustive; }
     static constexpr auto is_always_unique() noexcept -> bool { return Unique; }
 
-    static constexpr auto is_strided() noexcept -> bool { return Strided; }
+    constexpr auto is_strided() const noexcept -> bool { return is_strided_; }
     static constexpr auto is_exhaustive() noexcept -> bool { return Exhaustive; }
     static constexpr auto is_unique() noexcept -> bool { return Unique; }
 
@@ -255,6 +358,33 @@ class user_defined_layout {
 
     // Equality operator is needed so that this mapping will satisfy is_layout_mapping_v; it's not used in these tests
     friend constexpr auto operator==(mapping const&, mapping const&) noexcept -> bool { return true; }
+
+    /// @brief Access the wrapped base mapping
+    /// @param src The mapping whose base subobject to access
+    /// @return A const reference to the @c layout_right base mapping
+    static constexpr auto base_of(mapping const& src) noexcept -> base_type const& {
+      return static_cast<base_type const&>(src);
+    }
+
+    /// @brief Forward @c submdspan_mapping to the wrapped @c layout_right base mapping
+    /// @tparam Slices The slice specifier types
+    /// @param src The mapping to slice
+    /// @param slices The slice specifiers
+    /// @return The result of slicing the base mapping
+    ///
+    /// This makes @c user_defined_layout sliceable while presenting a @c layout_type that does not resolve to a known
+    /// standard layout, so a @c layout_transpose of it must go through @c layout_transpose 's own @c submdspan_mapping.
+    /// The base mapping's own @c submdspan_mapping hidden friend is found by argument-dependent lookup on @c base_of.
+    /// The @c noexcept specifier is @c SubmdspanNoexcept, so a @c false value models a potentially-throwing overload.
+    template <class... Slices>
+    friend constexpr auto submdspan_mapping(mapping const& src, Slices... slices) noexcept(SubmdspanNoexcept)
+        -> decltype(submdspan_mapping(base_of(src), slices...)) {
+      return submdspan_mapping(base_of(src), slices...);
+    }
+
+   private:
+    /// @brief The value reported by the runtime @c is_strided(); defaults to the static @c Strided value
+    bool is_strided_{Strided};
   };
 };
 
@@ -333,6 +463,22 @@ using layout_stride_types =
     arene::base::type_lists::apply_each_t<base_extents_types, arene::base::layout_stride::mapping>;
 
 using layout_types = arene::base::type_lists::concat_t<layout_left_types, layout_right_types, layout_stride_types>;
+
+// --- //
+
+// Rank-2 extents types for the transpose-related layout tests (layout_transpose, linalg::transposed)
+using rank2_extents_types = ::testing::Types<
+    arene::base::extents<std::uint32_t, 3, 5>,
+    arene::base::extents<std::uint32_t, 99, arene::base::dynamic_extent>,
+    arene::base::extents<std::uint16_t, arene::base::dynamic_extent, arene::base::dynamic_extent>,
+    arene::base::extents<std::int32_t, 0, arene::base::dynamic_extent>,
+    arene::base::extents<std::uint16_t, 4, 2>>;
+
+// The standard layout mappings (left, right, stride) over rank2_extents_types
+using rank2_standard_layout_mappings = arene::base::type_lists::concat_t<
+    arene::base::type_lists::apply_each_t<rank2_extents_types, arene::base::layout_left::mapping>,
+    arene::base::type_lists::apply_each_t<rank2_extents_types, arene::base::layout_right::mapping>,
+    arene::base::type_lists::apply_each_t<rank2_extents_types, arene::base::layout_stride::mapping>>;
 
 // --- //
 

@@ -4,18 +4,17 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test(
     name = "stacktrace_test",
     srcs = ["stacktrace_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:utility",
         "//arene/base/contracts/detail/stacktrace",
         "//arene/base/testing:gtest",
         "//arene/base/testing/filesystem:create_temporary_directory",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

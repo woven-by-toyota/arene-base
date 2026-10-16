@@ -1,0 +1,39 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+filegroup(
+    name = "snippets",
+    srcs = glob(["*.cpp"]),
+    visibility = ["//docs/examples/subpackages:__pkg__"],
+)
+
+cc_library(
+    name = "disable_sized_range_examples",
+    srcs = [
+        "disable_sized_range_examples.cpp",
+    ],
+    deps = [
+        "//:ranges",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_library(
+    name = "type_traits_examples",
+    srcs = [
+        "type_traits_examples.cpp",
+    ],
+    deps = [
+        "//:ranges",
+    ],
+)
+
+cc_library(
+    name = "range_access_examples",
+    srcs = [
+        "range_access_examples.cpp",
+    ],
+    deps = [
+        "//:ranges",
+        "//arene/base:array",
+    ],
+)

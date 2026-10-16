@@ -1,3 +1,4 @@
+// parasoft-begin-suppress AUTOSAR-A2_8_1-a "False positive: also defines functions related to variant"
 // Copyright 2026, Toyota Motor Corporation
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception

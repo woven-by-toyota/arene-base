@@ -7,6 +7,7 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/constraints/constraints.hpp"
+#include "arene/base/stdlib_choice/climits.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/numeric_limits.hpp"
@@ -41,6 +42,11 @@ using smallest_unsigned_integer_for = conditional_t<
         (MaxValue <= smallest_integer_for_detail::max_uint16),
         std::uint16_t,
         conditional_t<(MaxValue <= smallest_integer_for_detail::max_uint32), std::uint32_t, std::uint64_t>>>;
+
+/// @brief Calculates the smallest unsigned integer type that can be used to hold values of type T
+/// @tparam T The type of value to store
+template <class T>
+using smallest_unsigned_integer_for_type = smallest_unsigned_integer_for<1ULL << (sizeof(T) * CHAR_BIT - 1)>;
 
 /// @brief Calculates the smallest unsigned integer type that can be used to hold
 /// values from MinValue up to and including MaxValue.

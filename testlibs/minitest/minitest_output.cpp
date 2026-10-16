@@ -162,7 +162,7 @@ auto testing::xml_file_and_console_output::failure(
     test_context const& context,
     source_location const& location,
     assertion_strings const& assertion
-) const -> void {
+) -> void {
   if (file_) {
     print_string(file_, "<");
     print_xml_testcase_attributes(file_, context);
@@ -184,8 +184,7 @@ auto testing::xml_file_and_console_output::failure(
   testing::console_output::failure(context, location, assertion);
 }
 
-auto testing::xml_file_and_console_output::skip(test_context const& context, source_location const& location) const
-    -> void {
+auto testing::xml_file_and_console_output::skip(test_context const& context, source_location const& location) -> void {
   if (file_) {
     print_string(file_, "<");
     print_xml_testcase_attributes(file_, context);
@@ -207,7 +206,7 @@ auto testing::xml_file_and_console_output::skip(test_context const& context, sou
   testing::console_output::skip(context, location);
 }
 
-auto testing::xml_file_and_console_output::success(test_context const& context) const -> void {
+auto testing::xml_file_and_console_output::success(test_context const& context) -> void {
   if (file_) {
     print_string(file_, "<");
     print_xml_testcase_attributes(file_, context);
@@ -217,7 +216,7 @@ auto testing::xml_file_and_console_output::success(test_context const& context) 
   testing::console_output::success(context);
 }
 
-auto testing::xml_file_and_console_output::prologue() const -> void {
+auto testing::xml_file_and_console_output::prologue() -> void {
   if (file_) {
     print_string(file_, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     print_string(file_, "<testsuites name=\"AllTests\">\n");
@@ -227,7 +226,7 @@ auto testing::xml_file_and_console_output::prologue() const -> void {
 }
 
 auto testing::xml_file_and_console_output::epilogue(::size_t success_count, ::size_t fail_count, ::size_t skip_count)
-    const -> void {
+    -> void {
   if (file_) {
     print_string(file_, "</testsuites>\n");
   }
@@ -235,7 +234,7 @@ auto testing::xml_file_and_console_output::epilogue(::size_t success_count, ::si
   testing::console_output::epilogue(success_count, fail_count, skip_count);
 }
 
-auto testing::xml_file_and_console_output::suite_change(char const* prev, char const* next) const -> void {
+auto testing::xml_file_and_console_output::suite_change(char const* prev, char const* next) -> void {
   if (file_) {
     if (!::testing::cstring::empty(prev)) {
       print_string(file_, "</testsuite>\n");

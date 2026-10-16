@@ -3,9 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 
-# we don't track the lock file
-MODULE.bazel.lock
-
 # override bazelisk home directory
 .bazelisk/
 
@@ -18,3 +15,6 @@ user.bazelrc
 
 # ignore generated files used to bootstrap bazelisk
 .bazel-wrapper/
+
+# rewritten by tools/bazel on every invocation; see //tools/cache_bust
+/tools/cache_bust/.now

@@ -37,6 +37,13 @@ class tuple_reduce_fn  //
   /// @param reduce reduce operation
   /// @return value reducing elements in @c tuple with @ reduce
   template <std::size_t... Is, class Tuple, class T, class Reduce>
+  // clang-format off
+  // parasoft-begin-suppress AUTOSAR-A0_1_4-a "False positive: parameters 'reduce' and 'tuple' are used"
+  // parasoft-begin-suppress AUTOSAR-A8_4_5-a "'init' is always an rvalue reference by construction in this implementation detail function"
+  // parasoft-begin-suppress AUTOSAR-A8_4_6-a "'init' is always an rvalue reference by construction in this implementation detail function"
+  // parasoft-begin-suppress AUTOSAR-A12_8_4-a "'init' is always an rvalue reference by construction in this implementation detail function"
+  // parasoft-begin-suppress AUTOSAR-A18_9_2-a "'init' is always an rvalue reference by construction in this implementation detail function"
+  // clang-format on
   static constexpr auto impl(std::index_sequence<Is...>, Tuple&& tuple, T&& init, Reduce& reduce) noexcept(false)
       -> decltype((
           consume_values({(  //
@@ -47,7 +54,6 @@ class tuple_reduce_fn  //
           T{std::declval<T&&>()}
       )) {
     // parasoft-begin-suppress AUTOSAR-M5_18_1-a "Comma operator avoids an expensive recursive iteration"
-    // parasoft-begin-suppress AUTOSAR-A18_9_2-a AUTOSAR-A8_4_6-a AUTOSAR-A8_4_5_a AUTOSAR-A12_8_4_a
     // "'init' is always an rvalue reference by construction in this implementation detail function"
     // NOLINTBEGIN(bugprone-move-forwarding-reference)
     consume_values({(  //
@@ -55,11 +61,15 @@ class tuple_reduce_fn  //
         true
     )...});
     // NOLINTEND(bugprone-move-forwarding-reference)
-    // parasoft-end-suppress AUTOSAR-A18_9_2-a AUTOSAR-A8_4_6-a AUTOSAR-A8_4_5_a AUTOSAR-A12_8_4_a
     // parasoft-end-suppress AUTOSAR-M5_18_1-a
 
     return init;
   }
+  // parasoft-end-suppress AUTOSAR-A0_1_4-a
+  // parasoft-end-suppress AUTOSAR-A8_4_5-a
+  // parasoft-end-suppress AUTOSAR-A8_4_6-a
+  // parasoft-end-suppress AUTOSAR-A12_8_4-a
+  // parasoft-end-suppress AUTOSAR-A18_9_2-a
 
  public:
   /// @brief apply a reduce on elements of a tuple

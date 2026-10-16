@@ -51,7 +51,10 @@ namespace base {
 /// @brief Read a value from a serialized binary representation stored in little-endian byte order.
 ///
 /// @tparam T The type of the value to read.
+/// The bytes to read are passed as @c bytes.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param bytes A view of the bytes to read the data from.
+/// @endcond
 /// @return The read value
 template <
     typename T,
@@ -61,7 +64,10 @@ auto read_little_endian(span<byte const, sizeof(T)> bytes) noexcept -> T = delet
 /// @brief Read an integral value from a serialized binary representation stored in little-endian byte order.
 ///
 /// @tparam T The type of the value to read.
+/// The bytes to read are passed as @c bytes.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param bytes A view of the bytes to read the data from.
+/// @endcond
 /// @return The read value
 template <typename T, constraints<std::enable_if_t<std::is_integral<T>::value>> = nullptr>
 constexpr auto read_little_endian(span<byte const, sizeof(T)> bytes) noexcept -> T;
@@ -69,7 +75,10 @@ constexpr auto read_little_endian(span<byte const, sizeof(T)> bytes) noexcept ->
 /// @brief Read an enum value from a serialized binary representation stored in little-endian byte order.
 ///
 /// @tparam T The type of the value to read.
+/// The bytes to read are passed as @c bytes.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param bytes A view of the bytes to read the data from.
+/// @endcond
 /// @return The read value
 template <typename T, constraints<std::enable_if_t<std::is_enum<T>::value>> = nullptr>
 constexpr auto read_little_endian(span<byte const, sizeof(T)> bytes) noexcept -> T;
@@ -77,7 +86,10 @@ constexpr auto read_little_endian(span<byte const, sizeof(T)> bytes) noexcept ->
 /// @brief Read a floating point value from a serialized binary representation stored in little-endian byte order.
 ///
 /// @tparam T The type of the value to read.
+/// The bytes to read are passed as @c bytes.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param bytes A view of the bytes to read the data from.
+/// @endcond
 /// @return The read value
 template <
     typename T,
@@ -89,8 +101,11 @@ auto read_little_endian(span<byte const, sizeof(T)> bytes) noexcept -> T;
 /// @brief Write a value to a buffer in little-endian binary representation.
 ///
 /// @tparam T The type of the value to write. This template parameter must be explicitly specified.
+/// The value and buffer to write are passed as @c value and @c bytes.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param value The value to write.
 /// @param bytes The buffer to write the little-endian binary representation to.
+/// @endcond
 template <
     typename T,
     constraints<std::enable_if_t<!std::is_enum<T>::value>, std::enable_if_t<!std::is_arithmetic<T>::value>> = nullptr>
@@ -99,24 +114,33 @@ void write_little_endian(base::type_identity_t<T> value, span<byte, sizeof(T)> b
 /// @brief Write an integral value to a buffer in little-endian binary representation.
 ///
 /// @tparam T The type of the value to write. This template parameter must be explicitly specified.
+/// The value and buffer to write are passed as @c value and @c bytes.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param value The value to write.
 /// @param bytes The buffer to write the little-endian binary representation to.
+/// @endcond
 template <typename T, constraints<std::enable_if_t<std::is_integral<T>::value>> = nullptr>
 constexpr void write_little_endian(base::type_identity_t<T> value, span<byte, sizeof(T)> bytes) noexcept;
 
 /// @brief Write an enum value to a buffer in little-endian binary representation.
 ///
 /// @tparam T The type of the value to write. This template parameter must be explicitly specified.
+/// The value and buffer to write are passed as @c value and @c bytes.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param value The value to write.
 /// @param bytes The buffer to write the little-endian binary representation to.
+/// @endcond
 template <typename T, constraints<std::enable_if_t<std::is_enum<T>::value>> = nullptr>
 constexpr void write_little_endian(base::type_identity_t<T> value, span<byte, sizeof(T)> bytes) noexcept;
 
 /// @brief Write a floating point value to a buffer in little-endian binary representation.
 ///
 /// @tparam T The type of the value to write. This template parameter must be explicitly specified.
+/// The value and buffer to write are passed as @c value and @c bytes.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param value The value to write.
 /// @param bytes The buffer to write the little-endian binary representation to.
+/// @endcond
 template <
     typename T,
     constraints<

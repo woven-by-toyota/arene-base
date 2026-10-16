@@ -17,7 +17,6 @@
 #include "arene/base/integer_sequences/sequential_values.hpp"
 #include "arene/base/mdspan/detail/checked_math.hpp"
 #include "arene/base/mdspan/extents.hpp"
-#include "arene/base/span/span.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/forward.hpp"
@@ -38,10 +37,14 @@ namespace layout_detail {
 /// @tparam RankType The type used to represent a dimension index (@c rank_type in @c extents terminology)
 template <typename RankType>
 struct dim_range {
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'begin' does not hide anything"
   /// @brief The first dimension to include in the operation
   RankType begin;
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'end' does not hide anything"
   /// @brief The first dimension to *not* include in the operation
   RankType end;
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 };
 
 /// @brief Gives the product of a range of extents chosen by index within the given Extents type
@@ -107,44 +110,53 @@ constexpr auto mapped_indices_overflow() noexcept -> bool {
 
 /// @brief Get the required size of an underlying data span in order for it to be validly mapped by a @c mapping
 /// @tparam Extents The type of the extents used for this mapping
+/// @tparam StrideRange random access range of stride values
 /// @param extents The extents being mapped by this @c mapping
 /// @param strides A span of the strides being used by this @c mapping
 /// @return The largest number of elements of a contiguous span which can be mapped to by the given strides and extents
 /// @pre The return value would fit in an instance of <c>IndexType</c>, else @c ARENE_PRECONDITION violation
-template <typename Extents, constraints<std::enable_if_t<Extents::rank() != 0>> = nullptr>
-constexpr auto
-required_span_size(Extents const& extents, span<typename Extents::index_type const, Extents::rank()> strides) noexcept
-    -> typename Extents::index_type {
+// parasoft-begin-suppress AUTOSAR-A0_1_4-a "False positive: The parameter 'strides' is used."
+// parasoft-begin-suppress AUTOSAR-M0_1_3 "False positive: All declared local variables are used."
+template <typename Extents, typename StrideRange, constraints<std::enable_if_t<Extents::rank() != 0>> = nullptr>
+constexpr auto required_span_size(Extents const& extents, StrideRange const& strides) noexcept ->
+    typename Extents::index_type {
   using index_type = typename Extents::index_type;
   using rank_type = typename Extents::rank_type;
 
   constexpr auto dimensions = sequential_values<rank_type, Extents::rank>;
 
   // If any of the extents' sizes are 0, then the size of their product space is also 0.
+  // parasoft-begin-suppress AUTOSAR-A7_1_2-a "False positive: constexpr cannot be used instead of const here"
   for (auto const dim : dimensions) {
     if (extents.extent(dim) == index_type{}) {
       return {};
     }
   }
+  // parasoft-end-suppress AUTOSAR-A7_1_2-a
 
   // In general, the number of mapped elements is 1 (for 0,0,0,...) plus the sum of the count of additional elements
   // in each dimension (i.e. its extent - 1), multiplied by that dimension's stride.
   auto required_size = mdspan_detail::checked_math_result<index_type>{index_type{1}};
+
+  // parasoft-begin-suppress AUTOSAR-A7_1_2-a "False positive: constexpr cannot be used instead of const here"
   for (auto const dim : dimensions) {
     index_type const increment{static_cast<index_type>((extents.extent(dim) - index_type{1}) * strides[dim])};
     required_size = mdspan_detail::checked_plus<index_type>(required_size, increment);
   }
+  // parasoft-end-suppress AUTOSAR-A7_1_2-a
 
   ARENE_PRECONDITION(!required_size.overflowed);
   return required_size.value;
 }
+// parasoft-end-suppress AUTOSAR-A0_1_4-a
+// parasoft-end-suppress AUTOSAR-M0_1_3
 
 /// @brief Get the required size of an underlying data span in order for it to be validly mapped by a @c mapping
 /// @tparam Extents The type of the extents used for this mapping
+/// @tparam StrideRange random access range of stride values
 /// @return The largest number of elements of a contiguous span which can be mapped to by the given strides and extents
-template <typename Extents, constraints<std::enable_if_t<Extents::rank() == 0>> = nullptr>
-constexpr auto required_span_size(Extents const&, span<typename Extents::index_type const, Extents::rank()>) noexcept ->
-    typename Extents::index_type {
+template <typename Extents, typename StrideRange, constraints<std::enable_if_t<Extents::rank() == 0>> = nullptr>
+constexpr auto required_span_size(Extents const&, StrideRange const&) noexcept -> typename Extents::index_type {
   // If there are no extents at all, then this is a scalar which should have size 1.
   return {1U};
 }
@@ -161,16 +173,22 @@ constexpr auto precondition_bounds_check(IndexType index, IndexType extent) noex
 
 /// @brief Stride-map the given set of input indices into a single output index
 /// @tparam Extents The type of the extents used for this mapping
+/// @tparam StrideRange random access range of stride values
+/// @tparam IndexRange random access range of index values
 /// @param extents The extents of the input dimensions
 /// @param strides The strides of this mapping in each of the input dimensions
 /// @param indices A set of actual indices in the input dimensions, to be mapped to the output dimension
 /// @return The image of @c indices under the mapping defined by @c extents and @c strides
 /// @pre Every @c indices[i] is within bounds of the matching <c>extents[i]</c>, else @c ARENE_PRECONDITION violation
-template <typename Extents, constraints<std::enable_if_t<Extents::rank() != 0U>> = nullptr>
-constexpr auto stride_map_indices(
+template <  //
+    typename Extents,
+    typename StrideRange,
+    typename IndexRange,
+    constraints<std::enable_if_t<Extents::rank() != 0U>> = nullptr>
+constexpr auto stride_map_indices(  //
     Extents const& extents,
-    span<typename Extents::index_type const, Extents::rank()> strides,
-    span<typename Extents::index_type const, Extents::rank()> indices
+    StrideRange const& strides,
+    IndexRange const& indices
 ) noexcept -> typename Extents::index_type {
   typename Extents::index_type mapped_idx{};
   for (typename Extents::rank_type dim{}; dim < Extents::rank(); ++dim) {
@@ -182,11 +200,21 @@ constexpr auto stride_map_indices(
 
 /// @brief Stride-map the given set of input indices into a single output index
 /// @tparam Extents The type of the extents used for this mapping
+/// @tparam StrideRange random access range of stride values
+/// @tparam IndexRange random access range of index values
 /// @return The image of @c indices under the mapping defined by @c extents and @c strides
 /// @pre Every @c indices[i] is within bounds of the matching <c>extents[i]</c>, else @c ARENE_PRECONDITION violation
-template <typename Extents, constraints<std::enable_if_t<Extents::rank() == 0U>> = nullptr>
+template <
+    typename Extents,
+    typename StrideRange,
+    typename IndexRange,
+    constraints<std::enable_if_t<Extents::rank() == 0U>> = nullptr>
 constexpr auto
-stride_map_indices(Extents const&, span<typename Extents::index_type const, Extents::rank()>, span<typename Extents::index_type const, Extents::rank()>) noexcept
+stride_map_indices(//
+    Extents const&,
+    StrideRange const&,
+    IndexRange const&
+) noexcept
     -> typename Extents::index_type {
   return {};
 }

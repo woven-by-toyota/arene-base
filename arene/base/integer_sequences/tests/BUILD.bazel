@@ -5,19 +5,18 @@
 load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test_with_variants(
     name = "integer_sequence_ops_test",
     srcs = [
         "integer_sequence_ops_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:constraints",
-        "//arene/base:integer_sequences",
+        "//arene/base/integer_sequences:integer_sequence_ops",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -30,16 +29,13 @@ cc_test_with_variants(
     # `count<max_number_of_elements>`. Otherwise, this take *way* too long for a
     # single target (aborted after 3 minutes).
     tags = ["no-arene-iwyu"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:array",
         "//arene/base:integer_sequences",
         "//arene/base/stdlib_choice:max_element",
         "//arene/base/stdlib_choice:min_element",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -48,14 +44,11 @@ cc_test_with_variants(
     srcs = [
         "make_index_sequence_repeat_n_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
-        "//arene/base:integer_sequences",
+        "//arene/base/integer_sequences:make_index_sequence_repeat_n",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:integer_sequence",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -64,13 +57,10 @@ cc_test_with_variants(
     srcs = [
         "make_integer_sequence_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
-        "//arene/base:integer_sequences",
+        "//arene/base/integer_sequences:make_integer_sequence",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

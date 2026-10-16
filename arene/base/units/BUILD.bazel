@@ -4,9 +4,9 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "internal",
+    hdrs = [
         "base_kind_set.hpp",
         "combine_kinds.hpp",
         "common_units.hpp",
@@ -31,11 +31,6 @@ filegroup(
         "unit_kind.hpp",
         "units_conversion_traits.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "internal",
-    hdrs = [":hdrs"],
     visibility = [
         ":__subpackages__",
         "//arene/base:__pkg__",
@@ -46,8 +41,6 @@ cc_library_with_variants(
         "//arene/base:contracts",
         "//arene/base:math",
         "//arene/base:type_info",
-        "//arene/base:type_list",
-        "//arene/base:type_traits",
         "//arene/base/algorithm:all_of",
         "//arene/base/algorithm:transform",
         "//arene/base/functional:bind_front",
@@ -66,8 +59,18 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:ratio",
         "//arene/base/stdlib_choice:remove_const",
         "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/type_list",
+        "//arene/base/type_list:apply_all",
+        "//arene/base/type_list:concat_unique",
+        "//arene/base/type_list:index_of",
+        "//arene/base/type_list:remove_nth",
+        "//arene/base/type_list:sort",
         "//arene/base/type_manipulation:consume_values",
+        "//arene/base/type_traits:all_of",
+        "//arene/base/type_traits:always_false",
         "//arene/base/type_traits:conditional",
+        "//arene/base/type_traits:is_instantiation_of",
+        "//arene/base/type_traits:is_one_of",
         "//arene/base/units/detail:is_bipartite_match",
         "//arene/base/units/detail:missing",
         "//arene/base/units/detail:sum",
@@ -78,8 +81,7 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
         "//arene/base/units/detail:package",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

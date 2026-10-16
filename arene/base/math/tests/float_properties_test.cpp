@@ -1,12 +1,17 @@
 // Copyright 2025, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "arene/base/math/float_properties.hpp"
 
 #include <gtest/gtest.h>
 
+#include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/numeric_limits.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/type_list/cartesian_product.hpp"
+#include "arene/base/type_traits/is_invocable.hpp"
+#include "testlibs/utilities/float32.hpp"
 
 namespace {
 
@@ -175,6 +180,110 @@ TYPED_TEST(FloatPropertyTest, NaN) {
 
   STATIC_ASSERT_EQ(TestFixture::check(std::numeric_limits<Type>::signaling_NaN()), this_expectation);
   STATIC_ASSERT_EQ(TestFixture::check(-std::numeric_limits<Type>::signaling_NaN()), this_expectation);
+}
+
+}  // namespace
+
+namespace user_types {
+
+/// @brief A user type whose float-property ADL overloads are not @c noexcept, to verify the CPOs propagate
+/// (the absence of) @c noexcept.
+struct throwy {
+  friend auto isnan(throwy) -> bool { return false; }
+  friend auto isinf(throwy) -> bool { return false; }
+  friend auto isfinite(throwy) -> bool { return true; }
+  friend auto isnormal(throwy) -> bool { return true; }
+};
+
+/// @brief A user type with no ADL overloads for any of the float-property predicates; used to verify that
+/// the CPOs SFINAE-out cleanly for unsupported types rather than producing a hard error.
+struct no_overloads {};
+
+/// @brief A user type that overloads only @c isnan via ADL; used to verify per-predicate SFINAE independence.
+struct only_isnan {
+  friend constexpr auto isnan(only_isnan) noexcept -> bool { return false; }
+};
+
+}  // namespace user_types
+
+namespace {
+
+using ::testing::float32;
+
+/// @test The CPOs dispatch to user-provided ADL overloads for non-arithmetic types.
+TEST(FloatPropertyAdl, DispatchesToAdlForUserType) {
+  constexpr float32 nan_value{std::numeric_limits<float>::quiet_NaN()};
+  constexpr float32 inf_value{std::numeric_limits<float>::infinity()};
+  constexpr float32 subnormal_value{std::numeric_limits<float>::denorm_min()};
+  constexpr float32 normal_value{1.0F};
+
+  STATIC_ASSERT_TRUE(arene::base::isnan(nan_value));
+  STATIC_ASSERT_FALSE(arene::base::isnan(normal_value));
+
+  STATIC_ASSERT_TRUE(arene::base::isinf(inf_value));
+  STATIC_ASSERT_FALSE(arene::base::isinf(normal_value));
+
+  STATIC_ASSERT_TRUE(arene::base::isfinite(normal_value));
+  STATIC_ASSERT_FALSE(arene::base::isfinite(nan_value));
+  STATIC_ASSERT_FALSE(arene::base::isfinite(inf_value));
+
+  STATIC_ASSERT_TRUE(arene::base::isnormal(normal_value));
+  STATIC_ASSERT_FALSE(arene::base::isnormal(subnormal_value));
+  STATIC_ASSERT_FALSE(arene::base::isnormal(nan_value));
+}
+
+/// @test The CPOs propagate the @c noexcept specification of the user's ADL overload.
+TEST(FloatPropertyAdl, NoexceptPropagates) {
+  STATIC_ASSERT_TRUE(noexcept(arene::base::isnan(float32{0.0F})));
+  STATIC_ASSERT_TRUE(noexcept(arene::base::isinf(float32{0.0F})));
+  STATIC_ASSERT_TRUE(noexcept(arene::base::isfinite(float32{0.0F})));
+  STATIC_ASSERT_TRUE(noexcept(arene::base::isnormal(float32{0.0F})));
+
+  STATIC_ASSERT_FALSE(noexcept(arene::base::isnan(std::declval<user_types::throwy>())));
+  STATIC_ASSERT_FALSE(noexcept(arene::base::isinf(std::declval<user_types::throwy>())));
+  STATIC_ASSERT_FALSE(noexcept(arene::base::isfinite(std::declval<user_types::throwy>())));
+  STATIC_ASSERT_FALSE(noexcept(arene::base::isnormal(std::declval<user_types::throwy>())));
+}
+
+/// @test The CPOs are invocable for floating point types and for user types providing an ADL overload.
+TEST(FloatPropertyAdl, InvocableForSupportedTypes) {
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isnan), double>));
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isinf), double>));
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isfinite), double>));
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isnormal), double>));
+
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isnan), float32>));
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isinf), float32>));
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isfinite), float32>));
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isnormal), float32>));
+}
+
+/// @test The CPOs are not invocable for integer types
+TEST(FloatPropertyAdl, NotInvocableForIntegerTypes) {
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isnan), int>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isinf), int>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isfinite), int>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isnormal), int>));
+
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isnan), unsigned>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isnan), bool>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isnan), char>));
+}
+
+/// @test The CPOs SFINAE-out (rather than hard-error) for user types with no matching ADL overload.
+TEST(FloatPropertyAdl, NotInvocableForUnsupportedType) {
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isnan), user_types::no_overloads>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isinf), user_types::no_overloads>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isfinite), user_types::no_overloads>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isnormal), user_types::no_overloads>));
+}
+
+/// @test SFINAE on each CPO is independent: providing @c isnan must not make the others invocable.
+TEST(FloatPropertyAdl, SfinaeIsPerPredicate) {
+  STATIC_ASSERT_TRUE((arene::base::is_invocable_v<decltype(arene::base::isnan), user_types::only_isnan>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isinf), user_types::only_isnan>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isfinite), user_types::only_isnan>));
+  STATIC_ASSERT_FALSE((arene::base::is_invocable_v<decltype(arene::base::isnormal), user_types::only_isnan>));
 }
 
 }  // namespace

@@ -4,7 +4,8 @@
 
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
-load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "mandate_error_matcher", "matcher")
 load("//rules:cc_test.bzl", "cc_test")
 
 package(default_visibility = ["//:__subpackages__"])
@@ -14,9 +15,10 @@ cc_test(
     srcs = ["unique_test_value_test.cpp"],
     deps = [
         "//arene/base:array",
+        "//arene/base/array:to_array",
         "//arene/base/inline_container/testing:unique_test_value",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -26,7 +28,7 @@ cc_test(
     deps = [
         "//arene/base/inline_container/testing:default_constructible_properties",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -41,13 +43,9 @@ struct no_operator_equals
 const auto _ = arene::base::testing::unique_test_value<no_operator_equals, 0>();
 
 """),
-    compile_stderr = matcher.contains_extended_regex(
-        "error: {static_assert} failed{requirement}{sep}{diagnostic}".format(
-            diagnostic = "if tests request a unique test value, the test value type must provide an equality operator",
-            requirement = "( due to requirement 'is_equality_comparable_v<no_operator_equals>')?",
-            sep = "(: | \")",
-            static_assert = "(static_assert|static assertion)",
-        ),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "if tests request a unique test value, the test value type must provide an equality operator",
+        requirement = "is_equality_comparable_v<no_operator_equals>",
     ),
     deps = [
         "//arene/base/inline_container/testing:unique_test_value",
@@ -146,13 +144,9 @@ auto main() -> int
         cc_build_error_test(
             name = "{}_compile_time_has_generic_error_test".format(test["name"]),
             src = ":{}_compile_time_src".format(test["name"]),
-            compile_stderr = matcher.contains_extended_regex(
-                "error: {static_assert} failed{requirement}{sep}{diagnostic}".format(
-                    diagnostic = "test requested N unique values but 'arene::base::testing::test_values' produces duplicates",
-                    requirement = "( due to requirement 'value')?",
-                    sep = "(: | \")",
-                    static_assert = "(static_assert|static assertion)",
-                ),
+            compile_stderr = mandate_error_matcher(
+                diagnostic = "test requested N unique values but 'arene::base::testing::test_values' produces duplicates",
+                requirement = "value",
             ),
             deps = ["//arene/base/inline_container/testing:unique_test_value"],
         ),

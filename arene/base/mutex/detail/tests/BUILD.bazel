@@ -6,6 +6,16 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//rules:cc_test.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_library(
     name = "helpers",
     testonly = True,
@@ -21,7 +31,7 @@ cc_library(
     deps = [
         "//arene/base/compiler_support",
         "//configs:incompatible_with_toolchain_stdlib_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -31,7 +41,7 @@ cc_test(
     deps = [
         "//arene/base/mutex/detail",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -43,7 +53,7 @@ cc_test(
         "//arene/base/compiler_support",
         "//arene/base/mutex/detail",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -55,7 +65,7 @@ cc_test(
         "//arene/base/compiler_support",
         "//arene/base/mutex/detail",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -67,14 +77,6 @@ cc_test(
         "//arene/base/compiler_support",
         "//arene/base/mutex/detail",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob([
-        "*.cpp",
-        "*.hpp",
-    ]),
-    visibility = ["//:__subpackages__"],
 )

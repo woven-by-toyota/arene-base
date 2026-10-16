@@ -6,6 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_INTEGER_SEQUENCES_INTEGER_SEQUENCE_OPS_HPP_
 
 // IWYU pragma: private, include "arene/base/integer_sequences.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 

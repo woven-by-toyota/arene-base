@@ -1,0 +1,84 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "can_reference",
+    hdrs = ["can_reference.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+    ],
+)
+
+cc_library_with_variants(
+    name = "cond_value_type",
+    hdrs = ["cond_value_type.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/stdlib_choice:is_object",
+        "//arene/base/stdlib_choice:remove_cv",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_member_element_type",
+    hdrs = ["has_member_element_type.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_member_value_type",
+    hdrs = ["has_member_value_type.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_dereferenceable",
+    hdrs = ["is_dereferenceable.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":can_reference",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:declval",
+    ],
+)
+
+cc_library_with_variants(
+    name = "iter_concept",
+    hdrs = ["iter_concept.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/type_traits:priority_tag",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+    ] + glob(["*.hpp"]),
+    visibility = ["//arene/base/iterator:__pkg__"],
+)
+
+cc_library_with_variants(
+    name = "std_reverse_iterator",
+    hdrs = [
+        "std_reverse_iterator_disabled.hpp",
+        "std_reverse_iterator_enabled.hpp",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base/type_manipulation:non_constructible_dummy",
+    ],
+)

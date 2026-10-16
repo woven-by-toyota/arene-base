@@ -9,6 +9,35 @@ package(default_visibility = [
 ])
 
 cc_library_with_variants(
+    name = "constant_accessor",
+    hdrs = ["constant_accessor.hpp"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_abstract",
+        "//arene/base/stdlib_choice:is_array",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_object",
+    ],
+)
+
+cc_library_with_variants(
+    name = "constant_sequence_accessor",
+    hdrs = ["constant_sequence_accessor.hpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:is_abstract",
+        "//arene/base/stdlib_choice:is_array",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_object",
+    ],
+)
+
+cc_library_with_variants(
     name = "default_accessor",
     hdrs = ["default_accessor.hpp"],
     deps = [
@@ -19,6 +48,26 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:is_array",
         "//arene/base/stdlib_choice:is_convertible",
         "//arene/base/stdlib_choice:is_object",
+    ],
+)
+
+cc_library_with_variants(
+    name = "axis_view",
+    hdrs = ["axis_view.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":full_extent",
+        ":is_sliceable_mapping",
+        ":submdspan",
+        "//arene/base:constraints",
+        "//arene/base/detail:make_range_from_indexable",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:integral_constant",
     ],
 )
 
@@ -102,6 +151,22 @@ cc_library_with_variants(
 )
 
 cc_library_with_variants(
+    name = "is_sliceable_mapping",
+    hdrs = ["is_sliceable_mapping.hpp"],
+    deps = [
+        ":full_extent",
+        ":submdspan_mapping_result",
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base/mdspan/detail:count",
+        "//arene/base/mdspan/detail:do_submdspan_mapping",
+        "//arene/base/mdspan/detail:non_collapsing_slice_type",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_list:concat",
+    ],
+)
+
+cc_library_with_variants(
     name = "is_submdspan_slice",
     hdrs = ["is_submdspan_slice.hpp"],
     deps = [
@@ -118,16 +183,10 @@ cc_library_with_variants(
 )
 
 cc_library_with_variants(
-    name = "is_sliceable_mapping",
-    hdrs = ["is_sliceable_mapping.hpp"],
-)
-
-cc_library_with_variants(
     name = "layout_stride",
     hdrs = ["layout_stride.hpp"],
     deps = [
         ":is_layout_mapping",
-        ":is_sliceable_mapping",
         ":submdspan_extents",
         ":submdspan_mapping_result",
         ":submdspan_subextents_type",
@@ -157,7 +216,6 @@ cc_library_with_variants(
     name = "layout_right",
     hdrs = ["layout_right.hpp"],
     deps = [
-        ":is_sliceable_mapping",
         ":submdspan_subextents_type",
         "//arene/base:constraints",
         "//arene/base/mdspan/detail:all_valid_submdspan_slice_types_for",
@@ -176,7 +234,6 @@ cc_library_with_variants(
     name = "layout_left",
     hdrs = ["layout_left.hpp"],
     deps = [
-        ":is_sliceable_mapping",
         ":submdspan_subextents_type",
         "//arene/base:array",
         "//arene/base:constraints",
@@ -225,16 +282,11 @@ cc_library_with_variants(
 cc_library_with_variants(
     name = "make_mdspan",
     hdrs = ["make_mdspan.hpp"],
-    visibility = [
-        ":__subpackages__",
-        "//arene/base:__pkg__",
-    ],
     deps = [
         ":extents",
         ":mdspan",
         "//arene/base:array",
         "//arene/base:span",
-        "//arene/base:type_traits",
         "//arene/base/mdspan/detail:deduced_static_extent",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:enable_if",
@@ -245,6 +297,8 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:remove_all_extents",
         "//arene/base/stdlib_choice:remove_pointer",
         "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_traits:all_of",
+        "//arene/base/type_traits:remove_cvref",
     ],
 )
 
@@ -268,18 +322,22 @@ cc_library_with_variants(
         "//arene/base:constraints",
         "//arene/base:contracts",
         "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_front",
         "//arene/base/mdspan/detail:canonical_slice",
         "//arene/base/mdspan/detail:is_valid_submdspan_slice_for",
-        "//arene/base/mdspan/detail:is_valid_submdspan_slice_type_for",
         "//arene/base/mdspan/detail:mandate_each_argtype_is_submdspan_slice",
+        "//arene/base/mdspan/detail:mandate_each_argtype_is_valid_submdspan_slice_type_for",
         "//arene/base/mdspan/detail:to_array",
         "//arene/base/stdlib_choice:cstddef",
-        "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:ignore",
         "//arene/base/stdlib_choice:logical_and",
-        "//arene/base/stdlib_choice:make_tuple",
         "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/tuple:apply",
         "//arene/base/tuple/detail:tuple_transform_reduce",
+        "//arene/base/tuple/detail:tuple_zip",
+        "//arene/base/type_list",
         "//arene/base/type_traits:all_of",
         "//arene/base/type_traits:is_invocable",
     ],
@@ -332,13 +390,12 @@ cc_library_with_variants(
         ":slice",
         "//arene/base/mdspan/detail:canonical_slice",
         "//arene/base/mdspan/detail:deduced_static_extent",
-        "//arene/base/mdspan/detail:is_valid_submdspan_slice_type_for",
+        "//arene/base/mdspan/detail:mandate_each_argtype_is_valid_submdspan_slice_type_for",
         "//arene/base/mdspan/detail:map_rank",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:integer_sequence",
         "//arene/base/type_list",
         "//arene/base/type_list:at",
-        "//arene/base/type_traits:all_of",
     ],
 )
 
@@ -348,45 +405,39 @@ cc_library_with_variants(
     visibility = [
         ":__subpackages__",
         "//arene/base:__pkg__",
+        "//arene/base/linalg:__subpackages__",
     ],
     deps = [
         ":is_sliceable_mapping",
-        ":is_submdspan_slice",
         ":mdspan",
         ":submdspan_canonicalize_slices",
-        ":submdspan_extents",
-        ":submdspan_mapping_result",
         "//arene/base:constraints",
         "//arene/base/compiler_support:cpp14_inline",
         "//arene/base/functional:bind_front",
-        "//arene/base/mdspan/detail:canonical_slice",
         "//arene/base/mdspan/detail:do_submdspan_mapping",
         "//arene/base/mdspan/detail:mandate_each_argtype_is_submdspan_slice",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:enable_if",
-        "//arene/base/stdlib_choice:integer_sequence",
-        "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:move",
-        "//arene/base/stdlib_choice:remove_cv",
-        "//arene/base/stdlib_choice:remove_reference",
         "//arene/base/tuple:apply",
-        "//arene/base/tuple/detail:get",
-        "//arene/base/type_traits:all_of",
-        "//arene/base/type_traits:is_instantiation_of",
         "//arene/base/type_traits:is_invocable",
-        "//arene/base/type_traits:remove_cvref",
+        "//arene/base/type_traits:priority_tag",
     ],
 )
 
 cc_library_with_variants(
     name = "internal",
     deps = [
+        ":axis_view",
+        ":constant_accessor",
+        ":constant_sequence_accessor",
         ":default_accessor",
         ":extents",
         ":full_extent",
         ":is_accessor_policy",
         ":is_layout_mapping",
+        ":is_sliceable_mapping",
         ":is_submdspan_slice",
         ":layout",
         ":make_mdspan",

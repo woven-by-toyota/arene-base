@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -19,7 +23,7 @@ The Bazel target is
 //:scope_guard
 ```
 
-## Guaranteeing Cleanup {#guaranteeing-cleanup}
+# Guaranteeing Cleanup {#subpackages-scope-guard-guaranteeing-cleanup}
 
 A common problem when interacting with externally managed resources (files,
 allocated memory, etc) is ensuring that resources are correctly released, or
@@ -46,7 +50,7 @@ invocable when the scope exits, whether that is because the execution continued
 off the end of the scope, or the scope was exited via a use of `break`,
 `continue`, `return` or `throw`.
 
-### Using `at_scope_exit` Directly {#using-at_scope_exit-directly}
+## Using `at_scope_exit` Directly {#subpackages-scope-guard-using-at_scope_exit-directly}
 
 Assume a resource management API like the following:
 
@@ -59,7 +63,7 @@ if the scope is exited via an exception.
 
 \snippet docs/examples/scope_guard_examples.cpp basic_usage
 
-### Creating a Named Helper {#creating-a-named-helper}
+## Creating a Named Helper {#subpackages-scope-guard-creating-a-named-helper}
 
 If a particular form of guard will be used repeatedly, instead of calling
 `at_scope_exit` directly, a factory function can be made to give the action a
@@ -68,7 +72,7 @@ refactored in this manner would look like this:
 
 \snippet docs/examples/scope_guard_examples.cpp named_raii_helper_func
 
-### Invoking The Guard Early Or Canceling It {#invoking-the-guard-early-or-canceling-it}
+## Invoking The Guard Early Or Canceling It {#subpackages-scope-guard-invoking-the-guard-early-or-canceling-it}
 
 If the function needs to be invoked prior to destroying the `guard` object, the
 `arene::base::scope_guard::invoke_now` member function can be used.

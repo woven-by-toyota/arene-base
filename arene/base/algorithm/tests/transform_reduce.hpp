@@ -18,6 +18,7 @@
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
+// IWYU pragma: no_include "arene/base/stdlib_choice/forward.hpp"
 #include "arene/base/stdlib_choice/is_rvalue_reference.hpp"
 #include "arene/base/stdlib_choice/iterator_tags.hpp"
 #include "arene/base/stdlib_choice/max_value_overload.hpp"
@@ -48,6 +49,20 @@ namespace transform_reduce_test {
 template <class Override = transform_reduce_test::config::override>
 constexpr auto version() noexcept -> transform_reduce_test::config::flavor {
   return ::transform_reduce_test::config::version<Override>;
+}
+
+/// @brief specifies the range arity of @c transform_reduce under test
+/// @tparam Override parameter used to obtain the test configuration
+///
+/// To override the default value, this must be set by specializing
+///   @c ::transform_reduce_test::config::range_arity<::transform_reduce_test::config::override>
+///   prior to including this header
+///
+/// @return 1 or 2, depending on if the single-range or two-range overloads are under test
+///
+template <class Override = transform_reduce_test::config::override>
+constexpr auto range_arity() noexcept -> std::size_t {
+  return ::transform_reduce_test::config::range_arity<Override>;
 }
 /// @brief provides the @c transform_reduce algorithm as a function object
 /// @tparam Override parameter used to obtain the test configuration
@@ -250,9 +265,7 @@ TEST(TransformReduce, InnerProductWithDefaultOpsOnGeneratedData) {
 /// @test @c transform_reduce without specifying the reduce and transform
 /// operations can be used if all the value types (range1 value type, range2
 /// value type, and accumulator value type) are different.
-///
-/// @note There is no @c CONDITIONALLY_CONSTEXPR_TEST macro
-TEST(TransformReduce, DefaultOpsAndDifferentValueTypes) {
+CONDITIONAL_TYPED_TEST(TransformReduce, DefaultOpsAndDifferentValueTypes, transform_reduce_test::range_arity() == 2U) {
   constexpr auto size = std::size_t{5};
 
   struct value_type2 {
@@ -333,11 +346,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(
 
 /// @test @c transform_reduce can be used with two different range value types
 ///
-CONDITIONALLY_CONSTEXPR_TYPED_TEST(
-    TransformReduce,
-    MaxOfFilteredValues,
-    transform_reduce_test::run_test_in_constexpr()
-) {
+CONDITIONAL_TYPED_TEST(TransformReduce, MaxOfFilteredValues, transform_reduce_test::range_arity() == 2U) {
   using value_type = typename TypeParam::value_type;
 
   // we don't test with an empty range in the case, otherwise that results in
@@ -596,8 +605,12 @@ TEST(TransformReduce, NoexceptIfIteratorOpsCanThrow) {
   ASSERT_FALSE(is_noexcept_if_iterator(throws_on::dereference, throws_on::nothing));
   ASSERT_FALSE(is_noexcept_if_iterator(throws_on::pre_increment, throws_on::nothing));
 
-  ASSERT_FALSE(is_noexcept_if_iterator(throws_on::nothing, throws_on::dereference));
-  ASSERT_FALSE(is_noexcept_if_iterator(throws_on::nothing, throws_on::pre_increment));
+  if (transform_reduce_test::range_arity() == 2U) {
+    // The adaptor we use ignores iterator2 so these tests are not meaningful for the 1range overload.
+
+    ASSERT_FALSE(is_noexcept_if_iterator(throws_on::nothing, throws_on::dereference));
+    ASSERT_FALSE(is_noexcept_if_iterator(throws_on::nothing, throws_on::pre_increment));
+  }
 }
 
 /// @test @c transform_reduce is @c noexcept(false) if the reduce or transform op can throw
@@ -625,6 +638,7 @@ TEST(TransformReduce, NoexceptIfReduceOrTransformOpCanThrow) {
 
 // returns whether or not transform_reduce is noexcept when called with non-throwing operations, an init of type
 // `decltype(value)`, and iterators that dereference to `decltype(value)`
+/// @cond
 constexpr struct {
   template <class T>
   constexpr auto operator()(T value) const noexcept -> bool {
@@ -641,6 +655,7 @@ constexpr struct {
     ));
   }
 } is_noexcept_with_value{};
+/// @endcond
 
 /// @test @c transform_reduce is @c noexcept(false) if the Value type can throw
 /// on move construction
@@ -707,6 +722,13 @@ TEST(TransformReduce, NoexceptIfValueThrowsOnConvertingConstruction) {
 /// @test @c transform_reduce requires input iterators as arguments
 ///
 TEST(TransformReduce, RequiresInputIterator) {
+  if (transform_reduce_test::range_arity() == 1U) {
+    // Tests for a single-range use a transform adaptor. Testing that different
+    // binary transform argument orders is irrelevant for the single-range
+    // overload. This is tested separately.
+    GTEST_SKIP() << "Not applicable for range arity != 2";
+  }
+
   ASSERT_TRUE((arene::base::is_invocable_v<
                decltype(transform_reduce_test::function_under_test()),
                int*,
@@ -746,6 +768,13 @@ TEST(TransformReduce, RequiresInputIterator) {
 /// reference type of each range
 ///
 TEST(TransformReduce, RequiresTransformInvocableWithIterReferences) {
+  if (transform_reduce_test::range_arity() == 1U) {
+    // Tests for single-range use a transform adaptor. Testing that different
+    // binary transform argument orders is irrelevant for the single-range
+    // overload.
+    GTEST_SKIP() << "Not applicable for range arity != 2";
+  }
+
   struct dummy {};
 
   ASSERT_TRUE((arene::base::is_invocable_v<
@@ -793,7 +822,8 @@ TEST(TransformReduce, RequiresTransformInvocableWithIterReferences) {
 ///
 TEST(TransformReduce, RequiresValueToBeCopyableOrMoveConstructible) {
   constexpr bool is_inner_product_flavor{
-      transform_reduce_test::version() != transform_reduce_test::config::flavor::transform_reduce
+      transform_reduce_test::version() == transform_reduce_test::config::flavor::inner_product ||
+      transform_reduce_test::version() == transform_reduce_test::config::flavor::std_inner_product
   };
 
   auto const is_invocable_with = [](auto const& value) {
@@ -860,7 +890,8 @@ TEST(TransformReduce, RequiresValueToBeCopyableOrMoveConstructible) {
 ///
 TEST(TransformReduce, RequiresReduceToBeTypeCommutativeInvocable) {
   constexpr bool is_inner_product_flavor{
-      transform_reduce_test::version() != transform_reduce_test::config::flavor::transform_reduce
+      transform_reduce_test::version() == transform_reduce_test::config::flavor::inner_product ||
+      transform_reduce_test::version() == transform_reduce_test::config::flavor::std_inner_product
   };
 
   struct dummy {};
@@ -948,7 +979,8 @@ TEST(TransformReduce, ReduceResultConvertibleToValue) {
 ///
 TEST(TransformReduce, RequiresReduceResultToBeConvertible) {
   constexpr bool is_inner_product_flavor{
-      transform_reduce_test::version() != transform_reduce_test::config::flavor::transform_reduce
+      transform_reduce_test::version() == transform_reduce_test::config::flavor::inner_product ||
+      transform_reduce_test::version() == transform_reduce_test::config::flavor::std_inner_product
   };
 
   struct assignable_with_int {
@@ -1025,7 +1057,7 @@ TEST(TransformReduce, RvalueReferenceAccReduceUsable) {
 /// @test @c transform_reduce requires range value types to be multipliable
 /// if the transform is not specified
 ///
-TEST(TransformReduce, RangeValueTypesMultipliable) {
+CONDITIONAL_TYPED_TEST(TransformReduce, RangeValueTypesMultipliable, transform_reduce_test::range_arity() == 2U) {
   struct type1 {};
   struct type2 {
     auto operator*(type1) const -> int { return {}; }
@@ -1049,9 +1081,10 @@ TEST(TransformReduce, RangeValueTypesMultipliable) {
 /// @test @c transform_reduce requires the accumulator value type to be addable
 /// to the multiplication result
 ///
-TEST(TransformReduce, AccumulatorValueTypeAddable) {
+CONDITIONAL_TYPED_TEST(TransformReduce, AccumulatorValueTypeAddable, transform_reduce_test::range_arity() == 2U) {
   constexpr bool is_inner_product_flavor{
-      transform_reduce_test::version() != transform_reduce_test::config::flavor::transform_reduce
+      transform_reduce_test::version() == transform_reduce_test::config::flavor::inner_product ||
+      transform_reduce_test::version() == transform_reduce_test::config::flavor::std_inner_product
   };
 
   struct not_addable_with_int {};
@@ -1088,6 +1121,38 @@ TEST(TransformReduce, AccumulatorValueTypeAddable) {
                int*,
                int*,
                commutably_addable_with_int>));
+}
+
+/// @test @c transform_reduce and @c inner_product can be called with a range
+CONDITIONAL_CONSTEXPR_TYPED_TEST(
+    TransformReduce,
+    InvocableWithRange,
+    transform_reduce_test::version() != transform_reduce_test::config::flavor::std_inner_product
+) {
+  auto const values = arene::base::sequential_values_from<int, 1U, TypeParam::size + 1U>;
+
+  auto const out = transform_reduce_test::counted_transform_reduce(  //
+      values,
+      values.begin(),
+      0,
+      std::plus<>{},
+      std::multiplies<>{}
+  );
+
+  auto reduce_count = std::size_t{};
+  auto transform_count = std::size_t{};
+
+  auto result = transform_reduce_test::function_under_test()(  //
+      values,
+      values.begin(),
+      0,
+      testing::counted<std::plus<>>{std::plus<>{}, reduce_count},
+      testing::counted<std::multiplies<>>{std::multiplies<>{}, transform_count}
+  );
+
+  CONSTEXPR_ASSERT_EQ(out.result, result);
+  CONSTEXPR_ASSERT_EQ(out.reduce_count, reduce_count);
+  CONSTEXPR_ASSERT_EQ(out.transform_count, transform_count);
 }
 
 }  // namespace

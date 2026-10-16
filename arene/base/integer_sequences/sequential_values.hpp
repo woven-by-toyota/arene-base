@@ -39,6 +39,7 @@ extern constexpr bool is_valid_size_v = NumElements <= max_number_of_elements;
 /// @tparam ElementType The type of each element
 /// @tparam Indices The values to put in the array
 /// @return An array holding the values, The array bounds is the number of indices in the sequence.
+// parasoft-begin-suppress CERT_C-EXP37-a "False positive: The rule does not mention naming all parameters"
 template <
     typename ElementType,
     ElementType... Indices,
@@ -49,6 +50,7 @@ constexpr auto make_index_sequence_array(std::integer_sequence<ElementType, Indi
   return {Indices...};
   // parasoft-end-suppress AUTOSAR-M8_5_2-a-2
 }
+// parasoft-end-suppress CERT_C-EXP37-a
 
 }  // namespace sequential_values_detail
 

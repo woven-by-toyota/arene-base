@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -6,12 +10,12 @@
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#subpackages-testing-gtest-intro-introduction}
 
 The gtest library provides facilities that make writing tests in gtest simpler
 and more robust.
 
-## Public Header {#public-header}
+## Public Header {#subpackages-testing-gtest-intro-public-header}
 
 Consumers of `arene_base` get access to the facilities of this library through
 the public export location:
@@ -26,7 +30,7 @@ The namespace for facilities in this library is:
 arene::base::testing::gtest
 ```
 
-## Public Target {#public-target}
+## Public Target {#subpackages-testing-gtest-intro-public-target}
 
 The externally exported bazel target is:
 
@@ -34,7 +38,7 @@ The externally exported bazel target is:
 ://testing/gtest
 ```
 
-## Functionality {#functionality}
+## Functionality {#subpackages-testing-gtest-intro-functionality}
 
 The following functionality is provided by this library:
 

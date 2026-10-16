@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -16,7 +20,7 @@ header:
 
 ```
 
-## Provided Queries For Hardware Properties {#provided-queries-for-hardware-properties}
+# Provided Queries For Hardware Properties {#subpackages-compiler-support-hardware-queries-provided-queries-for-hardware-properties}
 
 |                         Query                         |                                                                                                                                               Description                                                                                                                                                |
 | :---------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |

@@ -19,7 +19,7 @@
 #include "arene/base/stdlib_choice/is_const.hpp"
 #include "arene/base/stdlib_choice/less.hpp"
 #include "arene/base/stdlib_choice/move.hpp"
-#include "arene/base/type_traits.hpp"
+#include "arene/base/type_traits/is_invocable.hpp"
 #include "arene/base/utility/swap.hpp"
 
 // parasoft-end-suppress AUTOSAR-A16_2_2-a

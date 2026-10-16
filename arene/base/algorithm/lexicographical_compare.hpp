@@ -15,7 +15,7 @@
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/iterator/advance.hpp"
 #include "arene/base/stdlib_choice/less.hpp"
@@ -124,8 +124,7 @@ class lexicographical_compare_three_way_fn {
 
 }  // namespace lexicographical_compare_detail
 
-/// @def arene::base::lexicographical_compare
-/// @copydoc arene::base::lexicographical_compare_detail::lexicographical_compare_fn::operator()
+/// @brief Compare two ranges lexicographically for less-than.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
@@ -134,8 +133,7 @@ ARENE_CPP14_INLINE_VARIABLE(lexicographical_compare_detail::lexicographical_comp
 // parasoft-end-suppress AUTOSAR-M7_3_3-a
 // parasoft-end-suppress CERT_CPP-DCL59-a
 
-/// @def arene::base::lexicographical_compare_three_way
-/// @copydoc arene::base::lexicographical_compare_detail::lexicographical_compare_three_way_fn::operator()
+/// @brief Compare two ranges lexicographically using a three-way comparison.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

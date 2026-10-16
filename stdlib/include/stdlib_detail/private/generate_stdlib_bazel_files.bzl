@@ -27,6 +27,7 @@ _AUTOGEN_WARNING = """\
 # If there are issues with generation, simply revert the build file to *just*
 # the prologue and then build the `expected_build_file` target.
 #
+#
 _BUILD_FILE_PROLOGUE = """\
 # Copyright 2026, Toyota Motor Corporation
 #
@@ -238,9 +239,12 @@ _GENERATED_SOURCE_TREE_FILES = [
         pkg = _STDLIB_CHOICE_DIRECTORY,
         file = "components.bzl",
         generation_commands = [
+            # Ignore `reuse lint' invalid SPDX expression error.
+            # REUSE-IgnoreStart
             "echo '# Copyright 2026, Toyota Motor Corporation' > $@",
             "echo '#' >> $@",
             "echo '# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception' >> $@",
+            # REUSE-IgnoreEnd
             "echo '' >> $@",
             "echo '\"\"\"' >> $@",
             "echo 'Defines mappings from individual stdlib components to public stdlib headers' >> $@",

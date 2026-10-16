@@ -20,7 +20,6 @@
 #include "arene/base/mdspan/detail/submdspan_offset.hpp"
 #include "arene/base/mdspan/detail/submdspan_sub_strides.hpp"
 #include "arene/base/mdspan/is_layout_mapping.hpp"
-#include "arene/base/mdspan/is_sliceable_mapping.hpp"  // IWYU pragma: keep
 #include "arene/base/mdspan/submdspan_extents.hpp"
 #include "arene/base/mdspan/submdspan_mapping_result.hpp"
 #include "arene/base/mdspan/submdspan_subextents_type.hpp"
@@ -487,11 +486,6 @@ class layout_stride::mapping : private layout_detail::strided_mapping_base<Exten
 /// @tparam Extents Any specialization of @c arene::base::extents
 template <typename Extents>
 extern constexpr bool is_layout_mapping_v<layout_stride::mapping<Extents>> = true;
-
-/// @brief Specialization of @c is_sliceable_mapping_v indicating @c layout_stride::mapping supports @c submdspan
-/// @tparam Extents Any specialization of @c arene::base::extents
-template <typename Extents>
-extern constexpr bool submdspan_detail::is_sliceable_mapping_v<layout_stride::mapping<Extents>> = true;
 
 }  // namespace base
 }  // namespace arene

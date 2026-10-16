@@ -41,7 +41,6 @@
 #include "arene/base/type_traits/is_movable.hpp"
 #include "arene/base/type_traits/iterator_category_traits.hpp"
 #include "testlibs/utilities/iterator_types.hpp"
-#include "testlibs/utilities/throws_on.hpp"
 
 namespace arene {
 namespace base {
@@ -78,7 +77,6 @@ constexpr bool is_list_initializable_v<
     T,
     ElementType,
     constraints<decltype(T{std::declval<ElementType&>(), std::declval<ElementType&>()})>>{true};
-/// @}
 
 /////////////////////////
 // Parameterized tests //
@@ -141,7 +139,7 @@ class InlineDequeTest : public ::testing::Test {
     return test_deque(Deque::capacity);
   }
 
-  /// @brief Return a @c Deque containing the test values <c>[capacity/2, 3*capacity/2)<c> of @c T
+  /// @brief Return a @c Deque containing the test values <c>[capacity/2, 3*capacity/2)</c> of @c T
   /// @return A test deque holding the test values, wrapped around so they start in the middle
   /// @note This is useful for testing that functions aren't accidentally assuming the data starts at buffer index 0
   static constexpr auto wrapped_test_deque() noexcept(noexcept(test_deque(Deque::capacity))) -> Deque {

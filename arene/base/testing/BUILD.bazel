@@ -4,6 +4,7 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
+# test library extensions without main
 cc_library_with_variants(
     name = "gtest",
     hdrs = ["gtest.hpp"],
@@ -11,6 +12,21 @@ cc_library_with_variants(
     deps = [
         "//arene/base/testing/gtest:gtest_internal",
     ],
+)
+
+# test library extensions with main (this is only defined for public export)
+cc_library_with_variants(
+    name = "gtest_main_public",
+    hdrs = ["gtest.hpp"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":gtest",
+    ] + select({
+        # exclude transitive @com_google_googletest dependency when exporting for cmake
+        # we shall not bundle @com_google_googletest
+        "//configs:export_cmake": [],
+        "//conditions:default": ["//testlibs:test_main"],
+    }),
 )
 
 cc_library_with_variants(
@@ -29,6 +45,29 @@ cc_library_with_variants(
 )
 
 cc_library_with_variants(
+    name = "array_distribution",
+    testonly = True,
+    hdrs = ["array_distribution.hpp"],
+    tags = [
+        # this file does not contain tests
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base/algorithm:generate",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_move_assignable",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:reference_wrapper",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
     name = "bitwise_uniform_distribution",
     testonly = True,
     hdrs = ["bitwise_uniform_distribution.hpp"],
@@ -39,12 +78,53 @@ cc_library_with_variants(
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base:constraints",
+        "//arene/base/bit:bit_cast",
+        "//arene/base/math:complex_decomp",
         "//arene/base/stdlib_choice:climits",
         "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:is_unsigned",
         "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/type_manipulation:smallest_integer_for",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+cc_library_with_variants(
+    name = "default_distribution",
+    testonly = True,
+    hdrs = ["default_distribution.hpp"],
+    tags = [
+        # this file does not contain tests
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":bitwise_uniform_distribution",
+    ],
+)
+
+cc_library_with_variants(
+    name = "nan_rejecting_distribution",
+    testonly = True,
+    hdrs = ["nan_rejecting_distribution.hpp"],
+    tags = [
+        # this file does not contain tests
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/math:float_properties",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_arithmetic",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_floating_point",
     ],
 )
 
@@ -66,6 +146,7 @@ cc_library_with_variants(
 cc_library_with_variants(
     name = "property_config",
     testonly = True,
+    srcs = ["property_config.cpp"],
     hdrs = ["property_config.hpp"],
     tags = [
         # this is not product code
@@ -73,8 +154,12 @@ cc_library_with_variants(
     ],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//arene/base:contracts",
+        "//arene/base:optional",
+        "//arene/base:string_view",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:numeric_limits",
     ],
 )
 
@@ -95,6 +180,26 @@ cc_library_with_variants(
 )
 
 cc_library_with_variants(
+    name = "property_macros",
+    testonly = True,
+    hdrs = ["property_macros.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":property_config",
+        ":property_summary",
+        ":run_property",
+        "//arene/base/compiler_support",
+        "//arene/base/testing/detail:any_prng_ref",
+        "//arene/base/testing/detail:property_trampoline",
+        "//testlibs:test_library",
+    ],
+)
+
+cc_library_with_variants(
     name = "property_summary",
     testonly = True,
     hdrs = ["property_summary.hpp"],
@@ -105,6 +210,7 @@ cc_library_with_variants(
     visibility = ["//:__subpackages__"],
     deps = [
         ":property_error",
+        "//arene/base:constraints",
         "//arene/base:optional",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
@@ -121,12 +227,14 @@ cc_library_with_variants(
     ],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":default_distribution",
         ":prng_xoshiro",
         ":property_config",
         ":property_error",
         ":property_summary",
         "//arene/base/functional:function_traits",
         "//arene/base/stdlib_choice:tuple",
+        "//arene/base/testing/detail:any_prng_ref",
         "//arene/base/testing/detail:property_context",
         "//arene/base/tuple:apply",
         "//arene/base/tuple:tuple_cat",

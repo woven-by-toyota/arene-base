@@ -455,8 +455,7 @@ class make_extents_fn  //
 };
 }  // namespace extents_detail
 
-/// @def arene::base::make_extents
-/// @copydoc arene::base::extents_detail::make_extents_fn::operator()
+/// @brief Construct an extents object with deduced extent types.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

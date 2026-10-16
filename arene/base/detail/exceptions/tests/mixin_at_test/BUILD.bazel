@@ -11,13 +11,22 @@ load(
     "transition_use_toolchain_stdlib",
 )
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_library_with_variants(
     name = "simple_container",
     testonly = True,
     hdrs = ["simple_container.hpp"],
     tags = ["manual"],
     deps = [
-        "//arene/base:type_list",
         "//arene/base/detail/exceptions:mixin_at",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:enable_if",
@@ -26,8 +35,10 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:is_reference",
         "//arene/base/stdlib_choice:remove_reference",
         "//arene/base/testing:gtest",
+        "//arene/base/type_list",
+        "//arene/base/type_list:at",
         "//arene/base/type_traits:conditional",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
     ],
 )
@@ -38,14 +49,13 @@ cc_test_with_variants(
     deps = [
         ":simple_container",
         "//arene/base:constraints",
-        "//arene/base:type_list",
         "//arene/base/detail/exceptions:mixin_at",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:move",
         "//arene/base/stdlib_choice:stdexcept",
         "//arene/base/testing:gtest",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
     ],
 )
@@ -109,12 +119,4 @@ cc_test(
     deps = [
         ":exceptions_disabled_by_use_exceptions_wrapper.without_toolchain_stdlib",
     ],
-)
-
-exports_files(
-    glob([
-        "*.cpp",
-        "*.hpp",
-    ]),
-    visibility = ["//:__subpackages__"],
 )

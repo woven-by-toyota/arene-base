@@ -11,7 +11,10 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/constraints/constraints.hpp"
+#include "arene/base/ranges/detail/range_interface.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_copy_constructible.hpp"
 #include "arene/base/stdlib_choice/is_move_constructible.hpp"
 #include "arene/base/stdlib_choice/iterator_traits.hpp"
@@ -19,6 +22,8 @@
 #include "arene/base/type_traits/denotes_range.hpp"
 #include "arene/base/type_traits/remove_cvref.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
+
+// parasoft-begin-suppress AUTOSAR-M2_10_1-a "Similar names permitted by M2-10-1 Permit #1"
 
 namespace arene {
 namespace base {
@@ -32,7 +37,7 @@ namespace make_subrange_detail {
 /// @tparam Sentinel The type of the sentinel for the range
 ///
 template <typename Iterator, typename Sentinel>
-class iterator_range {
+class iterator_range : public ranges::detail::range_interface<iterator_range<Iterator, Sentinel>> {
  public:
   /// @brief The iterator type of the range
   using iterator_type = remove_cvref_t<Iterator>;
@@ -40,6 +45,11 @@ class iterator_range {
   using sentinel_type = remove_cvref_t<Sentinel>;
   /// @brief The value type of the range
   using value_type = typename std::iterator_traits<iterator_type>::value_type;
+
+  /// @brief The iterator type of the range
+  using iterator = iterator_type;
+  /// @brief The const iterator type of the range
+  using const_iterator = iterator_type;
 
   /// @brief Construct an iterator_range from an iterator/sentinel pair
   ///
@@ -49,9 +59,11 @@ class iterator_range {
       std::is_nothrow_move_constructible<iterator_type>::value &&
       std::is_nothrow_move_constructible<sentinel_type>::value
   )
-      : iterator_(std::move(itr)),
+      : ranges::detail::range_interface<iterator_range>{this},
+        iterator_(std::move(itr)),
         sentinel_(std::move(sent)) {}
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: these standard range API names do not hide anything"
   /// @brief Obtain the iterator for the start of the range
   /// @return The iterator
   constexpr auto begin() const noexcept(std::is_nothrow_copy_constructible<iterator_type>::value) -> iterator_type {
@@ -62,6 +74,7 @@ class iterator_range {
   constexpr auto end() const noexcept(std::is_nothrow_copy_constructible<sentinel_type>::value) -> sentinel_type {
     return sentinel_;
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
  private:
   /// @brief The iterator representing the start of the subrange
@@ -89,6 +102,14 @@ constexpr auto make_subrange(Iterator iterator, Sentinel sentinel) noexcept(
   return make_subrange_detail::iterator_range<Iterator, Sentinel>{std::move(iterator), std::move(sentinel)};
 }
 // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+namespace ranges {
+/// @brief Indicate that the iterator_range type is a borrowed range
+/// @tparam Iterator The type of the position iterator for the range
+/// @tparam Sentinel The type of the sentinel for the range
+template <typename Iterator, typename Sentinel>
+class enable_borrowed_range<make_subrange_detail::iterator_range<Iterator, Sentinel>> : public std::true_type {};
+}  // namespace ranges
 
 }  // namespace base
 }  // namespace arene

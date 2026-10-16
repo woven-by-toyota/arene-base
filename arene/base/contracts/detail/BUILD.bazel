@@ -4,18 +4,13 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "detail_hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "detail",
+    hdrs = [
         "pre_abort_cleanup_gcov.inl",
         "pre_abort_cleanup_llvmcov.inl",
         "pre_abort_cleanup_production.inl",
     ],
-)
-
-cc_library_with_variants(
-    name = "detail",
-    hdrs = [":detail_hdrs"],
     visibility = [
         "//arene/base/contracts:__subpackages__",
     ],
@@ -29,8 +24,7 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":detail_hdrs",
         "//arene/base/contracts/detail/stacktrace:package",
-    ],
+    ] + glob(["*.inl"]),
     visibility = ["//arene/base/contracts:__pkg__"],
 )

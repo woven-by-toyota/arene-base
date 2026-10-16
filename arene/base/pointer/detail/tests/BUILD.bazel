@@ -4,12 +4,19 @@
 
 load("//rules:cc_test.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_test(
     name = "to_address_test",
     srcs = ["to_address_test.cpp"],
     deps = [
         "//arene/base/pointer/detail",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -19,11 +26,6 @@ cc_test(
     deps = [
         "//arene/base/pointer/detail",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

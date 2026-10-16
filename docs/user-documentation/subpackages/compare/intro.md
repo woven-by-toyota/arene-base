@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -36,7 +40,7 @@ The Bazel target is
 //:compare
 ```
 
-## Strong Ordering and Weak Ordering {#strong-ordering-and-weak-ordering}
+# Strong Ordering and Weak Ordering {#subpackages-compare-intro-strong-ordering-and-weak-ordering}
 
 A type and comparison form a _strong ordering_ if any two values of the type are
 either equal, or one is "before" the other given the specified comparison.
@@ -54,7 +58,7 @@ implies `a is equivalent to b`, and `a` may still not be equal to `b`.
 For most types, you want a _strong ordering_, so this is what the Arene Base
 facilities assist with.
 
-### The `arene::base::strong_ordering` type {#the-arene-base-strong_ordering-type}
+## The `arene::base::strong_ordering` type {#subpackages-compare-intro-the-arene-base-strong_ordering-type}
 
 The C++20 spaceship operator returns either an instance of
 `std::strong_ordering` or `std::weak_ordering` depending whether it's a strong
@@ -67,7 +71,7 @@ C++20. It's an `enum class` with three members:
 `arene::base::strong_ordering::greater`, that can be used to represent the
 result of a comparison.
 
-## The comparison support facilities {#the-comparison-support-facilities}
+## The comparison support facilities {#subpackages-compare-intro-the-comparison-support-facilities}
 
 The Arene Base comparison support facilities consist of:
 
@@ -84,7 +88,7 @@ the class type being provided as the left-hand argument. The remaining
 comparison operators are then provided by deriving from the appropriate base
 class. Please see the linked documentation for details.
 
-## Known limitations {#known-limitations}
+## Known limitations {#subpackages-compare-intro-known-limitations}
 
 The \ref operator-inheritance "comparison support templates" only support
 comparison from instances of the type being defined to instances of specific
@@ -95,7 +99,7 @@ you are forced to write the comparison operators by hand. For a given class,
 some comparison operators might be provided via the comparison support
 templates, while others are written manually.
 
-### Canonical implementations {#canonical-implementations}
+### Canonical implementations {#subpackages-compare-intro-canonical-implementations}
 
 For a class `my_class`, which should be comparable to all instances of the
 `other_template` class template, the canonical implementations of comparison

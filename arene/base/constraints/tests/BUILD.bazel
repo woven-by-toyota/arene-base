@@ -4,20 +4,19 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test_with_variants(
     name = "constraints_test",
     srcs = [
         "constraints_test.cpp",
-    ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
     ],
     deps = [
         "//arene/base/constraints:internal",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/stdlib_choice:is_same",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -26,15 +25,12 @@ cc_test_with_variants(
     srcs = [
         "substitution_succeeds_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base/constraints:internal",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:is_same",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

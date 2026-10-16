@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ The Bazel target is
 //:variant
 ```
 
-## A Discriminated Union Type {#a-discriminated-union-type}
+# A Discriminated Union Type {#subpackages-variant-a-discriminated-union-type}
 
 `arene::base::variant` allows you to store an object which is one of a specified
 list of types. This is similar to a `union`, but with stronger type safety: the
@@ -33,7 +37,7 @@ destructors and assignment operators to be stored directly. This is in contrast
 to a plain `union` which would require the manual invocation of constructors,
 assignment operators, and destructors to properly manage object lifetimes.
 
-## Declaring a Variant {#declaring-a-variant}
+## Declaring a Variant {#subpackages-variant-declaring-a-variant}
 
 `variant`s are declared with a list of types that represent the possible active
 alternatives. Note that the types do not need to be unique. However, it is
@@ -43,12 +47,12 @@ them.
 
 \snippet docs/examples/subpackages/variant_examples.cpp declaring_variant
 
-## Interacting with a Variant {#interacting-with-a-variant}
+## Interacting with a Variant {#subpackages-variant-interacting-with-a-variant}
 
 There are two primary ways to interact with a `variant`: procedurally, and with
 the visitor pattern.
 
-### Procedural Access {#procedural-access}
+### Procedural Access {#subpackages-variant-procedural-access}
 
 With procedural access, the active alternative is queried, and the appropriate
 accessor method is used to fetch the active alternative. The active alternative
@@ -61,7 +65,7 @@ seen below:
 
 \snippet docs/examples/subpackages/variant_examples.cpp procedural_variant_usage
 
-### Visitor Pattern {#visitor-pattern}
+### Visitor Pattern {#subpackages-variant-visitor-pattern}
 
 The visitor pattern allows for a more structured way to interact with the
 `variant`. A visitor is a callable object that can be invoked with all of the
@@ -101,7 +105,7 @@ a new visitor. However adding new _types_ to existing operations is difficult,
 as it involves altering all existing visitors. Which is more appropriate for a
 given application will depend on system design.
 
-### bind_overloads {#bind_overloads}
+### bind_overloads {#subpackages-variant-bind_overloads}
 
 The `arene::base::bind_overloads` utility function, provided by the
 `//:functional` subpackage, can be used to simplify the creation of visitors for
@@ -109,3 +113,68 @@ use with `arene::base::variant`, allowing the easy use of inline lambdas to
 create visitors, like so:
 
 \snippet docs/examples/subpackages/variant_examples.cpp bind_overloads_usage
+
+### Casting Variants {#subpackages-variant-casting-variants}
+
+The `arene::base::variant_cast` function can be used to cast between variants of
+compatible _type spaces_. This is useful when you need to extend or rearrange
+the alternatives in a variant.
+
+The cast function supports both copy semantics (for const lvalue references) and
+move semantics (for rvalue references). The function will preserve the active
+alternative and its value, forwarding it to the corresponding type in the target
+variant.
+
+A simple example of casting a variant can be seen below:
+
+\snippet docs/examples/subpackages/variant_examples.cpp variant_cast_usage
+
+#### Requirements compatible _type spaces_ in variant_cast {#subpackages-variant-variant-cast-requirements}
+
+For `variant_cast<variant<To...>>(variant<From...>)` to be invocable, the _type
+spaces_ of the source and target variants must be compatible. For two type
+spaces, `Ts...` and `Us...`, to be compatible, the following conditions must be
+met:
+
+> For every type in `From...` there must be a type in `To...` which satisfies
+> `std::is_constructible<To, From>` where `From`'s cref qualification matches
+> `FromVariant`'s.
+>
+> For every type in `From...` there must be a unique, unambiguous _best_ type in
+> `To...` to construct from it. This _best_ type is determined using standard
+> overload resolution rules. If the _best_ type is ambiguous, then the cast is
+> ill-formed.
+
+If these conditions are not met, the function will not be invocable, and the
+code will fail to compile. This ensures type safety at compile time.
+
+For example
+`variant_cast<variant<std::int32_t, std::int64_t>>(variant<std::int16_t>(1))`
+will fail to compile because both `std::int32_t` and `std::int64_t` are
+constructible from `std::int16_t`, and neither is an exact match. Whereas
+`variant_cast<variant<std::int32_t, std::int64_t>>(variant<std::int32_t>(1))`
+will compile and always select the `std::int32_t` alternative in the target
+variant because it is an exact match, and
+`variant_cast<variant<std::int32_t, not_an_int>>(variant<std::int16_t>(1))` will
+always select the `std::int32_t` alternative because there is no ambiguity.
+
+Keep in mind that a compatible _type space_ may be _smaller_ in terms of number
+of types than the source type space, so long as the requirements of compatible
+_type spaces_ are met. For example it is possible to cast from
+`variant<std::string, std::string_view, double>` to
+`variant<std::string, double>`, as `std::string` is an unambiguous match for
+`std::string_view` to cast to.
+
+A couple of additional notes:
+
+- The order of the types in the target variant does not need to match the order
+  of the types in the source variant. The active alternative will be preserved
+  based on type, not position.
+- If there are duplicate types in the target variant, it is unspecified which
+  alternative (index-wise) of the duplicate alternatives in the target variant
+  will be used. It is recommended to avoid duplicate types in variants when
+  using `variant_cast` if index-based differentiation is important.
+- While the failure to match _any_ type will result in a constraints failure, if
+  there are multiple types in the target variant that are constructible from a
+  type in the source variant and none of them are exact type matches, then you
+  will instead get an _ambiguous overload resolution_ error at compile time.

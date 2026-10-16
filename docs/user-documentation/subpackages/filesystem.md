@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -15,7 +19,7 @@ Support for the `filesystem` subpackage may be disabled by specifying
 `--no@arene-base//configs:use_filesystem` either on the Bazel command line, or
 in `.bazelrc`
 
-## Quickstart Summary {#quickstart-summary}
+# Quickstart Summary {#subpackages-filesystem-quickstart-summary}
 
 The two primary APIs for interaction with the filesystem in the package are the
 `arene::base::filesystem::directory_handle` and
@@ -32,7 +36,7 @@ Most filesystem operations can fail, so they return an `arene::base::result`
 holding either the desired result type or an
 `arene::base::filesystem::error_code` holding details of the error.
 
-## Overall philosophy {#overall-philosophy}
+## Overall philosophy {#subpackages-filesystem-overall-philosophy}
 
 The Arene filesystem library is intended to provide access to the filesystem in
 a way that avoids certain filesystem race conditions: access to files and
@@ -67,7 +71,7 @@ The API has also been designed to avoid dynamic memory allocation: strings are
 passed via `arene::base::null_terminated_string_view` or
 `arene::base::inline_string`.
 
-## Error Handling {#error-handling}
+## Error Handling {#subpackages-filesystem-error-handling}
 
 Most filesystem operations can fail, so they return an `arene::base::result`
 holding either the desired result type or an
@@ -83,14 +87,14 @@ Alternatively, the POSIX `errno` value associated with the error code can be
 queried using the `value()` member function, and the `message()` member function
 can be used to obtain a string describing the error.
 
-## Directory Access {#directory-access}
+## Directory Access {#subpackages-filesystem-directory-access}
 
 A "root" directory for access is opened by passing the path to
 `arene::base::filesystem::directory_handle::open`, which returns an
 `arene::base::result` holding a `arene::base::filesystem::directory_handle` on
 success.
 
-### Reading directory contents {#reading-directory-contents}
+### Reading directory contents {#subpackages-filesystem-reading-directory-contents}
 
 This directory handle can then be used to read the contents of the directory
 using the `arene::base::filesystem::directory_handle::next_entry` member
@@ -104,7 +108,7 @@ persistent storage if needed.
 The handle can be reset to the first entry via the
 `arene::base::filesystem::directory_handle::rewind` member function.
 
-### Creating and opening subdirectories {#creating-and-opening-subdirectories}
+### Creating and opening subdirectories {#subpackages-filesystem-creating-and-opening-subdirectories}
 
 An existing subdirectory can be opened using the
 `arene::base::filesystem::directory_handle::open_subdirectory` member function.
@@ -116,7 +120,7 @@ failure. Only one subdirectory is created per `create_subdirectory` call, so if
 you pass a path with intervening subdirectories that do not exist, then the call
 will fail.
 
-### Creating and opening files {#creating-and-opening-files}
+### Creating and opening files {#subpackages-filesystem-creating-and-opening-files}
 
 Files are opened or created via the `open_file` and `create_file` member
 functions of `arene::base::filesystem::directory_handle`. The specified path
@@ -129,7 +133,7 @@ the filesystem supports it, this is created with no name. Otherwise, it is
 created with an ephemeral random name and immediately removed from the directory
 so it cannot be subsequently reopened.
 
-### Renaming and deleting files and directories {#renaming-and-deleting-files-and-directories}
+### Renaming and deleting files and directories {#subpackages-filesystem-renaming-and-deleting-files-and-directories}
 
 Files and directories can be renamed with the
 `arene::base::filesystem::directory_handle`'s `rename` member function, which
@@ -144,14 +148,14 @@ name of the file or directory to be removed, and an
 it is a directory to be removed, or something else (e.g. a file or symbolic
 link). Directories can only be removed if they are empty.
 
-### Information about directory entries {#information-about-directory-entries}
+### Information about directory entries {#subpackages-filesystem-information-about-directory-entries}
 
 Information about a directory entry can be obtained with the `get_file_stats`
 member function. This returns a
 [`struct stat`](https://pubs.opengroup.org/onlinepubs/009696799/basedefs/sys/stat.h.html)
 holding information about the entry.
 
-### Temporary directories {#temporary-directories}
+### Temporary directories {#subpackages-filesystem-temporary-directories}
 
 In addition to the
 `arene::base::filesystem::directory_handle::create_temporary_file` function for
@@ -173,13 +177,13 @@ distinct name: if the chosen name already exists, the code will retry with an
 alternate name until it encounters an error that forces the operation to fail,
 or it successfully creates a directory with a unique name.
 
-## File Access {#file-access}
+## File Access {#subpackages-filesystem-file-access}
 
 Files are opened or created via the `open_file` and `create_file` member
 functions of
-[`arene::base::filesystem::directory_handle`](#creating-and-opening-files). As
-with the directory handles, an `arene::base::filesystem::file_handle` refers to
-a specific file once opened, even if that file is renamed.
+[`arene::base::filesystem::directory_handle`](#subpackages-filesystem-creating-and-opening-files).
+As with the directory handles, an `arene::base::filesystem::file_handle` refers
+to a specific file once opened, even if that file is renamed.
 
 The `arene::base::filesystem::file_handle` object can then be used to read from
 the file, write to the file, and obtain the current size of the file.
@@ -188,7 +192,7 @@ The `arene::base::filesystem::file_handle` class provides two sets of functions
 for reading and writing data to and from a file: the **Sequential Access**
 functions, and the **Random Access** functions.
 
-### Sequential access {#sequential-access}
+### Sequential access {#subpackages-filesystem-sequential-access}
 
 There is a single sequential access position for each file handle, which is used
 and updated by all sequential reads and writes via that file handle. Initially
@@ -211,7 +215,7 @@ this is not empty then it could be used in a subsequent call to write more data.
 If no data could be written, then an `arene::base::filesystem::error_code` is
 returned.
 
-### Random access {#random-access}
+### Random access {#subpackages-filesystem-random-access}
 
 Rather than reading or writing a file sequentially, you can instead write at
 specific positions using the random access API. In this case, you must
@@ -236,9 +240,9 @@ written, then an `arene::base::filesystem::error_code` is returned. If the
 specified offset is beyond the end of the file, if the write succeeds then the
 file will be zero-padded between the old size and the specified offset.
 
-## Examples {#examples}
+## Examples {#subpackages-filesystem-examples}
 
-### Opening files and directories {#opening-files-and-directories}
+### Opening files and directories {#subpackages-filesystem-opening-files-and-directories}
 
 You can obtain a directory handle with
 `arene::base::filesystem::directory_handle::open(path)`. This handle can then be
@@ -264,7 +268,7 @@ void foo() {
 }
 ```
 
-### Reading the contents of a directory {#reading-the-contents-of-a-directory}
+### Reading the contents of a directory {#subpackages-filesystem-reading-the-contents-of-a-directory}
 
 You can also read the contents of the directory via the handle. The `next_entry`
 member function returns an `arene::base::null_terminated_string_view`
@@ -294,7 +298,7 @@ dir_listing list_directory_contents(arene::base::filesystem::directory_handle& d
 }
 ```
 
-### Reading from a file sequentially {#reading-from-a-file-sequentially}
+### Reading from a file sequentially {#subpackages-filesystem-reading-from-a-file-sequentially}
 
 Reading a file into memory can be implemented using the **sequential access**
 functions:
@@ -327,7 +331,7 @@ std::vector<arene::base::byte> read_file(
 This throws if there is an error; otherwise it keeps reading chunks until the
 entire file has been read.
 
-### Random Access Writing Example {#random-access-writing-example}
+### Random Access Writing Example {#subpackages-filesystem-random-access-writing-example}
 
 Writing data to a specific position a file into memory can be implemented using
 the **random access** functions:
@@ -356,7 +360,7 @@ void write_to_file(
 This throws if there is an error; otherwise it keeps writing chunks until the
 entire block of data has been written.
 
-### Temporary Directories {#temporary-directories}
+### Temporary Directories {#subpackages-filesystem-temporary-directories-2}
 
 During the execution of an application, you may wish to store temporary files
 that need to be deleted when no longer needed. By using the
@@ -380,7 +384,7 @@ void foo() {
 
 ```
 
-### Temporarily Changing The Current Directory {#temporarily-changing-the-current-directory}
+### Temporarily Changing The Current Directory {#subpackages-filesystem-temporarily-changing-the-current-directory}
 
 Some operations read and write files in the "current directory" of the process.
 If a particular section of code needs to change the "current directory" prior to

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 MD013-->
 <!-- prettier-ignore -->
@@ -26,7 +30,7 @@ unsupported compilers. Because the attributes provide a declarative syntax for
 documenting the concurrency model of a system, it is therefore recommended to
 use them even if `clang` is not the primary compiler for the project.
 
-## Capabilities Guard Resources {#capabilities-guard-resources}
+# Capabilities Guard Resources {#subpackages-compiler-support-thread-safety-annotations-capabilities-guard-resources}
 
 The fundamental axiom of Thread Safety Analysis is that of the _capability_,
 which protects _resources_. _Resources_ can be global variables, members, or
@@ -46,7 +50,7 @@ please see the full
 [documentation](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#basic-concepts-capabilities)
 for more details.
 
-## Annotating Resources As Being Guarded By Capabilities {#annotating-resources-as-being-guarded-by-capabilities}
+## Annotating Resources As Being Guarded By Capabilities {#subpackages-compiler-support-thread-safety-annotations-annotating-resources-as-being-guarded-by-capabilities}
 
 There are two primary annotations for declaring _resources_ as being _guarded_
 by _capabilities_:
@@ -79,7 +83,7 @@ data.mtx.lock(); // acquired the needed capability
 data.mtx.unlock(); // release the needed capability
 ```
 
-## Annotating Functions/Methods As Requiring/Excluding Capabilities {#annotating-functionsmethods-as-requiringexcluding-capabilities}
+## Annotating Functions/Methods As Requiring/Excluding Capabilities {#subpackages-compiler-support-thread-safety-annotations-annotating-functionsmethods-as-requiringexcluding-capabilities}
 
 A common issue in concurrent programming is deadlock: a thread enters a function
 which _acquires_ exclusive access to a _capability_ in its body, and then before
@@ -154,9 +158,10 @@ point to the wrong place: it would point to the access of the guarded resource,
 correct place: the call to `update_message_impl()` without holding the needed
 `update_guard_` _capability_.
 
-## Suppressing TSA Diagnostics {#suppressing-tsa-diagnostics}
+## Suppressing TSA Diagnostics {#subpackages-compiler-support-thread-safety-annotations-suppressing-tsa-diagnostics}
 
-There are occasions where due to [known limitations](#known-limitations-of-tsa)
+There are occasions where due to
+[known limitations](#subpackages-compiler-support-thread-safety-annotations-known-limitations-of-tsa)
 in TSA, a function/method may need to be excluded from TSA analysis. This can be
 achieved using the `ARENE_TSA_NO_THREAD_SAFETY_ANALYSIS` annotation, like so:
 
@@ -173,7 +178,7 @@ part of the **implementation** rather than the interface of a function/method.
 It thus should be placed with the definition -in a `.cpp` file for non-inline
 code- rather than the declaration.
 
-## Known Limitations Of TSA {#known-limitations-of-tsa}
+## Known Limitations Of TSA {#subpackages-compiler-support-thread-safety-annotations-known-limitations-of-tsa}
 
 There are a number of limitations in the current implementation of TSA, beyond
 the most obvious of currently only being part of the clang compiler and required
@@ -181,20 +186,20 @@ explicitly annotated _capabilities_ to work. A bulleted summary list follows,
 for full descriptions of each please see the
 [official documentation](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#limitations):
 
-### [Lexical Scoping Limitations](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#lexical-scope) {#lexical-scoping-limitations}
+### [Lexical Scoping Limitations](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#lexical-scope) {#subpackages-compiler-support-thread-safety-annotations-lexical-scoping-limitations}
 
 TSA annotations on methods are parsed at the same time as method bodies, and
 thus are subject to the same lexical scoping limitations with respect to
 use-before-declaration when referencing a named _capability_.
 
-### [Private Mutexes](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#private-mutexes) {#private-mutexes}
+### [Private Mutexes](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#private-mutexes) {#subpackages-compiler-support-thread-safety-annotations-private-mutexes}
 
 TSA annotations respect visibility restrictions. A private mutex member cannot
 be named in an annotation in a context that would not normally have visibility
 to that member. The `ARENE_TSA_RETURN_CAPABILITY(x)` annotation can provide a
 workaround, see the linked documentation for details.
 
-### [No conditionally held locks](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#no-conditionally-held-locks) {#no-conditionally-held-locks}
+### [No conditionally held locks](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#no-conditionally-held-locks) {#subpackages-compiler-support-thread-safety-annotations-no-conditionally-held-locks}
 
 TSA's analysis is not path-sensitive to branches dependant on runtime state, so
 situations where a capability may be _conditionally_ held at a given point in a
@@ -206,14 +211,14 @@ tests if the _release_ of a capability is done only if an assert passes, rather
 than unconditionally via a _scoped capability_ tied to the scope containing the
 assert.
 
-### [No checking inside ctors/dtors](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#no-checking-inside-constructors-and-destructors) {#no-checking-inside-ctorsdtors}
+### [No checking inside ctors/dtors](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#no-checking-inside-constructors-and-destructors) {#subpackages-compiler-support-thread-safety-annotations-no-checking-inside-ctorsdtors}
 
 As ctors and dtors can generally assumed to be executing in the context of a
 single thread for a given instance, and typically have to initialize or destroy
 guarded resources, all ctors and dtors are implicitly treated as if annotated
 with `ARENE_TSA_NO_THREAD_SAFETY_ANALYSIS`.
 
-### [No inlining](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#no-inlining) {#no-inlining}
+### [No inlining](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#no-inlining) {#subpackages-compiler-support-thread-safety-annotations-no-inlining}
 
 TSA is strictly intra-procedural in the same way as type-checking: it relies
 purely on the declared attributes of variables/members/methods/functions, it
@@ -230,7 +235,7 @@ the input lambda as appropriate will "do the right thing." Annotations on
 lambdas look like this:
 `[mtx_, resource_]() ARENE_TSA_EXCLUDES(mtx_) { /* acquire mtx, use resource */ }`
 
-### [No alias analysis](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#no-alias-analysis) {#no-alias-analysis}
+### [No alias analysis](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#no-alias-analysis) {#subpackages-compiler-support-thread-safety-annotations-no-alias-analysis}
 
 Other than inside a `SCOPED_CAPABILITY`, TSA cannot see through pointer aliases
 to capabilities to understand they are equivalent:
@@ -243,13 +248,13 @@ alias->lock(); // actually locks mtx, but TSA can't see that alias == mtx.
 guarded = 1; // compiler error, capability mtx is not seen as held.
 ```
 
-### [Order of capability acquisition is unimplemented](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#acquired-before-and-acquired-after-are-currently-unimplemented) {#order-of-capability-acquisition-is-unimplemented}
+### [Order of capability acquisition is unimplemented](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html#acquired-before-and-acquired-after-are-currently-unimplemented) {#subpackages-compiler-support-thread-safety-annotations-order-of-capability-acquisition-is-unimplemented}
 
 TSA defines attributes for establishing an order that _capabilities_ must be
 _acquired_, but they are currently unimplemented in the actual analysis. To
 avoid confusion and a false sense of security, \arene_base has not exposed them.
 
-### No Support For Recursive Mutexes {#no-support-for-recursive-mutexes}
+### No Support For Recursive Mutexes {#subpackages-compiler-support-thread-safety-annotations-no-support-for-recursive-mutexes}
 
 There is currently no mechanism to support recursive _capability_ _acquisition_.
 While this limitation is not stated explicitly in the documentation, it is
@@ -260,34 +265,36 @@ condition is runtime state dependent.
 That said, explicit recursion is against MISRA/AutoSAR guidelines, and nearly
 all other need for recursive mutexes can be avoided by following the
 public/private indirection pattern mentioned in the
-[function annotation](#annotating-functionsmethods-as-requiringexcluding-capabilities)
+[function annotation](#subpackages-compiler-support-thread-safety-annotations-annotating-functionsmethods-as-requiringexcluding-capabilities)
 section.
 
-### No Direct Support For `unique_lock` {#no-direct-support-for-unique_lock}
+### No Direct Support For `unique_lock` {#subpackages-compiler-support-thread-safety-annotations-no-direct-support-for-unique_lock}
 
 There are several limitations that combine to make it impossible to correctly
 annotate `std::unique_lock` or an equivalent type to work with TSA:
 
 1. A type cannot be both a _capability_ and a _scoped capability_ at the same
    time.
-2. Even if it could, the ["no aliases"](#no-alias-analysis) limitations means
-   TSA cannot follow _capabilities_ which are moved, as this functionally gives
-   them a new name. `std::unique_lock` effectively _is_ an alias for a mutex;
-   that's its reason d'etre. You can move them, swap them, re-assign them. All
-   of these are _runtime_ state considerations that TSA simply cannot follow
-   based on _static_ program information.
+2. Even if it could, the
+   ["no aliases"](#subpackages-compiler-support-thread-safety-annotations-no-alias-analysis)
+   limitations means TSA cannot follow _capabilities_ which are moved, as this
+   functionally gives them a new name. `std::unique_lock` effectively _is_ an
+   alias for a mutex; that's its reason d'etre. You can move them, swap them,
+   re-assign them. All of these are _runtime_ state considerations that TSA
+   simply cannot follow based on _static_ program information.
 3. Less importantly, there is no support for
-   [recursive mutexes](#no-support-for-recursive-mutexes), and
-   `std::unique_lock` allows recursive mutexes.
+   [recursive mutexes](#subpackages-compiler-support-thread-safety-annotations-no-support-for-recursive-mutexes),
+   and `std::unique_lock` allows recursive mutexes.
 
 This can make `std::condition_variable` difficult to use correctly under TSA, as
 `std::unique_lock` is generally the best practice for the lock type to pass to
 it. There are two possible workarounds:
 
 - Do not use `std::unique_lock`. In this case, due to the lack of
-  [inlining](#no-inlining), the lambda passed to `std::condition_variable` must
-  be annotated as `ARENE_TSA_REQUIRES(mtx)`, where `mtx` is the _capability_
-  which _guards_ the _resources_ accessed in the lambda.
+  [inlining](#subpackages-compiler-support-thread-safety-annotations-no-inlining),
+  the lambda passed to `std::condition_variable` must be annotated as
+  `ARENE_TSA_REQUIRES(mtx)`, where `mtx` is the _capability_ which _guards_ the
+  _resources_ accessed in the lambda.
 - Use `arene::base::scoped_lock_assertion` to manually set TSA into the correct
   state without actually changing the lock state:
 
@@ -307,20 +314,21 @@ it. There are two possible workarounds:
   }
   ```
 
-### No direct support for `std::lock` and `scoped_lock` {#no-direct-support-for-std-lock-and-scoped_lock}
+### No direct support for `std::lock` and `scoped_lock` {#subpackages-compiler-support-thread-safety-annotations-no-direct-support-for-std-lock-and-scoped_lock}
 
-The ["no aliases"](#no-alias-analysis) limitation also prevents reasonably
-annotating `std::lock` and `std::scoped_lock`. Unfortunately users will have to
-fall back to individual `arene::base::lock_guard` usages. The need for the
-deadlock prevention mechanism of `std::lock` is lessened by the fact that TSA
-would have already detected the deadlock at compile time.
+The
+["no aliases"](#subpackages-compiler-support-thread-safety-annotations-no-alias-analysis)
+limitation also prevents reasonably annotating `std::lock` and
+`std::scoped_lock`. Unfortunately users will have to fall back to individual
+`arene::base::lock_guard` usages. The need for the deadlock prevention mechanism
+of `std::lock` is lessened by the fact that TSA would have already detected the
+deadlock at compile time.
 
-## Annotating Types As Providing A Capability {#annotating-types-as-providing-a-capability}
+## Annotating Types As Providing A Capability {#subpackages-compiler-support-thread-safety-annotations-annotating-types-as-providing-a-capability}
 
 \note Users should rarely need to introduce their own capability types.
 \arene_base provides pre-annotated implementations of common concurrency
-primitives in its \ref mutex_subpackage mutex subpackage. Prefer those where
-possible.
+primitives in its \ref mutex "mutex subpackage". Prefer those where possible.
 
 There are 11 annotations that are used to declare a type as providing a
 capability:

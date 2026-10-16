@@ -54,6 +54,12 @@ grep_test(
             # most toolchains use `-isystem` for builtin include directories
             # so we filter these out
             "-isystem[[:space:]]*external/.*toolchain.*/.*",
+            # `@toolchains_llvm` passes the macOS SDK's libc++ headers with
+            # `-cxx-isystem`, which is fine, so we filter these out as well.
+            # The sysroot path varies by machine, depending on whether the SDK
+            # comes from `Xcode.app` or `CommandLineTools`, so we match the
+            # shape of the path instead of the path itself.
+            "-isystem[[:space:]]*/.*MacOSX[^[:space:]]*\\.sdk/.*",
         ],
         "//configs/compiler:arm_clang": [
             # this compiler should never use `-isystem` so we provide an
@@ -62,4 +68,5 @@ grep_test(
         ],
     }),
     return_code = "no_match",
+    tags = ["no-test-spec"],
 )

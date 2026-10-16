@@ -6,6 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_ATTRIBUTES_NORETURN_HPP_
 
 // IWYU pragma: private, include "arene/base/compiler_support/attributes.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 #include "arene/base/compiler_support/attributes/has_attribute.hpp"
 

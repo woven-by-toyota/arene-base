@@ -18,6 +18,7 @@ namespace type_lists {
 namespace drop_detail {
 
 // parasoft-begin-suppress CERT_C-EXP37-a "False positive: The rule does not mention naming all parameters"
+// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: This should not have the static keyword applied"
 /// @brief helper removing the first @c Count types
 /// @tparam Count number of types to remove
 /// @tparam Is indices
@@ -26,6 +27,7 @@ namespace drop_detail {
 /// @return @c List after removing the first @c Count types from @c Ts...
 template <std::size_t Count, std::size_t... Is, template <class...> class List, class... Ts>
 auto drop_impl(std::index_sequence<Is...>, List<Ts...>) -> List<at_t<List<Ts...>, Count + Is>...>;
+// parasoft-end-suppress AUTOSAR-M3_3_2-a
 // parasoft-end-suppress CERT_C-EXP37-a
 
 /// @brief implementation helper for drop

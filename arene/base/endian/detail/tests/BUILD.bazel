@@ -5,10 +5,22 @@
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob([
+        "*.hpp",
+        "*.cpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_library_with_variants(
     name = "indirect_byte_swap",
+    testonly = True,
     srcs = ["indirect_byte_swap.cpp"],
     hdrs = ["indirect_byte_swap.hpp"],
+    visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
@@ -22,7 +34,7 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -34,7 +46,7 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -45,7 +57,7 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -56,7 +68,7 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -68,7 +80,7 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -79,7 +91,7 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -90,7 +102,7 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -102,7 +114,7 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -113,11 +125,6 @@ cc_test_with_variants(
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

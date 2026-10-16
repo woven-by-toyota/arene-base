@@ -16,7 +16,7 @@
 #include "arene/base/stdlib_choice/pair.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/tuple.hpp"
-#include "arene/base/type_traits.hpp"
+#include "arene/base/type_traits/is_invocable.hpp"
 #include "testlibs/utilities/configurable_value.hpp"
 
 namespace {

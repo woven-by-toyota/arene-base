@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -9,19 +13,19 @@
 \arene_base uses 3 different mechanisms for reporting errors, depending on the
 form of the error:
 
-- [Return values](#return-values): The return type from the function encodes any
-  information about an error. This is the most common form of error handling in
-  \arene_base.
-- [Throwing exceptions](#throwing-exceptions): Some functions throw C++
-  exceptions to report errors. This is rarely used in \arene_base. It is only
-  used for functions explicitly documented to throw, usually for consistency
-  between \arene_base APIs and similar standard library APIs.
-- [Process termination](#process-termination): _If_ a precondition violation or
-  internal invariant violation is detected, the process is terminated. Such
-  cases are either a logic error in the code using \arene_base, or a bug in the
-  implementation of \arene_base itself.
+- [Return values](#error-handling-return-values): The return type from the
+  function encodes any information about an error. This is the most common form
+  of error handling in \arene_base.
+- [Throwing exceptions](#error-handling-throwing-exceptions): Some functions
+  throw C++ exceptions to report errors. This is rarely used in \arene_base. It
+  is only used for functions explicitly documented to throw, usually for
+  consistency between \arene_base APIs and similar standard library APIs.
+- [Process termination](#error-handling-process-termination): _If_ a
+  precondition violation or internal invariant violation is detected, the
+  process is terminated. Such cases are either a logic error in the code using
+  \arene_base, or a bug in the implementation of \arene_base itself.
 
-## Process Termination {#process-termination}
+# Process Termination {#error-handling-process-termination}
 
 Many \arene_base facilities have clearly-documented preconditions that must be
 satisfied in order to use those facilities. They also may have internal
@@ -51,7 +55,7 @@ size of the container; this can be checked beforehand by comparing the index to
 the result of the `arene::base::inline_vector::size()` member function for that
 vector.
 
-## Throwing Exceptions {#throwing-exceptions}
+## Throwing Exceptions {#error-handling-throwing-exceptions}
 
 In general, \arene_base does not throw exceptions as an error handling strategy.
 However, it is used for consistency between \arene_base APIs and similar
@@ -67,7 +71,7 @@ use user-provided facilities that may throw. Generic facilities will still pass
 through any exception thrown by the operations performed on their input types if
 those types throw.
 
-## Return Values {#return-values}
+## Return Values {#error-handling-return-values}
 
 Where a function may fail even if the inputs satisfy the preconditions, the most
 common error handling strategy in \arene_base is to convey the error via the
@@ -79,7 +83,7 @@ The form of the error indication depends on two aspects:
 - Is a simple failed/succeeded indicator sufficient, or does the reason for the
   failure need enumerating?
 
-### Functions with no other return value {#functions-with-no-other-return-value}
+### Functions with no other return value {#error-handling-functions-with-no-other-return-value}
 
 If the reason for the failure does not need enumerating, a function that can
 fail will return a `bool`, with `true` for success and `false` for failure.
@@ -89,7 +93,7 @@ to specify the reasons for the failure. The return value for the function is
 then `arene::base::result<void,the_error_code_enum>`, holding an empty value on
 success, or the error code on failure.
 
-### Functions with a return value on success {#functions-with-a-return-value-on-success}
+### Functions with a return value on success {#error-handling-functions-with-a-return-value-on-success}
 
 For a function that returns a value of type `Foo` on success, if the reason for
 the failure does not need enumerating, that function will return an
@@ -101,7 +105,7 @@ to specify the reasons for the failure. The return value for the function is
 then `arene::base::result<Foo,the_error_code_enum>`, holding the successful
 value on success, or the error code on failure.
 
-### Constructors and Factory Functions {#constructors-and-factory-functions}
+### Constructors and Factory Functions {#error-handling-constructors-and-factory-functions}
 
 There are no direct return values from a constructor, so the only mechanisms
 available to report errors are exceptions and process termination. For some
@@ -109,5 +113,5 @@ available to report errors are exceptions and process termination. For some
 `Foo::try_construct` static member function is provided as a factory function,
 in addition to the constructors. `Foo::try_construct` returns either an
 `arene::base::optional<Foo>` or an `arene::base::result<Foo,some_error_code>` as
-described [above](#functions-with-a-return-value-on-success). The result
-contains the correctly-constructed `Foo` instance on success.
+described [above](#error-handling-functions-with-a-return-value-on-success). The
+result contains the correctly-constructed `Foo` instance on success.

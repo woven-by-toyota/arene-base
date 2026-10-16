@@ -4,14 +4,15 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-filegroup(
-    name = "hdrs",
-    srcs = ["create_temporary_directory.hpp"],
+exports_files(
+    ["create_temporary_directory.hpp"],
+    visibility = ["//tools/test_specification:__subpackages__"],
 )
 
 cc_library(
     name = "create_temporary_directory",
-    hdrs = [":hdrs"],
+    testonly = True,
+    hdrs = ["create_temporary_directory.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base:optional",
@@ -23,7 +24,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/testing:__pkg__"],
 )

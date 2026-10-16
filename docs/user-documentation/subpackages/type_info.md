@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,12 +25,12 @@ The Bazel target is
 //:type_info
 ```
 
-## Additional Information About Types {#additional-information-about-types}
+# Additional Information About Types {#subpackages-type-info-additional-information-about-types}
 
 The `type_info` sub-package provides facilities for obtaining additional
 information about a type.
 
-### Getting The Name Of A Type As A String {#getting-the-name-of-a-type-as-a-string}
+## Getting The Name Of A Type As A String {#subpackages-type-info-getting-the-name-of-a-type-as-a-string}
 
 `arene::base::type_name_v` allows you to obtain an `arene::base::inline_string`
 which holds the name of that type. For example,

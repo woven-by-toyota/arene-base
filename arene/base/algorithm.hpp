@@ -13,6 +13,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ALGORITHM_HPP_
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
+#include "arene/base/algorithm/accumulate.hpp"               // IWYU pragma: export
 #include "arene/base/algorithm/all_of.hpp"                   // IWYU pragma: export
 #include "arene/base/algorithm/any_of.hpp"                   // IWYU pragma: export
 #include "arene/base/algorithm/clamp.hpp"                    // IWYU pragma: export
@@ -22,12 +23,15 @@
 #include "arene/base/algorithm/fill.hpp"                     // IWYU pragma: export
 #include "arene/base/algorithm/find.hpp"                     // IWYU pragma: export
 #include "arene/base/algorithm/find_if.hpp"                  // IWYU pragma: export
+#include "arene/base/algorithm/generate.hpp"                 // IWYU pragma: export
 #include "arene/base/algorithm/inner_product.hpp"            // IWYU pragma: export
 #include "arene/base/algorithm/iota.hpp"                     // IWYU pragma: export
 #include "arene/base/algorithm/iter_swap.hpp"                // IWYU pragma: export
 #include "arene/base/algorithm/lexicographical_compare.hpp"  // IWYU pragma: export
+#include "arene/base/algorithm/max_element.hpp"              // IWYU pragma: export
 #include "arene/base/algorithm/move.hpp"                     // IWYU pragma: export
 #include "arene/base/algorithm/move_backward.hpp"            // IWYU pragma: export
+#include "arene/base/algorithm/reduce.hpp"                   // IWYU pragma: export
 #include "arene/base/algorithm/rotate.hpp"                   // IWYU pragma: export
 #include "arene/base/algorithm/sort.hpp"                     // IWYU pragma: export
 #include "arene/base/algorithm/swap_ranges.hpp"              // IWYU pragma: export

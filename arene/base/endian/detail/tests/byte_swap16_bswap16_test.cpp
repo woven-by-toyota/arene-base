@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/platform_queries.hpp"
+#include "arene/base/compiler_support/platform_queries/has_builtin.hpp"
 #include "arene/base/endian/detail/tests/indirect_byte_swap.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/testing/gtest.hpp"

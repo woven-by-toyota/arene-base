@@ -4,6 +4,8 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test_with_variants(
     name = "byte_test",
     srcs = ["byte_test.cpp"],
@@ -24,21 +26,19 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:numeric_limits",
         "//arene/base/testing:gtest",
         "//arene/base/type_list:remove_duplicates",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "byte_death_test",
     srcs = ["byte_death_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:array",
+        "//arene/base/array:to_array",
         "//arene/base/byte:internal",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

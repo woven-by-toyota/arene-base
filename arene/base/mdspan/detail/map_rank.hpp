@@ -6,27 +6,14 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MDSPAN_DETAIL_MAP_RANK_HPP_
 
 #include "arene/base/array/array.hpp"  // IWYU pragma: export
-#include "arene/base/mdspan/detail/rank_scan.hpp"
-#include "arene/base/mdspan/full_extent.hpp"
-#include "arene/base/mdspan/slice.hpp"
+#include "arene/base/mdspan/detail/masked_array.hpp"
+#include "arene/base/mdspan/detail/non_collapsing_slice_type.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
-#include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/remove_cv.hpp"
-#include "arene/base/type_traits/is_instantiation_of.hpp"
 
 namespace arene {
 namespace base {
 namespace mdspan_detail {
-
-namespace map_rank_detail {
-
-/// @brief determine if a slice will *not* collapse rank
-/// @tparam CanonicalSlice canonical slice type
-template <class CanonicalSlice>
-extern constexpr bool non_collapsing_slice_type_v =
-    std::is_same<CanonicalSlice, full_extent_t>::value || is_instantiation_of_v<CanonicalSlice, extent_slice>;
-
-}  // namespace map_rank_detail
 
 /// @brief associated dimensions of a submapping
 /// @tparam CanonicalSlices slice specifiers for the submapping
@@ -44,11 +31,10 @@ extern constexpr bool non_collapsing_slice_type_v =
 /// * the number of types @c S_j with <c> j < k </c> that are not collapsing
 ///   slice types if S_k is not a collapsing slice type
 template <class... CanonicalSlices>
-extern constexpr auto map_rank = rank_scan(  //
-    array<bool, sizeof...(CanonicalSlices)>{
-        map_rank_detail::non_collapsing_slice_type_v<std::remove_cv_t<CanonicalSlices>>...
-    }
-);
+extern constexpr auto map_rank = masked_array<sizeof...(CanonicalSlices)>{
+    //
+    array<bool, sizeof...(CanonicalSlices)>{non_collapsing_slice_type_v<std::remove_cv_t<CanonicalSlices>>...}
+};
 
 namespace map_rank_detail {
 

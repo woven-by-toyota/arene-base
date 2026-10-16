@@ -58,6 +58,17 @@ CONSTEXPR_TEST(MdspanDetailCount, Count) {
   test::assert_dynamic_extent_count_is(0U, {1, 2, 3});
 }
 
+/// @test @c count counts @c bool elements equal to a given value
+///
+/// @c is_sliceable_mapping_v counts @c true values in an @c array<bool> to determine the number of non-collapsing
+/// slices, but only ever at compile time. This runtime test exercises that same instantiation so it is credited with
+/// coverage.
+CONSTEXPR_TEST(MdspanDetailCount, CountBool) {
+  auto const values = arene::base::array<bool, 2>{true, false};
+  CONSTEXPR_ASSERT_EQ(arene::base::mdspan_detail::count(values.cbegin(), values.cend(), true), 1);
+  CONSTEXPR_ASSERT_EQ(arene::base::mdspan_detail::count(values.cbegin(), values.cend(), false), 1);
+}
+
 }  // namespace
 
 // NOLINTEND(readability-identifier-length)

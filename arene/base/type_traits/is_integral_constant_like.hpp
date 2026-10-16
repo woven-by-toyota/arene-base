@@ -58,7 +58,7 @@ ARENE_IGNORE_END();
 /// @brief Backport for the C++26 exposition-only integral-constant-like concept
 /// @tparam T The type to test
 ///
-/// The concept integral-constant-like<T> specifies that all of the following
+/// The concept @c integral-constant-like, applied to @c T, specifies that all of the following
 /// are true:
 /// * is_integral_v<remove_cvref_t<decltype(T::value)>>
 /// * !is_same_v<bool, remove_cvref_t<decltype(T::value)>>
@@ -73,7 +73,7 @@ extern constexpr bool is_integral_constant_like_v = is_integral_constant_like_de
 /// @brief Backport for the C++26 exposition-only integral-constant-like concept
 /// @tparam T The type to test
 ///
-/// The concept integral-constant-like<T> specifies that all of the following
+/// The concept @c integral-constant-like, applied to @c T, specifies that all of the following
 /// are true:
 /// * is_integral_v<remove_cvref_t<decltype(T::value)>>
 /// * !is_same_v<bool, remove_cvref_t<decltype(T::value)>>

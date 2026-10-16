@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -6,7 +10,7 @@
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#subpackages-pointer-non-null-introduction}
 
 A common source of defects in code that deals with pointers, both raw and fancy,
 is the accidental violation of assumptions made in a system that a pointer is
@@ -30,9 +34,9 @@ pointer not be null into the type system. With such a type:
 The name of this type is `non_null<P>`, where `P` is any "pointer-like" type for
 which a comparison to `nullptr` would be meaningful.
 
-## Design {#design}
+## Design {#subpackages-pointer-non-null-design}
 
-### Template Parameter {#template-parameter}
+### Template Parameter {#subpackages-pointer-non-null-template-parameter}
 
 The type consumes a single template parameter, `P`. This represents the
 _pointer-like_ type to which the `non_null` invariant is to be enforced. To
@@ -42,11 +46,11 @@ qualify as _pointer-like_, the type must at minimum:
 1. Define `operator!=(const P&, std::nullptr_t)` or have that operation be valid
    through implicit conversion.
 
-### Ownership of the Held Pointer {#ownership-of-the-held-pointer}
+### Ownership of the Held Pointer {#subpackages-pointer-non-null-ownership-of-the-held-pointer}
 
 `non_null<P>` models `P`, and thus owns the pointer it holds.
 
-### Construction {#construction}
+### Construction {#subpackages-pointer-non-null-construction}
 
 As there is no reasonable default for a pointer which cannot be null,
 `non_null<P>` is not default-constructible and is thus a _non-regular-type_.
@@ -81,11 +85,12 @@ auto from_nullptr_value = non_null<T*>{a_null_value};
 
 Note that in practice, you rarely need to construct `non_null` directly.
 Instead, there are various factory helpers, discussed in detail
-[below](#factory-functions). In addition, there are
-[convenience aliases](#convenience-aliases) for specifying the type in a less
-verbose manner when the type must be explicitly specified.
+[below](#subpackages-pointer-non-null-factory-functions). In addition, there are
+[convenience aliases](#subpackages-pointer-non-null-convenience-aliases) for
+specifying the type in a less verbose manner when the type must be explicitly
+specified.
 
-### Member Types {#member-types}
+### Member Types {#subpackages-pointer-non-null-member-types}
 
 `non_null<P>` provides the following member types, for compatibility with
 various standard pointer-trait facilities:
@@ -97,7 +102,7 @@ In addition, it defines the following:
 - `non_null<P>::held_pointer`, which is `P`.
 - `non_null<P>::pointer`, which is the type returned by `non_null<P>::get()`.
 
-### API Uniformity with stdlib Smart Pointers {#api-uniformity-with-stdlib-smart-pointers}
+### API Uniformity with stdlib Smart Pointers {#subpackages-pointer-non-null-api-uniformity-with-stdlib-smart-pointers}
 
 `non_owning_ptr` provides general API uniformity with existing stdlib smart
 pointer types:
@@ -108,7 +113,7 @@ pointer types:
   of any type `U` that is convertible to `held_pointer` and that is not
   `nullptr`.
 
-### Access to the Held Pointer {#access-to-the-held-pointer}
+### Access to the Held Pointer {#subpackages-pointer-non-null-access-to-the-held-pointer}
 
 As `non_null<P>::get()` models `P::get()`, a separate interface is needed to
 obtain a reference to the underlying pointer. This is provided by the
@@ -137,7 +142,7 @@ Note that it is not possible to obtain `P&`; doing so would allow users to
 accidentally violate the invariant of `non_null` through direct assignment to
 the underlying pointer.
 
-### Conversion to Other Types {#conversion-to-other-types}
+### Conversion to Other Types {#subpackages-pointer-non-null-conversion-to-other-types}
 
 As `non_null<P>` models `P`, explicit conversion to `bool` is supported, as well
 as the `!` operator, and has meaning equivalent to `P`.
@@ -178,7 +183,7 @@ bool legacy_entrypoint(configuration config) {
 }
 ```
 
-### Comparison {#comparison}
+### Comparison {#subpackages-pointer-non-null-comparison}
 
 As `non_null<P>` models `P`, it supports 6-way comparison with semantics
 equivalent to comparing `P`.
@@ -190,17 +195,18 @@ requires that one of the operands is a `non_null` type, avoiding ambiguous
 overload resolution and potential infinite recursion evaluating constraints like
 `is_equality_comparable`.
 
-### Dereference Operators {#dereference-operators}
+### Dereference Operators {#subpackages-pointer-non-null-dereference-operators}
 
 `non_null<P>::operator->()` and `non_null<P>::operator*()` are provided and
 simply pass-through to the held `P`.
 
 In order to provide improved safety, `operator->` and `operator*` are "checked"
 operations when `P` is not a raw pointer, to ensure the invariant of non-null
-has been maintained. See [below](#how-can-the-invariant-be-violated) for
+has been maintained. See
+[below](#subpackages-pointer-non-null-how-can-the-invariant-be-violated) for
 additional details on why this is needed.
 
-### How Can The Invariant Be Violated? {#how-can-the-invariant-be-violated?}
+### How Can The Invariant Be Violated? {#subpackages-pointer-non-null-how-can-the-invariant-be-violated}
 
 Ordinarily, `non_null<P>` cannot become `nullptr`; it cannot be constructed from
 `nullptr`, `reset()` to `nullptr`, and there is no way to get a non-const lvalue
@@ -227,7 +233,7 @@ This check does incur a small performance penalty; the impact of this check is
 mitigated in many cases with optimizations enabled as the compiler will remove
 redundant `nullptr` checks.
 
-## Convenience Aliases {#convenience-aliases}
+## Convenience Aliases {#subpackages-pointer-non-null-convenience-aliases}
 
 In order to provide consistent ergonomics with existing smart pointers, the
 following convenience alias templates are provided:
@@ -246,7 +252,7 @@ template<typename T>
 using non_null_unique_ptr = non_null<std::unique_ptr<T>>;
 ```
 
-## Factory Functions {#factory-functions}
+## Factory Functions {#subpackages-pointer-non-null-factory-functions}
 
 In order to facilitate easier adoption of `non_null_shared_ptr` and
 `non_null_unique_ptr`, equivalents of `std::make_shared<T>` and
@@ -274,7 +280,7 @@ T some_t;
 auto non_null_ptr_to_t = arene::base::make_non_null(&some_t);
 ```
 
-## Requirements {#requirements}
+## Requirements {#subpackages-pointer-non-null-requirements}
 
 For Jama requirements, please see
 [Arene_Eco_System-L5SW-1227](https://stargate.jamacloud.com/perspective.req#/items/4254312?projectId=67)

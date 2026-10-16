@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "testlibs/utilities/configurable_value.hpp"
 

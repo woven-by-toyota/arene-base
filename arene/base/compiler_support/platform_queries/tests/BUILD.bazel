@@ -7,13 +7,20 @@ load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 load("//rules:transitions.bzl", "transition_use_exceptions")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_test_with_variants(
     name = "arene_debug_test",
     srcs = ["arene_debug_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:arene_debug",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -21,9 +28,9 @@ cc_test_with_variants(
     name = "asan_enabled_test",
     srcs = ["asan_enabled_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:asan_enabled",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -31,9 +38,9 @@ cc_test_with_variants(
     name = "compiler_info_test",
     srcs = ["compiler_info_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:compiler_info",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -41,9 +48,9 @@ cc_test_with_variants(
     name = "coverage_info_test",
     srcs = ["coverage_info_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:coverage_info",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -51,9 +58,10 @@ cc_test_with_variants(
     name = "has_builtin_test",
     srcs = ["has_builtin_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/compiler_support/platform_queries:has_builtin",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -61,9 +69,9 @@ cc_test_with_variants(
     name = "has_builtin_abs_test",
     srcs = ["has_builtin_abs_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_builtin_abs",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -71,9 +79,9 @@ cc_test_with_variants(
     name = "has_builtin_is_constant_evaluated_test",
     srcs = ["has_builtin_is_constant_evaluated_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_builtin_is_constant_evaluated",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -81,9 +89,9 @@ cc_test_with_variants(
     name = "has_inline_variables_test",
     srcs = ["has_inline_variables_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_inline_variables",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -91,9 +99,9 @@ cc_test_with_variants(
     name = "has_native_char8_t_test",
     srcs = ["has_native_char8_t_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_native_char8_t",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -101,9 +109,9 @@ cc_test_with_variants(
     name = "has_starts_ends_with_test",
     srcs = ["has_starts_ends_with_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_starts_ends_with",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -111,9 +119,9 @@ cc_test_with_variants(
     name = "has_string_contains_test",
     srcs = ["has_string_contains_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_string_contains",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -121,9 +129,9 @@ cc_test_with_variants(
     name = "has_native_string_view_test",
     srcs = ["has_native_string_view_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_native_string_view",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -131,9 +139,9 @@ cc_test_with_variants(
     name = "has_thread_safety_analysis_test",
     srcs = ["has_thread_safety_analysis_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_thread_safety_analysis",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -141,9 +149,9 @@ cc_test_with_variants(
     name = "has_uncaught_exceptions_test",
     srcs = ["has_uncaught_exceptions_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_uncaught_exceptions",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -156,9 +164,9 @@ cc_test(
         "//conditions:default": ["@platforms//:incompatible"],
     }),
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:stdlib_info",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -171,9 +179,9 @@ cc_test(
         "//conditions:default": ["@platforms//:incompatible"],
     }),
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:stdlib_info",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -181,9 +189,9 @@ cc_test_with_variants(
     name = "stdlib_info_test",
     srcs = ["stdlib_info_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:stdlib_info",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -191,9 +199,9 @@ cc_test_with_variants(
     name = "has_noexcept_function_type_test",
     srcs = ["has_noexcept_function_type_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_noexcept_function_type",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -201,9 +209,9 @@ cc_test_with_variants(
     name = "has_builtin_atomic_test",
     srcs = ["has_builtin_atomic_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/platform_queries:has_builtin_atomic",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -220,8 +228,8 @@ cc_library_with_variants(
         "//configs:exceptions_disabled": ["TEST_EXCEPTIONS_ENABLED=0"],
     }),
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support/platform_queries:exceptions_enabled",
+        "//testlibs:test_main",
     ],
     alwayslink = True,
 )
@@ -245,9 +253,4 @@ cc_test_with_variants(
     deps = [
         ":exception_check_test_source",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

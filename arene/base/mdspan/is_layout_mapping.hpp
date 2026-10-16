@@ -7,8 +7,8 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/constraints/constraints.hpp"
+#include "arene/base/constraints/substitution_succeeds.hpp"
 #include "arene/base/mdspan/extents.hpp"
-#include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
@@ -140,43 +140,40 @@ extern constexpr bool is_basic_layout_mapping_v<
     std::is_same<decltype(T::is_always_exhaustive()), bool>::value &&
     std::is_same<decltype(T::is_always_strided()), bool>::value && is_invocable_with_extents_indices_v<T>;
 
-/// @brief Sample extents type for checking layout mapping policy
-// NOLINTNEXTLINE(readability-magic-numbers)
-using sample_extents_1 = dextents<std::int32_t, 5>;
-/// @brief Sample extents type for checking layout mapping policy
-using sample_extents_2 = extents<std::uint16_t, 1, 2, 3, 4>;
+/// @brief Detection helper to bind a one-parameter member template without instantiating its body
+/// @tparam T The one-parameter @c mapping member template being checked
+template <template <typename> class T>
+struct mapping_template_check {};
 
-/// @brief Helper trait to check if @c T is a valid layout mapping policy
-///
-/// A valid layout mapping policy must have a @c template member @c mapping such that @c T::mapping<some_extent> is a
-/// valid layout mapping, such that @c T::mapping<some_extent>::extents_type is @c some_extent and @c
-/// T::mapping<some_extent>::layout_type is @c T
-///
-/// The value is @c true if @c T has all these properties, @c false otherwise
-/// @tparam T The type being checked
-template <typename T, typename = constraints<>>
-extern constexpr bool is_layout_mapping_policy_v = false;
-
-/// @brief Helper trait to check if @c T is a valid layout mapping policy
-///
-/// A valid layout mapping policy must have a @c template member @c mapping such that @c T::mapping<some_extent> is a
-/// valid layout mapping, such that @c T::mapping<some_extent>::extents_type is @c some_extent and @c
-/// T::mapping<some_extent>::layout_type is @c T
-///
-/// The value is @c true if @c T has all these properties, @c false otherwise
+/// @brief Substitution alias used to detect that @c T exposes a one-parameter member template named @c mapping .
 /// @tparam T The type being checked
 template <typename T>
-extern constexpr bool is_layout_mapping_policy_v<
+using uses_mapping = mapping_template_check<T::template mapping>;
+
+/// @brief Helper trait to check that @c T is shaped like a layout mapping policy
+/// @tparam T The type being checked
+template <typename T>
+extern constexpr bool is_layout_mapping_policy_v = substitution_succeeds<uses_mapping, T>;
+
+/// @brief Helper trait to check if @c T is a valid layout mapping policy for the concrete extents type @c E .
+/// @tparam T The type being checked
+/// @tparam E The concrete extents specialization the policy must accept
+template <typename T, typename E, typename = constraints<>>
+extern constexpr bool is_layout_mapping_policy_for_extents_v = false;
+
+/// @brief Helper trait to check if @c T is a valid layout mapping policy for the concrete extents type @c E .
+/// @tparam T The type being checked
+/// @tparam E The concrete extents specialization the policy must accept
+template <typename T, typename E>
+extern constexpr bool is_layout_mapping_policy_for_extents_v<
     T,
+    E,
     constraints<
-        std::enable_if_t<is_basic_layout_mapping_v<typename T::template mapping<sample_extents_1>>>,
-        std::enable_if_t<
-            std::is_same<typename T::template mapping<sample_extents_1>::extents_type, sample_extents_1>::value>,
-        std::enable_if_t<std::is_same<typename T::template mapping<sample_extents_1>::layout_type, T>::value>,
-        std::enable_if_t<is_basic_layout_mapping_v<typename T::template mapping<sample_extents_2>>>,
-        std::enable_if_t<
-            std::is_same<typename T::template mapping<sample_extents_2>::extents_type, sample_extents_2>::value>,
-        std::enable_if_t<std::is_same<typename T::template mapping<sample_extents_2>::layout_type, T>::value>>> = true;
+        std::enable_if_t<is_extents_v<E>>,
+        std::enable_if_t<is_layout_mapping_policy_v<T>>,
+        std::enable_if_t<is_basic_layout_mapping_v<typename T::template mapping<E>>>,
+        std::enable_if_t<std::is_same<typename T::template mapping<E>::extents_type, E>::value>,
+        std::enable_if_t<std::is_same<typename T::template mapping<E>::layout_type, T>::value>>> = true;
 
 /// @brief Helper trait to indicate if the given type has all the basic properties required of a layout mapping:
 /// - It must be copy constructible, and copy assignable
@@ -240,7 +237,7 @@ extern constexpr bool is_layout_mapping_v<
         std::enable_if_t<is_basic_layout_mapping_v<T>>,
         std::enable_if_t<
             std::is_same<typename T::layout_type::template mapping<typename T::extents_type>, T>::value>>> =
-    is_layout_mapping_policy_v<typename T::layout_type>;
+    is_layout_mapping_policy_for_extents_v<typename T::layout_type, typename T::extents_type>;
 
 }  // namespace is_layout_mapping_detail
 
@@ -270,19 +267,30 @@ extern constexpr bool is_layout_mapping_v<
 ///
 /// The value is @c true if @c T has all these properties, @c false otherwise
 /// @tparam T The type being checked
-template <typename T>
+/// @tparam Enable SFINAE hook used by specializations
+template <typename T, typename Enable = void>
 extern constexpr bool is_layout_mapping_v = is_layout_mapping_detail::is_layout_mapping_v<T>;
 
 /// @brief Helper trait to check if @c T is a valid layout mapping policy
 ///
-/// A valid layout mapping policy must have a @c template member @c mapping such that @c T::mapping<some_extent> is a
-/// valid layout mapping, such that @c T::mapping<some_extent>::extents_type is @c some_extent and @c
-/// T::mapping<some_extent>::layout_type is @c T
+/// A valid layout mapping policy must have a @c template member @c mapping
 ///
 /// The value is @c true if @c T has all these properties, @c false otherwise
 /// @tparam T The type being checked
 template <typename T>
 extern constexpr bool is_layout_mapping_policy_v = is_layout_mapping_detail::is_layout_mapping_policy_v<T>;
+
+/// @brief Helper trait to check if @c T is a valid layout mapping policy for the extents @c E
+///
+/// A valid layout mapping policy must have a @c template member @c mapping such that @c T::mapping<E> is a
+/// valid layout mapping
+///
+/// The value is @c true if @c T has all these properties, @c false otherwise
+/// @tparam T The type being checked
+/// @tparam E The extents to use to check
+template <typename T, typename E>
+extern constexpr bool is_layout_mapping_policy_for_extents_v =
+    is_layout_mapping_detail::is_layout_mapping_policy_for_extents_v<T, E>;
 
 }  // namespace base
 }  // namespace arene

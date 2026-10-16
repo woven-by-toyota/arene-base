@@ -5,6 +5,17 @@
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
 cc_library_with_variants(
+    name = "constraints_for",
+    hdrs = ["constraints_for.hpp"],
+    visibility = [
+        "//arene/base/linalg:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+cc_library_with_variants(
     name = "mandates",
     hdrs = ["mandates.hpp"],
     visibility = [
@@ -12,11 +23,42 @@ cc_library_with_variants(
     ],
     deps = [
         "//arene/base:constraints",
+        "//arene/base/algorithm:all_of",
         "//arene/base/detail:dynamic_extent",
+        "//arene/base/functional:identity",
+        "//arene/base/integer_sequences:sequential_values",
         "//arene/base/linalg:object_traits",
         "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_library_with_variants(
+    name = "apply_row_permutation",
+    hdrs = ["apply_row_permutation.hpp"],
+    visibility = [
+        "//arene/base/linalg:__subpackages__",
+    ],
+    deps = [
+        ":mandates",
+        ":preconditions",
+        ":swap_rows_or_elements",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/linalg:math_traits",
+        "//arene/base/linalg:matrix_observers",
+        "//arene/base/linalg:object_traits",
+        "//arene/base/linalg:row_column_view",
+        "//arene/base/linalg:vector_idx_abs_max",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_lvalue_reference",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/utility:safe_comparisons",
     ],
 )
 
@@ -31,6 +73,60 @@ cc_library_with_variants(
         "//arene/base/compiler_support:cpp14_inline",
         "//arene/base/linalg:object_traits",
         "//arene/base/stdlib_choice:enable_if",
+    ],
+)
+
+cc_library_with_variants(
+    name = "swap_rows_or_elements",
+    hdrs = ["swap_rows_or_elements.hpp"],
+    visibility = [
+        "//arene/base/linalg:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/linalg:math_traits",
+        "//arene/base/linalg:object_traits",
+        "//arene/base/linalg:swap_rows",
+        "//arene/base/mdspan/detail:canonical_index",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_lvalue_reference",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/utility:swap",
+    ],
+)
+
+cc_library_with_variants(
+    name = "zero_scalar",
+    hdrs = ["zero_scalar.hpp"],
+    visibility = [
+        "//arene/base/linalg:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/linalg:math_traits",
+        "//arene/base/math:arithmetic_identities",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+cc_library_with_variants(
+    name = "zero_object",
+    hdrs = ["zero_object.hpp"],
+    visibility = [
+        "//arene/base/linalg:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/linalg:constant",
+        "//arene/base/linalg:math_traits",
+        "//arene/base/linalg:object_traits",
+        "//arene/base/math:arithmetic_identities",
+        "//arene/base/stdlib_choice:declval",
     ],
 )
 

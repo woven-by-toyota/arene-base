@@ -1,0 +1,158 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load(
+    "//rules:cc_build_error.bzl",
+    "cc_build_error_test",
+    "inline_src",
+    "mandate_error_matcher",
+)
+
+cc_build_error_test(
+    name = "matrix_vector_product_input_multipliable_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/matrix_vector_product.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int {{
+  using arene::base::extents;
+  using arene::base::mdspan;
+
+  mdspan<int, extents<int, 2, 2>> in_mat{nullptr};
+  mdspan<int, extents<int, 1>> in_vec{nullptr};
+  mdspan<int, extents<int, 2>> out_vec{nullptr};
+
+  arene::base::linalg::matrix_vector_product(in_mat, in_vec, out_vec);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "In a matrix-vector product, the input vector's extent must match the matrix's width",
+        requirement = "compatible_static_extents<.+>\\(1, 0\\)",
+    ),
+    deps = [
+        "//arene/base/linalg:matrix_vector_product",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+    ],
+)
+
+cc_build_error_test(
+    name = "matrix_vector_product_output_multipliable_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/matrix_vector_product.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int {{
+  using arene::base::extents;
+  using arene::base::mdspan;
+
+  mdspan<int, extents<int, 2, 2>> in_mat{nullptr};
+  mdspan<int, extents<int, 2>> in_vec{nullptr};
+  mdspan<int, extents<int, 1>> out_vec{nullptr};
+
+  arene::base::linalg::matrix_vector_product(in_mat, in_vec, out_vec);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "In a matrix-vector product, the output vector's extent must match the matrix's height",
+        requirement = "compatible_static_extents<.+>\\(0\\)",
+    ),
+    deps = [
+        "//arene/base/linalg:matrix_vector_product",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+    ],
+)
+
+cc_build_error_test(
+    name = "matrix_vector_product_with_offset_input_multipliable_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/matrix_vector_product.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int {{
+  using arene::base::extents;
+  using arene::base::mdspan;
+
+  mdspan<int, extents<int, 2, 2>> in_mat{nullptr};
+  mdspan<int, extents<int, 1>> in_vec{nullptr};
+  mdspan<int, extents<int, 2>> offset_vec{nullptr};
+  mdspan<int, extents<int, 2>> out_vec{nullptr};
+
+  arene::base::linalg::matrix_vector_product(in_mat, in_vec, offset_vec, out_vec);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "In a matrix-vector product, the input vector's extent must match the matrix's width",
+        requirement = "compatible_static_extents<.+>\\(1, 0\\)",
+    ),
+    deps = [
+        "//arene/base/linalg:matrix_vector_product",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+    ],
+)
+
+cc_build_error_test(
+    name = "matrix_vector_product_with_offset_output_multipliable_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/matrix_vector_product.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int {{
+  using arene::base::extents;
+  using arene::base::mdspan;
+
+  mdspan<int, extents<int, 2, 2>> in_mat{nullptr};
+  mdspan<int, extents<int, 2>> in_vec{nullptr};
+  mdspan<int, extents<int, 2>> offset_vec{nullptr};
+  mdspan<int, extents<int, 1>> out_vec{nullptr};
+
+  arene::base::linalg::matrix_vector_product(in_mat, in_vec, offset_vec, out_vec);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "In a matrix-vector product, the output vector's extent must match the matrix's height",
+        requirement = "compatible_static_extents<.+>\\(0\\)",
+    ),
+    deps = [
+        "//arene/base/linalg:matrix_vector_product",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+    ],
+)
+
+cc_build_error_test(
+    name = "matrix_vector_product_with_offset_offset_addable_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/matrix_vector_product.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int {{
+  using arene::base::extents;
+  using arene::base::mdspan;
+
+  mdspan<int, extents<int, 2, 2>> in_mat{nullptr};
+  mdspan<int, extents<int, 2>> in_vec{nullptr};
+  mdspan<int, extents<int, 1>> offset_vec{nullptr};
+  mdspan<int, extents<int, 2>> out_vec{nullptr};
+
+  arene::base::linalg::matrix_vector_product(in_mat, in_vec, offset_vec, out_vec);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "In a matrix-vector product, the offset vector \\(if present\\) must have the same extent as the output vector",
+        requirement = "possibly_addable_v<.+>",
+    ),
+    deps = [
+        "//arene/base/linalg:matrix_vector_product",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+    ],
+)

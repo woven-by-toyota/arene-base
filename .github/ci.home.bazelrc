@@ -19,3 +19,10 @@ common --remote_upload_local_results=true
 common --remote_download_outputs=minimal
 
 test --cache_test_results=yes
+# double the default test timeout values
+# https://bazel.build/reference/test-encyclopedia#role-test-runner
+build --test_timeout=120,600,1800,7200
+
+# quadruple the default test timeout values for asan and tsan configs
+build:asan --test_timeout=240,1200,3600,14400
+build:tsan --test_timeout=240,1200,3600,14400

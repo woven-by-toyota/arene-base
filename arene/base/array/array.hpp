@@ -14,28 +14,23 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/detail/exceptions.hpp"
-#include "arene/base/span/span.hpp"
+#include "arene/base/detail/wrapped_iterator.hpp"  // IWYU pragma: keep
+#include "arene/base/iterator/reverse_iterator.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
-#include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
-#include "arene/base/stdlib_choice/is_array.hpp"
-#include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_copy_assignable.hpp"
-#include "arene/base/stdlib_choice/is_move_constructible.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/move.hpp"
-#include "arene/base/stdlib_choice/remove_cv.hpp"
-#include "arene/base/stdlib_choice/remove_reference.hpp"
+#include "arene/base/stdlib_choice/numeric_limits.hpp"
 #include "arene/base/stdlib_choice/tuple_element.hpp"
 #include "arene/base/stdlib_choice/tuple_size.hpp"
 #include "arene/base/type_traits/comparison_traits.hpp"
 #include "arene/base/type_traits/is_swappable.hpp"
-#include "arene/base/type_traits/remove_cvref.hpp"
 #include "arene/base/utility/swap.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
@@ -44,12 +39,29 @@
 namespace arene {
 namespace base {
 
+// IWYU pragma: begin_keep
+template <typename T, std::size_t N>
+class array;
+// IWYU pragma: end_keep
+
 namespace array_detail {
+// parasoft-begin-suppress AUTOSAR-A11_3_1-a-2 "Passkey idiom permitted by A11-3-1 Permit #1"
+/// @brief A passkey type to restrict constructing array iterators to array.
+class array_iter_passkey {
+ private:
+  /// @brief The default constructor is explicit to prevent construction via {}.
+  explicit array_iter_passkey() noexcept = default;
+  template <typename T, std::size_t N>
+  friend class ::arene::base::array;
+};
+// parasoft-end-suppress AUTOSAR-A11_3_1-a-2
+
 /// @brief If exceptions are enabled, throws out of range. Otherwise, is an invariant violation as it should not be
 /// called.
 /// @note We have to use this method rather than the mixin because array must be an aggregate type, and in C++14 that
 /// means no base classes.
 /// @throws std::out_of_range if exceptions are enabled.
+// NOTE: This function is never defined if exceptions are disabled.
 ARENE_NORETURN void throw_out_of_range();
 }  // namespace array_detail
 
@@ -63,8 +75,17 @@ ARENE_NORETURN void throw_out_of_range();
 /// @tparam N The number of elements in the array
 template <typename T, std::size_t N>
 class array {
+  // parasoft-begin-suppress CERT_C-PRE31-c "False positive: static_assert is a compile-time assert and can have no
+  // side-effects"
+  static_assert(
+      N <= std::numeric_limits<std::ptrdiff_t>::max(),
+      "Array size must be less than the maximum value of std::ptrdiff_t."
+  );
+  // parasoft-end-suppress CERT_C-PRE31-c
+
  public:
-  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: Identifiers do not hide content in unrelated class span"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: Identifiers do not hide content in unrelated detail
+  // types"
   /// @brief The type of each array element
   using value_type = T;
   /// @brief The type of a pointer to an array element
@@ -81,23 +102,25 @@ class array {
   using difference_type = std::ptrdiff_t;
 
   /// @brief An iterator for the array
-  using iterator = typename span<T, N>::iterator;
+  using iterator = detail::wrapped_iterator<pointer, array_detail::array_iter_passkey>;
   /// @brief An iterator for the array that treats the elements as @c const
-  using const_iterator = typename span<T const, N>::iterator;
+  using const_iterator = detail::wrapped_iterator<const_pointer, array_detail::array_iter_passkey>;
 
   /// @brief An iterator for iteration through the array in reverse order.
-  using reverse_iterator = typename span<T, N>::reverse_iterator;
+  using reverse_iterator = ::arene::base::reverse_iterator<iterator>;
   /// @brief An iterator for iteration through the array in reverse order that treats the elements as @c const.
-  using const_reverse_iterator = typename span<T, N>::const_reverse_iterator;
+  using const_reverse_iterator = ::arene::base::reverse_iterator<const_iterator>;
 
   // parasoft-begin-suppress AUTOSAR-M11_0_1-a-2 "False positive: this is not 'member data', it is a public property,
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   // exposed as part of the API"
   /// @brief The number of elements in the array, which is always @c N
   /// @return The size of the array, N
   static constexpr std::integral_constant<std::size_t, N> size{};
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
   // parasoft-end-suppress AUTOSAR-M11_0_1-a-2
 
-  // parasoft-end-suppress AUTOSAR-A2_10_1-e "False positive: Identifiers do not hide content in unrelated class span"
+  // parasoft-end-suppress AUTOSAR-A2_10_1-e "False positive: Identifiers do not hide content in unrelated detail types"
 
   // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: 'max_size' does not hide anything"
   // parasoft-begin-suppress AUTOSAR-M11_0_1-a-2 "False positive: this is not 'member data', it is a public property,
@@ -125,54 +148,70 @@ class array {
   /// @return a pointer to the first element of the array, const-qualified.
   constexpr auto data() const noexcept -> T const* { return values_; }
 
+  // parasoft-begin-suppress AUTOSAR-A8_4_2-a "False positive: these functions do return a value"
+  // parasoft-begin-suppress CERT_C-MSC37-a "False positive: these functions do return a value"
+  // parasoft-begin-suppress CERT_CPP-MSC52-a "False positive: these functions do return a value"
+  // parasoft-begin-suppress AUTOSAR-M9_3_3-a "False positive: these functions return instance data so can't be static"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: these standard range API names do not hide anything"
   /// @brief Obtain an iterator to the first element of the array.
   /// @return an @c iterator that references the first element of the array.
-  constexpr auto begin() noexcept -> iterator { return span<T, N>{values_}.begin(); }
+  constexpr auto begin() noexcept -> iterator { return {array_detail::array_iter_passkey{}, values_}; }
 
+  // parasoft-begin-suppress CERT_C-STR34-b "False positive: No char types used here"
   /// @brief Obtain an iterator to the one-passed-the-end of the array.
   /// @return an @c iterator that references one-past the last element of the array.
-  constexpr auto end() noexcept -> iterator { return span<T, N>{values_}.end(); }
+  constexpr auto end() noexcept -> iterator { return begin() + static_cast<difference_type>(N); }
+  // parasoft-end-suppress CERT_C-STR34-b
+  // parasoft-end-suppress AUTOSAR-A8_4_2-a
+  // parasoft-end-suppress CERT_C-MSC37-a
+  // parasoft-end-suppress CERT_CPP-MSC52-a
+  // parasoft-end-suppress AUTOSAR-M9_3_3-a
 
   /// @brief Obtain an iterator to the first element of the array.
   /// @return a @c const_iterator that references the first element of the array.
-  constexpr auto begin() const noexcept -> const_iterator { return span<T const, N>{values_}.begin(); }
+  constexpr auto begin() const noexcept -> const_iterator { return {array_detail::array_iter_passkey{}, values_}; }
 
   /// @brief Obtain an iterator to the one-passed-the-end of the array.
   /// @return a @c const_iterator that references one past the last element of the array.
-  constexpr auto end() const noexcept -> const_iterator { return span<T const, N>{values_}.end(); }
+  constexpr auto end() const noexcept -> const_iterator { return begin() + static_cast<difference_type>(N); }
 
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
   /// @brief Obtain a reverse_iterator to the last element of the array.
   /// @return a @c reverse_iterator that references the last element of the array.
-  constexpr auto rbegin() noexcept -> reverse_iterator { return span<T, N>{values_}.rbegin(); }
+  constexpr auto rbegin() noexcept -> reverse_iterator { return reverse_iterator(end()); }
 
   /// @brief Obtain a @c reverse_iterator that references one-before the first element of the array.
   /// @return a @c reverse_iterator that references one-before the first element of the array.
-  constexpr auto rend() noexcept -> reverse_iterator { return span<T, N>{values_}.rend(); }
+  constexpr auto rend() noexcept -> reverse_iterator { return reverse_iterator(begin()); }
 
   /// @brief Obtain a reverse_iterator to the last element of the array.
   /// @return a @c const_reverse_iterator that references the last element of the array.
-  constexpr auto rbegin() const noexcept -> const_reverse_iterator { return span<T const, N>{values_}.rbegin(); }
+  constexpr auto rbegin() const noexcept -> const_reverse_iterator { return const_reverse_iterator(cend()); }
 
   /// @brief Obtai a @c const_reverse_iterator that references one before the first element of the array.
   /// @return a @c const_reverse_iterator that references one before the first element of the array.
-  constexpr auto rend() const noexcept -> const_reverse_iterator { return span<T const, N>{values_}.rend(); }
+  constexpr auto rend() const noexcept -> const_reverse_iterator { return const_reverse_iterator(cbegin()); }
 
   /// @brief Obtain a @c const_iterator that references the first element of the array.
   /// @return a @c const_iterator that references the first element of the array.
-  constexpr auto cbegin() const noexcept -> const_iterator { return span<T const, N>{values_}.begin(); }
+  constexpr auto cbegin() const noexcept -> const_iterator { return begin(); }
 
   /// @brief Obtain a @c const_iterator that references one past the last element of the array.
   /// @return a @c const_iterator that references one past the last element of the array.
-  constexpr auto cend() const noexcept -> const_iterator { return span<T const, N>{values_}.end(); }
+  constexpr auto cend() const noexcept -> const_iterator { return end(); }
 
   /// @brief Obtain a @c const_reverse_iterator that references the last element of the array.
   /// @return a @c const_reverse_iterator that references the last element of the array.
-  constexpr auto crbegin() const noexcept -> const_reverse_iterator { return span<T const, N>{values_}.rbegin(); }
+  constexpr auto crbegin() const noexcept -> const_reverse_iterator { return rbegin(); }
 
   /// @brief Obtain a @c const_reverse_iterator that references one before the first element of the array.
   /// @return a @c const_reverse_iterator that references one before the first element of the array.
-  constexpr auto crend() const noexcept -> const_reverse_iterator { return span<T const, N>{values_}.rend(); }
+  constexpr auto crend() const noexcept -> const_reverse_iterator { return rend(); }
 
+  // parasoft-begin-suppress AUTOSAR-A0_1_4-a "False positive: parameter 'index' is used"
+  // parasoft-begin-suppress AUTOSAR-A8_4_2-a "ARENE_PRECONDITION terminates, so does not need a return"
+  // parasoft-begin-suppress CERT_C-MSC37-a "ARENE_PRECONDITION terminates, so does not need a return"
+  // parasoft-begin-suppress CERT_CPP-MSC52-a "ARENE_PRECONDITION terminates, so does not need a return"
   /// @brief Get a reference to the n'th element of the array.
   ///
   /// @param index The index of the element to access.
@@ -191,6 +230,10 @@ class array {
     ARENE_PRECONDITION(index < size());
     return values_[index];
   }
+  // parasoft-end-suppress AUTOSAR-A8_4_2-a
+  // parasoft-end-suppress CERT_C-MSC37-a
+  // parasoft-end-suppress CERT_CPP-MSC52-a
+  // parasoft-end-suppress AUTOSAR-A0_1_4-a
 
   /// @brief Get a reference to the n'th element of the array, or throw.
   ///
@@ -250,20 +293,31 @@ class array {
   // parasoft-begin-suppress AUTOSAR-A2_7_3-a-2 "False positive: All overloads are fully are documented"
   // parasoft-begin-suppress AUTOSAR-A2_7_3-b-2 "False positive: All overloads are fully are documented"
   // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: cannot apply static here"
-  /// @brief Equality compare all elements in the array.
-  /// @param lhs one of the arrays to compare
-  /// @param rhs the other array to compare
+  /// @brief Compare all elements in two arrays for equality.
+  ///
+  /// @param lhs One of the arrays to compare.
+  /// @param rhs The other array to compare.
   /// @return true if all elements in the arrays are equal.
   /// @return false if any elements in the arrays are not equal, or the sizes of the arrays are different.
-  /// @{
   template <typename U = T, constraints<std::enable_if_t<is_equality_comparable_v<U>>> = nullptr>
   friend constexpr auto operator==(array const& lhs, array const& rhs) noexcept -> bool {
     return arene::base::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
   }
+
+  /// @brief Arrays with different sizes are not equal.
+  ///
+  /// @return false because the arrays have different sizes.
   template <std::size_t UN, typename U = T, constraints<std::enable_if_t<is_equality_comparable_v<U>>> = nullptr>
   friend constexpr auto operator==(array const&, array<T, UN> const&) noexcept -> bool {
     return false;
   }
+
+  /// @brief Compare all elements in two arrays for equality.
+  ///
+  /// @param lhs One of the arrays to compare.
+  /// @param rhs The other array to compare.
+  /// @return true if all elements in the arrays are equal.
+  /// @return false if any elements in the arrays are not equal, or the sizes of the arrays are different.
   template <
       typename U = T,
       constraints<
@@ -273,6 +327,13 @@ class array {
   friend constexpr auto operator==(array const& lhs, array const& rhs) noexcept -> bool {
     return array::three_way_compare(lhs, rhs) == arene::base::strong_ordering::equal;
   }
+
+  /// @brief Compare all elements in two arrays for equality.
+  ///
+  /// @param lhs One of the arrays to compare.
+  /// @param rhs The other array to compare.
+  /// @return true if all elements in the arrays are equal.
+  /// @return false if any elements in the arrays are not equal, or the sizes of the arrays are different.
   template <
       typename U = T,
       constraints<
@@ -283,6 +344,10 @@ class array {
     return (array::fast_inequality_check(lhs, rhs) == inequality_heuristic::may_be_equal_or_not_equal) &&
            (array::three_way_compare(lhs, rhs) == arene::base::strong_ordering::equal);
   }
+
+  /// @brief Arrays with different sizes are not equal.
+  ///
+  /// @return false because the arrays have different sizes.
   template <
       std::size_t UN,
       typename U = T,
@@ -291,7 +356,6 @@ class array {
   friend constexpr auto operator==(array const&, array<T, UN> const&) noexcept -> bool {
     return false;
   }
-  /// @}
   // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
   // parasoft-end-suppress AUTOSAR-A2_7_3-b-2
   // parasoft-end-suppress AUTOSAR-A2_7_3-a-2
@@ -320,8 +384,7 @@ class array {
   // parasoft-begin-suppress AUTOSAR-A2_7_3-a-2 "False positive: All overloads are fully are documented"
   // parasoft-begin-suppress AUTOSAR-A2_7_3-b-2 "False positive: All overloads are fully are documented"
   /// @brief Imparts a lexicographic ordering of two arrays.
-  /// @param lhs one of the arrays to compare
-  /// @param rhs the other array to compare
+  /// Compares the left and right operands.
   /// @return arene::base::strong_ordering::less if the first element which compares unequal between
   ///         @c rhs and @c lhs also compares less-than, or if @c lhs is a strict prefix of @c rhs.
   /// @return arene::base::strong_ordering::equal if all elements compare equal.
@@ -499,20 +562,22 @@ class array<T, 0> {
   using difference_type = std::ptrdiff_t;
 
   /// @brief An iterator for the array
-  using iterator = typename span<T, 0>::iterator;
+  using iterator = detail::wrapped_iterator<pointer, array_detail::array_iter_passkey>;
   /// @brief An iterator for the array that treats the elements as @c const
-  using const_iterator = typename span<T const, 0>::iterator;
+  using const_iterator = detail::wrapped_iterator<const_pointer, array_detail::array_iter_passkey>;
 
   /// @brief An iterator for iteration through the array in reverse order.
-  using reverse_iterator = typename span<T, 0>::reverse_iterator;
+  using reverse_iterator = ::arene::base::reverse_iterator<iterator>;
   /// @brief An iterator for iteration through the array in reverse order that treats the elements as @c const.
-  using const_reverse_iterator = typename span<T, 0>::const_reverse_iterator;
+  using const_reverse_iterator = ::arene::base::reverse_iterator<const_iterator>;
 
   // parasoft-begin-suppress AUTOSAR-M11_0_1-a-2 "False positive: this is not 'member data', it is a public property,
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   // exposed as part of the API"
   /// @brief The number of elements in the array, which is always 0
   /// @return The size of the array, 0
   static constexpr std::integral_constant<std::size_t, 0> size{};
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
   // parasoft-end-suppress AUTOSAR-M11_0_1-a-2
 
   // parasoft-begin-suppress AUTOSAR-M11_0_1-a-2 "False positive: this is not 'member data', it is a public property,
@@ -542,6 +607,7 @@ class array<T, 0> {
   // parasoft-end-suppress AUTOSAR-M9_3_3-a-2
 
   // parasoft-begin-suppress AUTOSAR-M9_3_3-a-2 "False positive: 'static' would prevent overloading on 'const'"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: these standard range API names do not hide anything"
   /// @brief Get an iterator that references the first element of the array.
   /// @return The iterator
   constexpr auto begin() noexcept -> iterator { return {}; }
@@ -564,6 +630,7 @@ class array<T, 0> {
   /// @return The iterator
   constexpr auto end() const noexcept -> const_iterator { return {}; }
   // parasoft-end-suppress AUTOSAR-M9_3_3-a-2
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   // parasoft-begin-suppress AUTOSAR-M9_3_3-a-2 "False positive: 'static' would prevent overloading on 'const'"
   /// @brief Get an reverse_iterator that references the last element of the array.
@@ -755,8 +822,7 @@ class array<T, 0> {
   // parasoft-begin-suppress AUTOSAR-A2_7_3-a-2 "False positive: All overloads are fully are documented"
   // parasoft-begin-suppress AUTOSAR-A2_7_3-b-2 "False positive: All overloads are fully are documented"
   /// @brief Compares two arrays lexicographically.
-  /// @param lhs The left hand operand to the comparison.
-  /// @param rhs The right hand operand to the comparison.
+  /// Compares the left and right operands.
   /// @return The equivalent of @c compare_three_way{}(0U,UN)
   /// @{
   // parasoft-begin-suppress AUTOSAR-A11_3_1-a-2 "Friend three_way_compare permitted by A11-3-1 Permit #2 v1.0.0""
@@ -807,84 +873,7 @@ constexpr std::integral_constant<std::size_t, 0> array<T, 0>::max_size;
 template <typename T>
 constexpr std::integral_constant<bool, true> array<T, 0>::empty;
 
-namespace array_detail {
-// parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-/// @brief Internal function to construct an @c array from a C-style array, using the
-/// specified indices
-/// @tparam T The type of the array elements
-/// @tparam Size The number of array elements
-/// @tparam Indices The indices to use for initialization
-/// @param arr The source array
-/// @return The constructed array
-template <typename T, std::size_t Size, std::size_t... Indices>
-constexpr auto to_array(
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-    T (&arr)[Size],
-    std::index_sequence<Indices...>
-) noexcept(std::is_nothrow_constructible<base::remove_cvref_t<T>, T&>::value) -> array<base::remove_cvref_t<T>, Size> {
-  return {{arr[Indices]...}};
-}
-// parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-// parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-/// @brief Internal function to construct an @c array from an rvalue C-style array,
-/// using the specified indices
-/// @tparam T The type of the array elements
-/// @tparam Size The number of array elements
-/// @tparam Indices The indices to use for initialization
-/// @param arr The source array
-/// @return The constructed array
-template <typename T, std::size_t Size, std::size_t... Indices>
-constexpr auto to_array(
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-    T (&&arr)[Size],
-    std::index_sequence<Indices...>
-) noexcept(std::is_nothrow_move_constructible<base::remove_cvref_t<T>>::value) -> array<base::remove_cvref_t<T>, Size> {
-  return {{std::move(arr[Indices])...}};
-}
-// parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-}  // namespace array_detail
-
-/// @brief Function to construct an @c array from a C-style array, using the specified
-/// indices
-/// @tparam T The type of the array elements
-/// @tparam Size The number of array elements
-/// @param arr The source array
-/// @return The constructed array
-template <
-    typename T,
-    std::size_t Size,
-    constraints<
-        std::enable_if_t<!std::is_array<T>::value>,
-        std::enable_if_t<std::is_constructible<base::remove_cvref_t<T>, T&>::value>> = nullptr>
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-constexpr auto to_array(T (&arr)[Size]) noexcept(std::is_nothrow_constructible<base::remove_cvref_t<T>, T&>::value)
-    -> array<base::remove_cvref_t<T>, Size> {
-  return array_detail::to_array(arr, std::make_index_sequence<Size>());
-}
-
-// parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-/// @brief Internal function to construct an @c array from an rvalue C-style array,
-/// using the specified indices
-/// @tparam T The type of the array elements
-/// @tparam Size The number of array elements
-/// @param arr The source array
-/// @return The constructed array
-template <
-    typename T,
-    std::size_t Size,
-    constraints<
-        std::enable_if_t<!std::is_array<T>::value>,
-        std::enable_if_t<std::is_move_constructible<base::remove_cvref_t<T>>::value>> = nullptr>
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-constexpr auto to_array(T (&&arr)[Size]) noexcept(std::is_nothrow_move_constructible<base::remove_cvref_t<T>>::value)
-    -> array<base::remove_cvref_t<T>, Size> {
-  return array_detail::to_array(std::move(arr), std::make_index_sequence<Size>());
-}
-// parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: inline function used in multiple translation units"
-
+// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: cannot apply static here"
 /// @brief Get a reference to the element at the specified index in the array
 ///
 /// @tparam I The index of the element to retrieve. Must satisfy @c I<N .

@@ -6,16 +6,18 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_INLINE_CONTAINER_VECTOR_REFERENCE_HPP_
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/detail/exceptions.hpp"
 #include "arene/base/inline_container/external_vector.hpp"
 #include "arene/base/inline_container/vector.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_base_of.hpp"
 #include "arene/base/utility/make_subrange.hpp"
 
@@ -67,8 +69,12 @@ struct const_operations {
 
   /// @brief The function pointer of the data operation
   data_op_type data;
+
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief The function pointer of the size operation
   size_op_type size;
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
+
   /// @brief The function pointer of the capacity operation
   capacity_op_type capacity;
   /// @brief The function pointer of the empty operation
@@ -452,9 +458,11 @@ class vector_reference {
   /// @return A raw pointer to the elements
   constexpr auto data() const noexcept -> T* { return op_ptrs_->data(vector_ptr_); }
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Get the current number of live elements in the vector
   /// @return the size
   constexpr auto size() const noexcept -> size_type { return op_ptrs_->const_ops->size(vector_ptr_); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Get the capacity
   /// @return the capacity
@@ -634,9 +642,11 @@ class const_vector_reference {
   /// @return A raw pointer to the elements
   constexpr auto data() const noexcept -> T const* { return op_ptrs_->data(vector_ptr_); }
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Get the current number of live elements in the vector
   /// @return the size
   constexpr auto size() const noexcept -> size_type { return op_ptrs_->size(vector_ptr_); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Get the capacity
   /// @return the capacity
@@ -776,7 +786,6 @@ namespace {
 
 // parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variable is initialized"
 
-/// @def arene::base::make_vector_reference
 /// @brief creates a @c vector_reference or @c
 ///     const_vector_reference, deducing the value type from the argument
 ///
@@ -785,7 +794,6 @@ namespace {
 ///
 ARENE_CPP14_INLINE_VARIABLE(vector_reference_detail::make_vector_reference_fn, make_vector_reference);
 
-/// @def arene::base::make_const_vector_reference
 /// @brief creates a @c const_vector_reference, deducing the value type from
 ///     the argument
 ///
@@ -812,6 +820,13 @@ using const_inline_vector_reference = const_vector_reference<T>;
 
 // parasoft-end-suppress AUTOSAR-M7_3_3-a
 // parasoft-end-suppress CERT_CPP-DCL59-a
+
+namespace ranges {
+/// @brief Indicate that @c vector_reference is a borrowed range
+/// @tparam T The type of the elements in the referenced vector
+template <typename T>
+class enable_borrowed_range<vector_reference<T>> : public std::true_type {};
+}  // namespace ranges
 
 }  // namespace base
 }  // namespace arene

@@ -16,12 +16,12 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/inline_container/detail/compare.hpp"
+#include "arene/base/inline_container/detail/index_array.hpp"
 #include "arene/base/inline_container/detail/lower_bound_index.hpp"
-#include "arene/base/integer_sequences/sequential_values.hpp"
 #include "arene/base/iterator/advance.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
@@ -754,7 +754,6 @@ class inline_set
         operator_base() {
     do_move(std::move(other));
   }
-  /// @}
   // NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions) clang-tidy doesn't see these as move ctors.
 
   // parasoft-begin-suppress AUTOSAR-A2_10_1-e-2 "False Positive: This identifier does not hide anything"
@@ -819,7 +818,7 @@ class inline_set
     }
     return *this;
   }
-  /// @brief copy-assignment operator for copying from a set with a larger capacity
+  /// @brief Copy-assignment operator for copying from a set with a larger capacity
   ///
   /// Participates in overload resolution if @c Value satisfies @c std::is_copy_constructible and @c Compare satisfies
   /// @c is_copy_assignable
@@ -866,7 +865,6 @@ class inline_set
     do_copy(other);
     return *this;
   }
-  /// @}
 
   // parasoft-begin-suppress CERT_C-EXP37-a-3 "False positive: The rule does not mention naming all parameters"
   /// @brief The move assignment operator is deleted if move assignment is not supported
@@ -942,7 +940,6 @@ class inline_set
     do_move(std::move(other));
     return *this;
   }
-  /// @}
 
   /// @brief Check if the set is empty
   /// @return @c true if the set does not hold any elements, @c false otherwise
@@ -1382,14 +1379,14 @@ class inline_set
     index_type const first_index{first.index(inline_set_detail::set_passkey{})};
     index_type const last_index{last.index(inline_set_detail::set_passkey{})};
     ARENE_PRECONDITION((first_index <= last_index) && (last_index <= size()));
-    std::ignore = erase_index_range(first_index, static_cast<index_type>(last_index - first_index));
+    erase_index_range(first_index, static_cast<index_type>(last_index - first_index));
     return first;
   }
 
   /// @brief Erase all the elements in @c *this
   /// @post @c size()==0 .
   /// @post The destructors of all elements in the range @c [begin(),end()) will have been called once.
-  void clear() noexcept { std::ignore = erase_index_range(0U, number_of_active_elements_); }
+  void clear() noexcept { erase_index_range(0U, number_of_active_elements_); }
 
   // parasoft-begin-suppress AUTOSAR-A2_10_1-e-2 "False Positive: This identifier does not hide anything"
   /// @brief Fast inequality heuristic to shortcut on different sized containers.
@@ -1484,7 +1481,7 @@ class inline_set
 
   ///  @brief The indices for the elements. Initially @c indices_[i] is @c i, so each element sets to the corresponding
   ///  element in @c values_.
-  array<index_type, Capacity> indices_{sequential_values<index_type, Capacity>};
+  array<index_type, Capacity> indices_{inline_container_detail::make_index_array<index_type, Capacity>()};
 
   /// @brief Implementation helper for @c try_construct
   ///
@@ -1695,10 +1692,10 @@ class inline_set
   ///
   /// @tparam OtherKey The type of the element to erase.
   /// @param value The value of elements to erase
-  /// @return The number of elements erased, which will be @c 1 if the element was in the set, else @c 0 .
+  /// @return The number of elements erased, which will be @c 1 if the element was in the set, else <c>0</c>.
   template <typename OtherKey>
   auto do_erase(OtherKey const& value) noexcept(comparison_is_noexcept<OtherKey>) -> size_type {
-    return static_cast<size_type>(erase_at_index(do_find(value).index(inline_set_detail::set_passkey{})) != end());
+    return erase_at_index(do_find(value).index(inline_set_detail::set_passkey{}));
   }
 
   /// @brief Insert a new element at the specified index, constructed from the supplied value. This uses perfect
@@ -1706,7 +1703,7 @@ class inline_set
   /// @tparam V The type of the source value
   /// @param pos The position at which to insert the element
   /// @param value The new value
-  /// @throws std::length_error if there is insufficient space to insert a new element
+  /// @pre If insertion is required, @c size<Capacity else @c ARENE_PRECONDITION violation.
   template <typename V>
   void insert_at(index_type pos, V&& value) noexcept(std::is_nothrow_constructible<Value, V&&>::value) {
     auto const new_index = indices_[number_of_active_elements_];
@@ -1756,19 +1753,22 @@ class inline_set
   // parasoft-end-suppress CERT_CPP-MSC52-a
   // parasoft-end-suppress CERT_C-MSC37-a
 
-  /// @brief Erase the element at the specified index.
+  /// @brief Erase the element at the specified index if the index is in bounds; otherwise, do nothing.
   /// @param index The index of the element to erase
-  /// @return An iterator to the element after the erased element, or @c end() if @c index>=number_of_active_elements_.
-  auto erase_at_index(index_type index) noexcept -> iterator {
-    return index < number_of_active_elements_ ? erase_index_range(index, 1U) : end();
+  /// @return The number of elements erased: @c size_type{1U} if an erasure was performed, or @c size_type{0U} if not
+  auto erase_at_index(index_type index) noexcept -> size_type {
+    if (index < number_of_active_elements_) {
+      erase_index_range(index, 1U);
+      return 1U;
+    }
+    return 0U;
   }
 
   /// @brief Erase the specified number of elements starting at the specified position.
   /// @param from The position in the index of the first element to erase
   /// @param count_to_erase The number of elements to erase
-  /// @return An iterator to the element after the specified elements, or @c end() if there is no such element.
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  auto erase_index_range(index_type from, index_type count_to_erase) noexcept -> iterator {
+  auto erase_index_range(index_type from, index_type count_to_erase) noexcept -> void {
     index_type last_index{static_cast<index_type>(from + count_to_erase)};
     for (index_type index{from}; index < last_index; ++index) {
       entry_at_index(inline_set_detail::set_passkey{}, index).reset();
@@ -1779,8 +1779,6 @@ class inline_set
         indices_.begin() + number_of_active_elements_
     );
     number_of_active_elements_ = static_cast<index_type>(number_of_active_elements_ - (last_index - from));
-
-    return make_iterator(*this, from);
   }
 
   // parasoft-begin-suppress AUTOSAR-A2_10_1-e-2 "False Positive: This identifier does not hide anything"

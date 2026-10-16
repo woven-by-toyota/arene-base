@@ -25,7 +25,6 @@
 #include "arene/base/stdlib_choice/is_copy_constructible.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/is_trivially_copyable.hpp"
-#include "arene/base/stdlib_choice/make_tuple.hpp"
 #include "arene/base/stdlib_choice/max_value_overload.hpp"
 #include "arene/base/stdlib_choice/minus.hpp"
 #include "arene/base/stdlib_choice/numeric_limits.hpp"

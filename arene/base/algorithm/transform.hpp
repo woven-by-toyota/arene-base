@@ -59,20 +59,6 @@ constexpr auto transform_tuple_impl(F&& func, TupleType&& tuple, std::index_sequ
 /// @tparam Is The index sequence.
 /// @param func The transformation function.
 /// @param array The array.
-/// @return An array with elements defined by @c f(std::get<I>(array)) for each I.
-template <template <typename U, std::size_t N> class ToType, typename F, typename FromArrayType>
-constexpr auto transform_array_impl(F&& func, FromArrayType&& array)
-    -> ToType<std::decay_t<decltype(func(*array.begin()))>, 0U> {
-  return ToType<std::decay_t<decltype(func(*array.begin()))>, 0U>{};
-}
-
-/// @brief Transform each element of an array with the specified function.
-/// @tparam F The transformation function type.
-/// @tparam ArrayType The array type.
-/// @tparam N The array size.
-/// @tparam Is The index sequence.
-/// @param func The transformation function.
-/// @param array The array.
 /// @return An array with elements defined by @c f(tuple_detail::get<I>(array)) for each I.
 template <template <typename U, std::size_t N> class ToType, typename F, typename FromArrayType, std::size_t... Is>
 constexpr auto transform_array_impl(F&& func, FromArrayType&& array, std::index_sequence<Is...>)
@@ -101,6 +87,7 @@ class transform_fn {
   /// @param transform_op Callable that will be invoked on each element in the range @c [start,end) exactly once.
   /// @return OutputItr iterator in the output sequence pointing to the position after the last element transformed.
   ///
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifier 'begin' does not hide anything"
   template <
       typename StartItr,
       typename EndItr,
@@ -123,6 +110,7 @@ class transform_fn {
     }
     return out;
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
   ///
   /// @brief Backport of C++20's binary op constexpr @c std::transform.
@@ -219,8 +207,7 @@ class transform_fn {
       class ArrayLikeType,
       typename T,
       std::size_t N,
-      constraints<std::enable_if_t<N != 0>, std::enable_if_t<std::tuple_size<ArrayLikeType<T, N>>::value == N>> =
-          nullptr>
+      constraints<std::enable_if_t<std::tuple_size<ArrayLikeType<T, N>>::value == N>> = nullptr>
   constexpr auto operator()(F&& func, ArrayLikeType<T, N> const& array) const {
     return transform_array_impl<ArrayLikeType>(std::forward<F>(func), array, std::make_index_sequence<N>{});
   }
@@ -237,32 +224,15 @@ class transform_fn {
       class ArrayLikeType,
       typename T,
       std::size_t N,
-      constraints<std::enable_if_t<N != 0>, std::enable_if_t<std::tuple_size<ArrayLikeType<T, N>>::value == N>> =
-          nullptr>
+      constraints<std::enable_if_t<std::tuple_size<ArrayLikeType<T, N>>::value == N>> = nullptr>
   constexpr auto operator()(F&& func, ArrayLikeType<T, N>&& array) const {
     return transform_array_impl<ArrayLikeType>(std::forward<F>(func), std::move(array), std::make_index_sequence<N>{});
-  }
-  /// @brief Transform each element of a std::array with the specified function.
-  /// @tparam F The transformation function type.
-  /// @tparam T The array element type.
-  /// @param func The transformation function.
-  /// @param array The array.
-  /// @return An array with elements defined by f(std::get<I>(array)) for each I.
-  template <
-      class F,
-      template <typename T, std::size_t N>
-      class ArrayLikeType,
-      typename T,
-      constraints<std::enable_if_t<std::tuple_size<ArrayLikeType<T, 0U>>::value == 0>> = nullptr>
-  constexpr auto operator()(F&& func, ArrayLikeType<T, 0U> const& array) const {
-    return transform_array_impl<ArrayLikeType>(std::forward<F>(func), array);
   }
 };
 
 }  // namespace transform_detail
 
-/// @def arene::base::transform
-/// @copydoc arene::base::transform_detail::transform_fn::operator()
+/// @brief Apply an operation to elements of one or more input ranges and write the results to an output range.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

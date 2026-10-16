@@ -5,13 +5,14 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_MAX_ELEMENT_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_MAX_ELEMENT_HPP_
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
+#include "arene/base/algorithm/max_element.hpp"
 #include "arene/base/constraints.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
 #include "arene/base/type_traits/is_compare.hpp"
 #include "arene/base/type_traits/iterator_category_traits.hpp"
 #include "stdlib/include/stdlib_detail/enable_if.hpp"
-#include "stdlib/include/stdlib_detail/internal_relative_find.hpp"
+#include "stdlib/include/stdlib_detail/internal_disable_constexpr_in_cpp14.hpp"
 #include "stdlib/include/stdlib_detail/move.hpp"
 
 // parasoft-begin-suppress CERT_CPP-DCL58-a-2 "Part of a standard library implementation"
@@ -59,9 +60,10 @@ template <
             arene::base::is_compare_v<Compare&, arene::base::algorithm_detail::iter_reference_t<ForwardIterator>>>> =
         nullptr>
 constexpr auto max_element(ForwardIterator first, ForwardIterator last, Compare comp) noexcept(
-    noexcept(std::internal::relative_find(first, last, arene::base::algorithm_detail::flip(comp)))
+    noexcept(arene::base::max_element(std::move(first), std::move(last), std::move(comp)))
 ) -> ForwardIterator {
-  return std::internal::relative_find(first, last, arene::base::algorithm_detail::flip(comp));
+  std::detail::disable_constexpr_in_cpp14();
+  return arene::base::max_element(std::move(first), std::move(last), std::move(comp));
 }
 
 /// @brief returns the largest element in a range
@@ -94,12 +96,12 @@ template <
     arene::base::constraints<
         std::enable_if_t<arene::base::is_forward_iterator_v<ForwardIterator>>,
         std::enable_if_t<arene::base::is_compare_v<
-            decltype(arene::base::algorithm_detail::operator_less)&,
+            decltype(arene::base::functional_detail::operator_less)&,
             arene::base::algorithm_detail::iter_reference_t<ForwardIterator>>>> = nullptr>
 constexpr auto max_element(ForwardIterator first, ForwardIterator last) noexcept(
-    noexcept(std::max_element(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less))
+    noexcept(std::max_element(std::move(first), std::move(last), arene::base::functional_detail::operator_less))
 ) -> ForwardIterator {
-  return std::max_element(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less);
+  return std::max_element(std::move(first), std::move(last), arene::base::functional_detail::operator_less);
 }
 
 // parasoft-end-suppress AUTOSAR-M3_3_2-a

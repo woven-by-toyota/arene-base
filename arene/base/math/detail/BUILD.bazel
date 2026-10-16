@@ -6,17 +6,12 @@ load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
 package(default_visibility = ["//tools:__subpackages__"])
 
-filegroup(
-    name = "abs_hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "abs",
+    hdrs = [
         "builtin_abs_float.hpp",
         "custom_abs_float.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "abs",
-    hdrs = [":abs_hdrs"],
     visibility = [
         ":__subpackages__",
         "//arene/base/math:__subpackages__",
@@ -31,25 +26,23 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "abs_if_needed_hdrs",
-    srcs = ["abs_if_needed.hpp"],
-)
-
 cc_library_with_variants(
-    name = "abs_if_needed",
-    hdrs = [":abs_if_needed_hdrs"],
+    name = "less_nan_highest",
+    hdrs = ["less_nan_highest.hpp"],
     visibility = [
-        "//arene/base:__subpackages__",
+        ":__subpackages__",
+        "//arene/base/functional:__subpackages__",
+        "//arene/base/linalg:__subpackages__",
+        "//arene/base/math:__subpackages__",
     ],
     deps = [
         "//arene/base:constraints",
         "//arene/base/compiler_support:cpp14_inline",
-        "//arene/base/math:abs",
+        "//arene/base/math:float_properties",
         "//arene/base/stdlib_choice:enable_if",
-        "//arene/base/stdlib_choice:forward",
-        "//arene/base/stdlib_choice:is_arithmetic",
-        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:less",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_predicate",
     ],
 )
 
@@ -57,8 +50,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":abs_hdrs",
-        ":abs_if_needed_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__subpackages__"],
 )

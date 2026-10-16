@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -23,7 +27,7 @@ The Bazel target is
 //:monostate
 ```
 
-## A type with only one valid value {#a-type-with-only-one-valid-value}
+# A type with only one valid value {#subpackages-monostate-a-type-with-only-one-valid-value}
 
 `arene::base::monostate` is a type with only one valid value. It has no
 behaviour, and all instances compare equal.

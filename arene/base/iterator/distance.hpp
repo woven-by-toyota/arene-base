@@ -18,6 +18,7 @@ namespace base {
 namespace distance_impl {
 
 // parasoft-begin-suppress CERT_C-EXP37-a "False positive: The rule does not mention naming all parameters"
+// parasoft-begin-suppress AUTOSAR-A5_0_3-a "False positive: There is no pointer indirection in return types"
 
 // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
 /// @brief Implementation helper for @c arene::base::iterator::distance for random-access iterators.
@@ -38,6 +39,7 @@ constexpr auto do_distance(
 }
 // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
 
+// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: inline function used in multiple translation units"
 /// @brief Implementation helper for @c arene::base::iterator::distance for input iterators.
 /// @tparam Iterator the type of the iterator
 /// @param first The first iterator in the range
@@ -57,6 +59,7 @@ constexpr auto do_distance(
   }
   return result;
 }
+// parasoft-end-suppress AUTOSAR-M3_3_2-a
 
 // parasoft-end-suppress CERT_C-EXP37-a
 
@@ -80,6 +83,7 @@ constexpr auto distance(Iterator first, Iterator last) noexcept(
   return distance_impl::do_distance(first, last, typename std::iterator_traits<Iterator>::iterator_category{});
 }
 // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+// parasoft-end-suppress AUTOSAR-A5_0_3-a "False positive: There is no pointer indirection in return types"
 
 }  // namespace base
 }  // namespace arene

@@ -1,3 +1,9 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
 \page atomic atomic: Atomic operations in concurrent systems
@@ -19,15 +25,15 @@ The Bazel target is
 //:atomic
 ```
 
-## Introduction {#introduction}
+# Introduction {#subpackages-atomic-introduction}
 
 The `atomic` subpackage provides atomic operations and types. It is intended as
 an alternative to the C++ standard libarary `<atomic>` header, for environments
 where the standard library implementation is not available.
 
-## Types {#types}
+## Types {#subpackages-atomic-types}
 
-### atomic_counter {#atomic_counter}
+### atomic_counter {#subpackages-atomic-atomic_counter}
 
 The `atomic_counter` class provides a thread-safe counter implementation using
 compiler intrinsics rather than standard library facilities.
@@ -38,16 +44,16 @@ compiler intrinsics rather than standard library facilities.
 arene::base::atomic_counter counter;
 ```
 
-#### API Reference {#api-reference}
+#### API Reference {#subpackages-atomic-api-reference}
 
-##### Constructors {#constructors}
+##### Constructors {#subpackages-atomic-constructors}
 
 ```cpp
 constexpr atomic_counter() noexcept;
 constexpr explicit atomic_counter(uint64_t initial_value) noexcept;
 ```
 
-##### Operations {#operations}
+##### Operations {#subpackages-atomic-operations}
 
 ```cpp
 // Pre-increment
@@ -69,7 +75,7 @@ auto operator+=(uint64_t val) noexcept -> uint64_t;
 auto operator-=(uint64_t val) noexcept -> uint64_t;
 ```
 
-##### Value Access {#value-access}
+##### Value Access {#subpackages-atomic-value-access}
 
 ```cpp
 // Explicit load
@@ -79,22 +85,22 @@ auto load() const noexcept -> uint64_t;
 operator uint64_t() const noexcept;
 ```
 
-#### Thread Safety {#thread-safety}
+#### Thread Safety {#subpackages-atomic-thread-safety}
 
 All operations on `atomic_counter` are atomic and thread-safe. The
 implementation uses compiler intrinsics with sequential consistency memory
 ordering to ensure proper behavior in multi-threaded environments.
 
-#### Examples {#examples}
+#### Examples {#subpackages-atomic-examples}
 
-##### Basic Usage {#basic-usage}
+##### Basic Usage {#subpackages-atomic-basic-usage}
 
 \snippet docs/examples/atomic_counter_examples.cpp basic_usage
 
-##### Thread-Safe Counting {#thread-safe-counting}
+##### Thread-Safe Counting {#subpackages-atomic-thread-safe-counting}
 
 \snippet docs/examples/atomic_counter_examples.cpp concurrent_updates
 
-##### Using Counter for Event Tracking {#using-counter-for-event-tracking}
+##### Using Counter for Event Tracking {#subpackages-atomic-using-counter-for-event-tracking}
 
 \snippet docs/examples/atomic_counter_examples.cpp counter_as_event_tracker

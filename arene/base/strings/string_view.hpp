@@ -20,10 +20,12 @@
 #include "arene/base/detail/raw_c_string.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/span/span.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/min_value_overload.hpp"
 #include "arene/base/stdlib_choice/numeric_limits.hpp"
@@ -166,15 +168,19 @@ class string_view
   /// @brief Default destructor
   ~string_view() = default;
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'begin' does not hide anything"
   /// @brief Begin const iterator.
   ///
   /// @return An iterator that references the first character of the string.
   constexpr auto begin() const noexcept -> const_iterator { return str_span_.begin(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'end' does not hide anything"
   /// @brief End const iterator.
   ///
   /// @return An iterator that is one-past the last character of the string_view.
   constexpr auto end() const noexcept -> const_iterator { return str_span_.end(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Begin const iterator.
   ///
@@ -206,6 +212,8 @@ class string_view
   /// @return An iterator that references one-before the first character of the string_view
   constexpr auto crend() const noexcept -> const_reverse_iterator { return str_span_.rend(); }
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: Does not hide any identifiers"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: Does not hide any identifiers"
   /// @brief Get the length of the string view
   /// @return The number of 'char' values in this string.
   /// @invariant <c> size() == std::distance(begin(), end()) </c>
@@ -225,6 +233,8 @@ class string_view
   /// @brief Get the maximum possible length of a @c string_view
   /// @return Return the maximum string size supported by a @c string_view
   static constexpr auto max_size() noexcept -> size_type { return std::numeric_limits<string_view::size_type>::max(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
+  // parasoft-end-suppress AUTOSAR-A2_10_1-e
 
   /// @brief lexicographically compares two string_view, behavior similar to std::string
   ///
@@ -331,6 +341,7 @@ class string_view
   ///         @c pos>=size() , or @c pos+count>=size() , the returned substring is clamped to the end of the
   ///         @c string_view .
   // parasoft-begin-suppress AUTOSAR-A7_1_3-a-2 "False positive: const is placed on the right hand side"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: no 'count' becomes inaccessible due to this declaration"
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   constexpr auto substr(size_type const pos, size_type const count = npos) const noexcept -> string_view {
     // parasoft-end-suppress AUTOSAR-A7_1_3-a-2
@@ -338,6 +349,7 @@ class string_view
     size_type const bounded_size{std::min((size() - bounded_pos), count)};
     return {arene::base::next(data(), static_cast<std::ptrdiff_t>(bounded_pos)), bounded_size};
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
   /// @brief Swap the content of two string_view objects.
   ///
@@ -423,8 +435,10 @@ class string_view
   /// @param count the number of characters to remove
   /// @post The string_view will be equivalent to a substring produced as if by <c>substr(n)</c>
   // parasoft-begin-suppress AUTOSAR-A7_1_3-a-2 "False positive: const is placed on the right hand side"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: no 'count' becomes inaccessible due to this declaration"
   constexpr void remove_prefix(size_type const count) noexcept { *this = substr(count); }
   // parasoft-end-suppress AUTOSAR-A7_1_3-a-2
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
   /// @brief Remove the last @c n characters from the string
   ///
@@ -432,8 +446,10 @@ class string_view
   /// @post The string_view will be equivalent to a substring produced as if by
   ///       <c>substr(0, size() - std::min(count, size()))</c>
   // parasoft-begin-suppress AUTOSAR-A7_1_3-a-2 "False positive: const is placed on the right hand side"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: no 'count' becomes inaccessible due to this declaration"
   constexpr void remove_suffix(size_type const count) noexcept { *this = substr(0U, size() - std::min(count, size())); }
   // parasoft-end-suppress AUTOSAR-A7_1_3-a-2
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
   /// @brief Check if the string starts with another string
   /// @param other The string to compare against.
@@ -598,8 +614,8 @@ class string_view
     // parasoft-begin-suppress AUTOSAR-M5_0_7-b-2 "False positive: no floating point conversions"
     // parasoft-begin-suppress AUTOSAR-M5_0_8-a-2 "False positive: the sizes of the types are the same"
     // parasoft-begin-suppress AUTOSAR-M5_0_9-a-2 "False positive: Guaranteed in-range by precondition"
-    if (pos <= size()) {
-      start += static_cast<difference_type>(size() - pos);
+    if (pos < size()) {
+      start += static_cast<difference_type>(size() - pos - 1U);
     }
     auto const location = ::arene::base::find(start, rend(), chr);
     return location == rend() ? npos : static_cast<size_type>(rend() - location - 1);
@@ -911,6 +927,12 @@ constexpr auto operator""_asv(detail::raw_c_string const str, std::size_t const 
 }  // namespace literals
 
 // NOLINTEND(google-explicit-constructor, hicpp-avoid-c-arrays)
+
+namespace ranges {
+/// @brief Indicate that @c string_view is a borrowed range
+template <>
+class enable_borrowed_range<string_view> : public std::true_type {};
+}  // namespace ranges
 
 }  // namespace base
 }  // namespace arene

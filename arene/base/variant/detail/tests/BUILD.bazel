@@ -4,6 +4,13 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 # This test doesn't actually have exception-disabled dependent behavior in it. But we want to ensure that it builds with exceptions disabled, so we manually set `-fno-exceptions` here.
 cc_test_with_variants(
     name = "bad_variant_access_exceptions_disabled_test",
@@ -14,7 +21,7 @@ cc_test_with_variants(
     deps = [
         "//arene/base/variant/detail:bad_variant_access",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -24,11 +31,6 @@ cc_test_with_variants(
     deps = [
         "//arene/base/variant/detail:bad_variant_access",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

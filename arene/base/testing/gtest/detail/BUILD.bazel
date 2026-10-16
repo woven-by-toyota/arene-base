@@ -4,44 +4,88 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "conditional_assertions_helpers.hpp",
-        "conditional_assertions_with_static.hpp",
-        "conditional_assertions_without_static.hpp",
-        "static_assertions_disabled.hpp",
-        "static_assertions_enabled.hpp",
-        "static_assertions_helpers.hpp",
+cc_library_with_variants(
+    name = "conditional_assertions_helpers",
+    hdrs = ["conditional_assertions_helpers.hpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/type_traits:always_false",
     ],
 )
 
 cc_library_with_variants(
+    name = "conditional_assertions_with_static",
+    hdrs = ["conditional_assertions_with_static.hpp"],
+    deps = [
+        ":conditional_assertions_helpers",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "conditional_assertions_without_static",
+    hdrs = ["conditional_assertions_without_static.hpp"],
+    deps = [
+        ":conditional_assertions_helpers",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "static_assertions_helpers",
+    hdrs = ["static_assertions_helpers.hpp"],
+    deps = [
+        "//arene/base/detail:raw_c_string",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:forward",
+    ],
+)
+
+cc_library_with_variants(
+    name = "static_assertions_disabled",
+    hdrs = ["static_assertions_disabled.hpp"],
+    deps = [
+        ":static_assertions_helpers",
+    ] + select({
+        # exclude transitive @com_google_googletest dependency when exporting for cmake
+        # we shall not bundle @com_google_googletest
+        "//configs:export_cmake": [],
+        "//conditions:default": ["//testlibs:test_library"],
+    }),
+)
+
+cc_library_with_variants(
+    name = "static_assertions_enabled",
+    hdrs = ["static_assertions_enabled.hpp"],
+    deps = [
+        ":static_assertions_helpers",
+        "//arene/base/compiler_support:preprocessor",
+        "//arene/base/math:abs",
+    ] + select({
+        # exclude transitive @com_google_googletest dependency when exporting for cmake
+        # we shall not bundle @com_google_googletest
+        "//configs:export_cmake": [],
+        "//conditions:default": ["//testlibs:test_library"],
+    }),
+)
+
+cc_library_with_variants(
     name = "detail",
-    hdrs = [":hdrs"],
     visibility = [
         "//arene/base/testing/gtest:__subpackages__",
     ],
     deps = [
-        "//arene/base:type_list",
-        "//arene/base/math:abs",
-        "//arene/base/stdlib_choice:cstddef",
-        "//arene/base/stdlib_choice:cstdint",
-        "//arene/base/stdlib_choice:forward",
-    ] +
-    # exclude gtest dependency when exporting for cmake
-    # we shall not bundle gtest
-    select({
-        "//configs:export_cmake": [],
-        "//conditions:default": ["//testlibs:gtest"],
-    }),
+        ":conditional_assertions_with_static",
+        ":conditional_assertions_without_static",
+        ":static_assertions_disabled",
+        ":static_assertions_enabled",
+    ],
 )
 
 filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/testing/gtest:__pkg__"],
 )

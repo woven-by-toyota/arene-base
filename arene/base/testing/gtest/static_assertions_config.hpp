@@ -10,11 +10,11 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TESTING_GTEST_STATIC_ASSERTIONS_CONFIG_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TESTING_GTEST_STATIC_ASSERTIONS_CONFIG_HPP_
 
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 // IWYU pragma: private
 // IWYU pragma: friend "arene/base/testing/gtest/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/preprocessor.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 // parasoft-begin-suppress AUTOSAR-A16_0_1-d-2 "Defines macros for configuration"

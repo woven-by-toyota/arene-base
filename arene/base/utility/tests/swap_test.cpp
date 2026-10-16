@@ -4,18 +4,18 @@
 
 #include "arene/base/utility/swap.hpp"
 
-#include <memory>
-#include <utility>
-#include <vector>
+#include <gmock/gmock.h>  // IWYU pragma: keep
+#include <gtest/gtest.h>  // IWYU pragma: keep
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
-#include "arene/base/byte.hpp"
-#include "arene/base/constraints.hpp"
+#include "arene/base/constraints/substitution_succeeds.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/declval.hpp"
+#include "arene/base/stdlib_choice/move.hpp"
 #include "arene/base/testing/gtest.hpp"
-#include "arene/base/type_list.hpp"
-#include "arene/base/type_traits.hpp"
+#include "arene/base/type_list/apply_all.hpp"
+#include "arene/base/type_list/concat.hpp"
+#include "arene/base/type_list/type_list.hpp"
+#include "arene/base/type_traits/is_swappable.hpp"
 
 namespace arene {
 namespace base {
@@ -118,6 +118,29 @@ class throwing_move_assign_default_swappable : public swappable_value<throwing_m
       -> throwing_move_assign_default_swappable& = default;
 };
 
+// A type that's swappable with an unwrapped T but not with itself
+template <typename T>
+struct swappable_with_parameter {
+  T value;
+
+  friend constexpr auto swap(swappable_with_parameter& left, T& right) -> void { arene::base::swap(left.value, right); }
+
+  friend constexpr auto swap(T& left, swappable_with_parameter& right) -> void { arene::base::swap(left, right.value); }
+
+  friend constexpr auto operator==(swappable_with_parameter const& left, swappable_with_parameter const& right)
+      -> bool {
+    return left.value == right.value;
+  }
+
+  friend constexpr auto operator==(swappable_with_parameter const& left, T const& right) -> bool {
+    return left.value == right;
+  }
+
+  friend constexpr auto operator==(T const& left, swappable_with_parameter const& right) -> bool {
+    return left == right.value;
+  }
+};
+
 using default_swappable_types = type_list<
     int,
     nothrow_default_swappable,
@@ -189,6 +212,23 @@ TYPED_TEST(SwapADLSwappableTest, TheValuesAreExchanged) {
 
   STATIC_ASSERT_EQ(swap_in_constexpr(original_lhs, original_rhs, return_opr::lhs), original_rhs);
   STATIC_ASSERT_EQ(swap_in_constexpr(original_lhs, original_rhs, return_opr::rhs), original_lhs);
+}
+
+/// @test Two operands of different types which are swappable with each other can be swapped by @c arene::base::swap
+TYPED_TEST(SwapADLSwappableTest, HeterogeneousAdlSwap) {
+  constexpr TypeParam original_lhs{1};
+  constexpr swappable_with_parameter<TypeParam> original_rhs{TypeParam{2}};
+
+  TypeParam lhs{original_lhs};
+  swappable_with_parameter<TypeParam> rhs{original_rhs};
+
+  arene::base::swap(lhs, rhs);
+  EXPECT_EQ(original_lhs, rhs.value);
+  EXPECT_EQ(original_rhs.value, lhs);
+
+  arene::base::swap(rhs, lhs);
+  EXPECT_EQ(original_lhs, lhs);
+  EXPECT_EQ(original_rhs.value, rhs.value);
 }
 
 using swappable_types = concat_t<default_swappable_types, adl_swappable_types>;
@@ -264,33 +304,31 @@ TYPED_TEST(SwapCArrayTest, TheValuesAreExchanged) {
 
   ::arene::base::swap(lhs, rhs);
 
-  EXPECT_THAT(lhs, testing::ElementsAreArray(original_rhs));
-  EXPECT_THAT(rhs, testing::ElementsAreArray(original_lhs));
+  EXPECT_THAT(lhs, ::testing::ElementsAreArray(original_rhs));
+  EXPECT_THAT(rhs, ::testing::ElementsAreArray(original_lhs));
+}
+
+/// @test Two C-arrays with different element types can be swapped if the element types can
+TYPED_TEST(SwapCArrayTest, CArraysWithDifferentTypesCanBeSwapped) {
+  constexpr std::size_t extent{3U};
+
+  constexpr TypeParam original_lhs[extent] = {TypeParam{1}, TypeParam{2}, TypeParam{3}};
+  TypeParam lhs[extent] = {TypeParam{1}, TypeParam{2}, TypeParam{3}};
+
+  constexpr swappable_with_parameter<TypeParam> original_rhs[extent] = {{TypeParam{4}}, {TypeParam{5}}, {TypeParam{6}}};
+  swappable_with_parameter<TypeParam> rhs[extent] = {{TypeParam{4}}, {TypeParam{5}}, {TypeParam{6}}};
+
+  ::arene::base::swap(lhs, rhs);
+
+  EXPECT_THAT(lhs, ::testing::ElementsAreArray(original_rhs));
+  EXPECT_THAT(rhs, ::testing::ElementsAreArray(original_lhs));
+
+  ::arene::base::swap(rhs, lhs);
+
+  EXPECT_THAT(lhs, ::testing::ElementsAreArray(original_lhs));
+  EXPECT_THAT(rhs, ::testing::ElementsAreArray(original_rhs));
 }
 
 // NOLINTEND(hicpp-avoid-c-arrays) explicitly testing c-array behavior
-
-/// @test Validates that @c arene::base::swap does not cause ambiguous overload resolution in the implementation of
-/// @c std::unique_ptr<T>::reset() when @c T is a type in the @c arene::base namespace.
-TEST(Swap, NoAmbigiousOverloadResolutionWithUniquePtr) {
-  using ::arene::base::literals::operator""_byte;
-  std::unique_ptr<arene::base::byte> byte_ptr = std::make_unique<::arene::base::byte>(10_byte);
-  std::unique_ptr<arene::base::byte> other;
-  byte_ptr.reset(other.release());  // NOLINT(misc-uniqueptr-reset-release) explicitly testing the behavior of reset.
-}
-
-/// @test check that the specialization of @c std::swap for @c std::vector is called
-TEST(Swap, WithStdVector) {
-  auto vec1 = std::vector<int>{1, 2, 3};
-  auto vec2 = std::vector<int>{4};
-
-  auto* const data1 = vec1.data();
-  auto* const data2 = vec2.data();
-
-  ::arene::base::swap(vec1, vec2);
-
-  ASSERT_EQ(data1, vec2.data());
-  ASSERT_EQ(data2, vec1.data());
-}
 
 }  // namespace

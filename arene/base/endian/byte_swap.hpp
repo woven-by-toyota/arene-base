@@ -13,7 +13,7 @@
 // parasoft-begin-suppress AUTOSAR-A7_1_5-a-2 "Trailing return syntax permitted by A7-1-5 Permit #1 v1.0.0"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/platform_queries.hpp"
+#include "arene/base/compiler_support/platform_queries/has_builtin.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 

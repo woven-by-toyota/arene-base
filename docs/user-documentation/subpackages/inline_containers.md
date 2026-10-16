@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -19,13 +23,13 @@ The Bazel target is
 //:inline_container
 ```
 
-## Inline containers vs dynamic memory containers {#inline-containers-vs-dynamic-memory-containers}
+# Inline containers vs dynamic memory containers {#subpackages-inline-containers-inline-containers-vs-dynamic-memory-containers}
 
 The inline containers are provided as a direct alternative to equivalent
 containers that allocate dynamic memory allocation. It is important to know the
 trade-offs when choosing one over the other.
 
-### Upsides of in-object storage {#upsides-of-in-object-storage}
+## Upsides of in-object storage {#subpackages-inline-containers-upsides-of-in-object-storage}
 
 The foremost upside is the lack of dynamic memory allocation. This enables the
 inline containers to be used where dynamically-allocating containers would not
@@ -44,7 +48,7 @@ than the equivalent containers that use dynamic memory allocation, but it is
 important to be aware of the potential downsides. **If you are concerned about
 performance, profile your code**.
 
-### Downsides of in-object storage {#downsides-of-in-object-storage}
+## Downsides of in-object storage {#subpackages-inline-containers-downsides-of-in-object-storage}
 
 The downside is that the maximum capacity of the containers is fixed at compile
 time, and the objects themselves can become quite large. If used as local
@@ -60,7 +64,7 @@ the object cannot be constructed at startup, but static storage is desired,
 `arene::base::optional` can be used to set aside space for the object for later
 construction using `emplace`.
 
-### Containers with external fixed-capacity storage {#containers-with-external-fixed-capacity-storage}
+## Containers with external fixed-capacity storage {#subpackages-inline-containers-containers-with-external-fixed-capacity-storage}
 
 For some use cases, containers that use user-provided external storage can
 provide a useful alternative to both containers with in-object storage and
@@ -75,7 +79,7 @@ that of the container.
 The use of external storage also allows the user to specify the capacity at
 runtime, since the capacity is determined from the size of the provided storage.
 
-### Exceeding capacity {#exceeding-capacity}
+## Exceeding capacity {#subpackages-inline-containers-exceeding-capacity}
 
 Any operation that would insert elements beyond the specified capacity of the
 containers will terminate the program using `ARENE_PRECONDITION`. User code is
@@ -86,7 +90,7 @@ Library counterparts, which would attempt to expand the capacity using dynamic
 memory allocation, and throw `std::length_error` or `std::bad_alloc` if that
 failed.
 
-## Provided containers {#provided-containers}
+## Provided containers {#subpackages-inline-containers-provided-containers}
 
 Arene base provides the following _inline_ containers:
 
@@ -137,7 +141,7 @@ These should be used when you need the full container functionality, but want to
 be independent of the capacity. If you just need a view over the elements,
 `arene::base::span` or `arene::base::string_view` might be more appropriate.
 
-### Inline vector {#inline-vector}
+### Inline vector {#subpackages-inline-containers-inline-vector}
 
 The API for `arene::base::inline_vector` is almost identical to that of
 `std::vector`. The key difference is that whereas `std::vector` takes an
@@ -151,17 +155,17 @@ the end, then none of the existing elements are moved. Inserting or erasing in
 the middle of the vector has the same behaviour as `std::vector`. Also, since
 the capacity is fixed, there is no `reserve` member function.
 
-#### Constant expressions {#constant-expressions}
+#### Constant expressions {#subpackages-inline-containers-constant-expressions}
 
 All member functions are declared `constexpr`, so for element types that are
 usable in a constant expression, `arene::base::inline_vector` can also be used
 in a constant expression.
 
-#### Example usage {#example-usage}
+#### Example usage {#subpackages-inline-containers-example-usage}
 
 \snippet docs/examples/inline_container_examples.cpp vector_usage_example
 
-### External vector {#external-vector}
+### External vector {#subpackages-inline-containers-external-vector}
 
 Whereas `arene::base:::inline_vector` holds the storage _inside_ the object,
 `arene::base::external_vector` holds the storage _outside_ the object. The user
@@ -175,7 +179,7 @@ The API of `arene::base::external_vector` is almost identical to that of
 `arene::base::inline_vector`, apart from the additional `storage` parameter to
 the constructors.
 
-#### Capacity fixed at construction time {#capacity-fixed-at-construction-time}
+#### Capacity fixed at construction time {#subpackages-inline-containers-capacity-fixed-at-construction-time}
 
 Whereas `arene::base::inline_vector` has a fixed capacity, specified at compile
 time, `arene::base::external_vector` has a capacity determined at runtime from
@@ -188,12 +192,12 @@ vector element type, and must have a size that is an exact multiple of the size
 of the element. This is expected to be done using the `alignas` keyword and
 `sizeof` operator, as in the example below.
 
-#### Example usage {#example-usage}
+#### Example usage {#subpackages-inline-containers-example-usage-2}
 
 <!-- prettier-ignore -->
 \snippet docs/examples/inline_container_examples.cpp external_vector_usage_example
 
-### Inline deque {#inline-deque}
+### Inline deque {#subpackages-inline-containers-inline-deque}
 
 The API for `arene::base::inline_deque` consists of inserting elements at one of
 its ends with `push_front` or `push_back` and accessing as well as removing
@@ -223,18 +227,18 @@ elements stored. On the other hand, insertion at the beginning or end of
 can be used as a constant time LIFO data structure (a stack) and
 `arene::base::inline_deque` is a constant time FIFO data structure (a queue).
 
-#### Constant expressions {#constant-expressions}
+#### Constant expressions {#subpackages-inline-containers-constant-expressions-2}
 
 Since all member functions are `constexpr`, `arene::base::inline_deque` can be
 used in constant expressions, provided that the element type can also be used in
 a constant expression.
 
-#### Example usage {#example-usage}
+#### Example usage {#subpackages-inline-containers-example-usage-3}
 
 <!-- prettier-ignore -->
 \snippet docs/examples/inline_container_examples.cpp deque_usage_example
 
-### Circular buffer {#circular-buffer}
+### Circular buffer {#subpackages-inline-containers-circular-buffer}
 
 `arene::base::circular_buffer` is a variation on `arene::base::inline_deque`,
 offering the same constant-time insertion and removal at the ends. However,
@@ -252,7 +256,7 @@ Elements in the middle can still be inspected or even replaced using
 should take care to leave the contents of the buffer in a sensible state when
 doing this.
 
-### Inline map {#inline-map}
+### Inline map {#subpackages-inline-containers-inline-map}
 
 The API for `arene::base::inline_map` is almost identical to that of `std::map`.
 The key difference is that whereas `std::map` takes an optional allocator as the
@@ -261,7 +265,7 @@ specified as the third template argument instead. Thus
 `arene::base::inline_map<std::uint32_t, my_struct, 42>` is a map with a key type
 of `std::uint32_t`, a mapped type of `my_struct`, and at most 42 elements.
 
-#### Comparisons {#comparisons}
+#### Comparisons {#subpackages-inline-containers-comparisons}
 
 The comparator type, which is now the fourth rather than third template
 parameter, is also different to that of `std::map`, in that it is intended to
@@ -273,7 +277,7 @@ relation such as `std::less<>`. The default comparison is
 `arene::base::compare_three_way`, which uses the provided three-way comparison
 function for the specified key type, and defaults to `operator<` otherwise.
 
-#### Operation complexity {#operation-complexity}
+#### Operation complexity {#subpackages-inline-containers-operation-complexity}
 
 Each individual entry in the map is stored in a fixed position, and never moves
 from when it is inserted until the map is destroyed or the element is removed.
@@ -282,15 +286,15 @@ indices into the element storage. Inserting and removing elements thus performs
 _O(n)_ integer moves to update the index, in addition to the _O(log n)_
 comparisons to find the appropriate entry.
 
-#### Iterator validity {#iterator-validity}
+#### Iterator validity {#subpackages-inline-containers-iterator-validity}
 
 Unlike `std::map`, iterators do not remain valid across inserts and removals.
 
-#### Example usage {#example-usage}
+#### Example usage {#subpackages-inline-containers-example-usage-4}
 
 \snippet docs/examples/inline_container_examples.cpp map_usage_example
 
-### Inline set {#inline-set}
+### Inline set {#subpackages-inline-containers-inline-set}
 
 The API for `arene::base::inline_set` is almost identical to that of `std::set`.
 The key difference is that whereas `std::set` takes an optional allocator as the
@@ -299,7 +303,7 @@ specified as the second template argument instead. Thus
 `arene::base::inline_set<my_struct, 42>` is a set of `my_struct` elements, with
 at most 42 entries.
 
-#### Comparisons {#comparisons}
+#### Comparisons {#subpackages-inline-containers-comparisons-2}
 
 The comparator type, which is now the third rather than second template
 parameter, is also different to that of `std::set`, in that it is intended to
@@ -311,7 +315,7 @@ relation such as `std::less<>`. The default comparison is
 `arene::base::compare_three_way`, which uses the provided three-way comparison
 function for the specified element type, and defaults to `operator<` otherwise.
 
-#### Operation complexity {#operation-complexity}
+#### Operation complexity {#subpackages-inline-containers-operation-complexity-2}
 
 Each individual entry in the set is stored in a fixed position, and never moves
 from when it is inserted until the set is destroyed or the element is removed.
@@ -320,15 +324,15 @@ indices into the element storage. Inserting and removing elements thus performs
 _O(n)_ integer moves to update the index, in addition to the _O(log n)_
 comparisons to find the appropriate entry.
 
-#### Iterator validity {#iterator-validity}
+#### Iterator validity {#subpackages-inline-containers-iterator-validity-2}
 
 Unlike `std::set`, iterators do not remain valid across inserts and removals.
 
-#### Example usage {#example-usage}
+#### Example usage {#subpackages-inline-containers-example-usage-5}
 
 \snippet docs/examples/inline_container_examples.cpp set_usage_example
 
-### Inline function {#inline-function}
+### Inline function {#subpackages-inline-containers-inline-function}
 
 `arene::base::inline_function` has a similar API to `std::function`.
 
@@ -347,7 +351,7 @@ even for `const` instances of `std::function`, and
 [`std::move_only_function`](https://en.cppreference.com/w/cpp/utility/functional/move_only_function/move_only_function)
 and the proposed [`std::copyable_function`](https://wg21.link/p2548).
 
-#### Storage capacity {#storage-capacity}
+#### Storage capacity {#subpackages-inline-containers-storage-capacity}
 
 The second template parameter specifies the maximum allowed size of the stored
 callable. All content related to the callable, including any captured state in a
@@ -365,13 +369,13 @@ stateless function objects, a function pointer, a member function pointer, or a
 function object with a small amount of internal state such as a lambda with only
 a small number of captures.
 
-#### Example usage {#example-usage}
+#### Example usage {#subpackages-inline-containers-example-usage-6}
 
 \snippet docs/examples/inline_container_examples.cpp function_usage_example
 
-### Storage-independent reference wrappers {#storage-independent-reference-wrappers}
+### Storage-independent reference wrappers {#subpackages-inline-containers-storage-independent-reference-wrappers}
 
-#### Storage-independent vector references {#storage-independent-vector-references}
+#### Storage-independent vector references {#subpackages-inline-containers-storage-independent-vector-references}
 
 `arene::base::vector_reference` and `arene::base::const_vector_reference`
 wrapper classes are provided to pass the inline vector and external vector
@@ -384,7 +388,7 @@ construction or by use of helpers `arene::base::make_vector_reference` and
 
 \snippet docs/examples/inline_container_examples.cpp vector_ref_usage_example
 
-#### Storage-independent map references {#storage-independent-map-references}
+#### Storage-independent map references {#subpackages-inline-containers-storage-independent-map-references}
 
 `arene::base::inline_map_reference` and
 `arene::base::const_inline_map_reference` wrapper classes are provided to pass
@@ -396,7 +400,7 @@ reference type.
 
 \snippet docs/examples/inline_container_examples.cpp map_ref_usage_example
 
-## Testing with custom types {#testing-with-custom-types}
+## Testing with custom types {#subpackages-inline-containers-testing-with-custom-types}
 
 The unit test suites of `inline_vector` and `external_vector` are type
 parameterized so that user applications can test the classes with their own
@@ -408,7 +412,7 @@ defined.** On GCC8 (and therefore QCC), the type may also need an input stream
 versions of GCC. For types that are default constructible, two default
 constructed instances must compare equal.
 
-### Testing inline vector {#testing-inline-vector}
+### Testing inline vector {#subpackages-inline-containers-testing-inline-vector}
 
 In a test file in your project, set `//:inline_container_testing` as a Bazel
 dependency and then include `arene/base/inline_container/testing/vector.hpp`.
@@ -441,7 +445,7 @@ tell Arene Base an alternative method of constructing your type:
 Compiling and running the resulting executable will produce a GoogleTest test
 report describing the results of the `inline_vector` unit tests with your types.
 
-### Testing external vector {#testing-external-vector}
+### Testing external vector {#subpackages-inline-containers-testing-external-vector}
 
 Testing `external_vector` with your chosen types is similar to testing
 `inline_vector`, but the test suite is different.

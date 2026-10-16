@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -23,7 +27,7 @@ The Bazel target is
 //:mutex
 ```
 
-## Thread Safety Analysis Capability Wrappers {#thread-safety-analysis-capability-wrappers}
+# Thread Safety Analysis Capability Wrappers {#subpackages-mutex-thread-safety-analysis-capability-wrappers}
 
 In order for [TSA](\ref compiler_support_thread_safety_annotations) to function
 correctly, synchronization primitives need to be annotated as capabilities.

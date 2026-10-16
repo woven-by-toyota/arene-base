@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 MD013-->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ sanitizers in having more reliable detection of errors. \arene_base provides
 portable interfaces to support these annotations in a coding-standards-compliant
 manner.
 
-## AddressSanitizer Annotations {#addresssanitizer-annotations}
+# AddressSanitizer Annotations {#subpackages-compiler-support-sanitizers-addresssanitizer-annotations}
 
 AddressSanitizer (asan) can reliably detect invalid memory access for any memory
 explicitly allocated by standard library components or through explicit heap

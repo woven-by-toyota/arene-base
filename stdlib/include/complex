@@ -2,4 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#error "Include of standard library header <complex>"
+// -*-c++-*-
+#ifndef INCLUDE_GUARD_STDLIB_COMPLEX_
+#define INCLUDE_GUARD_STDLIB_COMPLEX_
+
+#include "stdlib/include/stdlib_detail/complex.hpp"  // IWYU pragma: export
+
+#endif

@@ -17,7 +17,10 @@
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/iterator_traits.hpp"
 #include "arene/base/testing/gtest.hpp"
-#include "arene/base/type_list.hpp"
+#include "arene/base/type_list/apply_all.hpp"
+#include "arene/base/type_list/concat.hpp"
+#include "arene/base/type_list/flat_map.hpp"
+#include "arene/base/type_list/type_list.hpp"
 
 namespace {
 
@@ -516,7 +519,7 @@ TYPED_TEST_P(ReverseIteratorStdReverseIteratorBidirectionalOperatorEquivalenceTe
   }
   {
     SCOPED_TRACE("from const iterator");
-    for (decltype(auto) raw_itr = std::prev(this->container.end()); raw_itr != std::next(this->container.begin());
+    for (decltype(auto) raw_itr = std::prev(this->container.cend()); raw_itr != std::next(this->container.cbegin());
          --raw_itr) {
       auto const itr = typename TestFixture::const_riterator{raw_itr};
       auto const itr_greater = std::next(itr);
@@ -759,7 +762,7 @@ TYPED_TEST(ReverseIteratorStdReverseIteratorRandomAccessOperatorEquivalenceTest,
   }
   {
     SCOPED_TRACE("from const iterator");
-    for (decltype(auto) raw_itr = std::prev(this->container.end()); raw_itr != std::next(this->container.begin());
+    for (decltype(auto) raw_itr = std::prev(this->container.cend()); raw_itr != std::next(this->container.cbegin());
          --raw_itr) {
       auto const itr = typename TestFixture::const_riterator{raw_itr};
       auto const itr_greater = std::next(itr);
@@ -882,7 +885,7 @@ TYPED_TEST(ReverseIteratorStdReverseIteratorRandomAccessOperatorEquivalenceTest,
   }
   {
     SCOPED_TRACE("from const iterator");
-    for (decltype(auto) raw_itr = std::prev(this->container.end()); raw_itr != std::next(this->container.begin());
+    for (decltype(auto) raw_itr = std::prev(this->container.cend()); raw_itr != std::next(this->container.cbegin());
          --raw_itr) {
       auto const itr = typename TestFixture::const_riterator{raw_itr};
       auto const itr_greater = std::next(itr);

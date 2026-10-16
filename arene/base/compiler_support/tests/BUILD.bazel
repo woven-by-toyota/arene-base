@@ -5,9 +5,7 @@
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
 
-package(
-    default_visibility = ["//tools/compdb:__subpackages__"],
-)
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test_with_variants(
     name = "asan_annotations_test",
@@ -15,10 +13,10 @@ cc_test_with_variants(
     deps = [
         "//arene/base:array",
         "//arene/base:span",
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support:asan_annotations",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -28,10 +26,10 @@ cc_test(
     deps = [
         "//arene/base:array",
         "//arene/base:span",
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support:asan_annotations",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -39,8 +37,8 @@ cc_test_with_variants(
     name = "attributes_test",
     srcs = ["attributes_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support:attributes",
+        "//testlibs:test_main",
     ],
 )
 
@@ -48,8 +46,8 @@ cc_test_with_variants(
     name = "builtin_types_test",
     srcs = ["builtin_types_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support:builtin_types",
+        "//testlibs:test_main",
     ],
 )
 
@@ -78,7 +76,7 @@ cc_test_with_variants(
         ":cpp14_inline_helpers",
         "//arene/base/compiler_support:cpp14_inline",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -86,8 +84,8 @@ cc_test(
     name = "expect_test",
     srcs = ["expect_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support:expect",
+        "//testlibs:test_main",
     ],
 )
 
@@ -95,8 +93,8 @@ cc_test_with_variants(
     name = "integer_types_test",
     srcs = ["integer_types_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support:integer_types",
+        "//testlibs:test_main",
     ],
 )
 
@@ -105,8 +103,8 @@ cc_test_with_variants(
     srcs = ["is_possibly_constant_evaluated_test.cpp"],
     deps = [
         "//arene/base/compiler_support:diagnostics",
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support:is_possibly_constant_evaluated",
+        "//testlibs:test_main",
     ],
 )
 
@@ -114,8 +112,8 @@ cc_test_with_variants(
     name = "thread_safety_annotations_test",
     srcs = ["thread_safety_annotations_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support:thread_safety_annotations",
+        "//testlibs:test_main",
     ],
 )
 
@@ -123,8 +121,8 @@ cc_test_with_variants(
     name = "version_test",
     srcs = ["version_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support:version",
+        "//testlibs:test_main",
     ],
 )
 
@@ -133,8 +131,8 @@ cc_test_with_variants(
     srcs = ["cpp17_test.cpp"],
     copts = ["-std=c++17"],
     deps = [
-        "//arene/base/compiler_support:internal",
-        "//testlibs:gtest",
+        "//arene/base/compiler_support",
+        "//testlibs:test_main",
     ],
 )
 

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -6,7 +10,7 @@
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#subpackages-pointer-non-owning-ptr-introduction}
 
 Raw pointers are useful for conveying nullable reference semantics without
 claims on object lifetime. However, they have a number of properties that
@@ -29,22 +33,22 @@ The name for this type shall be `non_owning_ptr`. This matches the convention of
 the existing smart pointer types from the stdlib, which all follow a
 `<description>_ptr` convention.
 
-## Design {#design}
+## Design {#subpackages-pointer-non-owning-ptr-design}
 
-### Size/Triviality {#sizetriviality}
+### Size/Triviality {#subpackages-pointer-non-owning-ptr-sizetriviality}
 
 `non_owning_ptr` is no larger than an equivalent pointer to the underlying type,
 and is a _trivial_ type. This ensures there is no runtime penalty for storing or
 copying the type relative to a raw pointer.
 
-### Template Parameter {#template-parameter}
+### Template Parameter {#subpackages-pointer-non-owning-ptr-template-parameter}
 
 The type consumes a single template parameter, `T`. Similar to other smart
 pointers, this type represents the _type that is pointed to_. So
 `non_owning_ptr<Foo>` is analogous to `Foo*`, and `non_owning_ptr<const Foo>` is
 `const Foo*`.
 
-### Member Types {#member-types}
+### Member Types {#subpackages-pointer-non-owning-ptr-member-types}
 
 `non_owning_ptr<T>` provides the following member types, for compatibility with
 various standard pointer-trait facilities:
@@ -53,7 +57,7 @@ various standard pointer-trait facilities:
 - `non_owning_ptr<T>::reference`, which is be `T&`.
 - `non_owning_ptr<T>::element_type`, which is be `T`.
 
-### API Uniformity with stdlib Smart Pointers {#api-uniformity-with-stdlib-smart-pointers}
+### API Uniformity with stdlib Smart Pointers {#subpackages-pointer-non-owning-ptr-api-uniformity-with-stdlib-smart-pointers}
 
 `non_owning_ptr` provides general API uniformity with existing stdlib smart
 pointer types:
@@ -62,7 +66,7 @@ pointer types:
 - `void non_owning_ptr<T>::reset(pointer = nullptr)`: replaces the underlying
   pointer with a new pointer, defaulted to `nullptr`.
 
-### Construction/Assignment {#constructionassignment}
+### Construction/Assignment {#subpackages-pointer-non-owning-ptr-constructionassignment}
 
 As `non_owning_ptr<T>` models `T*` semantically, users are able to
 construct/assign `non_owning_ptr<T>` from types which `T*` could be
@@ -77,7 +81,7 @@ constructed/assigned. This means:
   - `non_owning_ptr<U>` where `std::is_convertible<U*, T*>`
 - Assignment from same.
 
-### Conversion to Other Types {#conversion-to-other-types}
+### Conversion to Other Types {#subpackages-pointer-non-owning-ptr-conversion-to-other-types}
 
 As `non_owning_ptr<T>` models `T*`, explicit conversion to `bool` is supported,
 as well as the `!` operator, and has meaning equivalent to `T*`.
@@ -87,12 +91,12 @@ conversion to:
 
 - `U*` where `std::is_convertable<T*, U*>`
 
-### Comparison {#comparison}
+### Comparison {#subpackages-pointer-non-owning-ptr-comparison}
 
 As `non_owning_ptr<T>` models `T*`, it supports 6-way comparison with semantics
 equivalent to comparing `T*`.
 
-### Checked Dereference Operators {#checked-dereference-operators}
+### Checked Dereference Operators {#subpackages-pointer-non-owning-ptr-checked-dereference-operators}
 
 In order to provide improved safety, `operator->` and `operator*` are "checked"
 operations. In the event that the pointer is `nullptr`, an `ARENE_PRECONDITION`
@@ -105,7 +109,7 @@ nullable pointer is not null before dereferencing it, this means that in most
 real world situations there should be no runtime performance penalty over a raw
 pointer.
 
-## Requirements {#requirements}
+## Requirements {#subpackages-pointer-non-owning-ptr-requirements}
 
 For detailed Jama requirements, please see
 [Arene_Eco_System-L5SW-1299](https://stargate.jamacloud.com/perspective.req?docId=4277752&projectId=67)

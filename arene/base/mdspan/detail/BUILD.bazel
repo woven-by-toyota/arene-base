@@ -21,10 +21,11 @@ cc_library_with_variants(
     name = "canonical_index",
     hdrs = ["canonical_index.hpp"],
     visibility = [
+        "//arene/base/linalg:__subpackages__",
         "//arene/base/mdspan:__subpackages__",
     ],
     deps = [
-        "//arene/base/mdspan/detail:is_representable_as",
+        "//arene/base/detail:is_representable_as",
         "//arene/base/mdspan/detail:representable_cast",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:is_constructible",
@@ -123,6 +124,7 @@ cc_library_with_variants(
     name = "do_submdspan_mapping",
     hdrs = ["do_submdspan_mapping.hpp"],
     visibility = [
+        "//arene/base/linalg:__subpackages__",
         "//arene/base/mdspan:__pkg__",
         "//arene/base/mdspan:__subpackages__",
     ],
@@ -140,7 +142,7 @@ cc_library_with_variants(
         "//arene/base/mdspan:__subpackages__",
     ],
     deps = [
-        ":rank_scan",
+        ":masked_array",
         "//arene/base:array",
         "//arene/base/algorithm:equal",
         "//arene/base/detail:dynamic_extent",
@@ -158,18 +160,34 @@ cc_library_with_variants(
     deps = [
         ":de_ice",
         ":is_nonnegative",
-        ":is_representable_as",
         ":representable_cast",
         "//arene/base:array",
         "//arene/base:contracts",
         "//arene/base:integer_sequences",
         "//arene/base/algorithm:all_of",
         "//arene/base/detail:dynamic_extent",
+        "//arene/base/detail:is_representable_as",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:ignore",
         "//arene/base/stdlib_choice:move",
         "//arene/base/utility:as_const",
         "//arene/base/utility:safe_comparisons",
+    ],
+)
+
+cc_library_with_variants(
+    name = "make_extents_range",
+    hdrs = ["make_extents_range.hpp"],
+    visibility = [
+        "//arene/base/linalg:__subpackages__",
+        "//arene/base/mdspan:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:make_range_from_indexable",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/type_traits:remove_cvref",
     ],
 )
 
@@ -256,23 +274,6 @@ cc_library_with_variants(
 )
 
 cc_library_with_variants(
-    name = "is_representable_as",
-    hdrs = ["is_representable_as.hpp"],
-    visibility = [
-        "//arene/base/mdspan:__subpackages__",
-    ],
-    deps = [
-        "//arene/base:constraints",
-        "//arene/base/stdlib_choice:enable_if",
-        "//arene/base/stdlib_choice:integral_constant",
-        "//arene/base/stdlib_choice:is_convertible",
-        "//arene/base/stdlib_choice:is_integral",
-        "//arene/base/stdlib_choice:numeric_limits",
-        "//arene/base/utility:safe_comparisons",
-    ],
-)
-
-cc_library_with_variants(
     name = "is_valid_submdspan_slice_for",
     hdrs = ["is_valid_submdspan_slice_for.hpp"],
     visibility = [
@@ -323,20 +324,47 @@ cc_library_with_variants(
 )
 
 cc_library_with_variants(
+    name = "mandate_each_argtype_is_valid_submdspan_slice_type_for",
+    hdrs = ["mandate_each_argtype_is_valid_submdspan_slice_type_for.hpp"],
+    visibility = [
+        "//arene/base/mdspan:__subpackages__",
+    ],
+    deps = [
+        ":canonical_slice",
+        ":is_valid_submdspan_slice_type_for",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/type_list",
+        "//arene/base/type_manipulation:consume_values",
+    ],
+)
+
+cc_library_with_variants(
+    name = "non_collapsing_slice_type",
+    hdrs = ["non_collapsing_slice_type.hpp"],
+    visibility = [
+        "//arene/base/mdspan:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/mdspan:full_extent",
+        "//arene/base/mdspan:slice",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/type_traits:is_instantiation_of",
+    ],
+)
+
+cc_library_with_variants(
     name = "map_rank",
     hdrs = ["map_rank.hpp"],
     visibility = [
         "//arene/base/mdspan:__subpackages__",
     ],
     deps = [
-        ":rank_scan",
+        ":masked_array",
+        ":non_collapsing_slice_type",
         "//arene/base:array",
-        "//arene/base/mdspan:full_extent",
         "//arene/base/mdspan:slice",
         "//arene/base/stdlib_choice:cstddef",
-        "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:remove_cv",
-        "//arene/base/type_traits:is_instantiation_of",
     ],
 )
 
@@ -350,25 +378,8 @@ cc_library_with_variants(
         ":count",
         "//arene/base:array",
         "//arene/base:contracts",
-        "//arene/base:optional",
+        "//arene/base/detail:dynamic_extent",
         "//arene/base/stdlib_choice:cstddef",
-    ],
-)
-
-cc_library_with_variants(
-    name = "rank_scan",
-    hdrs = ["rank_scan.hpp"],
-    visibility = [
-        "//arene/base/mdspan:__subpackages__",
-    ],
-    deps = [
-        ":masked_array",
-        "//arene/base:array",
-        "//arene/base:optional",
-        "//arene/base/compiler_support:cpp14_inline",
-        "//arene/base/stdlib_choice:cstddef",
-        "//arene/base/stdlib_choice:integer_sequence",
-        "//arene/base/utility:in_place",
     ],
 )
 
@@ -376,6 +387,7 @@ cc_library_with_variants(
     name = "reverse_extents",
     hdrs = ["reverse_extents.hpp"],
     visibility = [
+        "//arene/base/linalg:__subpackages__",
         "//arene/base/mdspan:__subpackages__",
     ],
     deps = [
@@ -394,9 +406,9 @@ cc_library_with_variants(
         "//arene/base/mdspan:__subpackages__",
     ],
     deps = [
-        ":is_representable_as",
         "//arene/base:constraints",
         "//arene/base:contracts",
+        "//arene/base/detail:is_representable_as",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:is_integral",
@@ -443,7 +455,6 @@ cc_library_with_variants(
         "//arene/base:constraints",
         "//arene/base:contracts",
         "//arene/base:integer_sequences",
-        "//arene/base:span",
         "//arene/base/functional:bind_front",
         "//arene/base/mdspan:extents",
         "//arene/base/mdspan/detail:checked_math",
@@ -465,12 +476,14 @@ cc_library_with_variants(
         "//arene/base/mdspan:__subpackages__",
     ],
     deps = [
+        ":make_extents_range",
         ":representable_cast",
         ":slice_lower_bound",
-        ":to_array",
         "//arene/base:array",
         "//arene/base:constraints",
+        "//arene/base/algorithm:equal",
         "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:make_range_from_indexable",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:not_equal_to",
@@ -521,6 +534,7 @@ cc_library_with_variants(
     name = "to_array",
     hdrs = ["to_array.hpp"],
     visibility = [
+        "//arene/base/linalg:__subpackages__",
         "//arene/base/mdspan:__subpackages__",
     ],
     deps = [

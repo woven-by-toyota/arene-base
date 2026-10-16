@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/compiler_support/platform_queries/exceptions_enabled.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 
 namespace {
 

@@ -4,18 +4,11 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "abs_hdrs",
-    srcs = ["abs.hpp"],
-)
+package(default_visibility = ["//:__subpackages__"])
 
 cc_library_with_variants(
     name = "abs",
-    hdrs = [":abs_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["abs.hpp"],
     deps = [
         "//arene/base:constraints",
         "//arene/base:contracts",
@@ -29,18 +22,21 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "abs_diff_hdrs",
-    srcs = ["abs_diff.hpp"],
+cc_library_with_variants(
+    name = "abs_cpo",
+    hdrs = ["abs_cpo.hpp"],
+    deps = [
+        ":abs",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+    ],
 )
 
 cc_library_with_variants(
     name = "abs_diff",
-    hdrs = [":abs_diff_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["abs_diff.hpp"],
     deps = [
         "//arene/base:constraints",
         "//arene/base/stdlib_choice:enable_if",
@@ -48,18 +44,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "aliases_hdrs",
-    srcs = ["aliases.hpp"],
-)
-
 cc_library_with_variants(
     name = "aliases",
-    hdrs = [":aliases_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["aliases.hpp"],
     deps = [
         "//arene/base:constraints",
         "//arene/base/stdlib_choice:cstdint",
@@ -67,36 +54,55 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "float_properties_hdrs",
-    srcs = ["float_properties.hpp"],
+cc_library_with_variants(
+    name = "arithmetic_identities",
+    hdrs = ["arithmetic_identities.hpp"],
+)
+
+cc_library_with_variants(
+    name = "complex_decomp",
+    hdrs = ["complex_decomp.hpp"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/math:arithmetic_identities",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+    ],
+)
+
+cc_library_with_variants(
+    name = "complex_norm",
+    hdrs = ["complex_norm.hpp"],
+    deps = [
+        ":abs_cpo",
+        ":complex_decomp",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/math:arithmetic_identities",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+    ],
 )
 
 cc_library_with_variants(
     name = "float_properties",
-    hdrs = [":float_properties_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["float_properties.hpp"],
     deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
         "//arene/base/compiler_support:diagnostics",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_floating_point",
+        "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:numeric_limits",
     ],
 )
 
-filegroup(
-    name = "float_sign_hdrs",
-    srcs = ["float_sign.hpp"],
-)
-
 cc_library_with_variants(
     name = "float_sign",
-    hdrs = [":float_sign_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["float_sign.hpp"],
     deps = [
         "//arene/base:constraints",
         "//arene/base/compiler_support:diagnostics",
@@ -105,18 +111,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "gcd_hdrs",
-    srcs = ["gcd.hpp"],
-)
-
 cc_library_with_variants(
     name = "gcd",
-    hdrs = [":gcd_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["gcd.hpp"],
     deps = [
         ":abs",
         "//arene/base:constraints",
@@ -125,18 +122,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "lcm_hdrs",
-    srcs = ["lcm.hpp"],
-)
-
 cc_library_with_variants(
     name = "lcm",
-    hdrs = [":lcm_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["lcm.hpp"],
     deps = [
         ":gcd",
         "//arene/base:constraints",
@@ -145,18 +133,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "log2_hdrs",
-    srcs = ["log2.hpp"],
-)
-
 cc_library_with_variants(
     name = "log2",
-    hdrs = [":log2_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["log2.hpp"],
     deps = [
         "//arene/base:contracts",
         "//arene/base/compiler_support",
@@ -164,18 +143,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "power_of_2_hdrs",
-    srcs = ["power_of_2.hpp"],
-)
-
 cc_library_with_variants(
     name = "power_of_2",
-    hdrs = [":power_of_2_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["power_of_2.hpp"],
     deps = [
         "//arene/base:constraints",
         "//arene/base:contracts",
@@ -190,18 +160,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "pi_hdrs",
-    srcs = ["pi.hpp"],
-)
-
 cc_library_with_variants(
     name = "pi",
-    hdrs = [":pi_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
-    ],
+    hdrs = ["pi.hpp"],
     deps = [
         "//arene/base:constraints",
         "//arene/base/compiler_support",
@@ -210,17 +171,46 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "arithmetic_identities_hdrs",
-    srcs = ["arithmetic_identities.hpp"],
+cc_library_with_variants(
+    name = "ulp_distance",
+    hdrs = ["ulp_distance.hpp"],
+    deps = [
+        ":abs_cpo",
+        ":float_properties",
+        "//arene/base:constraints",
+        "//arene/base:result",
+        "//arene/base/bit:bit_cast",
+        "//arene/base/detail:is_representable_as",
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:is_signed",
+        "//arene/base/stdlib_choice:make_signed",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/type_manipulation:smallest_integer_for",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/utility:safe_comparisons",
+    ],
 )
 
 cc_library_with_variants(
-    name = "arithmetic_identities",
-    hdrs = [":arithmetic_identities_hdrs"],
-    visibility = [
-        "//arene/base:__subpackages__",
-        "//stdlib:__subpackages__",
+    name = "ulp_tolerance",
+    hdrs = [
+        "ulp_tolerance.hpp",
+    ],
+    deps = [
+        ":abs_cpo",
+        ":ulp_distance",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:make_signed",
+        "//arene/base/utility:safe_comparisons",
     ],
 )
 
@@ -232,9 +222,12 @@ cc_library_with_variants(
     ],
     deps = [
         ":abs",
+        ":abs_cpo",
         ":abs_diff",
         ":aliases",
         ":arithmetic_identities",
+        ":complex_decomp",
+        ":complex_norm",
         ":float_properties",
         ":float_sign",
         ":gcd",
@@ -242,9 +235,8 @@ cc_library_with_variants(
         ":log2",
         ":pi",
         ":power_of_2",
-        "//arene/base:constraints",
-        "//arene/base:contracts",
-        "//arene/base/compiler_support",
+        ":ulp_distance",
+        ":ulp_tolerance",
     ],
 )
 
@@ -252,18 +244,7 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":abs_diff_hdrs",
-        ":abs_hdrs",
-        ":aliases_hdrs",
-        ":arithmetic_identities_hdrs",
-        ":float_properties_hdrs",
-        ":float_sign_hdrs",
-        ":gcd_hdrs",
-        ":lcm_hdrs",
-        ":log2_hdrs",
-        ":pi_hdrs",
-        ":power_of_2_hdrs",
         "//arene/base/math/detail:package",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

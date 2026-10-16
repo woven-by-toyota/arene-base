@@ -1,0 +1,91 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+
+test_suite(
+    name = "algorithm_comparable_compile_error_test",
+    tests = [
+        name
+        for algorithm in [
+            "copy_elements",
+            "equal_elements",
+            "swap_elements",
+        ]
+        for i, (code_snippet, match) in enumerate([
+            (
+                """\
+auto _ = (algorithm(
+  int{},
+  mdspan<int, dextents<std::size_t, 1>>{}
+), true);
+                    """,
+                matcher.has_substr("requirement 'is_in_object_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (algorithm(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  int{}
+), true);
+                    """,
+                matcher.has_substr("requirement 'is_in_object_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (algorithm(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  mdspan<int, dextents<std::size_t, 2>>{}
+), true);
+                    """,
+                matcher.contains_extended_regex("requirement '(mdspan|extents)<.*>::rank\\(\\) == (mdspan|extents)<.*>::rank\\(\\)' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (algorithm(
+  mdspan<int, extents<std::size_t, 2>>{nullptr},
+  mdspan<int, extents<std::size_t, 1>>{nullptr}
+), true);
+                    """,
+                matcher.contains_basic_regex("requirement 'compatible_static_extents<.*>()' was not satisfied"),
+            ),
+        ])
+        for name in ["{}_comparable_compile_error_{}_test".format(
+            algorithm,
+            i,
+        )]
+        for _ in [cc_build_error_test(
+            name = name,
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/linalg/{algorithm}.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+using arene::base::linalg::{algorithm};
+using arene::base::dextents;
+using arene::base::extents;
+using arene::base::mdspan;
+
+constexpr auto algorithm = {algorithm};
+
+{snippet}
+                """.format(
+                algorithm = algorithm,
+                snippet = code_snippet,
+            )),
+            compile_stderr = match,
+            target_compatible_with = select({
+                "//configs/compiler:clang": [],
+                "//conditions:default": ["@platforms//:incompatible"],
+            }),
+            deps = [
+                "//arene/base/linalg:{}".format(algorithm),
+                "//arene/base/mdspan",
+                "//arene/base/mdspan:extents",
+                "//arene/base/stdlib_choice:cstddef",
+            ],
+        )]
+    ],
+)
