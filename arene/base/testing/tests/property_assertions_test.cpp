@@ -53,7 +53,7 @@ TEST_F(ArenePropAssert, Failure) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 46U);
+  ASSERT_EQ(outcome.location.line, 50U);
   ASSERT_EQ(outcome.strings.arg1, "1 + 1 == 1"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -67,7 +67,7 @@ TEST_F(ArenePropAssert, ConvertsExpression) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 60U);
+  ASSERT_EQ(outcome.location.line, 64U);
   ASSERT_EQ(outcome.strings.arg1, "nullptr"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -85,7 +85,7 @@ TEST_F(ArenePropAssert, UseInHelper) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 74U);
+  ASSERT_EQ(outcome.location.line, 78U);
   ASSERT_EQ(outcome.strings.arg1, "nullptr"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -117,7 +117,7 @@ TEST_F(ArenePropAssertFalse, Failure) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 110U);
+  ASSERT_EQ(outcome.location.line, 114U);
   ASSERT_EQ(outcome.strings.arg1, "!(1 + 2 == 3)"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -131,7 +131,7 @@ TEST_F(ArenePropAssertFalse, ConvertsExpression) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 124U);
+  ASSERT_EQ(outcome.location.line, 128U);
   ASSERT_EQ(outcome.strings.arg1, "!(2)"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -149,7 +149,7 @@ TEST_F(ArenePropAssertFalse, UseInHelper) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 138U);
+  ASSERT_EQ(outcome.location.line, 142U);
   ASSERT_EQ(outcome.strings.arg1, "!(2)"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -164,7 +164,7 @@ TEST_F(ArenePropPre, Discard) {
 
   ASSERT_EQ(outcome.error, error_code::discard);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 157U);
+  ASSERT_EQ(outcome.location.line, 161U);
   ASSERT_EQ(outcome.strings.arg1, "false"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -196,7 +196,7 @@ TEST_F(ArenePropPre, UseInHelper) {
 
   ASSERT_EQ(outcome.error, error_code::discard);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 185U);
+  ASSERT_EQ(outcome.location.line, 189U);
   ASSERT_EQ(outcome.strings.arg1, "false"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -231,7 +231,7 @@ TEST_F(ArenePropAssertTrue, Failure) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 224U);
+  ASSERT_EQ(outcome.location.line, 228U);
   ASSERT_EQ(outcome.strings.arg1, "1 + 1 == 1"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -245,7 +245,7 @@ TEST_F(ArenePropAssertTrue, ConvertsExpression) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 238U);
+  ASSERT_EQ(outcome.location.line, 242U);
   ASSERT_EQ(outcome.strings.arg1, "nullptr"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);
@@ -263,7 +263,7 @@ TEST_F(ArenePropAssertTrue, UseInHelper) {
 
   ASSERT_EQ(outcome.error, error_code::failure);
   ASSERT_EQ(outcome.location.file, "arene/base/testing/tests/property_assertions_test.cpp"_asv);
-  ASSERT_EQ(outcome.location.line, 252U);
+  ASSERT_EQ(outcome.location.line, 256U);
   ASSERT_EQ(outcome.strings.arg1, "nullptr"_asv);
   ASSERT_EQ(outcome.strings.description, ""_asv);
   ASSERT_EQ(outcome.strings.arg2, ""_asv);

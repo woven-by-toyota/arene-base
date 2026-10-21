@@ -93,7 +93,7 @@ TEST(TestingRunProperty, FirstFailingPropertyAssertion) {
   ASSERT_EQ(summary.seed, config.seed);
 
   ASSERT_EQ((*summary.first_failure).error, error_code::failure);
-  ASSERT_EQ((*summary.first_failure).location.line, 80U);
+  ASSERT_EQ((*summary.first_failure).location.line, 84U);
 }
 
 /// @test @c run_property reports failure if max_discards are reached before required_successes
