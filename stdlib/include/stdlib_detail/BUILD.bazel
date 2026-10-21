@@ -475,6 +475,21 @@ stdlib_detail_component_library(
 )
 
 stdlib_detail_component_library(
+    name = "internal_relative_find",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":enable_if",
+        ":is_copy_assignable",
+        ":is_copy_constructible",
+        "//arene/base:constraints",
+        "//arene/base/algorithm/detail:functional",
+        "//arene/base/algorithm/detail:traits",
+        "//arene/base/type_traits:is_predicate",
+        "//arene/base/type_traits:iterator_category_traits",
+    ],
+)
+
+stdlib_detail_component_library(
     name = "iota",
     visibility = ["//:__subpackages__"],
     deps = [
@@ -1751,6 +1766,7 @@ cc_library(
         ":internal_disable_constexpr_in_cpp14",
         ":internal_named_requirements",
         ":internal_partition_point",
+        ":internal_relative_find",
         ":iota",
         ":is_abstract",
         ":is_arithmetic",
@@ -1908,6 +1924,7 @@ filegroup(
         "internal_disable_constexpr_in_cpp14.hpp",
         "internal_named_requirements.hpp",
         "internal_partition_point.hpp",
+        "internal_relative_find.hpp",
         "iota.hpp",
         "is_abstract.hpp",
         "is_arithmetic.hpp",
