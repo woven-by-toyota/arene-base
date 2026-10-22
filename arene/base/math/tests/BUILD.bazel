@@ -207,6 +207,19 @@ cc_test_with_variants(
     ],
 )
 
+cc_test_with_variants(
+    name = "phoenix_lattice_pq_test",
+    srcs = ["phoenix_lattice_pq_test.cpp"],
+    visibility = [
+        "//tools/compdb:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/math:internal",
+        "//arene/base/testing:gtest",
+        "//testlibs:gtest",
+    ],
+)
+
 exports_files(
     glob(["*.cpp"]),
     visibility = ["//:__subpackages__"],
