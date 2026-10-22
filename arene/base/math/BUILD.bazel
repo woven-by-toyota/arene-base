@@ -211,6 +211,30 @@ cc_library_with_variants(
 )
 
 filegroup(
+    name = "phoenix_lattice_pq_hdrs",
+    srcs = ["phoenix_lattice_pq.hpp"],
+)
+
+cc_library_with_variants(
+    name = "phoenix_lattice_pq",
+    hdrs = [":phoenix_lattice_pq_hdrs"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":abs",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/stdlib_choice:climits",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:is_unsigned",
+    ],
+)
+
+filegroup(
     name = "arithmetic_identities_hdrs",
     srcs = ["arithmetic_identities.hpp"],
 )
@@ -240,6 +264,7 @@ cc_library_with_variants(
         ":gcd",
         ":lcm",
         ":log2",
+        ":phoenix_lattice_pq",
         ":pi",
         ":power_of_2",
         "//arene/base:constraints",
@@ -261,6 +286,7 @@ filegroup(
         ":gcd_hdrs",
         ":lcm_hdrs",
         ":log2_hdrs",
+        ":phoenix_lattice_pq_hdrs",
         ":pi_hdrs",
         ":power_of_2_hdrs",
         "//arene/base/math/detail:package",

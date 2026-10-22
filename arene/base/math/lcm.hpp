@@ -34,8 +34,10 @@ constexpr auto lcm(Integral lhs, Integral rhs) noexcept -> Integral {
     return Integral{};
   }
 
-  // lcm(a,b) can be rewritten as (a / gcd(a,b)) * b to prevent possible overflow
-  return abs((lhs / gcd(lhs, rhs)) * rhs);
+  Integral const abs_lhs{abs(lhs)};
+  Integral const abs_rhs{abs(rhs)};
+  // lcm(a,b) can be rewritten as (|a| / gcd(|a|,|b|)) * |b| to prevent possible overflow
+  return static_cast<Integral>((abs_lhs / gcd(abs_lhs, abs_rhs)) * abs_rhs);
 }
 
 }  // namespace base

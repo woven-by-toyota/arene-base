@@ -20,6 +20,7 @@
 #include "arene/base/math/gcd.hpp"                    // IWYU pragma: export
 #include "arene/base/math/lcm.hpp"                    // IWYU pragma: export
 #include "arene/base/math/log2.hpp"                   // IWYU pragma: export
+#include "arene/base/math/phoenix_lattice_pq.hpp"     // IWYU pragma: export
 #include "arene/base/math/pi.hpp"                     // IWYU pragma: export
 #include "arene/base/math/power_of_2.hpp"             // IWYU pragma: export
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2

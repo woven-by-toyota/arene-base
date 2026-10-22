@@ -20,16 +20,19 @@ namespace base {
 /// @tparam Integral The type of the values
 /// @param lhs First value
 /// @param rhs Second value
+/// @pre If @c Integral is a signed integer type, neither @c lhs nor @c rhs is @c std::numeric_limits<Integral>::min().
 /// @return Integral value that is GCD of @c lhs and @c rhs . If either @c lhs or @c rhs is @c 0 , then the absolute
 ///          value of the non-zero operand is returned. If both are @c 0 , then returns @c 0 .
 template <typename Integral, constraints<std::enable_if_t<std::is_integral<Integral>::value> > = nullptr>
 constexpr auto gcd(Integral lhs, Integral rhs) noexcept -> Integral {
+  lhs = abs(lhs);
+  rhs = abs(rhs);
   while (rhs != Integral{}) {
-    Integral tmp{lhs % rhs};
+    Integral tmp{static_cast<Integral>(lhs % rhs)};
     lhs = rhs;
     rhs = tmp;
   }
-  return abs(lhs);
+  return lhs;
 }
 
 }  // namespace base
