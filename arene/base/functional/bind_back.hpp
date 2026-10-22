@@ -156,8 +156,7 @@ class bind_back_fn {
 
 }  // namespace bind_back_detail
 
-/// @def arene::base::bind_back
-/// @copydoc arene::base::bind_back_detail::bind_back_fn::operator()
+/// @brief Bind arguments to the end of an invocable's argument list.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

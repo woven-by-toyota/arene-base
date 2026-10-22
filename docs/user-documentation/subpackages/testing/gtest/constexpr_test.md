@@ -1,24 +1,36 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
 \page constexpr_test Constexpr Test Macros
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#subpackages-testing-gtest-constexpr-test-introduction}
 
 Arene Base provides a unit testing support library, compatible with gtest, which
 provides `CONSTEXPR_TEST` and `CONSTEXPR_TYPED_TEST` macros which mirror the
 `TEST` and `TYPED_TEST` macros defined by GoogleTest. These macros provide an
-alternative approach to using `STATIC_ASSERT_XXX`macros when compile-time tests.
-Additionally, this support library provides `CONSTEXPR_ASSERT`, an assertion
-macro that replaces ones from GoogleTest.
+alternative approach to using `STATIC_ASSERT_XXX` macros when writing
+compile-time tests. Additionally, this support library provides
+`CONSTEXPR_ASSERT`, an assertion macro that replaces ones from GoogleTest.
 
-The constexpr test macros invoke the function body at compile-time. Function
-bodies are also invoked at runtime to allow generation of coverage.
+The `CONSTEXPR` test macros invoke the _entire test body_ at compile-time and
+again at run-time. The compile-time invocation provides evidence of compile-time
+correctness and `constexpr` invocability while the run-time invocation provides
+evidence of run-time correctness. The run-time invocation further enables
+collection of run-time code coverage data.
 
-## Usage {#usage}
+If you don't need to invoke the _entire test body_ at compile time, consider
+using [`STATIC_ASSERT_XXX`](static_assertions) macros.
 
-Here is a simple example of changing a runtime evaluated test using `TEST` to a
+## Usage {#subpackages-testing-gtest-constexpr-test-usage}
+
+Here is a simple example of changing a run-time evaluated test using `TEST` to a
 compile-time test using `CONSTEXPR_TEST`.
 
 ```cpp
@@ -63,7 +75,7 @@ CONSTEXPR_TYPED_TEST(ConstexprContainer, PushPlacesTheElementAtFront)
 }
 ```
 
-## Limitations {#limitations}
+## Limitations {#subpackages-testing-gtest-constexpr-test-limitations}
 
 As the test bodies of `CONSTEXPR_TEST` and `CONSTEXPR_TYPED_TEST` must be
 invocable at compile-time, they cannot refer to non-`constexpr` values. This

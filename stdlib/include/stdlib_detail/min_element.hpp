@@ -5,13 +5,15 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_MIN_ELEMENT_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_MIN_ELEMENT_HPP_
 
-#include "arene/base/algorithm/detail/functional.hpp"
+#include "arene/base/algorithm/detail/relative_find.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
+#include "arene/base/functional/identity.hpp"
 #include "arene/base/type_traits/is_compare.hpp"
 #include "arene/base/type_traits/iterator_category_traits.hpp"
+#include "stdlib/include/stdlib_detail/declval.hpp"
 #include "stdlib/include/stdlib_detail/enable_if.hpp"
-#include "stdlib/include/stdlib_detail/internal_relative_find.hpp"
 #include "stdlib/include/stdlib_detail/move.hpp"
 
 // parasoft-begin-suppress CERT_CPP-DCL58-a-2 "Part of a standard library implementation"
@@ -59,9 +61,15 @@ template <
             arene::base::is_compare_v<Compare&, arene::base::algorithm_detail::iter_reference_t<ForwardIterator>>>> =
         nullptr>
 constexpr auto min_element(ForwardIterator first, ForwardIterator last, Compare comp) noexcept(
-    noexcept(std::internal::relative_find(first, last, comp))
+    noexcept(arene::base::algorithm_detail::relative_find(
+        std::move(first),
+        std::move(last),
+        std::move(comp),
+        std::declval<arene::base::identity const&>()
+    ))
 ) -> ForwardIterator {
-  return std::internal::relative_find(first, last, comp);
+  constexpr auto identity = arene::base::identity{};
+  return arene::base::algorithm_detail::relative_find(std::move(first), std::move(last), std::move(comp), identity);
 }
 
 /// @brief returns the smallest element in a range
@@ -94,13 +102,13 @@ template <
     arene::base::constraints<
         std::enable_if_t<arene::base::is_forward_iterator_v<ForwardIterator>>,
         std::enable_if_t<arene::base::is_predicate_v<
-            decltype(arene::base::algorithm_detail::operator_less)&,
+            decltype(arene::base::functional_detail::operator_less)&,
             arene::base::algorithm_detail::iter_reference_t<ForwardIterator>,
             arene::base::algorithm_detail::iter_reference_t<ForwardIterator>>>> = nullptr>
 constexpr auto min_element(ForwardIterator first, ForwardIterator last) noexcept(
-    noexcept(std::min_element(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less))
+    noexcept(std::min_element(std::move(first), std::move(last), arene::base::functional_detail::operator_less))
 ) -> ForwardIterator {
-  return std::min_element(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less);
+  return std::min_element(std::move(first), std::move(last), arene::base::functional_detail::operator_less);
 }
 
 // parasoft-end-suppress AUTOSAR-M3_3_2-a

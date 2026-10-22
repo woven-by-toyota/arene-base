@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
 #include "arene/base/result.hpp"
 #include "arene/base/result/detail/in_place_error.hpp"
 #include "arene/base/result/detail/in_place_value.hpp"

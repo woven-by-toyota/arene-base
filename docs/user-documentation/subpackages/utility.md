@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,11 +25,11 @@ The Bazel target is
 //:utility
 ```
 
-## Utility Facilities {#utility-facilities}
+# Utility Facilities {#subpackages-utility-utility-facilities}
 
 The `utility` package provides the following basic facilities:
 
-### Alignment {#alignment}
+## Alignment {#subpackages-utility-alignment}
 
 - `arene::base::is_aligned`: check if an integer or pointer is aligned to the
   specified power of 2.
@@ -36,18 +40,18 @@ The `utility` package provides the following basic facilities:
 - `arene::base::alignment_offset`: determine the number of bytes by which a
   pointer would need to be adjusted to be aligned to the specified value
 
-### Bit Masks {#bit-masks}
+## Bit Masks {#subpackages-utility-bit-masks}
 
 - `arene::base::bit_mask`: create a mask value where the specified number of low
   bits are all 1
 
-### Creating Const Reference To A Non-Const Object {#creating-const-reference-to-a-non-const-object}
+## Creating Const Reference To A Non-Const Object {#subpackages-utility-creating-const-reference-to-a-non-const-object}
 
 - `arene::base::as_const(foo)` returns a `const` reference to `foo`. This is a
   back-port of
   [`std::as_const`](https://en.cppreference.com/w/cpp/utility/as_const)
 
-### Forwarding A Reference Similarly To Another Type {#forwarding-a-reference-similarly-to-another-type}
+## Forwarding A Reference Similarly To Another Type {#subpackages-utility-forwarding-a-reference-similarly-to-another-type}
 
 `arene::base::forward_like` provides a backport of C++23's
 [`std::forward_like`](https://en.cppreference.com/w/cpp/utility/forward_like).
@@ -55,14 +59,14 @@ This is useful in implementing _deducing this_ style helpers, where the const
 and r/l-value reference qualifications of the `Self` parameter need to be
 propagated to the type of other values.
 
-### Tags For In-place Construction {#tags-for-in-place-construction}
+## Tags For In-place Construction {#subpackages-utility-tags-for-in-place-construction}
 
 - `arene::base::in_place`, `arene::base::in_place_index` and
   `arene::base::in_place_type` provide tags to indicate that types such as
   `arene::base::optional` should construct their stored value from the supplied
   arguments "in place", rather than attempting a copy or conversion.
 
-### Creating A Range From An Iterator Pair {#creating-a-range-from-an-iterator-pair}
+## Creating A Range From An Iterator Pair {#subpackages-utility-creating-a-range-from-an-iterator-pair}
 
 - `arene::base::make_subrange` creates a range object that can be used with
   range-based `for` loops from an iterator pair:
@@ -76,7 +80,7 @@ void foo(Iterator first, Iterator last) {
 }
 ```
 
-### Swapping Values {#swapping-values}
+## Swapping Values {#subpackages-utility-swapping-values}
 
 `arene::base::swap` provides a `constexpr` version of
 [`std::swap`](https://en.cppreference.com/w/cpp/algorithm/swap), which is also
@@ -86,20 +90,25 @@ As specified in the linked paper, doing so allows a few of advantages:
 
 - It avoids the user having to remember to do the "ADL two-step" of needing to
   do `using arene::base::swap;` before an unqualified `swap` call: Invoking
-  `arene::base::swap(T&,T&)` will find ADL-specializations of `swap(T&, T&)`, or
-  fall back to the default implementation if no customizations are found.
+  `arene::base::swap(T&,U&)` will find ADL-specializations of `swap(T&, U&)`. It
+  will fall back to the default implementation if no customizations are found,
+  but only if the two types are the same.
 - It allows consistent concept enforcement. The `arene::base::is_swappable_v<T>`
   trait is checked up front, rather than a user seeing a potentially confusing
   failure if ADL lookup fails and the type is not default-swappable.
 - It allows `swap` to be passed directly to algorithms as a function object.
 
-### Converting An Enum To Its Underlying Value {#converting-an-enum-to-its-underlying-value}
+`arene::base::swap` can be used to swap two different types as long as there is
+an ADL-findable `swap` function taking those two types. This matches the
+behaviour of `std::ranges::swap` but differs from `std::swap`.
+
+## Converting An Enum To Its Underlying Value {#subpackages-utility-converting-an-enum-to-its-underlying-value}
 
 - `arene::base::to_underlying` is a backport of
   [`std::to_underlying`](https://en.cppreference.com/w/cpp/utility/to_underlying),
   for casting an enumeration to its underlying type.
 
-### Safe Integer Comparison {#safe-integer-comparison}
+## Safe Integer Comparison {#subpackages-utility-safe-integer-comparison}
 
 Backports of the
 [C++20 safe integer comparison facilities](https://en.cppreference.com/w/cpp/utility/intcmp)

@@ -8,20 +8,19 @@ SRCS_LINUX = ["linux_temp_file.cpp"]
 
 SRCS_DEFAULT = ["generic_temp_file.cpp"]
 
-filegroup(
-    name = "srcs",
+cc_library(
+    name = "internal",
     srcs = [
         "directory_handle.cpp",
         "error_code.cpp",
         "file_handle.cpp",
         "scoped_change_directory.cpp",
         "temporary_directory.cpp",
-    ],
-)
-
-filegroup(
-    name = "hdrs",
-    srcs = [
+    ] + select({
+        "@platforms//os:linux": SRCS_LINUX,
+        "//conditions:default": SRCS_DEFAULT,
+    }),
+    hdrs = [
         "directory_handle.hpp",
         "error_code.hpp",
         "file_handle.hpp",
@@ -29,19 +28,6 @@ filegroup(
         "path_string.hpp",
         "scoped_change_directory.hpp",
         "temporary_directory.hpp",
-    ],
-)
-
-cc_library(
-    name = "internal",
-    srcs = [
-        ":srcs",
-    ] + select({
-        "@platforms//os:linux": SRCS_LINUX,
-        "//conditions:default": SRCS_DEFAULT,
-    }),
-    hdrs = [
-        ":hdrs",
     ],
     target_compatible_with = select({
         "//configs:filesystem_enabled": [],
@@ -71,9 +57,10 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-        ":srcs",
         "//arene/base/filesystem/detail:package",
-    ] + SRCS_LINUX + SRCS_DEFAULT,
+    ] + glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
     visibility = ["//arene/base:__pkg__"],
 )

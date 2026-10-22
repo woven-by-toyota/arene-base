@@ -9,7 +9,7 @@
 // IWYU pragma: friend "arene/base/testing/gtest/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/testing/gtest/static_assertions_config.hpp"
 
 #if ARENE_IS_ON(ARENE_GTEST_STATIC_ASSERTIONS)

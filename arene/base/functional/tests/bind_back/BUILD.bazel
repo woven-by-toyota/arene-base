@@ -5,13 +5,12 @@
 load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test_with_variants(
     name = "bind_back_test",
     srcs = [
         "bind_back_test.cpp",
-    ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
     ],
     deps = [
         "//arene/base:constraints",
@@ -28,7 +27,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:reference_wrapper",
         "//arene/base/testing:gtest",
         "//arene/base/type_traits:is_invocable",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

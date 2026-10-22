@@ -186,10 +186,13 @@ using mapped_enum_types = ::testing::Types<
 template <typename T>
 class MakeSignedEnumTest : public testing::Test {};
 
-template <int N>
+/// @cond
+// Doxygen reports the recursive inheritance as an error even though it terminates at priority<0>.
+template <std::uint64_t N>
 struct priority : priority<N - 1> {};
 template <>
 struct priority<0> {};
+/// @endcond
 
 class signed_with_smallest_rank_and_same_size {
   // clang-format off

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ The Bazel target is
 //:functional
 ```
 
-## Introduction {#introduction}
+# Introduction {#subpackages-functional-introduction}
 
 There are many ways of writing expressions that are
 [**invocable**](https://en.cppreference.com/w/cpp/utility/functional):
@@ -68,7 +72,11 @@ for functional composition without needing hand-written lambdas. This is a
 backport of
 [`std::not_fn`](https://en.cppreference.com/w/cpp/utility/functional/not_fn.html)
 
-## Using Invocables {#using-invocables}
+`arene::base::construct` provides a function-object based way to construct
+values from argument lists in generic code, while preserving both
+constructibility constraints and `noexcept` properties of the target type.
+
+## Using Invocables {#subpackages-functional-using-invocables}
 
 Invocables are used in multiple contexts:
 
@@ -92,7 +100,7 @@ There are fundamentally two ways to do this:
 
 Which is better depends on the context.
 
-## Specifying An Invocable With A Template Type Parameter For Class Templates {#specifying-an-invocable-with-a-template-type-parameter-for-class-templates}
+## Specifying An Invocable With A Template Type Parameter For Class Templates {#subpackages-functional-specifying-an-invocable-with-a-template-type-parameter-for-class-templates}
 
 The common pattern for class templates that need an invocable is to specify the
 _type_ of the invocable with a template parameter, and then have the constructor
@@ -127,7 +135,7 @@ void my_container::some_member_func(){
 }
 ```
 
-### Downsides {#downsides}
+### Downsides {#subpackages-functional-downsides}
 
 This works well, but has downsides. Firstly, if you pass an invocable that
 accepts the wrong set of parameters, or returns the wrong type, then the errors
@@ -142,7 +150,7 @@ pointers, for example).
 Thirdly, it prevents the use of lambdas, since the type of each lambda is
 unique, even if they are token-by-token identical.
 
-### Detecting Issues With static_assert and arene::base::is_invocable_v {#detecting-issues-with-static_assert-and-arene-base-is_invocable_v}
+### Detecting Issues With static_assert and arene::base::is_invocable_v {#subpackages-functional-detecting-issues-with-static_assert-and-arene-base-is_invocable_v}
 
 The first problem can usually be solved by adding an appropriate `static_assert`
 to the class template body, using `arene::base::is_invocable_v` or
@@ -178,7 +186,7 @@ my_project/file1.cpp:620:43: note: in instantiation of template class 'my_contai
       |                                           ^
 ```
 
-### Handling Any Invocable With arene::base::invoke {#handling-any-invocable-with-arene-base-invoke}
+### Handling Any Invocable With arene::base::invoke {#subpackages-functional-handling-any-invocable-with-arene-base-invoke}
 
 The second problem is solved by using `arene::base::invoke` rather than calling
 the invocable directly:
@@ -203,7 +211,7 @@ class MyData {
 my_container<MyData, bool (MyData::*)(const MyData&) const> cont(&MyData::Compare);
 ```
 
-### Handling Lambdas with std::function and arene::base::inline_function {#handling-lambdas-with-std-function-and-arene-base-inline_function}
+### Handling Lambdas with std::function and arene::base::inline_function {#subpackages-functional-handling-lambdas-with-std-function-and-arene-base-inline_function}
 
 The solution to the third problem (using lambdas) is to use a type-erased
 invocable such as `std::function` or `arene::base::inline_function` as the
@@ -218,7 +226,7 @@ my_container<MyData, arene::base::inline_function<bool (const MyData&, const MyD
 
 <!-- markdownlint-disable MD013 -->
 
-## Specifying An Invocable With A Template Type Parameter For Function Templates {#specifying-an-invocable-with-a-template-type-parameter-for-function-templates}
+## Specifying An Invocable With A Template Type Parameter For Function Templates {#subpackages-functional-specifying-an-invocable-with-a-template-type-parameter-for-function-templates}
 
 <!-- markdownlint-enable MD013 -->
 
@@ -243,7 +251,7 @@ The same solutions work for function templates too: use `static_cast` to get a
 sensible error message if the invocable can't be invoked with the desired
 arguments, and use `arene::base::invoke` to allow usage with other invocables.
 
-### Better Error Messages With Constraints {#better-error-messages-with-constraints}
+### Better Error Messages With Constraints {#subpackages-functional-better-error-messages-with-constraints}
 
 Function templates also have an additional mechanism for improving the error
 messages: we can use [constraints](\ref constraints) to remove the function from
@@ -282,7 +290,7 @@ my_project/header.hpp:47:6: note: candidate template ignored: requirement 'arene
       |      ^
 ```
 
-## References To Invocables In Function Arguments {#references-to-invocables-in-function-arguments}
+## References To Invocables In Function Arguments {#subpackages-functional-references-to-invocables-in-function-arguments}
 
 Where it is desirable for a function to accept any invocable which can be
 invoked with a specific set of arguments, but it is not desirable to make the
@@ -316,7 +324,7 @@ like `std::function` or `arene::base::inline_function` will store a copy **of
 the `arene::base::function_ref` object**. This will still reference the original
 invocable, so is not recommended.
 
-## Storing Invocables For Later Invocation {#storing-invocables-for-later-invocation}
+## Storing Invocables For Later Invocation {#subpackages-functional-storing-invocables-for-later-invocation}
 
 If you want to store an invocable for later use, but cannot make the type of the
 invocable a template parameter, then you need a type-erased invocable wrapper.
@@ -364,7 +372,7 @@ void my_class::do_stuff(){
 `my_class` is not a template, and thus can isolate the `make_data` function from
 the user of `my_class`.
 
-## Getting Traits From Function Types {#getting-traits-from-function-types}
+## Getting Traits From Function Types {#subpackages-functional-getting-traits-from-function-types}
 
 It can be useful to get the traits associated with a given function type. Using
 `arene::base::function_traits` templated on a function type will give a class

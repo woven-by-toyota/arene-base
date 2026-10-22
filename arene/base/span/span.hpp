@@ -34,7 +34,7 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers"
 #include "arene/base/byte/byte.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/constraints/substitution_succeeds.hpp"
 #include "arene/base/contracts/contract.hpp"
@@ -42,6 +42,7 @@
 #include "arene/base/detail/wrapped_iterator.hpp"  // IWYU pragma: keep
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/stdlib_choice/conditional.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
@@ -194,10 +195,12 @@ class span_base_fixed_size_non_empty {
   constexpr explicit span_base_fixed_size_non_empty(span_construction_tag, std::size_t) noexcept {}
 
   // parasoft-begin-suppress AUTOSAR-M11_0_1-a-2 "False positive: this is not 'member data', it is a public property"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Returns the number of elements in the span
   /// The size is fixed to the Extent
   /// @return The number of elements in the span
   static constexpr std::integral_constant<std::size_t, Extent> size{};
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
   // parasoft-end-suppress AUTOSAR-M11_0_1-a-2
 
  protected:
@@ -230,10 +233,12 @@ class span_base_fixed_size_empty {
   constexpr explicit span_base_fixed_size_empty(span_construction_tag, std::size_t) noexcept {}
 
   // parasoft-begin-suppress AUTOSAR-M11_0_1-a-2 "False positive: this is not 'member data', it is a public property"
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Returns the number of elements in the span
   /// The size is fixed at zero
   /// @return 0
   static constexpr std::integral_constant<std::size_t, 0> size{};
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
   // parasoft-end-suppress AUTOSAR-M11_0_1-a-2
 
  protected:
@@ -258,6 +263,8 @@ class span_base_dynamic_size {
  protected:
   /// @brief The default constructor sets the size to 0
   constexpr span_base_dynamic_size() noexcept = default;
+
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Construct with a given run-time size
   /// @param span_size The size of the span
   constexpr explicit span_base_dynamic_size(span_construction_tag, std::size_t const span_size) noexcept
@@ -266,6 +273,7 @@ class span_base_dynamic_size {
   /// @brief Returns the number of elements in the span
   /// @return The number of elements in the span
   ARENE_NODISCARD constexpr auto size() const noexcept -> std::size_t { return this->dynamic_size_; }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief protected destructor
   ~span_base_dynamic_size() = default;
@@ -894,12 +902,14 @@ class span : span_detail::span_base<Extent> {
 
   // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: these standard range API names do not hide anything"
   /// @brief Obtain an iterator to the beginning of the data viewed by the span.
   ///
   /// @return iterator An iterator pointing to the first position in the span.
   ARENE_NODISCARD constexpr auto begin() const noexcept -> iterator {
     return iterator{span_detail::span_iter_passkey{}, data_ptr_};
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Obtain a const_iterator to the beginning of the data viewed by the span.
   ///
@@ -908,12 +918,14 @@ class span : span_detail::span_base<Extent> {
     return const_iterator{span_detail::span_iter_passkey{}, data_ptr_};
   }
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: these standard range API names do not hide anything"
   /// @brief Obtain an iterator to the one-past-the-end of the data viewed by the span
   ///
   /// @return iterator An iterator equivalent to @c begin()+size() .
   ARENE_NODISCARD constexpr auto end() const noexcept -> iterator {
     return iterator{span_detail::span_iter_passkey{}, arene::base::next(data_ptr_, ssize())};
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Obtain a const_iterator to the one-past-the-end of the data viewed by the span
   ///
@@ -970,6 +982,14 @@ auto as_writable_bytes(span<T, N> spn) noexcept
 
 template <typename T, std::size_t Extent>
 constexpr std::integral_constant<std::size_t, Extent> span<T, Extent>::extent;
+
+namespace ranges {
+/// @brief Indicate that @c span is a borrowed range
+/// @tparam T The type of the elements in the span
+/// @tparam Extent The extent of the span
+template <typename T, std::size_t Extent>
+class enable_borrowed_range<span<T, Extent>> : public std::true_type {};
+}  // namespace ranges
 
 }  // namespace base
 }  // namespace arene

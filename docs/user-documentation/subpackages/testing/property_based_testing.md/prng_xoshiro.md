@@ -1,4 +1,8 @@
-<!-- Copyright 2026, Toyota Motor Corporation -->
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -6,7 +10,7 @@
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#subpackages-testing-property-based-testing-md-prng-xoshiro-introduction}
 
 `prng_xoshiro` is a constexpr-friendly pseudorandom number generator
 implementing the xoshiro256++ algorithm, designed by David Blackman and
@@ -17,7 +21,7 @@ The generator satisfies the C++ `UniformRandomBitGenerator` named requirement,
 so it can be used with standard library distributions and algorithms that accept
 a URBG.
 
-## Usage {#usage}
+## Usage {#subpackages-testing-property-based-testing-md-prng-xoshiro-usage}
 
 ### Basic Usage
 
@@ -57,7 +61,7 @@ auto const value = dist(rng);
 
 See \ref distributions for details on Arene Base's distributions.
 
-## Seeding {#seeding}
+## Seeding {#subpackages-testing-property-based-testing-md-prng-xoshiro-seeding}
 
 A single 64-bit seed is expanded into the full 256-bit internal state using the
 SplitMix64 generator. This ensures the internal state is never all-zero (the
@@ -66,13 +70,13 @@ only disallowed state) for any seed value.
 Different seeds produce different sequences. The same seed always produces the
 same sequence across all platforms.
 
-## Limitations {#limitations}
+## Limitations {#subpackages-testing-property-based-testing-md-prng-xoshiro-limitations}
 
 - `prng_xoshiro` is **not** cryptographically secure. It must not be used for
   security-sensitive purposes.
 - This PRNG is currently limited to test code only.
 
-## References {#references}
+## References {#subpackages-testing-property-based-testing-md-prng-xoshiro-references}
 
 - [xoshiro / xoroshiro generators](https://prng.di.unimi.it/)
 - [Reference xoshiro256++ implementation](https://prng.di.unimi.it/xoshiro256plusplus.c)

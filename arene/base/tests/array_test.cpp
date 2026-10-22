@@ -14,4 +14,7 @@ TEST(Array, ArrayIsExported) { using ::arene::base::array; }
 /// @test Ensure that `to_array` is declared
 TEST(Array, ToArrayIsExported) { using ::arene::base::to_array; }
 
+/// @test Ensure that `to_array_of` is declared
+TEST(Array, ToArrayOfIsExported) { using ::arene::base::to_array_of; }
+
 }  // namespace

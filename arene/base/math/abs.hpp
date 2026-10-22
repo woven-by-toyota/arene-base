@@ -8,6 +8,8 @@
 // IWYU pragma: private, include "arene/base/math.hpp"
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
+#include "arene/base/compiler_support/platform_queries/has_builtin_abs.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
@@ -20,8 +22,6 @@
 // parasoft-begin-suppress CERT_CPP-DCL51-f-3 "False positive: no reserved names are used"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 #if ARENE_IS_ON(ARENE_HAS_BUILTIN_FABS) && ARENE_IS_ON(ARENE_HAS_BUILTIN_FABSF)
@@ -56,8 +56,7 @@ constexpr auto abs(Number value) noexcept -> Number {
 
 /// @brief Calculate the absolute value of a number.
 /// @tparam Number The type of the number.
-/// @param value The value to take the absolute value of.
-/// @pre @c value is not the smallest negative number the type can represent.
+/// Returns the supplied unsigned value unchanged.
 /// @return The absolute value of @c value, which is equivalent to <c>return value < 0 ? -value : value;</c>.
 ///
 /// @note Care should be taken when calling @c abs with unsigned values. This overload for unsigned values does not
@@ -75,7 +74,7 @@ constexpr auto abs(Number value) noexcept -> Number {
 // parasoft-end-suppress AUTOSAR-A2_7_3
 /// @brief Calculate the absolute value of a number.
 /// @tparam Number The type of the number.
-/// @param value The value to take the absolute value of.
+/// Takes the absolute value of the supplied floating-point value.
 /// @return The absolute value of @c value, which is equivalent to <c>return value < 0 ? -value : value;</c>.
 // parasoft-begin-suppress AUTOSAR-A2_7_3 "False positive: documented"
 template <typename Number, constraints<std::enable_if_t<(std::is_floating_point<Number>::value)> > = nullptr>

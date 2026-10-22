@@ -123,7 +123,9 @@ death_monitor::death_monitor(source_location location, char const* expected_mess
       expected_message_(expected_message),
       child_pid_{-1},
       stderr_pipe_{-1},
-      meta_pipe_{-1} {}
+      meta_pipe_{-1} {
+  errno = 0;
+}
 
 death_monitor::~death_monitor() {
   if (stderr_pipe_ >= 0) {

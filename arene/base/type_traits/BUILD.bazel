@@ -5,16 +5,9 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "all_are_same_hdrs",
-    srcs = [
-        "all_are_same.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "all_are_same",
-    hdrs = [":all_are_same_hdrs"],
+    hdrs = ["all_are_same.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -25,64 +18,36 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "all_of_hdrs",
-    srcs = [
-        "all_of.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "all_of",
-    hdrs = [":all_of_hdrs"],
+    hdrs = ["all_of.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
-    ],
-)
-
-filegroup(
-    name = "any_of_hdrs",
-    srcs = [
-        "any_of.hpp",
     ],
 )
 
 cc_library_with_variants(
     name = "any_of",
-    hdrs = [":any_of_hdrs"],
+    hdrs = ["any_of.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
-    ],
-)
-
-filegroup(
-    name = "always_false_hdrs",
-    srcs = [
-        "always_false.hpp",
     ],
 )
 
 cc_library_with_variants(
     name = "always_false",
-    hdrs = [":always_false_hdrs"],
+    hdrs = ["always_false.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
 )
 
-filegroup(
-    name = "arithmetic_traits_hdrs",
-    srcs = [
-        "arithmetic_traits.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "arithmetic_traits",
-    hdrs = [":arithmetic_traits_hdrs"],
+    hdrs = ["arithmetic_traits.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -94,16 +59,35 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "comparison_traits_hdrs",
-    srcs = [
-        "comparison_traits.hpp",
+cc_library_with_variants(
+    name = "common_reference",
+    hdrs = ["common_reference.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":priority_tag",
+        ":remove_cvref",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:add_pointer",
+        "//arene/base/stdlib_choice:common_type",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_reference",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_manipulation:give_qualifiers_to",
     ],
 )
 
 cc_library_with_variants(
     name = "comparison_traits",
-    hdrs = [":comparison_traits_hdrs"],
+    hdrs = ["comparison_traits.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -117,16 +101,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "conditional_hdrs",
-    srcs = [
-        "conditional.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "conditional",
-    hdrs = [":conditional_hdrs"],
+    hdrs = ["conditional.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -136,14 +113,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "conjunction_hdrs",
-    srcs = ["conjunction.hpp"],
-)
-
 cc_library_with_variants(
     name = "conjunction",
-    hdrs = [":conjunction_hdrs"],
+    hdrs = ["conjunction.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -154,16 +126,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_copyable_hdrs",
-    srcs = [
-        "is_copyable.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_copyable",
-    hdrs = [":is_copyable_hdrs"],
+    hdrs = ["is_copyable.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -178,16 +143,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "decays_to_hdrs",
-    srcs = [
-        "decays_to.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "decays_to",
-    hdrs = [":decays_to_hdrs"],
+    hdrs = ["decays_to.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -198,16 +156,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "denotes_range_hdrs",
-    srcs = [
-        "denotes_range.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "denotes_range",
-    hdrs = [":denotes_range_hdrs"],
+    hdrs = ["denotes_range.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -223,14 +174,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "disjunction_hdrs",
-    srcs = ["disjunction.hpp"],
-)
-
 cc_library_with_variants(
     name = "disjunction",
-    hdrs = [":disjunction_hdrs"],
+    hdrs = ["disjunction.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -241,14 +187,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "give_cv_to_hdrs",
-    srcs = ["give_cv_to.hpp"],
-)
-
 cc_library_with_variants(
     name = "give_cv_to",
-    hdrs = [":give_cv_to_hdrs"],
+    hdrs = ["give_cv_to.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -260,14 +201,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "give_cvref_to_hdrs",
-    srcs = ["give_cvref_to.hpp"],
-)
-
 cc_library_with_variants(
     name = "give_cvref_to",
-    hdrs = [":give_cvref_to_hdrs"],
+    hdrs = ["give_cvref_to.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -281,14 +217,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "has_overloaded_address_operator_hdrs",
-    srcs = ["has_overloaded_address_operator.hpp"],
-)
-
 cc_library_with_variants(
     name = "has_overloaded_address_operator",
-    hdrs = [":has_overloaded_address_operator_hdrs"],
+    hdrs = ["has_overloaded_address_operator.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -303,16 +234,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_only_explicitly_constructible_hdrs",
-    srcs = [
-        "is_only_explicitly_constructible.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_only_explicitly_constructible",
-    hdrs = [":is_only_explicitly_constructible_hdrs"],
+    hdrs = ["is_only_explicitly_constructible.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -324,16 +248,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_array_convertible_hdrs",
-    srcs = [
-        "is_array_convertible.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_array_convertible",
-    hdrs = [":is_array_convertible_hdrs"],
+    hdrs = ["is_array_convertible.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -344,16 +261,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_implicitly_constructible_hdrs",
-    srcs = [
-        "is_implicitly_constructible.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_implicitly_constructible",
-    hdrs = [":is_implicitly_constructible_hdrs"],
+    hdrs = ["is_implicitly_constructible.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -365,16 +275,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "index_of_hdrs",
-    srcs = [
-        "index_of.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "index_of",
-    hdrs = [":index_of_hdrs"],
+    hdrs = ["index_of.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -388,16 +291,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_binary_predicate_hdrs",
-    srcs = [
-        "is_binary_predicate.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_binary_predicate",
-    hdrs = [":is_binary_predicate_hdrs"],
+    hdrs = ["is_binary_predicate.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -405,21 +301,15 @@ cc_library_with_variants(
     deps = [
         ":is_predicate",
         ":remove_cvref",
+        "//arene/base/stdlib_choice:add_lvalue_reference",
         "//arene/base/stdlib_choice:is_copy_constructible",
         "//arene/base/stdlib_choice:is_move_constructible",
     ],
 )
 
-filegroup(
-    name = "is_compare_hdrs",
-    srcs = [
-        "is_compare.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_compare",
-    hdrs = [":is_compare_hdrs"],
+    hdrs = ["is_compare.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -432,32 +322,18 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_instantiation_of_hdrs",
-    srcs = [
-        "is_instantiation_of.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_instantiation_of",
-    hdrs = [":is_instantiation_of_hdrs"],
+    hdrs = ["is_instantiation_of.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
 )
 
-filegroup(
-    name = "is_integral_constant_like_hdrs",
-    srcs = [
-        "is_integral_constant_like.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_integral_constant_like",
-    hdrs = [":is_integral_constant_like_hdrs"],
+    hdrs = ["is_integral_constant_like.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -477,16 +353,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_invocable_hdrs",
-    srcs = [
-        "is_invocable.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_invocable",
-    hdrs = [":is_invocable_hdrs"],
+    hdrs = ["is_invocable.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -507,16 +376,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_predicate_hdrs",
-    srcs = [
-        "is_predicate.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_predicate",
-    hdrs = [":is_predicate_hdrs"],
+    hdrs = ["is_predicate.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -531,16 +393,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_reference_wrapper_hdrs",
-    srcs = [
-        "is_reference_wrapper.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_reference_wrapper",
-    hdrs = [":is_reference_wrapper_hdrs"],
+    hdrs = ["is_reference_wrapper.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -550,16 +405,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_swappable_hdrs",
-    srcs = [
-        "is_swappable.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_swappable",
-    hdrs = [":is_swappable_hdrs"],
+    hdrs = ["is_swappable.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -574,16 +422,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_transparent_comparator_for_hdrs",
-    srcs = [
-        "is_transparent_comparator_for.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_transparent_comparator_for",
-    hdrs = [":is_transparent_comparator_for_hdrs"],
+    hdrs = ["is_transparent_comparator_for.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -595,16 +436,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_tuple_like_hdrs",
-    srcs = [
-        "is_tuple_like.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_tuple_like",
-    hdrs = [":is_tuple_like_hdrs"],
+    hdrs = ["is_tuple_like.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -622,16 +456,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "iterator_category_traits_hdrs",
-    srcs = [
-        "iterator_category_traits.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "iterator_category_traits",
-    hdrs = [":iterator_category_traits_hdrs"],
+    hdrs = ["iterator_category_traits.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -663,30 +490,18 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "member_pointer_class_type_hdrs",
-    srcs = [
-        "member_pointer_class_type.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "member_pointer_class_type",
-    hdrs = [":member_pointer_class_type_hdrs"],
+    hdrs = ["member_pointer_class_type.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
 )
 
-filegroup(
-    name = "negation_hdrs",
-    srcs = ["negation.hpp"],
-)
-
 cc_library_with_variants(
     name = "negation",
-    hdrs = [":negation_hdrs"],
+    hdrs = ["negation.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -696,14 +511,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "none_of_hdrs",
-    srcs = ["none_of.hpp"],
-)
-
 cc_library_with_variants(
     name = "none_of",
-    hdrs = [":none_of_hdrs"],
+    hdrs = ["none_of.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -713,16 +523,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_movable_hdrs",
-    srcs = [
-        "is_movable.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_movable",
-    hdrs = [":is_movable_hdrs"],
+    hdrs = ["is_movable.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -737,16 +540,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "is_one_of_hdrs",
-    srcs = [
-        "is_one_of.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "is_one_of",
-    hdrs = [":is_one_of_hdrs"],
+    hdrs = ["is_one_of.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -758,16 +554,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "priority_tag_hdrs",
-    srcs = [
-        "priority_tag.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "priority_tag",
-    hdrs = [":priority_tag_hdrs"],
+    hdrs = ["priority_tag.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -777,16 +566,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "remove_cvref_hdrs",
-    srcs = [
-        "remove_cvref.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "remove_cvref",
-    hdrs = [":remove_cvref_hdrs"],
+    hdrs = ["remove_cvref.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -797,32 +579,18 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "type_identity_hdrs",
-    srcs = [
-        "type_identity.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "type_identity",
-    hdrs = [":type_identity_hdrs"],
+    hdrs = ["type_identity.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
 )
 
-filegroup(
-    name = "unwrap_reference_hdrs",
-    srcs = [
-        "unwrap_reference.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "unwrap_reference",
-    hdrs = [":unwrap_reference_hdrs"],
+    hdrs = ["unwrap_reference.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -835,16 +603,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "void_t_hdrs",
-    srcs = [
-        "void_t.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "void_t",
-    hdrs = [":void_t_hdrs"],
+    hdrs = ["void_t.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -862,6 +623,7 @@ cc_library(
         ":always_false",
         ":any_of",
         ":arithmetic_traits",
+        ":common_reference",
         ":comparison_traits",
         ":conditional",
         ":conjunction",
@@ -904,46 +666,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":all_are_same_hdrs",
-        ":all_of_hdrs",
-        ":always_false_hdrs",
-        ":any_of_hdrs",
-        ":arithmetic_traits_hdrs",
-        ":comparison_traits_hdrs",
-        ":conditional_hdrs",
-        ":conjunction_hdrs",
-        ":decays_to_hdrs",
-        ":denotes_range_hdrs",
-        ":disjunction_hdrs",
-        ":give_cv_to_hdrs",
-        ":give_cvref_to_hdrs",
-        ":has_overloaded_address_operator_hdrs",
-        ":index_of_hdrs",
-        ":is_array_convertible_hdrs",
-        ":is_binary_predicate_hdrs",
-        ":is_compare_hdrs",
-        ":is_copyable_hdrs",
-        ":is_implicitly_constructible_hdrs",
-        ":is_instantiation_of_hdrs",
-        ":is_integral_constant_like_hdrs",
-        ":is_invocable_hdrs",
-        ":is_movable_hdrs",
-        ":is_one_of_hdrs",
-        ":is_only_explicitly_constructible_hdrs",
-        ":is_predicate_hdrs",
-        ":is_reference_wrapper_hdrs",
-        ":is_swappable_hdrs",
-        ":is_transparent_comparator_for_hdrs",
-        ":is_tuple_like_hdrs",
-        ":iterator_category_traits_hdrs",
-        ":member_pointer_class_type_hdrs",
-        ":negation_hdrs",
-        ":none_of_hdrs",
-        ":priority_tag_hdrs",
-        ":remove_cvref_hdrs",
-        ":type_identity_hdrs",
-        ":unwrap_reference_hdrs",
-        ":void_t_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

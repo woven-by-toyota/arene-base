@@ -1,3 +1,5 @@
+// parasoft-begin-suppress AUTOSAR-A2_8_1-a "False positive: also defines arene::base::log2"
+
 // Copyright 2024, Toyota Motor Corporation
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception

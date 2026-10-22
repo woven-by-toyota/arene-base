@@ -1,0 +1,207 @@
+Running main() from gmock_main.cc
+[==========] Running 24 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from AreneProperty
+[ RUN      ] AreneProperty.FailureNoParams
+arene/base/testing/tests/property_macros_binary.cpp:21: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:21]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneProperty.FailureNoParams
+[ RUN      ] AreneProperty.FailureWithEmptyParams
+arene/base/testing/tests/property_macros_binary.cpp:23: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:23]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneProperty.FailureWithEmptyParams
+[ RUN      ] AreneProperty.FailureWithIntIntParams
+arene/base/testing/tests/property_macros_binary.cpp:25: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:25]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneProperty.FailureWithIntIntParams
+[ RUN      ] AreneProperty.FailureWithMultipleAssertions
+arene/base/testing/tests/property_macros_binary.cpp:27: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:29]
+ARENE_PROP_ASSERT(1 + 1 == 1)
+
+[  FAILED  ] AreneProperty.FailureWithMultipleAssertions
+[ RUN      ] AreneProperty.DiscardsReached
+arene/base/testing/tests/property_macros_binary.cpp:33: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 101
+reached max discards
+
+[  FAILED  ] AreneProperty.DiscardsReached
+[ RUN      ] AreneProperty.EmptyBody
+[       OK ] AreneProperty.EmptyBody
+[ RUN      ] AreneProperty.PrngAvailable
+[       OK ] AreneProperty.PrngAvailable
+[ RUN      ] AreneProperty.SatisfiedProperty
+[       OK ] AreneProperty.SatisfiedProperty
+[----------] 8 tests from AreneTypedProperty/0, where TypeParam = unsigned long
+[ RUN      ] AreneTypedProperty/0.FailureNoParams
+arene/base/testing/tests/property_macros_binary.cpp:51: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:51]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneTypedProperty/0.FailureNoParams, where TypeParam = unsigned long
+[ RUN      ] AreneTypedProperty/0.FailureWithEmptyParams
+arene/base/testing/tests/property_macros_binary.cpp:53: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:53]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneTypedProperty/0.FailureWithEmptyParams, where TypeParam = unsigned long
+[ RUN      ] AreneTypedProperty/0.FailureWithIntTypeParams
+arene/base/testing/tests/property_macros_binary.cpp:55: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:55]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneTypedProperty/0.FailureWithIntTypeParams, where TypeParam = unsigned long
+[ RUN      ] AreneTypedProperty/0.FailureWithMultipleAssertions
+arene/base/testing/tests/property_macros_binary.cpp:57: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:61]
+ARENE_PROP_ASSERT(a != TypeParam{} && a == TypeParam{})
+
+[  FAILED  ] AreneTypedProperty/0.FailureWithMultipleAssertions, where TypeParam = unsigned long
+[ RUN      ] AreneTypedProperty/0.DiscardsReached
+arene/base/testing/tests/property_macros_binary.cpp:66: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 101
+reached max discards
+
+[  FAILED  ] AreneTypedProperty/0.DiscardsReached, where TypeParam = unsigned long
+[ RUN      ] AreneTypedProperty/0.EmptyBody
+[       OK ] AreneTypedProperty/0.EmptyBody
+[ RUN      ] AreneTypedProperty/0.PrngAvailable
+[       OK ] AreneTypedProperty/0.PrngAvailable
+[ RUN      ] AreneTypedProperty/0.SatisfiedProperty
+[       OK ] AreneTypedProperty/0.SatisfiedProperty
+[----------] 8 tests from AreneTypedProperty/1, where TypeParam = double
+[ RUN      ] AreneTypedProperty/1.FailureNoParams
+arene/base/testing/tests/property_macros_binary.cpp:51: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:51]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneTypedProperty/1.FailureNoParams, where TypeParam = double
+[ RUN      ] AreneTypedProperty/1.FailureWithEmptyParams
+arene/base/testing/tests/property_macros_binary.cpp:53: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:53]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneTypedProperty/1.FailureWithEmptyParams, where TypeParam = double
+[ RUN      ] AreneTypedProperty/1.FailureWithIntTypeParams
+arene/base/testing/tests/property_macros_binary.cpp:55: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:55]
+ARENE_PROP_ASSERT(false)
+
+[  FAILED  ] AreneTypedProperty/1.FailureWithIntTypeParams, where TypeParam = double
+[ RUN      ] AreneTypedProperty/1.FailureWithMultipleAssertions
+arene/base/testing/tests/property_macros_binary.cpp:57: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/testing/tests/property_macros_binary.cpp:61]
+ARENE_PROP_ASSERT(a != TypeParam{} && a == TypeParam{})
+
+[  FAILED  ] AreneTypedProperty/1.FailureWithMultipleAssertions, where TypeParam = double
+[ RUN      ] AreneTypedProperty/1.DiscardsReached
+arene/base/testing/tests/property_macros_binary.cpp:66: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 101
+reached max discards
+
+[  FAILED  ] AreneTypedProperty/1.DiscardsReached, where TypeParam = double
+[ RUN      ] AreneTypedProperty/1.EmptyBody
+[       OK ] AreneTypedProperty/1.EmptyBody
+[ RUN      ] AreneTypedProperty/1.PrngAvailable
+[       OK ] AreneTypedProperty/1.PrngAvailable
+[ RUN      ] AreneTypedProperty/1.SatisfiedProperty
+[       OK ] AreneTypedProperty/1.SatisfiedProperty
+[----------] Global test environment tear-down
+[==========] 24 tests from 3 test suites ran.
+[  PASSED  ] 9 tests.
+[  FAILED  ] 15 tests, listed below:
+[  FAILED  ] AreneProperty.FailureNoParams
+[  FAILED  ] AreneProperty.FailureWithEmptyParams
+[  FAILED  ] AreneProperty.FailureWithIntIntParams
+[  FAILED  ] AreneProperty.FailureWithMultipleAssertions
+[  FAILED  ] AreneProperty.DiscardsReached
+[  FAILED  ] AreneTypedProperty/0.FailureNoParams, where TypeParam = unsigned long
+[  FAILED  ] AreneTypedProperty/0.FailureWithEmptyParams, where TypeParam = unsigned long
+[  FAILED  ] AreneTypedProperty/0.FailureWithIntTypeParams, where TypeParam = unsigned long
+[  FAILED  ] AreneTypedProperty/0.FailureWithMultipleAssertions, where TypeParam = unsigned long
+[  FAILED  ] AreneTypedProperty/0.DiscardsReached, where TypeParam = unsigned long
+[  FAILED  ] AreneTypedProperty/1.FailureNoParams, where TypeParam = double
+[  FAILED  ] AreneTypedProperty/1.FailureWithEmptyParams, where TypeParam = double
+[  FAILED  ] AreneTypedProperty/1.FailureWithIntTypeParams, where TypeParam = double
+[  FAILED  ] AreneTypedProperty/1.FailureWithMultipleAssertions, where TypeParam = double
+[  FAILED  ] AreneTypedProperty/1.DiscardsReached, where TypeParam = double
+
+15 FAILED TESTS

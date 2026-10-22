@@ -1,10 +1,16 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
 \page conditional_tests Conditional Tests
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#subpackages-testing-gtest-conditional-tests-introduction}
 
 When defining type-parameterized tests, it's common for individual test cases to
 have stricter requirements on the type parameter than the actual subject of the
@@ -16,7 +22,7 @@ built-in way to conditionally exclude them. This header provides macros which
 allow test cases to be conditionally included or excluded depending on the type
 parameter.
 
-## Macros {#macros}
+## Macros {#subpackages-testing-gtest-conditional-tests-macros}
 
 The test macro `CONDITIONAL_TYPED_TEST_P` works like `TYPED_TEST_P` from Google
 Test but with a third argument for a condition depending on `TypeParam`. The

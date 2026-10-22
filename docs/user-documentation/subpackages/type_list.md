@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -6,7 +10,7 @@
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#subpackages-type-list-introduction}
 
 In C++ storing and manipulating lists of types requires a different library than
 is used for lists of values.
@@ -43,7 +47,7 @@ include:
 The type-list algorithms are contained in the `arene::base::type_lists`
 namespace.
 
-## Basic Usage {#basic-usage}
+## Basic Usage {#subpackages-type-list-basic-usage}
 
 Given:
 
@@ -89,7 +93,7 @@ Compose two algorithms on one type-list type:
     // all_t == arene::base::type_list<int, double, std::vector<int>, int, double, std::vector<int>>
     // unique_elements_t == arene::base::type_list<int, double, std::vector<int>>
 
-## Advanced Usage {#advanced-usage}
+## Advanced Usage {#subpackages-type-list-advanced-usage}
 
 Given:
 

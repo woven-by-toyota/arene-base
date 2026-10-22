@@ -4,7 +4,7 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test_with_variants(
     name = "priority_queue_test",
@@ -25,7 +25,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:sort",
         "//arene/base/stdlib_choice:tuple",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -42,7 +42,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:remove_reference",
         "//arene/base/stdlib_choice:tuple",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

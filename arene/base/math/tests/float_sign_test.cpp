@@ -1,10 +1,13 @@
 // Copyright 2025, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "arene/base/math/float_sign.hpp"
 
 #include <gtest/gtest.h>
 
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/byte/byte.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
 #include "arene/base/endian/endian.hpp"

@@ -7,12 +7,14 @@
 
 #include <gtest/gtest.h>
 
+#include "arene/base/contracts/contract.hpp"
 #include "arene/base/detail/dynamic_extent.hpp"
 #include "arene/base/mdspan/extents.hpp"
 #include "arene/base/mdspan/layout.hpp"
 #include "arene/base/mdspan/mdspan.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
+#include "arene/base/stdlib_choice/remove_const.hpp"
 #include "arene/base/type_list/apply_each.hpp"
 #include "arene/base/type_list/filter.hpp"
 #include "arene/base/type_list/flat_map.hpp"
@@ -44,7 +46,17 @@ constexpr std::size_t rank_v<arene::base::mdspan<ElementType, Extents, LayoutPol
 /// @}
 
 /// @brief An expectation category for a type: is it a linalg object or not, and what kind?
-enum class category { nothing, scalar, just_mdspan, in_vector, inout_vector, in_matrix, inout_matrix };
+enum class category {
+  nothing,
+  scalar,
+  just_mdspan,
+  in_vector,
+  inout_vector,
+  in_matrix,
+  inout_matrix,
+  in_object,
+  inout_object,
+};
 
 /// @brief A test parameter with an expected category, for testing whether or not type traits apply
 template <typename Type, category Expectation>
@@ -66,21 +78,94 @@ using not_copyable =
 using not_movable =
     configurable_value<std::int32_t, throws_on::nothing, disable::move_construct | disable::move_assign>;
 
-/// @brief Simplified implementation of std::linalg::scaled_accessor which always scales by std::int32_t{2}.
+/// @brief A layout with a single static stride
+template <std::size_t Stride>
+class layout_static_stride {
+ public:
+  template <typename Extents>
+  class mapping;
+};
+
+/// @brief The mapping for layout_static_stride. Contains the minimal implementation to pass the layout mapping reqs.
+/// This could be extended later to accept multiple static strides if we wanted. It just currently only needs to do 1.
+template <std::size_t Stride>
+template <typename Extents>
+class layout_static_stride<Stride>::mapping : private Extents {
+ public:
+  using extents_type = Extents;
+  using index_type = typename Extents::index_type;
+  using rank_type = typename Extents::rank_type;
+  using layout_type = layout_static_stride<Stride>;
+
+  constexpr mapping() noexcept
+      : mapping(Extents{}) {}
+
+  constexpr explicit mapping(Extents const& exts) noexcept
+      : extents_type(exts) {}
+
+  constexpr auto extents() const noexcept -> extents_type const& { return *this; }
+
+  constexpr auto stride(rank_type dim_idx) const noexcept -> index_type {
+    ARENE_PRECONDITION(dim_idx == 0U);
+    return Stride;
+  }
+
+  constexpr auto required_span_size() const noexcept -> index_type {
+    if (this->extent(0) == 0U) {
+      return 0U;
+    }
+
+    return 1U + ((this->extent(0) - 1U) * Stride);
+  }
+
+  constexpr auto operator()(index_type input_index) const noexcept -> index_type { return input_index * Stride; }
+
+  static constexpr auto is_always_exhaustive() noexcept -> bool { return false; }
+  static constexpr auto is_always_unique() noexcept -> bool { return true; }
+  static constexpr auto is_always_strided() noexcept -> bool { return true; }
+
+  constexpr auto is_exhaustive() const noexcept -> bool { return Stride == 1U; }
+  static constexpr auto is_unique() noexcept -> bool { return true; }
+  static constexpr auto is_strided() noexcept -> bool { return true; }
+
+  friend constexpr auto operator==(mapping const& left, mapping const& right) noexcept -> bool {
+    return left.extents() == right.extents();
+  }
+};
+
+/// @brief Simplified implementation of std::linalg::scaled_accessor which always scales by T{2}.
 /// @note mdspans using this accessor are only input-eligible (not output-eligible) because the reference typedef is not
 /// actually assignable.
-class doubled_accessor : private arene::base::default_accessor<std::int32_t> {
+template <class T>
+class doubled_accessor : private arene::base::default_accessor<T> {
  public:
-  using element_type = std::int32_t;  // This is const for scaled_accessor but non-const also meets the accessor reqs.
-  using reference = std::int32_t;
-  using data_handle_type = std::int32_t*;
+  using element_type = T;  // This is const for scaled_accessor but non-const also meets the accessor reqs.
+  using reference = std::remove_const_t<T>;
+  using data_handle_type = T*;
   using offset_policy = doubled_accessor;
 
   constexpr auto access(data_handle_type hdl, std::size_t idx) const noexcept -> reference {
-    return std::int32_t{2} * arene::base::default_accessor<std::int32_t>::access(hdl, idx);
+    return T{2} * arene::base::default_accessor<T>::access(hdl, idx);
   }
   constexpr auto offset(data_handle_type hdl, std::size_t idx) const noexcept -> data_handle_type {
-    return arene::base::default_accessor<std::int32_t>::offset(hdl, idx);
+    return arene::base::default_accessor<T>::offset(hdl, idx);
+  }
+};
+
+/// @brief A simple accessor with noexcept(false) on its access function, useful for testing noexcept specifications
+template <class T>
+class throwing_accessor : private arene::base::default_accessor<T> {
+ public:
+  using element_type = T;
+  using reference = T&;
+  using data_handle_type = T*;
+  using offset_policy = throwing_accessor;
+
+  constexpr auto access(data_handle_type hdl, std::size_t idx) const noexcept(false) -> reference {
+    return arene::base::default_accessor<T>::access(hdl, idx);
+  }
+  constexpr auto offset(data_handle_type hdl, std::size_t idx) const noexcept -> data_handle_type {
+    return arene::base::default_accessor<T>::offset(hdl, idx);
   }
 };
 
@@ -101,21 +186,6 @@ using unqualified_mdspan_types = ::testing::Types<
     param<double, category::scalar>,
     param<configurable_value<std::int32_t>, category::scalar>,
     param<configurable_value<double, throws_on::nothing, disable::swap>, category::scalar>,  // still swappable w/ move
-    // Mdspans that are neither vectors nor matrices
-    param<arene::base::mdspan<std::int32_t, arene::base::extents<std::size_t>>, category::just_mdspan>,
-    param<arene::base::mdspan<std::int32_t, arene::base::extents<std::size_t, 1, 2, 3>>, category::just_mdspan>,
-    param<arene::base::mdspan<std::int32_t, arene::base::extents<std::size_t, 1, 2, 3, 4>>, category::just_mdspan>,
-    param<arene::base::mdspan<std::int32_t, arene::base::extents<std::size_t, 1, 2, 3, 4, 5>>, category::just_mdspan>,
-    param<arene::base::mdspan<double, arene::base::dextents<std::size_t, 0>>, category::just_mdspan>,
-    param<arene::base::mdspan<double, arene::base::dextents<std::size_t, 3>>, category::just_mdspan>,
-    param<arene::base::mdspan<double, arene::base::dextents<std::size_t, 4>>, category::just_mdspan>,
-    param<arene::base::mdspan<double, arene::base::dextents<std::size_t, 5>>, category::just_mdspan>,
-    param<
-        arene::base::mdspan<std::uint32_t, arene::base::dextents<std::size_t, 5>, arene::base::layout_left>,
-        category::just_mdspan>,
-    param<
-        arene::base::mdspan<std::uint32_t, arene::base::extents<std::size_t, 6, 7, 8>, arene::base::layout_stride>,
-        category::just_mdspan>,
     // Even when the dimensions are correct, an mdspan whose value type is not a scalar is not a vector or matrix
     param<arene::base::mdspan<not_movable, arene::base::extents<std::size_t, 1>>, category::just_mdspan>,
     param<arene::base::mdspan<not_movable, arene::base::dextents<std::size_t, 1>>, category::just_mdspan>,
@@ -127,6 +197,29 @@ using unqualified_mdspan_types = ::testing::Types<
     param<arene::base::mdspan<not_movable, arene::base::dextents<std::size_t, 2>>, category::just_mdspan>,
     param<arene::base::mdspan<not_copyable, arene::base::extents<std::size_t, 1, 2>>, category::just_mdspan>,
     param<arene::base::mdspan<not_copyable, arene::base::dextents<std::size_t, 2>>, category::just_mdspan>,
+    // Linalg objects that are neither vectors nor matrices
+    param<arene::base::mdspan<std::int32_t const, arene::base::extents<std::size_t>>, category::in_object>,
+    param<arene::base::mdspan<std::int32_t const, arene::base::extents<std::size_t, 1, 2, 3>>, category::in_object>,
+    param<arene::base::mdspan<std::int32_t const, arene::base::extents<std::size_t, 1, 2, 3, 4>>, category::in_object>,
+    param<
+        arene::base::mdspan<std::int32_t const, arene::base::extents<std::size_t, 1, 2, 3, 4, 5>>,
+        category::in_object>,
+    param<arene::base::mdspan<double const, arene::base::dextents<std::size_t, 0>>, category::in_object>,
+    param<arene::base::mdspan<double const, arene::base::dextents<std::size_t, 3>>, category::in_object>,
+    param<arene::base::mdspan<double const, arene::base::dextents<std::size_t, 4>>, category::in_object>,
+    param<arene::base::mdspan<double const, arene::base::dextents<std::size_t, 5>>, category::in_object>,
+    param<
+        arene::base::mdspan<std::uint32_t const, arene::base::dextents<std::size_t, 5>, arene::base::layout_left>,
+        category::in_object>,
+    param<
+        arene::base::
+            mdspan<std::uint32_t const, arene::base::extents<std::size_t, 6, 7, 8>, arene::base::layout_stride>,
+        category::in_object>,
+    param<arene::base::mdspan<std::int32_t, arene::base::extents<std::size_t, 1, 2, 3, 4, 5>>, category::inout_object>,
+    param<arene::base::mdspan<double, arene::base::dextents<std::size_t, 5>>, category::inout_object>,
+    param<
+        arene::base::mdspan<std::uint32_t, arene::base::extents<std::size_t, 6, 7, 8>, arene::base::layout_stride>,
+        category::inout_object>,
     // Mdspans that are input vectors only but not writeable
     param<arene::base::mdspan<double const, arene::base::extents<std::size_t, 1>>, category::in_vector>,
     param<arene::base::mdspan<double const, arene::base::dextents<std::size_t, 1>>, category::in_vector>,
@@ -134,8 +227,11 @@ using unqualified_mdspan_types = ::testing::Types<
         arene::base::mdspan<std::uint32_t const, arene::base::extents<std::size_t, 4>, arene::base::layout_left>,
         category::in_vector>,
     param<
-        arene::base::
-            mdspan<std::int32_t, arene::base::extents<std::size_t, 1>, arene::base::layout_right, doubled_accessor>,
+        arene::base::mdspan<
+            std::int32_t,
+            arene::base::extents<std::size_t, 1>,
+            arene::base::layout_right,
+            doubled_accessor<std::int32_t>>,
         category::in_vector>,
     // Mdspans that are input/output vectors
     param<arene::base::mdspan<std::int32_t, arene::base::extents<std::size_t, 3>>, category::inout_vector>,
@@ -149,6 +245,8 @@ using unqualified_mdspan_types = ::testing::Types<
         category::inout_vector>,
     // Mdspans that are input matrices only but not writeable
     param<arene::base::mdspan<std::int32_t const, arene::base::extents<std::size_t, 3, 4>>, category::in_matrix>,
+    // A signed index type, so that index_type and size_type are distinguishable
+    param<arene::base::mdspan<std::int32_t const, arene::base::extents<std::int32_t, 3, 4>>, category::in_matrix>,
     param<arene::base::mdspan<double const, arene::base::extents<std::size_t, 1, dynamic_extent>>, category::in_matrix>,
     param<
         arene::base::mdspan<
@@ -157,13 +255,19 @@ using unqualified_mdspan_types = ::testing::Types<
             arene::base::layout_stride>,
         category::in_matrix>,
     param<
-        arene::base::
-            mdspan<std::int32_t, arene::base::extents<std::size_t, 1, 2>, arene::base::layout_right, doubled_accessor>,
+        arene::base::mdspan<
+            std::int32_t,
+            arene::base::extents<std::size_t, 1, 2>,
+            arene::base::layout_right,
+            doubled_accessor<std::int32_t>>,
         category::in_matrix>,
     // Mdspans that are input/output matrices
     param<arene::base::mdspan<std::int32_t, arene::base::extents<std::size_t, 3, 4>>, category::inout_matrix>,
     param<arene::base::mdspan<double, arene::base::extents<std::size_t, 1, dynamic_extent>>, category::inout_matrix>,
     param<arene::base::mdspan<double, arene::base::dextents<std::size_t, 2>>, category::inout_matrix>,
+    param<
+        arene::base::mdspan<float, arene::base::dextents<std::size_t, 2>, arene::base::layout_left>,
+        category::inout_matrix>,
     param<
         arene::base::mdspan<
             std::uint32_t,
@@ -219,17 +323,25 @@ struct should_be_linalg_matrix
 template <typename T>
 using should_be_linalg_object = disjunction<should_be_linalg_vector<T>, should_be_linalg_matrix<T>>;
 
-/// @brief A big list of all the test mdspans which are linalg objects of any kind, ignoring rank and in/out category
+/// @brief A big list of all the test mdspans which are 1D linalg vectors, ignoring in/out category
 using linalg_vector_types = arene::base::type_lists::
     apply_each_t<arene::base::type_lists::filter_t<mdspan_types, should_be_linalg_vector>, unpack_param>;
 
-/// @brief A big list of all the test mdspans which are linalg objects of any kind, ignoring rank and in/out category
+/// @brief A big list of all the test mdspans which are 2D linalg matrices, ignoring in/out category
 using linalg_matrix_types = arene::base::type_lists::
     apply_each_t<arene::base::type_lists::filter_t<mdspan_types, should_be_linalg_matrix>, unpack_param>;
 
 /// @brief A big list of all the test mdspans which are linalg objects of any kind, ignoring rank and in/out category
 using linalg_object_types = arene::base::type_lists::
     apply_each_t<arene::base::type_lists::filter_t<mdspan_types, should_be_linalg_object>, unpack_param>;
+
+/// @brief A big list of all the test mdspans which are linalg objects of any kind, ignoring rank and in/out category
+using unqualified_linalg_object_types = arene::base::type_lists::
+    apply_each_t<arene::base::type_lists::filter_t<unqualified_mdspan_types, should_be_linalg_object>, unpack_param>;
+
+/// @brief A list of the unqualified test mdspans which are 2D linalg matrices, ignoring in/out category
+using unqualified_linalg_matrix_types = arene::base::type_lists::
+    apply_each_t<arene::base::type_lists::filter_t<unqualified_mdspan_types, should_be_linalg_matrix>, unpack_param>;
 
 }  // namespace linalg_testing
 }  // namespace base

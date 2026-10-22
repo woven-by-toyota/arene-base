@@ -1,0 +1,80 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob([
+        "*.cpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)
+
+cc_test_with_variants(
+    name = "can_reference_test",
+    srcs = ["can_reference_test.cpp"],
+    deps = [
+        "//arene/base/iterator/detail:can_reference",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "cond_value_type_test",
+    srcs = ["cond_value_type_test.cpp"],
+    deps = [
+        "//arene/base/iterator/detail:cond_value_type",
+        "//arene/base/iterator/detail:has_member_value_type",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_member_element_type_test",
+    srcs = ["has_member_element_type_test.cpp"],
+    deps = [
+        "//arene/base/iterator/detail:has_member_element_type",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "has_member_value_type_test",
+    srcs = ["has_member_value_type_test.cpp"],
+    deps = [
+        "//arene/base/iterator/detail:has_member_value_type",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_dereferenceable_test",
+    srcs = ["is_dereferenceable_test.cpp"],
+    deps = [
+        "//arene/base/iterator/detail:is_dereferenceable",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iter_concept_test",
+    srcs = ["iter_concept_test.cpp"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/iterator/detail:iter_concept",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)

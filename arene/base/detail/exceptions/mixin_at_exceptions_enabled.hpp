@@ -73,6 +73,22 @@ class mixin_at_impl {
     }
   }
 
+ protected:
+  // parasoft-begin-suppress CERT_C-EXP37-a-3 "False positive: The rule does not mention naming all parameters"
+  /// @brief Do-nothing default constructor
+  constexpr mixin_at_impl() = default;
+  /// @brief Do-nothing destructor
+  ~mixin_at_impl() = default;
+  /// @brief Do-nothing copy constructor
+  constexpr mixin_at_impl(mixin_at_impl const&) = default;
+  /// @brief Do-nothing move constructor
+  constexpr mixin_at_impl(mixin_at_impl&&) = default;
+  /// @brief Do-nothing copy assignment operator
+  constexpr auto operator=(mixin_at_impl const&) -> mixin_at_impl& = default;
+  /// @brief Do-nothing move assignment operator
+  constexpr auto operator=(mixin_at_impl&&) -> mixin_at_impl& = default;
+  // parasoft-end-suppress CERT_C-EXP37-a-3
+
  public:
   /// @brief Accesses the value at the specified index.
   ///
@@ -120,7 +136,9 @@ class mixin_at_impl {
   template <typename U = ContainerType, constraints<std::enable_if_t<has_index_operator_v<U const&&>>> = nullptr>
   constexpr auto at(IndexType const idx) const&& -> decltype(auto) {
     throw_if_out_of_range(idx);
+    // parasoft-begin-suppress AUTOSAR-A18_9_3-a "Moving is required to maintain rvalue qualification"
     return (std::move(*this)).as_container()[idx];
+    // parasoft-end-suppress AUTOSAR-A18_9_3-a
   }
 };
 

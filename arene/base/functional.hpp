@@ -13,6 +13,7 @@
 #include "arene/base/functional/bind_back.hpp"                          // IWYU pragma: export
 #include "arene/base/functional/bind_front.hpp"                         // IWYU pragma: export
 #include "arene/base/functional/bind_overloads.hpp"                     // IWYU pragma: export
+#include "arene/base/functional/construct.hpp"                          // IWYU pragma: export
 #include "arene/base/functional/function_ref.hpp"                       // IWYU pragma: export
 #include "arene/base/functional/function_traits.hpp"                    // IWYU pragma: export
 #include "arene/base/functional/identity.hpp"                           // IWYU pragma: export

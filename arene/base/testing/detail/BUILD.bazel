@@ -1,4 +1,23 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "any_prng_ref",
+    testonly = True,
+    hdrs = ["any_prng_ref.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//arene/base/testing:__subpackages__"],
+    deps = [
+        "//arene/base/functional:function_ref",
+        "//arene/base/stdlib_choice:cstdint",
+    ],
+)
 
 cc_library_with_variants(
     name = "property_context",
@@ -13,6 +32,23 @@ cc_library_with_variants(
     deps = [
         "//arene/base:optional",
         "//arene/base/testing:property_error",
+    ],
+)
+
+cc_library_with_variants(
+    name = "property_trampoline",
+    testonly = True,
+    hdrs = ["property_trampoline.hpp"],
+    tags = [
+        # while this is part of the public API, it is not production-intent code
+        "no-test-spec",
+    ],
+    visibility = ["//arene/base/testing:__subpackages__"],
+    deps = [
+        ":any_prng_ref",
+        "//arene/base/functional:function_traits",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_list",
     ],
 )
 

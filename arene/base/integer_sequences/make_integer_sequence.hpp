@@ -5,6 +5,9 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_INTEGER_SEQUENCES_MAKE_INTEGER_SEQUENCE_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_INTEGER_SEQUENCES_MAKE_INTEGER_SEQUENCE_HPP_
 
+// IWYU pragma: private, include "arene/base/integer_sequences.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
+
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/numeric_limits.hpp"

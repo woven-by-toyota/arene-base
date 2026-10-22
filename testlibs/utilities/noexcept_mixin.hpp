@@ -5,7 +5,6 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_NOEXCEPT_MIXIN_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_NOEXCEPT_MIXIN_HPP_
 
-#include "stdlib/include/cstdint"
 #include "testlibs/utilities/throws_on.hpp"  // IWYU pragma: export
 
 namespace testing {

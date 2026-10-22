@@ -2,17 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_library_with_variants(
     name = "test_helpers",
     testonly = True,
     hdrs = [
         "testing_types.hpp",
-    ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
     ],
     deps = [
         "//arene/base/compiler_support",
@@ -28,16 +28,16 @@ cc_test(
     srcs = [
         "external_vector_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":test_helpers",
         "//arene/base:array",
         "//arene/base:byte",
         "//arene/base:span",
+        "//arene/base/array:to_array",
         "//arene/base/inline_container:vector",
-        "//testlibs:gtest",
+        "//arene/base/ranges:enable_borrowed_range",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
         "//testlibs/utilities:counting_wrapper",
         "//testlibs/utilities:has_broken_less_than",
     ],
@@ -48,9 +48,6 @@ cc_test(
     srcs = [
         "external_vector_parameterized_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":test_helpers",
         "//arene/base:array",
@@ -58,7 +55,7 @@ cc_test(
         "//arene/base:span",
         "//arene/base/inline_container:vector",
         "//arene/base/inline_container/testing:external_vector",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -67,12 +64,8 @@ cc_test_with_variants(
     srcs = [
         "function_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:type_info",
-        "//arene/base:type_traits",
         "//arene/base/compiler_support",
         "//arene/base/inline_container:inline_function",
         "//arene/base/stdlib_choice:cstddef",
@@ -83,9 +76,10 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:is_move_constructible",
         "//arene/base/stdlib_choice:move",
         "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
         "//arene/base/utility:to_underlying",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -94,20 +88,68 @@ cc_test_with_variants(
     srcs = [
         "function_death_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base/inline_container:inline_function",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/utility:to_underlying",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
+# Storing an invocable whose alignment requirement exceeds the buffer's alignment would place it at an under-aligned
+# address, so it is rejected by a `static_assert`. These tests assert the rejection is a build error rather than
+# silently-undefined behaviour. The buffer size is set to the invocable's size so that the size constraint is satisfied
+# and only the alignment check can be doing the rejecting.
+[
+    cc_build_error_test(
+        name = "over_aligned_invocable_cannot_be_{}_test".format(param["name"]),
+        src = inline_src.cpp("""\
+#include "arene/base/inline_container/function.hpp"
+
+struct alignas(2U * arene::base::default_inline_function_alignment) over_aligned_callable {{
+  auto operator()() const noexcept -> int {{ return 0; }}
+}};
+
+auto main() -> int {{
+  using function_type = arene::base::inline_function<{signature}, sizeof(over_aligned_callable)>;
+  {body}
+  static_cast<void>(func);
+}}
+""".format(
+            body = param["body"],
+            signature = param["signature"],
+        )),
+        compile_stderr = matcher.has_substr("requires stricter alignment than the inline_function it is stored in"),
+        deps = ["//arene/base/inline_container:inline_function"],
+    )
+    for param in [
+        {
+            "name": "constructed",
+            "signature": "auto () -> int",
+            "body": "function_type func{over_aligned_callable{}};",
+        },
+        {
+            "name": "assigned",
+            "signature": "auto () -> int",
+            "body": "function_type func{}; func = over_aligned_callable{};",
+        },
+        {
+            "name": "constructed_when_const_qualified",
+            "signature": "auto () const -> int",
+            "body": "function_type func{over_aligned_callable{}};",
+        },
+        {
+            "name": "assigned_when_const_qualified",
+            "signature": "auto () const -> int",
+            "body": "function_type func{}; func = over_aligned_callable{};",
+        },
+    ]
+]
+
 cc_library_with_variants(
     name = "map_test_helpers",
+    testonly = True,
     srcs = ["map_test_helpers.hpp"],
     deps = [
         "//arene/base:compare",
@@ -118,7 +160,7 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:numeric_limits",
         "//arene/base/stdlib_choice:remove_const",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -127,14 +169,6 @@ cc_test_with_variants(
     srcs = [
         "map_test.cpp",
     ],
-    # build failure
-    #
-    # ERROR: /home/oliver-lee/repos/arene-base/arene/base/inline_container/tests/BUILD.bazel:120:22: Running AreneIwyu on #//arene/base/inline_container/tests:map_test.without_toolchain_stdlib failed: (Segmentation fault): include-what-you-use-prebuilt #failed: error executing AreneIwyu command (from target //arene/base/inline_container/tests:map_test.without_toolchain_stdlib) #bazel-out/k8-opt-exec-ST-d57f47055a04/bin/external/arene-iwyu~/iwyu/include-what-you-use-prebuilt -Xiwyu --no_internal_mappings #-Xiwyu '--regex=ecmascript' -Xiwyu --no_fwd_decls -Xiwyu ... (remaining 140 arguments skipped)
-    # bazel-out/k8-opt-exec-ST-d57f47055a04/bin/external/arene-iwyu~/iwyu/include-what-you-use-prebuilt: line 17:    37 Segmentation fault      (core dumped) "$iwyu" -Xiwyu --error=$IWYU_EXIT_CODE "$@" 2> "$OUTFILE"
-    tags = ["no-arene-iwyu"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":map_test_helpers",
         "//arene/base:algorithm",
@@ -142,7 +176,6 @@ cc_test_with_variants(
         "//arene/base:endian",
         "//arene/base:inline_string",
         "//arene/base:optional",
-        "//arene/base:type_traits",
         "//arene/base/inline_container:map",
         "//arene/base/inline_container:vector",
         "//arene/base/stdlib_choice:cstddef",
@@ -162,7 +195,10 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:pair",
         "//arene/base/stdlib_choice:reverse",
         "//arene/base/stdlib_choice:sort",
-        "//testlibs:gtest",
+        "//arene/base/type_list:remove_duplicates",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:iterator_category_traits",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
         "//testlibs/utilities:has_broken_less_than",
     ],
@@ -172,9 +208,6 @@ cc_test_with_variants(
     name = "map_at_test",
     srcs = [
         "map_at_test.cpp",
-    ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
     ],
     deps = [
         ":map_test_helpers",
@@ -191,7 +224,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:stdexcept",
         "//arene/base/testing:gtest",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -199,9 +232,6 @@ cc_test_with_variants(
     name = "map_death_test",
     srcs = [
         "map_death_test.cpp",
-    ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
     ],
     deps = [
         "//arene/base:inline_string",
@@ -211,7 +241,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:move",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -219,9 +249,6 @@ cc_test_with_variants(
     name = "map_throw_test",
     srcs = [
         "map_throw_test.cpp",
-    ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
     ],
     deps = [
         "//arene/base/inline_container:map",
@@ -231,22 +258,20 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:stdexcept",
         "//arene/base/stdlib_choice:tuple",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "map_reference_test",
     srcs = ["map_reference_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:iterator",
-        "//arene/base:type_traits",
         "//arene/base:utility",
         "//arene/base/inline_container:map_reference",
+        "//arene/base/ranges:enable_borrowed_range",
         "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:forward",
         "//arene/base/stdlib_choice:is_constructible",
@@ -254,34 +279,29 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:pair",
         "//arene/base/stdlib_choice:stdexcept",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "map_reference_throw_test",
     srcs = ["map_reference_throw_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
-        "//arene/base:type_traits",
         "//arene/base/inline_container:map_reference",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:pair",
         "//arene/base/stdlib_choice:stdexcept",
+        "//arene/base/type_traits:is_invocable",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "map_reference_death_test",
     srcs = ["map_reference_death_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:iterator",
         "//arene/base/inline_container:map_reference",
@@ -289,7 +309,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/stdlib_choice:pair",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -298,18 +318,15 @@ cc_test_with_variants(
     srcs = [
         "map_reference_iterator_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:iterator",
-        "//arene/base:type_traits",
         "//arene/base/inline_container:map_reference",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:is_constructible",
         "//arene/base/stdlib_choice:is_convertible",
         "//arene/base/stdlib_choice:pair",
-        "//testlibs:gtest",
+        "//arene/base/type_traits:iterator_category_traits",
+        "//testlibs:test_main",
     ],
 )
 
@@ -318,9 +335,6 @@ cc_test_with_variants(
     srcs = [
         "set_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:algorithm",
         "//arene/base:array",
@@ -328,7 +342,6 @@ cc_test_with_variants(
         "//arene/base:inline_string",
         "//arene/base:iterator",
         "//arene/base:optional",
-        "//arene/base:type_traits",
         "//arene/base/detail:wrapped_iterator",
         "//arene/base/inline_container:set",
         "//arene/base/stdlib_choice:cstddef",
@@ -350,7 +363,10 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:reverse",
         "//arene/base/stdlib_choice:sort",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//arene/base/type_list:remove_duplicates",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:iterator_category_traits",
+        "//testlibs:test_main",
         "//testlibs/utilities:iterator_types",
     ],
 )
@@ -359,9 +375,6 @@ cc_test_with_variants(
     name = "set_death_test",
     srcs = [
         "set_death_test.cpp",
-    ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
     ],
     deps = [
         "//arene/base:array",
@@ -374,7 +387,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:move",
         "//arene/base/utility:safe_comparisons",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -383,9 +396,6 @@ cc_test_with_variants(
     srcs = [
         "set_throw_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:compare",
         "//arene/base/inline_container:set",
@@ -393,7 +403,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:stdexcept",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -402,20 +412,17 @@ cc_test_with_variants(
     srcs = [
         "vector_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":test_helpers",
         "//arene/base:array",
-        "//arene/base:type_traits",
         "//arene/base:utility",
+        "//arene/base/array:to_array",
         "//arene/base/inline_container:vector",
         "//arene/base/inline_container/testing:vector",
         "//arene/base/stdlib_choice:accumulate",
         "//arene/base/testing:gtest",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
         "//testlibs/utilities:counting_wrapper",
     ],
@@ -426,20 +433,19 @@ cc_test_with_variants(
     srcs = [
         "vector_basic_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":test_helpers",
         "//arene/base:array",
         "//arene/base:inline_string",
-        "//arene/base:type_traits",
         "//arene/base:utility",
+        "//arene/base/compiler_support",
         "//arene/base/inline_container:vector",
+        "//arene/base/iterator:distance",
         "//arene/base/stdlib_choice:accumulate",
         "//arene/base/stdlib_choice:is_destructible",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//arene/base/type_traits:is_swappable",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
         "//testlibs/utilities:counting_wrapper",
         "//testlibs/utilities:has_broken_less_than",
@@ -452,9 +458,6 @@ cc_test_with_variants(
     srcs = [
         "vector_death_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":test_helpers",
         "//arene/base:array",
@@ -463,9 +466,23 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/testing:gtest",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
         "//testlibs/utilities:counting_wrapper",
+    ],
+)
+
+cc_test_with_variants(
+    name = "vector_throw_test",
+    srcs = ["vector_throw_test.cpp"],
+    deps = [
+        "//arene/base/inline_container:vector",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:stdexcept",
+        "//configs:incompatible_with_exceptions_disabled",
+        "//testlibs:test_main",
     ],
 )
 
@@ -474,15 +491,12 @@ cc_test_with_variants(
     srcs = [
         "vector_reference_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:array",
-        "//arene/base:type_traits",
         "//arene/base/algorithm:copy",
         "//arene/base/algorithm:find",
         "//arene/base/inline_container:vector",
+        "//arene/base/ranges:enable_borrowed_range",
         "//arene/base/stdlib_choice:basic_insert_iterator",
         "//arene/base/stdlib_choice:begin",
         "//arene/base/stdlib_choice:cstddef",
@@ -496,7 +510,8 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:sort",
         "//arene/base/testing:gtest",
         "//arene/base/type_traits:conditional",
-        "//testlibs:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
     ],
 )
 
@@ -505,17 +520,13 @@ cc_test_with_variants(
     srcs = [
         "vector_reference_death_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:array",
-        "//arene/base:type_traits",
         "//arene/base/inline_container:vector",
         "//arene/base/testing:gtest",
         "//arene/base/type_traits:conditional",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -524,12 +535,10 @@ cc_test_with_variants(
     srcs = [
         "circular_buffer_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:array",
         "//arene/base:string_view",
+        "//arene/base/array:to_array",
         "//arene/base/compiler_support:diagnostics",
         "//arene/base/inline_container:circular_buffer",
         "//arene/base/inline_container:vector",
@@ -539,7 +548,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:min_value_overload",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
         "//testlibs/utilities:counting_wrapper",
     ],
@@ -550,12 +559,10 @@ cc_test_with_variants(
     srcs = [
         "deque_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:array",
         "//arene/base:string_view",
+        "//arene/base/array:to_array",
         "//arene/base/compiler_support:diagnostics",
         "//arene/base/inline_container:deque",
         "//arene/base/inline_container:vector",
@@ -563,7 +570,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:move",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
         "//testlibs/utilities:configurable_value",
         "//testlibs/utilities:counting_wrapper",
     ],
@@ -574,15 +581,12 @@ cc_test_with_variants(
     srcs = [
         "deque_throw_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base/inline_container:deque",
         "//arene/base/stdlib_choice:move",
         "//arene/base/stdlib_choice:stdexcept",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

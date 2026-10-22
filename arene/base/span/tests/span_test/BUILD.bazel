@@ -5,20 +5,19 @@
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_library_with_variants(
     name = "equivalent_span_to",
     testonly = True,
     hdrs = [
         "equivalent_span_to.hpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base/span:internal",
         "//arene/base/stdlib_choice:cstddef",
         "//configs:incompatible_with_toolchain_stdlib_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -44,9 +43,6 @@ structured_tests = [
             ],
             defines = ["TEST_VALUE_TYPE={}".format(value_type)],
             tags = tags,
-            visibility = [
-                "//tools/compdb:__subpackages__",
-            ],
             deps = [
                 "//arene/base:byte",
                 "//arene/base/span:internal",
@@ -58,7 +54,7 @@ structured_tests = [
                 "//arene/base/type_list:concat",
                 "//arene/base/type_list:concat_unique",
                 "//arene/base/type_list:flat_map",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -73,7 +69,7 @@ structured_tests = [
                 "//arene/base/span:internal",
                 "//arene/base/stdlib_choice:min",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -86,7 +82,7 @@ structured_tests = [
                 ":helpers_{}".format(type_name),
                 "//arene/base/span:internal",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -99,7 +95,7 @@ structured_tests = [
                 ":helpers_{}".format(type_name),
                 "//arene/base:array",
                 "//arene/base/span:internal",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         # currently depends on std::vector so cannot be with_variants
@@ -111,9 +107,10 @@ structured_tests = [
             tags = tags,
             deps = [
                 ":helpers_{}".format(type_name),
-                "//arene/base:iterator",
+                "//arene/base/iterator:next",
                 "//arene/base/span:internal",
-                "//testlibs:gtest",
+                "//arene/base/type_traits:remove_cvref",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -127,7 +124,7 @@ structured_tests = [
                 "//arene/base:iterator",
                 "//arene/base/span:internal",
                 "//arene/base/stdlib_choice:cstddef",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -141,7 +138,7 @@ structured_tests = [
                 "//arene/base/stdlib_choice:cstddef",
                 "//arene/base/stdlib_choice:numeric_limits",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -158,7 +155,7 @@ structured_tests = [
                 "//arene/base/stdlib_choice:declval",
                 "//arene/base/stdlib_choice:ignore",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test(
@@ -171,7 +168,7 @@ structured_tests = [
                 ":helpers_{}".format(type_name),
                 "//arene/base/span:internal",
                 "//arene/base/stdlib_choice:ignore",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -185,7 +182,7 @@ structured_tests = [
                 ":helpers_{}".format(type_name),
                 "//arene/base/span:internal",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -199,7 +196,7 @@ structured_tests = [
                 "//arene/base/span:internal",
                 "//arene/base/testing:gtest",
                 "//testlibs:death_test_support",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -215,7 +212,7 @@ structured_tests = [
                 "//arene/base/stdlib_choice:declval",
                 "//arene/base/stdlib_choice:min_value_overload",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -232,7 +229,7 @@ structured_tests = [
                 "//arene/base/stdlib_choice:min_value_overload",
                 "//arene/base/testing:gtest",
                 "//testlibs:death_test_support",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         # Cannot with_variants as it depends on vector
@@ -247,7 +244,7 @@ structured_tests = [
                 "//arene/base:iterator",
                 "//arene/base/span:internal",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -262,7 +259,7 @@ structured_tests = [
                 "//arene/base:iterator",
                 "//arene/base/span:internal",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -277,7 +274,7 @@ structured_tests = [
                 "//arene/base/span:internal",
                 "//arene/base/testing:gtest",
                 "//testlibs:death_test_support",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -288,14 +285,15 @@ structured_tests = [
             tags = tags,
             deps = [
                 ":helpers_{}".format(type_name),
-                "//arene/base:type_traits",
+                "//arene/base/ranges:enable_borrowed_range",
                 "//arene/base/span:internal",
                 "//arene/base/stdlib_choice:add_lvalue_reference",
                 "//arene/base/stdlib_choice:add_pointer",
                 "//arene/base/stdlib_choice:cstddef",
                 "//arene/base/stdlib_choice:iterator_traits",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//arene/base/type_traits:remove_cvref",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -308,7 +306,7 @@ structured_tests = [
                 ":helpers_{}".format(type_name),
                 "//arene/base/span:internal",
                 "//testlibs:death_test_support",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -321,7 +319,7 @@ structured_tests = [
                 ":helpers_{}".format(type_name),
                 "//arene/base/span:internal",
                 "//arene/base/stdlib_choice:declval",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -336,7 +334,7 @@ structured_tests = [
                 "//arene/base:iterator",
                 "//arene/base/span:internal",
                 "//arene/base/testing:gtest",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
         cc_test_with_variants(
@@ -349,7 +347,7 @@ structured_tests = [
                 ":helpers_{}".format(type_name),
                 "//arene/base/span:internal",
                 "//arene/base/stdlib_choice:declval",
-                "//testlibs:gtest",
+                "//testlibs:test_main",
             ],
         ),
     )
@@ -377,9 +375,6 @@ flattened_tests = [
 test_suite(
     name = "span_test",
     tests = flattened_tests,
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
 )
 
 exports_files(

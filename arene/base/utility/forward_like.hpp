@@ -13,7 +13,7 @@
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/stdlib_choice/is_const.hpp"
 #include "arene/base/stdlib_choice/is_lvalue_reference.hpp"
 #include "arene/base/stdlib_choice/remove_reference.hpp"
@@ -76,7 +76,7 @@ class forward_like {
 }  // namespace forward_like_detail
 
 ///
-/// @brief A backport of C++23's [@c std::forward_like](https://en.cppreference.com/w/cpp/utility/forward_like) , it
+/// @brief A backport of C++23's @c std::forward_like, which
 ///        allows forwarding a type with the same reference and const qualifications as another type.
 ///
 /// @tparam From The type to take the reference and qualification properties from.

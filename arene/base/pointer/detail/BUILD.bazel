@@ -5,24 +5,11 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "non_null_aliases_hdrs",
-    srcs = [
-        "non_null_aliases.hpp",
-    ],
-)
-
-filegroup(
-    name = "util_hdrs",
-    srcs = [
-        "to_address.hpp",
-        "type_traits.hpp",
-    ],
-)
-
 cc_library(
     name = "non_null_aliases",
-    hdrs = [":non_null_aliases_hdrs"],
+    hdrs = [
+        "non_null_aliases.hpp",
+    ],
     tags = ["no-arene-iwyu"],  # pulls in <memory> from toolchain stdlib
     visibility = ["//arene/base/pointer:__subpackages__"],
     deps = [
@@ -33,7 +20,10 @@ cc_library(
 
 cc_library_with_variants(
     name = "utils",
-    hdrs = [":util_hdrs"],
+    hdrs = [
+        "to_address.hpp",
+        "type_traits.hpp",
+    ],
     visibility = ["//arene/base/pointer:__subpackages__"],
     deps = [
         "//arene/base:constraints",
@@ -60,8 +50,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":non_null_aliases_hdrs",
-        ":util_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/pointer:__pkg__"],
 )

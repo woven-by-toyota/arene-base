@@ -195,6 +195,20 @@ TEST(IsEqualityComparable, FalseForTypesWithoutEqualityOperatorBetweenTypes) {
   STATIC_ASSERT_FALSE(arene::base::is_equality_comparable_v<lte, eq>);
   STATIC_ASSERT_FALSE(arene::base::is_equality_comparable_v<throwing_lte>);
   STATIC_ASSERT_FALSE(arene::base::is_equality_comparable_v<throwing_lte, throwing_eq>);
+  ASSERT_FALSE(
+      // NOLINTNEXTLINE(hicpp-use-nullptr)
+      (arene::base::comparison_traits_detail::is_equality_comparable_helper::test<non_comparable, non_comparable>(0))
+  );
+  // NOLINTNEXTLINE(hicpp-use-nullptr)
+  ASSERT_FALSE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<lte, lte>(0)));
+  // NOLINTNEXTLINE(hicpp-use-nullptr)
+  ASSERT_FALSE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<lte, eq>(0)));
+  // NOLINTNEXTLINE(hicpp-use-nullptr)
+  ASSERT_FALSE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<throwing_lte, throwing_lte>(0
+  )));
+  // NOLINTNEXTLINE(hicpp-use-nullptr)
+  ASSERT_FALSE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<throwing_lte, throwing_eq>(0)
+  ));
 }
 
 /// @test `is_equality_comparable_v` evaluates to `true` when the parameter types can be compared using the equality
@@ -206,6 +220,15 @@ TEST(IsEqualityComparable, TrueForTypesWithEqualityOperatorBetweenTypes) {
   STATIC_ASSERT_TRUE(arene::base::is_equality_comparable_v<eq, lte>);
   STATIC_ASSERT_TRUE(arene::base::is_equality_comparable_v<throwing_eq>);
   STATIC_ASSERT_TRUE(arene::base::is_equality_comparable_v<throwing_eq, throwing_lte>);
+  ASSERT_TRUE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<int, int>(0)));
+  ASSERT_TRUE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<std::string, std::string>(0))
+  );
+  ASSERT_TRUE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<eq, eq>(0)));
+  ASSERT_TRUE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<eq, lte>(0)));
+  ASSERT_TRUE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<throwing_eq, throwing_eq>(0))
+  );
+  ASSERT_TRUE((arene::base::comparison_traits_detail::is_equality_comparable_helper::test<throwing_eq, throwing_lte>(0))
+  );
 }
 
 /// @test `is_inequality_comparable_v` evaluates to `false` when the parameter types cannot be compared using the

@@ -41,6 +41,12 @@ struct counting_wrapper
   }
 };
 
+template <typename T>
+extern constexpr bool is_counting_wrapper_v{false};
+
+template <typename T, throws_on ThrowsOn, disable SpecialMembers>
+extern constexpr bool is_counting_wrapper_v<counting_wrapper<T, ThrowsOn, SpecialMembers>>{true};
+
 }  // namespace testing
 
 #endif  // INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_COUNTING_WRAPPER_HPP_

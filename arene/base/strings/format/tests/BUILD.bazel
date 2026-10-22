@@ -4,13 +4,12 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test_with_variants(
     name = "to_inline_string_test",
     srcs = [
         "to_inline_string_test.cpp",
-    ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
     ],
     deps = [
         "//arene/base:inline_string",
@@ -20,7 +19,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:numeric_limits",
         "//arene/base/strings/format:to_inline_string_internal",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -29,14 +28,11 @@ cc_test_with_variants(
     srcs = [
         "to_inline_string_death_test.cpp",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:inline_string",
         "//arene/base/stdlib_choice:cstddef",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

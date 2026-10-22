@@ -99,7 +99,7 @@ class InlineMapTransparentComparisonEquivalencyBase<
   // The container type to use for equivalence testing
   using imap = arene::base::inline_map<test_string, MappedType, Capacity, Compare>;
   // A key which is less than all keys in the container
-  typename imap::key_type const key_less_than_container;
+  typename imap::key_type const key_less_than_container{};
   // A key which is between keys in the container
   typename imap::key_type const key_gap_in_container{"d"};
   // A key which is in the container
@@ -124,7 +124,7 @@ class InlineMapTransparentComparisonEquivalencyBase<
   // The container type to use for equivalence testing
   using imap = arene::base::inline_map<test_string, MappedType, Capacity, Compare> const;
   // A key which is less than all keys in the container
-  typename imap::key_type const key_less_than_container;
+  typename imap::key_type const key_less_than_container{};
   // A key which is between keys in the container
   typename imap::key_type const key_gap_in_container{"d"};
   // A key which is in the container

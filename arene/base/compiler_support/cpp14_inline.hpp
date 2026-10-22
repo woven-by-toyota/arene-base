@@ -5,13 +5,14 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_CPP14_INLINE_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_CPP14_INLINE_HPP_
 
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
+#include "arene/base/compiler_support/platform_queries/has_inline_variables.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
+#include "arene/base/compiler_support/preprocessor/require_semicolon.hpp"
 // IWYU pragma: private
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 
 namespace arene {
@@ -57,7 +58,7 @@ constexpr ObjectT cpp14_inline_static_const<ObjectT>::value;
 /// where @c inline variable declarations are not permitted, the same effect is achieved by indirecting through the
 /// @c arene::base::detail::cpp14_inline_static_const helper template. The usage looks like so:
 ///
-/// \snippet docs/examples/compiler_support_examples.cpp cpp14_inline_variable_fo
+/// \snippet docs/examples/compiler_support_examples.cpp arene_cpp14_inline_variable_fo
 ///
 #if ARENE_IS_ON(ARENE_STD_INLINE_VARIABLES)
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage) This cannot be a constexpr function, it must be a macro.
@@ -70,6 +71,34 @@ constexpr ObjectT cpp14_inline_static_const<ObjectT>::value;
   /* NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables, bugprone-macro-parentheses) */     \
   ARENE_MAYBE_UNUSED constexpr auto& name = ::arene::base::detail::cpp14_inline_static_const<type>::value; \
   }                                                                                                        \
+  ARENE_REQUIRE_SEMICOLON
+#endif
+
+/// @def ARENE_CPP14_INLINE_VARIABLE_INIT
+/// @brief Emulates C++17's inline variable declarations for an arbitrary initializer expression.
+///
+/// @param name The name the instantiated object should have in the containing namespace.
+/// @param ... The initializer expression. Variadic so that initializers containing commas (e.g. template arguments
+///            of the constructed type) do not need extra parentheses at the call site.
+///
+/// Companion to @c ARENE_CPP14_INLINE_VARIABLE for cases where the value cannot be produced by default-construction
+/// (e.g. function objects returned from @c arene::base::bind_back ).
+#if ARENE_IS_ON(ARENE_STD_INLINE_VARIABLES)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) This cannot be a constexpr function, it must be a macro.
+#define ARENE_CPP14_INLINE_VARIABLE_INIT(name, ...) ARENE_MAYBE_UNUSED inline constexpr auto name = __VA_ARGS__
+#else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) This cannot be a constexpr function, it must be a macro.
+#define ARENE_CPP14_INLINE_VARIABLE_INIT_DETAIL_NS(name) name##_cpp14_inline_detail
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) This cannot be a constexpr function, it must be a macro.
+#define ARENE_CPP14_INLINE_VARIABLE_INIT_DETAIL_VAR(name) name##_v
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) This cannot be a constexpr function, it must be a macro.
+#define ARENE_CPP14_INLINE_VARIABLE_INIT(name, ...)                                                               \
+  namespace ARENE_CPP14_INLINE_VARIABLE_INIT_DETAIL_NS(name) { /* NOLINT(google-build-namespaces) */              \
+  template <decltype(nullptr) = nullptr> /* NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) */ \
+  extern constexpr auto ARENE_CPP14_INLINE_VARIABLE_INIT_DETAIL_VAR(name) = __VA_ARGS__;                          \
+  }                                                                                                               \
+  ARENE_MAYBE_UNUSED static constexpr auto const& name =                                                          \
+      ARENE_CPP14_INLINE_VARIABLE_INIT_DETAIL_NS(name)::ARENE_CPP14_INLINE_VARIABLE_INIT_DETAIL_VAR(name)<>;      \
   ARENE_REQUIRE_SEMICOLON
 #endif
 

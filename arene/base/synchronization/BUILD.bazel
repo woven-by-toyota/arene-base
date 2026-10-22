@@ -4,18 +4,13 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library(
+    name = "internal",
+    hdrs = [
         "barrier.hpp",
         "latch.hpp",
         "manual_reset_event.hpp",
     ],
-)
-
-cc_library(
-    name = "internal",
-    hdrs = [":hdrs"],
     target_compatible_with = select({
         "//configs:posix": [],
         "//conditions:default": ["@platforms//:incompatible"],
@@ -47,7 +42,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

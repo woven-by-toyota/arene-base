@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -29,7 +33,7 @@ There are facilities for testing if attributes are supported by a platform, as
 well as pre-built macros for injecting an attribute only if the
 platform/compiler supports it for commonly used attributes.
 
-## `ARENE_HAS_STD_ATTRIBUTE`: Testing For Attribute Existence {#arene_has_std_attribute-testing-for-attribute-existence}
+# `ARENE_HAS_STD_ATTRIBUTE`: Testing For Attribute Existence {#subpackages-compiler-support-attributes-arene_has_std_attribute-testing-for-attribute-existence}
 
 The `ARENE_HAS_STD_ATTRIBUTE(...)` macro is a wrapper around the compiler
 intrinsics `__has_cpp_attribute` or `__has_c_attribute`. It is used to test for
@@ -55,7 +59,7 @@ standardized. If it is defined, this is used. Otherwise, it tests if the
 standard `maybe_unused` attribute is defined, and if it is, uses it. Finally, if
 neither are supported, the macro turns into a no-op.
 
-## Supported Attributes {#supported-attributes}
+## Supported Attributes {#subpackages-compiler-support-attributes-supported-attributes}
 
 The attributes which have stock wrapper macros are enumerated in the following
 table, with links to their stdlib documentation for meaning:

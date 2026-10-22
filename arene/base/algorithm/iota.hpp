@@ -112,9 +112,8 @@ class iota_fn {
 };
 }  // namespace iota_detail
 
-/// @def arene::base::iota
 /// @brief fills a range with successive increments of the starting value
-/// @copydoc arene::base::iota_detail::iota_fn::operator()
+/// Assigns the starting value to the first element and increments it for each subsequent element.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

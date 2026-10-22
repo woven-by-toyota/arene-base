@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 MD013-->
 <!-- prettier-ignore -->
@@ -17,7 +21,7 @@ The Bazel target is
 //:synchronization
 ```
 
-## Introduction {#introduction}
+# Introduction {#subpackages-synchronization-introduction}
 
 The `synchronization` subpackage provides backports of
 [`std::latch`](https://en.cppreference.com/w/cpp/thread/latch) and
@@ -28,7 +32,7 @@ Note: use of these synchronization mechanisms may lead a thread to **block**.
 Care should be taken to ensure this is permitted by the relevant coding
 standard.
 
-## Latches {#latches}
+## Latches {#subpackages-synchronization-latches}
 
 `arene::base::latch` is a backport of
 [`std::latch`](https://en.cppreference.com/w/cpp/thread/latch). It is a single
@@ -80,7 +84,7 @@ Header:
 #include <arene/base/synchronization/latch.hpp>
 ```
 
-## Barriers {#barriers}
+## Barriers {#subpackages-synchronization-barriers}
 
 `arene::base::barrier` is a backport of
 [`std::barrier`](https://en.cppreference.com/w/cpp/thread/barrier). It is a
@@ -185,7 +189,7 @@ Header:
 #include <arene/base/synchronization/barrier.hpp>
 ```
 
-## Manual Reset Events {#manual-reset-events}
+## Manual Reset Events {#subpackages-synchronization-manual-reset-events}
 
 `arene::base::manual_reset_event` is a low level synchronization object. It has
 two states: _signalled_ and _not signalled_. Initially it is _not signalled_.

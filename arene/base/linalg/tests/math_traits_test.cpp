@@ -24,8 +24,12 @@ TYPED_TEST(LinalgMathTraitsTest, MathTraitsOnlySucceedForLinalgObjects) {
   using type = typename TypeParam::type;
 
   constexpr bool should_be_linalg_object{
-      (TypeParam::expectation == category::in_vector) || (TypeParam::expectation == category::inout_vector) ||
-      (TypeParam::expectation == category::in_matrix) || (TypeParam::expectation == category::inout_matrix)
+      (TypeParam::expectation == category::in_vector) ||     //
+      (TypeParam::expectation == category::inout_vector) ||  //
+      (TypeParam::expectation == category::in_matrix) ||     //
+      (TypeParam::expectation == category::inout_matrix) ||  //
+      (TypeParam::expectation == category::in_object) ||     //
+      (TypeParam::expectation == category::inout_object)
   };
 
   constexpr bool has_element_t{substitution_succeeds<arene::base::linalg::math_element_t, type>};

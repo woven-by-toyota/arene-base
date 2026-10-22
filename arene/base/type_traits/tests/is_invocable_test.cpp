@@ -15,7 +15,10 @@
 #include "arene/base/compiler_support/attributes.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
 #include "arene/base/functional.hpp"
-#include "arene/base/type_list.hpp"
+#include "arene/base/type_list/at.hpp"
+#include "arene/base/type_list/concat.hpp"
+#include "arene/base/type_list/size.hpp"
+#include "arene/base/type_list/type_list.hpp"
 
 namespace {
 

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -23,7 +27,7 @@ The Bazel target is
 //:intrusive
 ```
 
-## Intrusive vs. Non-Intrusive Containers {#intrusive-vs-non-intrusive-containers}
+# Intrusive vs. Non-Intrusive Containers {#subpackages-intrusive-intrusive-vs-non-intrusive-containers}
 
 <!-- prettier-ignore -->
 Most containers, such as those in the standard library or in other libraries
@@ -78,7 +82,7 @@ The downsides of intrusive containers are:
 not** be moved or destroyed until it has been removed from that container, as
 the links will connect to that **specific instance** of the element.
 
-## Adding Intrusive Container Hooks To Elements {#adding-intrusive-container-hooks-to-elements}
+## Adding Intrusive Container Hooks To Elements {#subpackages-intrusive-adding-intrusive-container-hooks-to-elements}
 
 In general, the _hooks_ needed for insertion into an intrusive container are
 added to elements via inheritance; each container type has a base class which
@@ -101,9 +105,9 @@ additional details and examples.
 element grows for _each unique `Tag`_ that is used to inject hooks. Only use
 non-default tags if you are absolutely sure you need them.
 
-## The Intrusive Containers {#the-intrusive-containers}
+## The Intrusive Containers {#subpackages-intrusive-the-intrusive-containers}
 
-### Queue {#queue}
+### Queue {#subpackages-intrusive-queue}
 
 `arene::base::intrusive::queue` is a _queue_ data structure: you push elements
 on the back with `arene::base::intrusive::queue::push`, pop them off the front
@@ -146,7 +150,7 @@ order to provide the necessary fields for linking into the queue. `foo` then
 creates 3 instances of the data element, pushes them onto the queue, and then
 pops them off the queue in a loop.
 
-### An Intrusive Priority Queue {#an-intrusive-priority-queue}
+### An Intrusive Priority Queue {#subpackages-intrusive-an-intrusive-priority-queue}
 
 `arene::base::intrusive::priority_queue` is a is a max-heap-tree-based intrusive
 priority queue data structure. It forms a logical priority queue, allowing

@@ -6,6 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ALGORITHM_TESTS_GENERATED_TEST_DATA_HPP_
 
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "testlibs/utilities/tuplet.hpp"
 
 namespace algorithm_test {

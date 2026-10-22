@@ -5,6 +5,7 @@
 #include "arene/base/mdspan/detail/map_rank.hpp"
 
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "arene/base/mdspan/full_extent.hpp"
 

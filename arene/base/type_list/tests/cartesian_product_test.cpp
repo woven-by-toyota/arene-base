@@ -6,10 +6,13 @@
 
 #include <gtest/gtest.h>
 
+#include "arene/base/algorithm/reduce.hpp"
 #include "arene/base/array/array.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/ignore.hpp"
+#include "arene/base/stdlib_choice/initializer_list.hpp"
+#include "arene/base/stdlib_choice/multiplies.hpp"
 #include "arene/base/stdlib_choice/pair.hpp"
-#include "arene/base/testing/gtest.hpp"
 #include "arene/base/type_list/type_list.hpp"
 
 namespace {
@@ -23,43 +26,72 @@ using abtl = ::arene::base::type_list<Tn...>;
 template <class... Tn>
 using gttl = ::testing::Types<Tn...>;
 
+template <class T, std::size_t N>
+auto assert_equal_permutations(arene::base::array<T, N> const& actual, arene::base::array<T, N> const& expected)
+    -> bool {
+  return actual == expected;
+}
+
 // NOLINTBEGIN(google-runtime-int) We're not doing math with these types, just using the ones that are easy to read
 
 /// @test A sanity check for some implementation detail functions used by `cartesian_product_t`
+/// @note We check a number of permutations for coverage
 TEST(TypeListCartesianProductTest, ImplementationDetailCheck) {
   using arene::base::type_lists::cartesian_product_detail::all_index_permutations_impl;
   using arene::base::type_lists::cartesian_product_detail::all_index_permutations_v;
   using arene::base::type_lists::cartesian_product_detail::nth_type_permutation_t;
 
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[0]), (arene::base::array<std::size_t, 4>{0, 0, 0, 0}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[1]), (arene::base::array<std::size_t, 4>{0, 0, 0, 1}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[2]), (arene::base::array<std::size_t, 4>{0, 0, 0, 2}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[3]), (arene::base::array<std::size_t, 4>{0, 1, 0, 0}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[4]), (arene::base::array<std::size_t, 4>{0, 1, 0, 1}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[5]), (arene::base::array<std::size_t, 4>{0, 1, 0, 2}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[6]), (arene::base::array<std::size_t, 4>{1, 0, 0, 0}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[7]), (arene::base::array<std::size_t, 4>{1, 0, 0, 1}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[8]), (arene::base::array<std::size_t, 4>{1, 0, 0, 2}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[9]), (arene::base::array<std::size_t, 4>{1, 1, 0, 0}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[10]), (arene::base::array<std::size_t, 4>{1, 1, 0, 1}));
-  STATIC_ASSERT_EQ((all_index_permutations_impl<2, 2, 1, 3>()[11]), (arene::base::array<std::size_t, 4>{1, 1, 0, 2}));
+  ASSERT_TRUE(assert_equal_permutations(
+      all_index_permutations_impl<3>(),
+      {{
+          {0},
+          {1},
+          {2},
+      }}
+  ));
 
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[0]), (arene::base::array<std::size_t, 4>{0, 0, 0, 0}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[1]), (arene::base::array<std::size_t, 4>{0, 0, 0, 1}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[2]), (arene::base::array<std::size_t, 4>{0, 0, 0, 2}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[3]), (arene::base::array<std::size_t, 4>{0, 1, 0, 0}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[4]), (arene::base::array<std::size_t, 4>{0, 1, 0, 1}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[5]), (arene::base::array<std::size_t, 4>{0, 1, 0, 2}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[6]), (arene::base::array<std::size_t, 4>{1, 0, 0, 0}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[7]), (arene::base::array<std::size_t, 4>{1, 0, 0, 1}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[8]), (arene::base::array<std::size_t, 4>{1, 0, 0, 2}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[9]), (arene::base::array<std::size_t, 4>{1, 1, 0, 0}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[10]), (arene::base::array<std::size_t, 4>{1, 1, 0, 1}));
-  STATIC_ASSERT_EQ((all_index_permutations_v<2, 2, 1, 3>[11]), (arene::base::array<std::size_t, 4>{1, 1, 0, 2}));
+  ASSERT_TRUE(assert_equal_permutations(
+      all_index_permutations_impl<3, 2>(),
+      {{
+          {0, 0},
+          {0, 1},
+          {1, 0},
+          {1, 1},
+          {2, 0},
+          {2, 1},
+      }}
+  ));
+
+  ASSERT_TRUE(assert_equal_permutations(
+      all_index_permutations_impl<2, 2, 1, 3>(),
+      {{
+          {0, 0, 0, 0},
+          {0, 0, 0, 1},
+          {0, 0, 0, 2},
+          {0, 1, 0, 0},
+          {0, 1, 0, 1},
+          {0, 1, 0, 2},
+          {1, 0, 0, 0},
+          {1, 0, 0, 1},
+          {1, 0, 0, 2},
+          {1, 1, 0, 0},
+          {1, 1, 0, 1},
+          {1, 1, 0, 2},
+      }}
+  ));
 
   ::testing::StaticAssertTypeEq<nth_type_permutation_t<abtl, 0, abtl<int, char, float>>, abtl<int>>();
   ::testing::StaticAssertTypeEq<nth_type_permutation_t<abtl, 1, abtl<int, char, float>>, abtl<char>>();
   ::testing::StaticAssertTypeEq<nth_type_permutation_t<abtl, 2, abtl<int, char, float>>, abtl<float>>();
+
+  // we simply invoke the following for test coverage
+  std::ignore = all_index_permutations_impl<39, 2>();
+  std::ignore = all_index_permutations_impl<39, 8>();
+  std::ignore = all_index_permutations_impl<8, 2>();
+  std::ignore = all_index_permutations_impl<2, 2>();
+  std::ignore = all_index_permutations_impl<4, 4, 4>();
+  std::ignore = all_index_permutations_impl<4, 2>();
+  std::ignore = all_index_permutations_impl<2, 2, 2>();
 }
 
 /// @test `cartesian_product_t` of no lists is an empty arene::base::type_list
@@ -208,5 +240,22 @@ TEST(TypeListCartesianProductTest, CartesianProductAsWorksWithNonVariadicTemplat
 }
 
 // NOLINTEND(google-runtime-int)
+
+/// @test exercise the @c reduce instantiation used at compile time by
+///   @c permutation_space_size_v at run time
+///
+/// @c permutation_space_size_v invokes @c arene::base::reduce over a
+/// @c std::initializer_list<std::size_t> with @c std::multiplies<> only in a
+/// constant expression, so the body of that @c reduce instantiation is never
+/// executed at run time. Every translation unit that includes
+/// @c cartesian_product.hpp emits this instantiation, which drags the merged
+/// line coverage of @c reduce.hpp and @c generalized_reduce.hpp below 100%.
+/// Calling the exact same instantiation at run time here covers those lines.
+TEST(TypeListCartesianProductTest, PermutationSpaceSizeReduceIsCoveredAtRuntime) {
+  ASSERT_EQ(
+      24U,
+      arene::base::reduce(std::initializer_list<std::size_t>{2U, 3U, 4U}, std::size_t{1}, std::multiplies<>{})
+  );
+}
 
 }  // namespace

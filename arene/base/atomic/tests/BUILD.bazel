@@ -4,18 +4,17 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test(
     name = "atomic_monotonic_counter_test",
     srcs = ["atomic_monotonic_counter_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:atomic",
         "//arene/base/compiler_support",
         "//arene/base/synchronization",
         "//configs:incompatible_with_toolchain_stdlib_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

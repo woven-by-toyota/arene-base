@@ -7,8 +7,8 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/array/array.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/iterator/tests/test_helpers.hpp"
 #include "arene/base/stdlib_choice/copy_n.hpp"

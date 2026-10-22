@@ -7,8 +7,9 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/array/array.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/array/to_array.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/inline_container/testing/customization.hpp"  // IWYU pragma: keep
 #include "arene/base/inline_container/tests/testing_types.hpp"
 #include "arene/base/inline_container/vector.hpp"
@@ -39,13 +40,12 @@ using test_string = arene::base::inline_string<50>;
 
 template <>
 constexpr auto arene::base::testing::test_value_array<wrapped_char> =
-    arene::base::to_array<wrapped_char>({{'i'}, {'a'}, {'b'}, {'y'}, {'c'}, {'d'}});
+    arene::base::to_array({wrapped_char{'i'}, {'a'}, {'b'}, {'y'}, {'c'}, {'d'}});
 
 // NOLINTNEXTLINE(fuchsia-statically-constructed-objects) This test-only customization point must be (const) static.
 template <>
-auto const arene::base::testing::test_value_array<test_string> = arene::base::to_array<test_string>(
-    {test_string{"red"}, test_string{"blue"}, test_string{"green"}, test_string{"yellow"}}
-);
+auto const arene::base::testing::test_value_array<test_string> =
+    arene::base::to_array({test_string{"red"}, test_string{"blue"}, test_string{"green"}, test_string{"yellow"}});
 
 template <>
 constexpr auto arene::base::testing::test_value_array<not_default_constructible> = arene::base::to_array(
@@ -73,8 +73,8 @@ ARENE_INSTANTIATE_TESTS(Internal, InlineVector, TestTypes);
 template <typename T>
 using conf_pair = std::pair<::testing::configurable_value<T>, ::testing::configurable_value<T>>;
 template <typename T>
-constexpr auto arene::base::testing::test_value_array<conf_pair<T>> =
-    arene::base::to_array<conf_pair<T>>({{1, -2}, {6, -24}, {120, -720}, {5'040, -40'320}, {362'880, -3'628'800}});
+auto const arene::base::testing::test_value_array<conf_pair<T>> =
+    arene::base::to_array({conf_pair<T>{1, -2}, {6, -24}, {120, -720}, {5'040, -40'320}, {362'880, -3'628'800}});
 
 using throwing_default_ctor = ::testing::configurable_value<std::int32_t, ::testing::throws_on::default_construct>;
 using throwing_copy_ctor = ::testing::configurable_value<std::int32_t, ::testing::throws_on::copy_construct>;

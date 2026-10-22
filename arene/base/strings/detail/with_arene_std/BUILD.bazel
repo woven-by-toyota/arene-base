@@ -4,26 +4,18 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-filegroup(
-    name = "string_view_srcs",
-    srcs = [
-        "string_view.cpp",
-    ],
+exports_files(
+    ["string_view.cpp"],
     visibility = [
         "//arene/base/strings/detail:__pkg__",
     ],
 )
 
-filegroup(
-    name = "string_view_hdrs",
-    srcs = [
-        "string_view_ostream_mixin.hpp",
-    ],
-)
-
 cc_library(
     name = "null_terminated_string_view",
-    hdrs = [":string_view_hdrs"],
+    hdrs = [
+        "string_view_ostream_mixin.hpp",
+    ],
     include_prefix = "arene/base/strings/detail",
     visibility = [
         "//arene/base/strings/detail:__pkg__",
@@ -32,23 +24,20 @@ cc_library(
 
 cc_library(
     name = "string_view",
-    hdrs = [":string_view_hdrs"],
+    hdrs = [
+        "string_view_ostream_mixin.hpp",
+    ],
     include_prefix = "arene/base/strings/detail",
     visibility = [
         "//arene/base/strings/detail:__pkg__",
     ],
 )
 
-filegroup(
-    name = "inline_string_hdrs",
-    srcs = [
-        "inline_string_std_string_mixin.hpp",
-    ],
-)
-
 cc_library(
     name = "inline_string",
-    hdrs = [":inline_string_hdrs"],
+    hdrs = [
+        "inline_string_std_string_mixin.hpp",
+    ],
     include_prefix = "arene/base/strings/detail",
     visibility = [
         "//arene/base/strings/detail:__pkg__",
@@ -63,10 +52,10 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":inline_string_hdrs",
-        ":string_view_hdrs",
-        ":string_view_srcs",
-    ],
+    ] + glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
     visibility = [
         "//arene/base/strings/detail:__pkg__",
     ],

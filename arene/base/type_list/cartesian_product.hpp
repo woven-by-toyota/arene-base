@@ -10,10 +10,16 @@
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
+#include "arene/base/algorithm/copy.hpp"
+#include "arene/base/algorithm/iter_swap.hpp"
+#include "arene/base/algorithm/reduce.hpp"
 #include "arene/base/array/array.hpp"
-#include "arene/base/iterator/next.hpp"
+#include "arene/base/detail/index_permutation_range.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/ignore.hpp"
+#include "arene/base/stdlib_choice/initializer_list.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
+#include "arene/base/stdlib_choice/multiplies.hpp"
 #include "arene/base/type_list/at.hpp"
 #include "arene/base/type_list/size.hpp"
 #include "arene/base/type_list/type_list.hpp"
@@ -26,42 +32,31 @@ namespace type_lists {
 
 namespace cartesian_product_detail {
 
-/// @brief Determine the size of the space of all permutations of indices fitting within the given @c sizes
-/// @tparam Dimension The number of individual indices (and sizes) being permuted
-/// @param sizes The sizes within which the indices of a permutation must fit
-/// @return The number of unique permutations fitting within the given @c sizes
-/// @note This is essentially just a C++17 fold expression over multiplication but dim 0 is taken to be size 0
-template <std::size_t Dimension>
-constexpr auto permutation_space_size_impl(arene::base::array<std::size_t, Dimension> const& sizes) noexcept
-    -> std::size_t {
-  if (Dimension == 0U) {
-    return 0U;
-  }
-
-  std::size_t product{1U};
-  // This isn't a range-based for loop due to a bug in GCC8 C++17 mode, which treats *sizes.begin() as not constexpr.
-  // parasoft-begin-suppress AUTOSAR-A6_5_1-a "Index-based loop needed to work around a GCC8 bug"
-  for (std::size_t idx{}; idx < sizes.size(); ++idx) {
-    product *= sizes[idx];
-  }
-  // parasoft-end-suppress AUTOSAR-A6_5_1-a
-  return product;
-}
-
 /// @brief The size of the space of all permutations of indices fitting within the given @c Sizes
 /// @tparam Sizes The sizes within which the indices of a permutation must fit
+/// @note This is essentially just a C++17 fold expression over multiplication but dim 0 is taken to be size 0
 template <std::size_t... Sizes>
-struct permutation_space_size {
-  /// @brief @c Sizes as an array so they can be passed to @c permutation_space_size_impl
-  static constexpr arene::base::array<std::size_t, sizeof...(Sizes)> sizes{Sizes...};
-  /// @brief The actual size of the permutation space
-  static constexpr std::size_t value{permutation_space_size_impl(sizes)};
+constexpr std::size_t permutation_space_size_v{
+    sizeof...(Sizes) == 0U  //
+        ? 0U                //
+        : reduce(           //
+              std::initializer_list<std::size_t>{Sizes...},
+              std::size_t{1},
+              std::multiplies<>{}
+          )
 };
 
-/// @brief The size of the space of all permutations of indices fitting within the given @c Sizes
-/// @tparam Sizes The sizes within which the indices of a permutation must fit
-template <std::size_t... Sizes>
-constexpr std::size_t permutation_space_size_v{permutation_space_size<Sizes...>::value};
+/// @brief constexpr reverse algorithm
+/// @tparam BidirectionalIterator iterator type
+/// @param first beginning of the range
+/// @param last end of the range
+template <class BidirectionalIterator>
+constexpr auto reverse(BidirectionalIterator first, BidirectionalIterator last) noexcept -> void {
+  while (first != last && first != --last) {
+    arene::base::iter_swap(first, last);
+    ++first;
+  }
+}
 
 /// @brief Make an array of all permutations of indices fitting within the given @c Sizes
 /// @tparam Sizes A pack of sizes which all indices (of the same dimension) must be less than
@@ -71,38 +66,17 @@ constexpr auto all_index_permutations_impl() noexcept
     -> arene::base::array<arene::base::array<std::size_t, sizeof...(Sizes)>, permutation_space_size_v<Sizes...>> {
   using permutation = arene::base::array<std::size_t, sizeof...(Sizes)>;
 
-  // parasoft-begin-suppress AUTOSAR-M8_5_2-a "False positive: this correctly initializes both objects to all 0s"
-  constexpr permutation sizes{Sizes...};
-  arene::base::array<permutation, permutation_space_size_v<Sizes...>> permutations{};
+  // parasoft-begin-suppress AUTOSAR-M8_5_2-a "False positive: correct initialization"
+  auto reversed_values = arene::base::array<std::size_t, sizeof...(Sizes)>{Sizes...};
   // parasoft-end-suppress AUTOSAR-M8_5_2-a
+  reverse(reversed_values.begin(), reversed_values.end());
 
-  permutation indices{};
-  for (auto perm_itr = arene::base::next(permutations.begin()); perm_itr < permutations.end(); ++perm_itr) {
-    // Increment the least significant index and carry until we don't need to carry anymore
-    indices[sizeof...(Sizes) - 1U] += 1U;
-    bool carry{false};
-    auto size_itr = sizes.rbegin();
-    // parasoft-begin-suppress AUTOSAR-A6_5_1-a "False positive: loop is reversed so can't use range-for without ranges"
-    for (auto idx_itr = indices.rbegin(); idx_itr != indices.rend(); ++idx_itr) {
-      if (carry) {
-        carry = false;
-        *idx_itr += 1U;
-      }
-      if (*idx_itr == *size_itr) {
-        carry = true;
-        *idx_itr = 0U;
-      }
-      if (!carry) {
-        break;
-      }
-      ++size_itr;
-    }
-    // parasoft-end-suppress AUTOSAR-A6_5_1-a
-
-    // Save this permutation and move on to the next one
-    *perm_itr = indices;
+  arene::base::array<permutation, permutation_space_size_v<Sizes...>> permutations{};
+  auto perm_itr = permutations.begin();
+  for (auto& perm : arene::base::detail::make_index_permutation_range(reversed_values)) {
+    std::ignore = arene::base::copy(perm.crbegin(), perm.crend(), perm_itr->begin());
+    ++perm_itr;
   }
-
   return permutations;
 }
 
@@ -118,8 +92,10 @@ constexpr arene::base::array<arene::base::array<std::size_t, sizeof...(Sizes)>, 
 /// @tparam Ln The pack of purported type lists to permute
 template <template <class...> class InnerTemplate, std::size_t PermIndex, class... Ln>
 class nth_type_permutation {
-  // parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: constexpr variables are always initialized in constexpr"
-  // parasoft-begin-suppress AUTOSAR-A3_3_2-a "False positive: constexpr variables are always initialized in constexpr"
+  // parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: constexpr variables are always initialized in
+  // constexpr"
+  // parasoft-begin-suppress AUTOSAR-A3_3_2-a "False positive: constexpr variables are always initialized
+  // in constexpr"
   /// @brief The *index* permutation used by this type permutation
   static constexpr arene::base::array<std::size_t, sizeof...(Ln)> const& index_permutation{
       all_index_permutations_v<size_v<Ln>...>[PermIndex]

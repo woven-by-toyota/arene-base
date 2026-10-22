@@ -29,7 +29,6 @@
 #include "arene/base/stdlib_choice/is_convertible.hpp"
 #include "arene/base/stdlib_choice/is_default_constructible.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
-#include "arene/base/stdlib_choice/make_tuple.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/tuple/apply.hpp"
 #include "arene/base/tuple/detail/tuple_transform.hpp"

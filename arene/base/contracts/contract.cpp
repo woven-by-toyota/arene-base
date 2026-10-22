@@ -4,6 +4,10 @@
 
 #include "arene/base/contracts/contract.hpp"
 
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
+#include "arene/base/compiler_support/platform_queries/coverage_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
+
 // parasoft-begin-suppress AUTOSAR-A18_0_1-a-2 "This code needs to work when the C++ Standard Library is not available"
 // parasoft-begin-suppress AUTOSAR-A1_1_1-d-2 "This code needs to work when the C++ Standard Library is not available"
 // NOLINTNEXTLINE(hicpp-deprecated-headers)
@@ -12,9 +16,6 @@
 // parasoft-end-suppress AUTOSAR-A18_0_1-a-2
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
 #include "arene/base/stdlib_choice/terminate.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2

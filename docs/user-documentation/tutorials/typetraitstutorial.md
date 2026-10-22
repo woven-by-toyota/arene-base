@@ -1,3 +1,9 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
 \page typetraitstutorial Tutorial for the type_traits subpackage
@@ -14,7 +20,7 @@ These are typically used in conjunction with \link constraints constraints
 \endlink and `std::enable_if_t` for overload selection or template
 specialization, or `static_assert`s for verifying that requirements are met.
 
-## Build setup {#build-setup}
+# Build setup {#tutorials-typetraitstutorial-build-setup}
 
 To use the type traits sub-package, add it to the dependencies in your
 `BUILD.bazel` file:
@@ -25,7 +31,7 @@ Then, you can include the header file in your source code:
 
 \snippet docs/examples/type_traits_tutorial.cpp type_traits_include
 
-## Categories of Type Traits {#categories-of-type-traits}
+## Categories of Type Traits {#tutorials-typetraitstutorial-categories-of-type-traits}
 
 There are two categories of type traits. The most common is one that gives you a
 **value**, usually a `bool`, to indicate whether a type has a particular
@@ -35,7 +41,7 @@ you another **type**, based on the template parameters, such as the supplied
 type with `const` added or removed, or the result type of calling a function
 with the specified parameters.
 
-### _Value_ type traits {#value-type-traits}
+### _Value_ type traits {#tutorials-typetraitstutorial-value-type-traits}
 
 These are either class templates with a `static` data member of the appropriate
 type called `value` that has the relevant value (e.g.
@@ -51,7 +57,7 @@ The class template form usually derives from an instantiation of
 as the type trait class is then derived from `std::true_type` or
 `std::false_type` depending on whether the value is `true` or `false`.
 
-### _Type_ type traits {#type-type-traits}
+### _Type_ type traits {#tutorials-typetraitstutorial-type-type-traits}
 
 These are either class templates with a type alias member called `type` that has
 the relevant type (e.g. `std::remove_const<T>::type`), or an alias template that
@@ -60,13 +66,13 @@ alias template type traits have a `_t` suffix. Again, this helps distinguish
 them from the class template ones, and allows both forms to be provided for some
 type traits (e.g. `std::make_signed<T>::type` and `std::make_signed_t<T>`).
 
-## Usage of Type Traits {#usage-of-type-traits}
+## Usage of Type Traits {#tutorials-typetraitstutorial-usage-of-type-traits}
 
 The most common use of type traits to _constrain_ function templates or template
 specializations, or to generate errors if conditions aren't met using
 `static_assert`.
 
-### Checking Constraints {#checking-constraints}
+### Checking Constraints {#tutorials-typetraitstutorial-checking-constraints}
 
 Suppose you have a function template that requires that the template parameter
 is a type which can be compared for equality. There are 3 ways you can check
@@ -150,7 +156,7 @@ For most cases, using `arene::base::constraints` to specify the constraints is
 the best choice, as it allows different overloads of the same function to be
 specified with different constraints.
 
-#### Selecting Overloads With Type Traits {#selecting-overloads-with-type-traits}
+#### Selecting Overloads With Type Traits {#tutorials-typetraitstutorial-selecting-overloads-with-type-traits}
 
 If the implementation of a function depends on the properties of one of the
 template parameters, type traits can be used with constraints to select between
@@ -174,7 +180,7 @@ Calling `reverse(begin,end)` then chooses the overload depending on the iterator
 category. If you pass plain input or output iterators, then you get an error as
 none of the overloads are viable.
 
-#### Class Template Partial Specialization With Type Traits {#class-template-partial-specialization-with-type-traits}
+#### Class Template Partial Specialization With Type Traits {#tutorials-typetraitstutorial-class-template-partial-specialization-with-type-traits}
 
 \link constraints Constraints \endlink don't just work with function templates:
 they can be used for partially specializing class templates too.
@@ -196,7 +202,7 @@ equality comparable, and for types that are just less-than comparable. Supplying
 a type that is not ordered would fall back to the unimplemented primary template
 and give an error.
 
-### Adjusting Types {#adjusting-types}
+### Adjusting Types {#tutorials-typetraitstutorial-adjusting-types}
 
 Another major use of type traits is to adjust a provided type to yield another,
 for use as a return type, or the type of a data member.

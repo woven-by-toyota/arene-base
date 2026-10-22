@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -22,7 +26,7 @@ algorithm to use. While there is no single answer to this issue, this guide
 presents some guidance on what factors to consider when choosing an appropriate
 implementation.
 
-## Overall Guidance {#overall-guidance}
+# Overall Guidance {#best-practices-library-selection-overall-guidance}
 
 Under the `arene::base` namespace, Arene Base provides features in three main
 categories:
@@ -54,7 +58,7 @@ a re-implementation of `std::next` that is made `constexpr` (where `std::next`
 is not `constexpr` until C++17). For features in this category, prefer the Arene
 Base provided implementation if Arene Base is already a dependency.
 
-## Standard C++ Library {#standard-cpp-library}
+## Standard C++ Library {#best-practices-library-selection-standard-cpp-library}
 
 Arene Base also provides an implementation of a subset of the the standard
 library under the `std::` namespace. The Arene Base stdlib should only be used
@@ -72,7 +76,7 @@ used.
 
 See \ref stdlib for more details.
 
-## Data Structures {#data-structures}
+## Data Structures {#best-practices-library-selection-data-structures}
 
 The C++ standard library provides the Containers library as a generic collection
 of class templates and algorithms that allow programmers to easily implement
@@ -100,11 +104,11 @@ examines the alternatives provided by Arene Base. For Standard Library
 containers not discussed here, Arene Base currently does not offer an
 alternative container.
 
-### Flowchart {#flowchart}
+### Flowchart {#best-practices-library-selection-flowchart}
 
 \image html container_selection_flowchart.png
 
-### array {#array}
+### array {#best-practices-library-selection-array}
 
 Arene Base offers `arene::base::array`, which is equivalent to `std::array` but
 is designed to be `constexpr`. Additionally, it is a "checked" type, meaning
@@ -117,7 +121,7 @@ Additionally, consider [using span](use_span.md) when appropriate.
 It is recommended to use `arene::base::array` instead of `std::array` in all
 cases where the latter is not required by a pre-existing API.
 
-### string {#string}
+### string {#best-practices-library-selection-string}
 
 Arene Base offers `arene::base::inline_string`, a replacement for `std::string`
 that does not use dynamic memory allocation. Additionally, it provides the view
@@ -128,7 +132,7 @@ string but do not care about its storage location.
 It is recommended to use `arene::base::inline_string` when dynamic memory is not
 available.
 
-### vector {#vector}
+### vector {#best-practices-library-selection-vector}
 
 Arene Base provides `arene::base::inline_vector`, similar to `std::vector`.
 Elements are stored "inline" in the vector itself rather than being
@@ -142,7 +146,7 @@ runtime errors.
 It is recommended to use `arene::base::inline_vector` when dynamic memory is not
 available.
 
-### map {#map}
+### map {#best-practices-library-selection-map}
 
 Arene Base offers `arene::base::inline_map`, similar to `std::map`. Elements are
 stored "inline" in the map itself rather than being heap-allocated. This design
@@ -153,7 +157,7 @@ specified number of elements, preventing unpredictable runtime errors.
 It is recommended to use `arene::base::inline_map` when dynamic memory is not
 available.
 
-### set {#set}
+### set {#best-practices-library-selection-set}
 
 Arene Base provides `arene::base::inline_set`, similar to `std::set`. Elements
 are stored "inline" in the set itself rather than being heap-allocated. This
@@ -164,7 +168,7 @@ for a specified number of elements, preventing unpredictable runtime errors.
 It is recommended to use `arene::base::inline_set` when dynamic memory is not
 available.
 
-### function {#function}
+### function {#best-practices-library-selection-function}
 
 Arene Base offers `arene::base::inline_function`, an implementation of a
 type-erased invocable similar to `std::function`. `inline_function` has the
@@ -191,7 +195,7 @@ cirucumstance. Some guidelines for the possible options are:
   signature. Copies the invocable into dynamically-allocated storage. Adds an
   indirection vs a template arg.
 
-### Intrusive Containers {#intrusive-containers}
+### Intrusive Containers {#best-practices-library-selection-intrusive-containers}
 
 Intrusive containers serve as alternatives to standard library containers by not
 storing the values of the elements provided by the user. Instead, the linking
@@ -206,7 +210,7 @@ not need to hold storage for the elements.
 See more information in the
 [intrusive containers documentation](../subpackages/intrusive.md).
 
-#### queue {#queue}
+#### queue {#best-practices-library-selection-queue}
 
 Arene Base offers `arene::base::intrusive::queue`, a singly-linked list-based
 intrusive queue data structure. It forms a logical FIFO queue, allowing elements
@@ -218,7 +222,7 @@ template parameter.
 It is recommended to use `arene::base::intrusive::queue` when dynamic memory is
 not available.
 
-#### priority queue {#priority-queue}
+#### priority queue {#best-practices-library-selection-priority-queue}
 
 Arene Base provides `arene::base::intrusive::priority_queue`, a
 max-heap-tree-based intrusive priority queue data structure. It forms a logical
@@ -228,7 +232,7 @@ to the element with the highest priority, as determined by the comparator.
 It is recommended to use `arene::base::intrusive::priority_queue` when dynamic
 memory is not available.
 
-## Algorithms {#algorithms}
+## Algorithms {#best-practices-library-selection-algorithms}
 
 Both the C++ Standard Library and Arene Base provide a variety of components for
 performing algorithmic operations on containers and other sequences.
@@ -255,18 +259,17 @@ the C++ Standard Library often does not contain implementations of algorithms
 where there is a version of that algorithm present in the `arene::base`
 namespace.
 
-### Flowchart {#flowchart}
+### Flowchart {#best-practices-library-selection-flowchart-2}
 
 This flowchart will help you choose the appropriate algorithm for a given
 purpose.
 
-\image{anchor:algorithm-selection} html algorithm-selection-flowchart.png
-"Selecting an algorithm"
+\image html algorithm-selection-flowchart.png "Selecting an algorithm"
 
 The following sections describe the Arene Base algorithms, and how they differ
 from the equivalent C++ Standard Library versions.
 
-### all_of {#all_of}
+### all_of {#best-practices-library-selection-all_of}
 
 The `all_of` algorithm checks if all of the supplied values are `true`, or all
 the results of applying the given predicate to the each of the supplied values
@@ -281,7 +284,7 @@ number of `bool` parameters, and an overload that takes a
 `std::initializer_list<bool>` holding the values to check. These overloads are
 also usable in a `constexpr` context.
 
-### any_of {#any_of}
+### any_of {#best-practices-library-selection-any_of}
 
 The `any_of` algorithm checks if any of the supplied values are `true`.
 
@@ -296,7 +299,7 @@ also usable in a `constexpr` context.
 
 Arene Base does not provide an overload that takes a predicate.
 
-### clamp {#clamp}
+### clamp {#best-practices-library-selection-clamp}
 
 The `clamp` algorithm ensures that a value is within a specified range. The
 return value is equal to the source if it is in range, the lower limit if the
@@ -307,7 +310,7 @@ The Arene Base implementation of `arene::base::clamp` is usable in `constexpr`
 contexts, and available even in C++14, whereas the C++ Standard Library
 implementation is not available at all prior to C++17.
 
-### copy {#copy}
+### copy {#best-practices-library-selection-copy}
 
 The `copy` algorithm copies a series of elements from a source range to a
 destination range.
@@ -316,7 +319,7 @@ The Arene Base implementation of `arene::base::copy` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### copy_if {#copy_if}
+### copy_if {#best-practices-library-selection-copy_if}
 
 The `copy_if` algorithm copies a series of elements that satisfy a predicate
 from a source range to a destination range.
@@ -325,7 +328,7 @@ The Arene Base implementation of `arene::base::copy_if` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### equal {#equal}
+### equal {#best-practices-library-selection-equal}
 
 The `equal` algorithm compares two ranges to see if they have the same size and
 the corresponding elements from each range are equal.
@@ -334,7 +337,7 @@ The Arene Base implementation of `arene::base::equal` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### fill {#fill}
+### fill {#best-practices-library-selection-fill}
 
 The `fill` algorithm assigns the same value to every element in a sequence.
 
@@ -342,7 +345,7 @@ The Arene Base implementation of `arene::base::fill` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### find {#find}
+### find {#best-practices-library-selection-find}
 
 The `find` algorithm returns the iterator referencing the first element in the
 supplied range that is equal to the given element, or the end of the range if
@@ -352,7 +355,7 @@ The Arene Base implementation of `arene::base::find` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### find_if {#find_if}
+### find_if {#best-practices-library-selection-find_if}
 
 The `find_if` algorithm returns the iterator referencing the first element in
 the supplied range for which invoking the supplied predicate returns `true`, or
@@ -362,7 +365,7 @@ The Arene Base implementation of `arene::base::find_if` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### iter_swap {#iter_swap}
+### iter_swap {#best-practices-library-selection-iter_swap}
 
 The `iter_swap` algorithm swaps the elements referred to by two iterators.
 
@@ -370,7 +373,7 @@ The Arene Base implementation of `arene::base::iter_swap` is usable in
 `constexpr` contexts in C++14, whereas the C++ Standard Library implementation
 is not usable in `constexpr` contexts prior to C++20.
 
-### lexicographical_compare {#lexicographical_compare}
+### lexicographical_compare {#best-practices-library-selection-lexicographical_compare}
 
 The `lexicographical_compare` algorithm compares two ranges, returning `true` if
 the first is before the second in a lexicographical ordering, `false` otherwise.
@@ -381,7 +384,7 @@ The Arene Base implementation of `arene::base::lexicographical_compare` is
 usable in `constexpr` contexts in C++14, whereas the C++ Standard Library
 implementation is not usable in `constexpr` contexts prior to C++20.
 
-### lexicographical_compare_three_way {#lexicographical_compare_three_way}
+### lexicographical_compare_three_way {#best-practices-library-selection-lexicographical_compare_three_way}
 
 The `lexicographical_compare_three_way` algorithm compares two ranges, returning
 `arene::base::string_ordering` to indicate if the first is less than the second,
@@ -400,7 +403,7 @@ type, whereas the C++20 standard library implementation returns
 `std::strong_ordering` or `std::weak_ordering` as appropriate for the
 comparison.
 
-### move {#move}
+### move {#best-practices-library-selection-move}
 
 The `move` algorithm moves a series of elements from a source range to a
 destination range.
@@ -409,7 +412,7 @@ The Arene Base implementation of `arene::base::move` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### move_backward {#move_backward}
+### move_backward {#best-practices-library-selection-move_backward}
 
 The `move_backward` algorithm moves a series of elements from a source range to
 a destination range. The ranges are iterated in reverse, so the last element is
@@ -419,7 +422,7 @@ The Arene Base implementation of `arene::base::move_backward` is usable in
 `constexpr` contexts in C++14, whereas the C++ Standard Library implementation
 is not usable in `constexpr` contexts prior to C++20.
 
-### rotate {#rotate}
+### rotate {#best-practices-library-selection-rotate}
 
 The `rotate` algorithm rotates a range so that the specified "middle" element is
 now the first element, and the elements that were originally prior to the
@@ -429,7 +432,7 @@ The Arene Base implementation of `arene::base::rotate` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### sort {#sort}
+### sort {#best-practices-library-selection-sort}
 
 The `sort` algorithm sorts a range of elements into order, according to the
 supplied comparator, or `std::less<>` if no comparator is provided.
@@ -438,7 +441,7 @@ The Arene Base implementation of `arene::base::sort` is usable in `constexpr`
 contexts in C++14, whereas the C++ Standard Library implementation is not usable
 in `constexpr` contexts prior to C++20.
 
-### swap_ranges {#swap_ranges}
+### swap_ranges {#best-practices-library-selection-swap_ranges}
 
 The `swap_ranges` algorithm swaps the elements from one range with the
 corresponding elements of a second range.
@@ -447,7 +450,7 @@ The Arene Base implementation of `arene::base::swap_ranges` is usable in
 `constexpr` contexts in C++14, whereas the C++ Standard Library implementation
 is not usable in `constexpr` contexts prior to C++20.
 
-### transform {#transform}
+### transform {#best-practices-library-selection-transform}
 
 The `transform` algorithm applies an invocable to each element in a range, and
 stores the result of that invocation in the corresponding element of the

@@ -486,7 +486,7 @@ class numeric_limits_impl<float, arene::base::constraints<>> {
   /// @brief Is the type an integral type? @c true if so, @c false otherwise
   static constexpr bool is_integer{false};
   /// @brief Is the type an exact type? @c true if so, @c false otherwise
-  static constexpr bool is_exact{true};
+  static constexpr bool is_exact{false};
   /// @brief Is the type a signed type? @c true if so, @c false otherwise
   static constexpr bool is_signed{true};
   /// @brief The base used for the representation.
@@ -607,7 +607,7 @@ class numeric_limits_impl<double, arene::base::constraints<>> {
   /// @brief Is the type an integral type? @c true if so, @c false otherwise
   static constexpr bool is_integer{false};
   /// @brief Is the type an exact type? @c true if so, @c false otherwise
-  static constexpr bool is_exact{true};
+  static constexpr bool is_exact{false};
   /// @brief Is the type a signed type? @c true if so, @c false otherwise
   static constexpr bool is_signed{true};
   /// @brief The base used for the representation.

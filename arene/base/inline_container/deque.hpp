@@ -10,13 +10,13 @@
 #include "arene/base/array/array.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
-#include "arene/base/inline_container/detail/iterator_interface.hpp"
-#include "arene/base/inline_container/detail/range_interface.hpp"
+#include "arene/base/detail/iterator_interface.hpp"
 #include "arene/base/inline_container/detail/try_construct_interface.hpp"
 #include "arene/base/inline_container/detail/unsafe_element_storage.hpp"
 #include "arene/base/iterator/distance.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/memory/construct_at.hpp"
+#include "arene/base/ranges/detail/range_interface.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
@@ -801,13 +801,13 @@ class inline_deque_try_construct_policy {
 template <typename T, std::size_t Capacity, bool AllowWrapping>
 class inline_deque_impl
     : private inline_deque_detail::inline_deque_internal_storage<T, Capacity, AllowWrapping>
-    , public inline_container::detail::range_interface<inline_deque_impl<T, Capacity, AllowWrapping>> {
+    , public ranges::detail::range_interface<inline_deque_impl<T, Capacity, AllowWrapping>> {
  private:
   /// @brief Shorthand to the internal type containing the element storage
   using storage_type = inline_deque_detail::inline_deque_internal_storage<T, Capacity, AllowWrapping>;
 
   /// @brief Shorthand to the mixin type that synthesizes range functions based on the iterator defined below
-  using range_interface = inline_container::detail::range_interface<inline_deque_impl>;
+  using range_interface = ranges::detail::range_interface<inline_deque_impl>;
 
   // parasoft-begin-suppress AUTOSAR-A12_1_5-a "False positive: none of these constructors can be delegated"
   /// @brief An iterator for an @c inline_deque_impl which automatically wraps at @c Capacity so that it stays in bounds
@@ -815,10 +815,10 @@ class inline_deque_impl
   /// @note Iterators are stored referring to particular physical elements so that they remain valid even when other
   /// elements are removed from the deque. This matches the invalidation characteristics of <c>std::deque</c>.
   template <bool IsConst>
-  class cyclical_iterator : public inline_container_detail::iterator_interface<cyclical_iterator<IsConst>> {
+  class cyclical_iterator : public detail::iterator_interface<cyclical_iterator<IsConst>> {
    private:
     /// @brief Shorthand to the mixin type that synthesizes iterator functions based on the manually-defined ones below
-    using iterator_interface = inline_container_detail::iterator_interface<cyclical_iterator<IsConst>>;
+    using iterator_interface = detail::iterator_interface<cyclical_iterator<IsConst>>;
 
     // parasoft-begin-suppress AUTOSAR-A11_3_1-a "Friendship allows conversion from non-const iterator to const iterator
     // without exposing implementation details."
@@ -1021,8 +1021,7 @@ class inline_deque_impl
     /// @post @c *this is shifted forward to the next valid element, or becomes the end iterator if there are no more
     /// valid elements.
     /// @note The logic can't be in this function because GCC thinks it can't access private members of @c inline_deque
-    friend constexpr auto
-    step_forward(inline_container_detail::iterator_interface_tag, cyclical_iterator& self) noexcept -> void {
+    friend constexpr auto step_forward(detail::iterator_interface_tag, cyclical_iterator& self) noexcept -> void {
       self.do_step_forward();
     }
 
@@ -1032,8 +1031,7 @@ class inline_deque_impl
     /// @post @c *this is shifted backward to the next valid element, or becomes the end iterator if there are no more
     /// valid elements. If @c this is an end iterator, it becomes the last element.
     /// @note The logic can't be in this function because GCC thinks it can't access private members of @c inline_deque
-    friend constexpr auto
-    step_backward(inline_container_detail::iterator_interface_tag, cyclical_iterator& self) noexcept -> void {
+    friend constexpr auto step_backward(detail::iterator_interface_tag, cyclical_iterator& self) noexcept -> void {
       self.do_step_backward();
     }
 
@@ -1464,6 +1462,8 @@ class inline_deque
       : impl(in_begin, in_end),
         try_construct_interface(this) {}
 
+  // parasoft-begin-suppress AUTOSAR-A12_1_1-a "False positive: This constructor delegates to another, which does
+  // initialize immediate base classes: 'inline_deque_impl, try_construct_interface'
   /// @brief Construct a deque by copying from an initializer list of elements, taken to be in front -> back order
   /// @param init An initializer list of the value type
   /// @pre <c>init.size() <= capacity()</c>, otherwise @c ARENE_PRECONDITION violation
@@ -1471,6 +1471,7 @@ class inline_deque
   constexpr inline_deque(std::initializer_list<value_type> init
   ) noexcept(noexcept(inline_deque(init.begin(), init.end())))
       : inline_deque(init.begin(), init.end()) {}
+  // parasoft-end-suppress AUTOSAR-A12_1_1-a
 
   /// @copydoc impl::capacity
   using impl::capacity;

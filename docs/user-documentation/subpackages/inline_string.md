@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -22,14 +26,14 @@ The Bazel target is
 //:inline_string
 ```
 
-# Introduction {#introduction}
+# Introduction {#subpackages-inline-string-introduction}
 
 The `inline_string` package provides the `arene::base::inline_string` type which
 is a replacement for `std::string` that doesn't use dynamic memory allocation,
 along with `arene::base::to_inline_string`, which creates an `inline_string`
 representation of an integral or boolean value.
 
-## The `arene::base::inline_string` class template {#the-arene-base-inline_string-class-template}
+## The `arene::base::inline_string` class template {#subpackages-inline-string-the-arene-base-inline_string-class-template}
 
 The `arene::base::inline_string` class template provides a replacement for
 `std::string` that does not perform dynamic memory allocation; instead, the
@@ -50,7 +54,8 @@ safety-critical systems:
 
 - The constructors which consume a string-like source without a compile-time
   bounded capacity are `ARENE_PRECONDITION` violations if the source string
-  cannot fit into the capacity. [`try_construct`](#try_construct) is provided to
+  cannot fit into the capacity.
+  [`try_construct`](#subpackages-inline-string-try_construct) is provided to
   allow construction to fail in a recoverable manner.
 - The `substr` and `erase` APIs clamp to the end of the string if the offset is
   outside the range of the string instead of throwing `std::out_of_range`.
@@ -75,7 +80,7 @@ In addition, `arene::base::inline_string` provides a `three_way_compare` member
 function, to facilitate \ref compare "three-way comparisons" similar to the
 C++20 `<=>` operator.
 
-### Example usage {#example-usage}
+### Example usage {#subpackages-inline-string-example-usage}
 
 If we have some form of `data_record` which contains a _name_, and those names
 have a maximum length, then we can use `inline_string<max_name_length>` as the
@@ -118,7 +123,7 @@ internally. The use of `string_view` for the parameter also means that _any_
 string type can be used when constructing a `data_record`, delaying any type
 conversion and resultant copying until the initialization of the member.
 
-### `try_construct` {#try_construct}
+### `try_construct` {#subpackages-inline-string-try_construct}
 
 As `inline_string` has a maximum capacity, several of its copy/conversion
 constructors have preconditions that the input string fit into the capacity of
@@ -135,7 +140,7 @@ practical/desireable to ensure the size bounds before hand, the
 return `optional<inline_string<MaxSize>>`, where the `optional` is null if the
 input string would not fit into `MaxSize`.
 
-### Size-erased reference wrapper {#size-erased-reference-wrapper}
+### Size-erased reference wrapper {#subpackages-inline-string-size-erased-reference-wrapper}
 
 `arene::base::inline_string_reference` and
 `arene::base::const_inline_string_reference` wrapper classes are provided to
@@ -158,7 +163,7 @@ merge(
 );
 ```
 
-## `arene::base::to_inline_string` {#arene-base-to_inline_string}
+## `arene::base::to_inline_string` {#subpackages-inline-string-arene-base-to_inline_string}
 
 This overloaded function is an equivalent of `std::to_string`, except that it
 creates an `arene::base::inline_string` value rather than a `std::string` value.

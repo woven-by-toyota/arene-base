@@ -3,19 +3,20 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "arene/base/array/array.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
 #include "arene/base/constraints/substitution_succeeds.hpp"
 #include "arene/base/inline_container/tests/testing_types.hpp"  // IWYU pragma: keep
 #include "arene/base/inline_container/vector.hpp"
+#include "arene/base/iterator/distance.hpp"
 #include "arene/base/optional/optional.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
-#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_default_constructible.hpp"
 #include "arene/base/stdlib_choice/is_destructible.hpp"
@@ -776,15 +777,17 @@ TEST(InlineVectorOpTracker, InsertFromIteratorRangeInMiddleMinimizesMoves) {
   vec value1(count1);
   vec const value2(count2);
   counting_wrapper::count = {};
-  value1.insert(value1.begin() + offset, value2.begin(), value2.end());
+  auto ret_iter = value1.insert(value1.begin() + offset, value2.begin(), value2.end());
   EXPECT_EQ(value1.size(), count1 + count2);
+  EXPECT_EQ(arene::base::distance(value1.begin(), ret_iter), offset);
 
+  // Elements are copy constructed onto the end of the vector and then rotated back by (count1 - offset) positions.
   EXPECT_EQ(counting_wrapper::count.default_ctor, 0);
-  EXPECT_EQ(counting_wrapper::count.move_ctor, count1 - static_cast<std::size_t>(offset));
-  EXPECT_EQ(counting_wrapper::count.copy_ctor, count2 - (count1 - static_cast<std::size_t>(offset)));
-  EXPECT_EQ(counting_wrapper::count.move_assign, 0);
-  EXPECT_EQ(counting_wrapper::count.copy_assign, (count1 - static_cast<std::size_t>(offset)));
-  EXPECT_EQ(counting_wrapper::count.dtor, 0);
+  EXPECT_EQ(counting_wrapper::count.move_ctor, 1);
+  EXPECT_EQ(counting_wrapper::count.copy_ctor, count2);
+  EXPECT_EQ(counting_wrapper::count.move_assign, count2 + (count1 - offset));
+  EXPECT_EQ(counting_wrapper::count.copy_assign, 0);
+  EXPECT_EQ(counting_wrapper::count.dtor, 1);
   EXPECT_EQ(counting_wrapper::count.swap, 0);
 }
 
@@ -804,15 +807,17 @@ TEST(InlineVectorOpTracker, InsertFromIteratorRangeInMiddleMinimizesMovesWithSho
   vec value1(count1);
   vec const value2(count2);
   counting_wrapper::count = {};
-  value1.insert(value1.begin() + offset, value2.begin(), value2.end());
+  auto ret_iter = value1.insert(value1.begin() + offset, value2.begin(), value2.end());
   EXPECT_EQ(value1.size(), count1 + count2);
+  EXPECT_EQ(arene::base::distance(value1.begin(), ret_iter), offset);
 
+  // Elements are copy constructed onto the end of the vector and then rotated back by (count1 - offset) positions.
   EXPECT_EQ(counting_wrapper::count.default_ctor, 0);
-  EXPECT_EQ(counting_wrapper::count.move_ctor, count2);
-  EXPECT_EQ(counting_wrapper::count.copy_ctor, 0);
-  EXPECT_EQ(counting_wrapper::count.move_assign, (count1 - static_cast<std::size_t>(offset)) - count2);
-  EXPECT_EQ(counting_wrapper::count.copy_assign, count2);
-  EXPECT_EQ(counting_wrapper::count.dtor, 0);
+  EXPECT_EQ(counting_wrapper::count.move_ctor, 1);
+  EXPECT_EQ(counting_wrapper::count.copy_ctor, count2);
+  EXPECT_EQ(counting_wrapper::count.move_assign, count2 + (count1 - offset));
+  EXPECT_EQ(counting_wrapper::count.copy_assign, 0);
+  EXPECT_EQ(counting_wrapper::count.dtor, 1);
   EXPECT_EQ(counting_wrapper::count.swap, 0);
 }
 
@@ -1080,6 +1085,115 @@ TEST(InlineVectorOpTracker, InsertedObjectsDestroyedWhenVectorDestroyed) {
     vec.push_back(source);
   }
   EXPECT_EQ(counting_wrapper::count.dtor, 3);
+}
+
+/// @test Inserting an object into the middle using an already-emplaced element as the source does not get corrupted
+TEST(InlineVectorOpTracker, AliasingInsert) {
+  counting_wrapper const source{2};
+  {
+    standard_capacity_vector<counting_wrapper> vec;
+
+    // Inserting at the end does not need to rotate.
+    counting_wrapper::count = {};
+    vec.insert(vec.end(), 1);            // uses value constructor to create a temporary, then moves it in
+    vec.insert(vec.end(), vec.front());  // uses copy constructor
+    ASSERT_EQ(vec.size(), 2U);
+    EXPECT_EQ(vec[0].value, 1);
+    EXPECT_EQ(vec[1].value, 1);
+    EXPECT_EQ(counting_wrapper::count.value_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.copy_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.move_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.copy_assign, 0);
+    EXPECT_EQ(counting_wrapper::count.move_assign, 0);
+    EXPECT_EQ(counting_wrapper::count.dtor, 1);  // this is the temporary from the value insert, not from rotate
+
+    // Inserting in the middle from a source outside the vector constructs on the end and rotates it into place.
+    counting_wrapper::count = {};
+    vec.insert(vec.end() - 1, source);
+    ASSERT_EQ(vec.size(), 3U);
+    EXPECT_EQ(vec[0].value, 1);
+    EXPECT_EQ(vec[1].value, 2);
+    EXPECT_EQ(vec[2].value, 1);
+    EXPECT_EQ(counting_wrapper::count.value_ctor, 0);
+    EXPECT_EQ(counting_wrapper::count.copy_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.move_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.copy_assign, 0);
+    EXPECT_EQ(counting_wrapper::count.move_assign, 2);
+    EXPECT_EQ(counting_wrapper::count.dtor, 1);  // rotate uses a single move-constructed temporary
+
+    // Inserting in the middle from a source inside the vector still constructs on the end and rotates it into place.
+    counting_wrapper::count = {};
+    vec.insert(vec.begin() + 1, vec.back());
+    ASSERT_EQ(vec.size(), 4U);
+    EXPECT_EQ(vec[0].value, 1);
+    EXPECT_EQ(vec[1].value, 1);
+    EXPECT_EQ(vec[2].value, 2);
+    EXPECT_EQ(vec[3].value, 1);
+    EXPECT_EQ(counting_wrapper::count.value_ctor, 0);
+    EXPECT_EQ(counting_wrapper::count.copy_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.move_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.copy_assign, 0);
+    EXPECT_EQ(counting_wrapper::count.move_assign, 3);
+    EXPECT_EQ(counting_wrapper::count.dtor, 1);
+  }
+  EXPECT_EQ(counting_wrapper::count.dtor, 5);  // 4 elements and a temporary have been destroyed
+}
+
+/// @test Inserting a range into the middle using already-emplaced elements as the source does not get corrupted
+TEST(InlineVectorOpTracker, AliasingRangeInsert) {
+  arene::base::array<counting_wrapper, 3U> const source{2, 3, 4};
+  {
+    standard_capacity_vector<counting_wrapper> vec;
+
+    // Elements are copy constructed onto the end of the vector and need not be rotated.
+    counting_wrapper::count = {};
+    vec.insert(vec.end(), source.begin(), source.end());
+    ASSERT_EQ(vec.size(), 3U);
+    EXPECT_EQ(vec[0].value, 2);
+    EXPECT_EQ(vec[1].value, 3);
+    EXPECT_EQ(vec[2].value, 4);
+    EXPECT_EQ(counting_wrapper::count.value_ctor, 0);
+    EXPECT_EQ(counting_wrapper::count.copy_ctor, 3);
+    EXPECT_EQ(counting_wrapper::count.move_ctor, 0);
+    EXPECT_EQ(counting_wrapper::count.copy_assign, 0);
+    EXPECT_EQ(counting_wrapper::count.move_assign, 0);
+    EXPECT_EQ(counting_wrapper::count.dtor, 0);
+
+    // Elements are copy constructed onto the end of the vector and then rotated back by 3 positions.
+    counting_wrapper::count = {};
+    vec.insert(vec.begin(), source.begin() + 1, source.end());
+    ASSERT_EQ(vec.size(), 5U);
+    EXPECT_EQ(vec[0].value, 3);
+    EXPECT_EQ(vec[1].value, 4);
+    EXPECT_EQ(vec[2].value, 2);
+    EXPECT_EQ(vec[3].value, 3);
+    EXPECT_EQ(vec[4].value, 4);
+    EXPECT_EQ(counting_wrapper::count.value_ctor, 0);
+    EXPECT_EQ(counting_wrapper::count.copy_ctor, 2);
+    EXPECT_EQ(counting_wrapper::count.move_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.copy_assign, 0);
+    EXPECT_EQ(counting_wrapper::count.move_assign, 2 + 3);
+    EXPECT_EQ(counting_wrapper::count.dtor, 1);  // rotate uses a single move-constructed temporary
+
+    // Elements are copy constructed onto the end of the vector and then rotated back by 5 positions.
+    counting_wrapper::count = {};
+    vec.insert(vec.begin(), vec.begin() + 2, vec.begin() + 4);
+    ASSERT_EQ(vec.size(), 7U);
+    EXPECT_EQ(vec[0].value, 2);
+    EXPECT_EQ(vec[1].value, 3);
+    EXPECT_EQ(vec[2].value, 3);
+    EXPECT_EQ(vec[3].value, 4);
+    EXPECT_EQ(vec[4].value, 2);
+    EXPECT_EQ(vec[5].value, 3);
+    EXPECT_EQ(vec[6].value, 4);
+    EXPECT_EQ(counting_wrapper::count.value_ctor, 0);
+    EXPECT_EQ(counting_wrapper::count.copy_ctor, 2);
+    EXPECT_EQ(counting_wrapper::count.move_ctor, 1);
+    EXPECT_EQ(counting_wrapper::count.copy_assign, 0);
+    EXPECT_EQ(counting_wrapper::count.move_assign, 2 + 5);
+    EXPECT_EQ(counting_wrapper::count.dtor, 1);
+  }
+  EXPECT_EQ(counting_wrapper::count.dtor, 8);  // 7 elements and 1 temporary have been destroyed
 }
 
 class trivial_class {};

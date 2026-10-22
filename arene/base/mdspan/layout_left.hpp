@@ -39,6 +39,7 @@ namespace layout_detail {
 /// @param extents An extents object
 /// @return An array of strides; the leftmost is @c 1 and each entry is the product of the extents to its left
 /// @pre Each stride entry will fit in @c Extents::index_type without wrapping, else @c ARENE_PRECONDITION violation
+// parasoft-begin-suppress CERT_C-EXP37-a "False positive: All parameters have names"
 template <typename Extents, constraints<std::enable_if_t<Extents::rank() != 0U>> = nullptr>
 constexpr auto left_strides(Extents const& extents) noexcept
     -> ::arene::base::array<typename Extents::index_type, Extents::rank()> {
@@ -61,6 +62,7 @@ constexpr auto left_strides(Extents const& extents) noexcept
 
   return strides;
 }
+// parasoft-end-suppress CERT_C-EXP37-a
 
 /// @brief Get a set of strides with the smallest stride on the left and the largest on the right
 /// @note This special overload for <c>rank == 0</c> exists entirely to make it easier to measure test coverage.
@@ -295,6 +297,11 @@ class layout_left::mapping : private layout_detail::strided_mapping_base<Extents
  public:
   // parasoft-begin-suppress AUTOSAR-A11_3_1-a "Hidden friends permitted by A11-3-1 Permit #2 v1.0.0"
 
+  // parasoft-begin-suppress AUTOSAR-A0_1_4-a "False positive: parameters 'src' and 'slices' are used"
+
+  // parasoft-begin-suppress AUTOSAR-A8_4_2-a "False positive: function does have a return"
+  // parasoft-begin-suppress CERT_C-MSC37-a "False positive: function does have a return"
+  // parasoft-begin-suppress CERT_CPP-MSC52-a "False positive: function does have a return"
   /// @brief Compute the sub-mapping for a @c layout_left::mapping
   /// @tparam CanonicalSliceSpecifiers types of the slice specifiers, one per dimension
   /// @param src the source mapping to slice
@@ -329,7 +336,11 @@ class layout_left::mapping : private layout_detail::strided_mapping_base<Extents
           std::enable_if_t<
               mdspan_detail::all_valid_submdspan_slice_types_for_v<extents_type, CanonicalSliceSpecifiers...>>> =
           nullptr>
+  // parasoft-begin-suppress AUTOSAR-A16_0_1-a "Doxygen needs a declaration for this parser-hostile friend definition"
   friend constexpr auto submdspan_mapping(mapping const& src, CanonicalSliceSpecifiers... slices) noexcept
+#ifdef ARENE_DOC_GENERATION_RUNNING
+      ;
+#else
       -> decltype(mdspan_detail::submdspan_mapping_impl<
                   submdspan_subextents_type_t<extents_type, CanonicalSliceSpecifiers...>>(
           mdspan_detail::is_submdspan_layout_preserving<
@@ -353,6 +364,12 @@ class layout_left::mapping : private layout_detail::strided_mapping_base<Extents
         std::move(slices)...
     );
   }
+#endif
+  // parasoft-end-suppress AUTOSAR-A16_0_1-a
+  // parasoft-end-suppress CERT_CPP-MSC52-a
+  // parasoft-end-suppress CERT_C-MSC37-a
+  // parasoft-end-suppress AUTOSAR-A8_4_2-a
+  // parasoft-end-suppress AUTOSAR-A0_1_4-a
 
   // parasoft-end-suppress AUTOSAR-A11_3_1-a
 };
@@ -360,11 +377,6 @@ class layout_left::mapping : private layout_detail::strided_mapping_base<Extents
 // parasoft-end-suppress AUTOSAR-A7_3_1-a
 // parasoft-end-suppress AUTOSAR-A10_2_1-b
 // parasoft-end-suppress AUTOSAR-A10_2_1-a
-
-/// @brief Specialization of @c is_sliceable_mapping_v indicating @c layout_left::mapping supports @c submdspan
-/// @tparam Extents Any specialization of @c arene::base::extents
-template <typename Extents>
-extern constexpr bool submdspan_detail::is_sliceable_mapping_v<layout_left::mapping<Extents>> = true;
 
 }  // namespace base
 }  // namespace arene

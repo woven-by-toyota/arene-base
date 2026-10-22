@@ -11,9 +11,9 @@
 #include "arene/base/array/array.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
+#include "arene/base/mdspan/detail/make_extents_range.hpp"
 #include "arene/base/mdspan/detail/representable_cast.hpp"
 #include "arene/base/mdspan/detail/slice_lower_bound.hpp"
-#include "arene/base/mdspan/detail/to_array.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/not_equal_to.hpp"
@@ -46,7 +46,7 @@ constexpr auto any_equal(Range1 const& range1, Range2 const& range2) -> bool {
 /// @return @c true if any lower bound equals the corresponding extent
 template <class BoundsArray, class Extents>
 constexpr auto any_at_extent(BoundsArray const& bounds, Extents const& exts) noexcept -> bool {
-  return any_equal(bounds, to_array(exts));
+  return any_equal(bounds, make_extents_range(exts));
 }
 
 }  // namespace submdspan_offset_detail

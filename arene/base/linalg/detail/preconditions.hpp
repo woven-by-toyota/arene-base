@@ -26,9 +26,9 @@ class actually_addable_impl {
  public:
   /// @brief Check whether or not it's actually possible to perform an addition with this particular set of linalg
   /// objects
-  /// @tparam LeftInput The type of the left of the two inputs to the addition, here constrained to be a vector
-  /// @tparam RightInput The type of the right of the two inputs to the addition, here constrained to be a vector
-  /// @tparam Output The type of the output of the addition, here constrained to be a vector
+  /// @tparam LeftInput The type of the left of the two inputs to the addition
+  /// @tparam RightInput The type of the right of the two inputs to the addition
+  /// @tparam Output The type of the output of the addition
   /// @param left The actual instance of @c LeftInput which we're attempting to add
   /// @param right The actual instance of @c RightInput which we're attempting to add
   /// @param output The actual instance of @c Output into which we're attempting to write the result of the addition
@@ -38,36 +38,14 @@ class actually_addable_impl {
       class RightInput,
       class Output,
       constraints<
-          std::enable_if_t<is_in_vector_v<LeftInput>>,
-          std::enable_if_t<is_in_vector_v<RightInput>>,
-          std::enable_if_t<is_in_vector_v<Output>>> = nullptr>
+          std::enable_if_t<is_in_object_v<LeftInput>>,
+          std::enable_if_t<is_in_object_v<RightInput>>,
+          std::enable_if_t<is_in_object_v<Output>>,
+          std::enable_if_t<LeftInput::rank() == RightInput::rank()>,
+          std::enable_if_t<RightInput::rank() == Output::rank()>> = nullptr>
   constexpr auto operator()(LeftInput const& left, RightInput const& right, Output const& output) const noexcept
       -> bool {
-    return (left.extent(0U) == right.extent(0U)) && (left.extent(0U) == output.extent(0U));
-  }
-
-  /// @brief Check whether or not it's actually possible to perform an addition with this particular set of linalg
-  /// objects
-  /// @tparam LeftInput The type of the left of the two inputs to the addition, here constrained to be a matrix
-  /// @tparam RightInput The type of the right of the two inputs to the addition, here constrained to be a matrix
-  /// @tparam Output The type of the output of the addition, here constrained to be a matrix
-  /// @param left The actual instance of @c LeftInput which we're attempting to add
-  /// @param right The actual instance of @c RightInput which we're attempting to add
-  /// @param output The actual instance of @c Output into which we're attempting to write the result of the addition
-  /// @return @c true if all of the parameters are suitable for the given addition, @c false if not
-  template <
-      class LeftInput,
-      class RightInput,
-      class Output,
-      constraints<
-          std::enable_if_t<is_in_matrix_v<LeftInput>>,
-          std::enable_if_t<is_in_matrix_v<RightInput>>,
-          std::enable_if_t<is_in_matrix_v<Output>>> = nullptr>
-  constexpr auto operator()(LeftInput const& left, RightInput const& right, Output const& output) const noexcept
-      -> bool {
-    bool const heights_compatible{(left.extent(0U) == right.extent(0U)) && (left.extent(0U) == output.extent(0U))};
-    bool const widths_compatible{(left.extent(1U) == right.extent(1U)) && (left.extent(1U) == output.extent(1U))};
-    return heights_compatible && widths_compatible;
+    return (left.extents() == right.extents()) && (right.extents() == output.extents());
   }
 };
 
@@ -162,11 +140,12 @@ class actually_comparable_impl {
   template <
       class LeftInput,
       class RightInput,
-      constraints<std::enable_if_t<
-          (is_in_vector_v<LeftInput> && is_in_vector_v<RightInput>) ||
-          (is_in_matrix_v<LeftInput> && is_in_matrix_v<RightInput>)>> = nullptr>
+      constraints<
+          std::enable_if_t<is_in_object_v<LeftInput>>,
+          std::enable_if_t<is_in_object_v<RightInput>>,
+          std::enable_if_t<LeftInput::rank() == RightInput::rank()>> = nullptr>
   constexpr auto operator()(LeftInput const& left, RightInput const& right) const noexcept -> bool {
-    return actually_addable_impl{}(left, right, right);
+    return left.extents() == right.extents();
   }
 };
 

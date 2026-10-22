@@ -84,14 +84,16 @@ namespace variant_detail {
 /// @param requested the index of expected object
 /// @param index the index of owned object
 /// @throws arene::base::bad_variant_access if @c requested!=index or @c index==variant_npos .
+// parasoft-begin-suppress AUTOSAR-A15_4_5-a "False positive: The exception type that can be thrown is documented."
 inline void variant_must_have_value(std::size_t const requested, std::size_t const index) {
   if (index == variant_npos) {
-    throw bad_variant_access{"Valueless by exception"};
+    throw arene::base::bad_variant_access{"Valueless by exception"};
   }
   if (index != requested) {
-    throw bad_variant_access{"Variant does not hold alternative"};
+    throw arene::base::bad_variant_access{"Variant does not hold alternative"};
   }
 }
+// parasoft-end-suppress AUTOSAR-A15_4_5-a
 }  // namespace variant_detail
 
 }  // namespace base

@@ -1,0 +1,40 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load(
+    "//rules:cc_build_error.bzl",
+    "cc_build_error_test",
+    "inline_src",
+    "mandate_error_matcher",
+)
+
+cc_build_error_test(
+    name = "swap_rows_compile_time_out_of_bounds_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/swap_rows.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/layout.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+
+auto main() -> int {{
+  int data[4U] = {};
+  arene::base::mdspan<int, arene::base::extents<std::size_t, 2U, 2U>, arene::base::layout_right> mat{data};
+  arene::base::linalg::swap_rows(mat, std::integral_constant<std::size_t, 5U>{}, 0);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "This is not a valid submdspan slice for the given extent \\(usually because it's statically out of bounds\\)",
+        requirement = "is_valid_submdspan_slice_type_for_v<std::integral_constant<unsigned long, 5>, 2UL>",
+    ),
+    deps = [
+        "//arene/base/linalg:swap_rows",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)

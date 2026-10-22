@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -29,7 +33,7 @@ The Bazel target is
 //:byte
 ```
 
-## Converting Between Bytes and Integers {#converting-between-bytes-and-integers}
+# Converting Between Bytes and Integers {#subpackages-byte-converting-between-bytes-and-integers}
 
 Conversion to `arene::base::byte` from an integer type can be accomplished via
 `arene::base::to_byte`. This API does **not** do any form of bounds checking, it
@@ -40,7 +44,7 @@ Conversion from `arene::base::byte` to an integer type can be accomplished via
 specification is available on
 [cppreference](https://en.cppreference.com/w/cpp/types/byte).
 
-## The `_byte` Literal {#the-byte-literal}
+## The `_byte` Literal {#subpackages-byte-the-byte-literal}
 
 To assist with constructing `arene::base::byte` values from literals in a C++14
 context, a _User Defined Literal_ is provided, `arene::base::literals::_byte`.

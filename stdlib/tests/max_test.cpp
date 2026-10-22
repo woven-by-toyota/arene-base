@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "arene/base/algorithm/detail/functional.hpp"
+#include "arene/base/algorithm/max_element.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
 #include "arene/base/type_list/concat_unique.hpp"
 #include "stdlib/include/algorithm"
 #include "stdlib/include/functional"
@@ -14,6 +15,7 @@
 #include "testlibs/minitest/minitest.hpp"
 #include "testlibs/utilities/common_test_types.hpp"
 #include "testlibs/utilities/counted_algorithm.hpp"
+#include "testlibs/utilities/functional.hpp"
 
 namespace {
 
@@ -187,6 +189,57 @@ TYPED_TEST(MaxTest, HasRightReturnTypeWithComparisonFunction) {
       T const&>();
 }
 
+/// @test @c std::max can be used with a final compare class
+CONSTEXPR_TYPED_TEST(MaxTest, FinalCompare) {
+  struct final_compare final {
+    constexpr auto operator()(TypeParam const& lhs, TypeParam const& rhs) -> bool { return lhs < rhs; }
+  };
+
+  auto first = TypeParam{};
+  auto second = TypeParam{1};
+
+  EXPECT_EQ(&second, (&std::max(first, second, final_compare{})));
+}
+
+/// @test @c std::max can be used with a class that can throw on copy
+CONSTEXPR_TYPED_TEST(MaxTest, CompareThatCanThrowOnCopy) {
+  struct throwing_compare {  // NOLINT(hicpp-special-member-functions)
+    throwing_compare() = default;
+    constexpr throwing_compare(throwing_compare const&) noexcept(false) {}  // NOLINT(hicpp-use-equals-default)
+
+    constexpr auto operator()(TypeParam const& lhs, TypeParam const& rhs) -> bool { return lhs < rhs; }
+  };
+
+  auto first = TypeParam{};
+  auto second = TypeParam{1};
+
+  EXPECT_EQ(&second, (&std::max(first, second, throwing_compare{})));
+}
+
+/// @test @c std::max can be used with a function pointer
+TYPED_TEST(MaxTest, FunctionPointer) {
+  auto first = TypeParam{};
+  auto second = TypeParam{1};
+
+  EXPECT_EQ(
+      &second,
+      (&std::max(
+          first,
+          second,
+          +[](TypeParam lhs, TypeParam rhs) { return lhs < rhs; }
+      ))
+  );
+}
+
+/// @test @c std::max can be explicitly passed a reference to a function object
+CONSTEXPR_TYPED_TEST(MaxTest, ReferenceToFunctionObject) {
+  auto first = TypeParam{};
+  auto second = TypeParam{1};
+
+  auto cmp = comparator<TypeParam>{};
+  EXPECT_EQ(&second, (&std::max<TypeParam, comparator<TypeParam>&>(first, second, cmp)));
+}
+
 /// @test @c std::max returns the larger of two values as defined by a custom comparison function
 CONSTEXPR_TYPED_TEST(MaxTest, ReturnsLargerValueWithComparisonFunction) {
   auto const smaller = TypeParam{0};
@@ -224,12 +277,11 @@ ARENE_IGNORE_ALL(
     "Not performing arithmetic operations on floating point values, so exact equality is ok."
 );
 
-// Helper function to run `arene::base::algorithm_detail::relative_find` with an empty range to get full branch
-// coverage.
-template <class T, class Compare = arene::base::algorithm_detail::operator_less_t>
+// Helper function to run `arene::base::max_element` with an empty range to get full branch coverage.
+template <class T, class Compare = arene::base::functional_detail::operator_less_t>
 constexpr auto run_for_coverage(Compare comp = Compare{}) {
   auto const list = std::initializer_list<T>{};
-  std::ignore = std::internal::relative_find(list.begin(), list.end(), arene::base::algorithm_detail::flip(comp));
+  std::ignore = arene::base::max_element(list.begin(), list.end(), comp);
 }
 
 /// @test @c std::max of a @c std::initializer_list enforces preconditions that the type @c T is CopyConstructible and
@@ -389,7 +441,7 @@ CONSTEXPR_TYPED_TEST(MaxListTest, MeetsComplexityRequirement) {
 
   for (auto const& test_case : test_cases) {
     auto count = std::size_t{};
-    auto cmp = testing::counted<std::decay_t<decltype(arene::base::algorithm_detail::operator_less)>>{count};
+    auto cmp = testing::counted<std::decay_t<decltype(arene::base::functional_detail::operator_less)>>{count};
 
     std::ignore = std::max(test_case, cmp);
     ASSERT_EQ(count, test_case.size() - 1);

@@ -16,6 +16,7 @@ namespace wrapped_iterator_tests {
 /// A span of iterator types including raw pointers and complex iterators, which does not include any stdlib types not
 /// provided by stdlib_choice.
 /// @note std::iterator_list<>::iterator is a pointer in //stdlib
+/// @cond
 using nostdlib_iterator_types = arene::base::type_lists::remove_duplicates_t<::testing::Types<
     int*,
     int const*,
@@ -25,6 +26,7 @@ using nostdlib_iterator_types = arene::base::type_lists::remove_duplicates_t<::t
     std::initializer_list<int>::const_iterator,
     testing::demoted_iterator<int*>,
     testing::demoted_iterator<int const*>>>;
+/// @endcond
 
 INSTANTIATE_TYPED_TEST_SUITE_P(NostdlibTypes, WrappedIteratorMemberTypesTest, nostdlib_iterator_types, );
 INSTANTIATE_TYPED_TEST_SUITE_P(NostdlibTypes, WrappedIteratorReturnTypeEquivalenceTest, nostdlib_iterator_types, );

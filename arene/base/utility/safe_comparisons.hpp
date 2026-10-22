@@ -13,7 +13,7 @@
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
@@ -331,28 +331,22 @@ class cmp_greater_equal_fn {
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
-/// @def arene::base::cmp_equal
-/// @copydoc arene::base::safe_comparisons_detail::cmp_equal_fn::operator()
+/// @brief Compare integers for equality without signedness conversion surprises.
 ARENE_CPP14_INLINE_VARIABLE(safe_comparisons_detail::cmp_equal_fn, cmp_equal);
 
-/// @def arene::base::cmp_not_equal
-/// @copydoc arene::base::safe_comparisons_detail::cmp_not_equal::operator()
+/// @brief Compare integers for inequality without signedness conversion surprises.
 ARENE_CPP14_INLINE_VARIABLE(safe_comparisons_detail::cmp_not_equal_fn, cmp_not_equal);
 
-/// @def arene::base::cmp_less
-/// @copydoc arene::base::safe_comparisons_detail::cmp_less::operator()
+/// @brief Compare integers for less-than without signedness conversion surprises.
 ARENE_CPP14_INLINE_VARIABLE(safe_comparisons_detail::cmp_less_fn, cmp_less);
 
-/// @def arene::base::cmp_less_equal
-/// @copydoc arene::base::safe_comparisons_detail::cmp_less_equal::operator()
+/// @brief Compare integers for less-than-or-equal without signedness conversion surprises.
 ARENE_CPP14_INLINE_VARIABLE(safe_comparisons_detail::cmp_less_equal_fn, cmp_less_equal);
 
-/// @def arene::base::cmp_greater
-/// @copydoc arene::base::safe_comparisons_detail::cmp_greater::operator()
+/// @brief Compare integers for greater-than without signedness conversion surprises.
 ARENE_CPP14_INLINE_VARIABLE(safe_comparisons_detail::cmp_greater_fn, cmp_greater);
 
-/// @def arene::base::cmp_greater_equal
-/// @copydoc arene::base::safe_comparisons_detail::cmp_greater_equal::operator()
+/// @brief Compare integers for greater-than-or-equal without signedness conversion surprises.
 ARENE_CPP14_INLINE_VARIABLE(safe_comparisons_detail::cmp_greater_equal_fn, cmp_greater_equal);
 // parasoft-end-suppress AUTOSAR-M7_3_3-a
 // parasoft-end-suppress CERT_CPP-DCL59-a

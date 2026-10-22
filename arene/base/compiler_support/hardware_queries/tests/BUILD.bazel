@@ -4,17 +4,19 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
-cc_test(
-    name = "cache_line_test",
-    srcs = ["cache_line_test.cpp"],
-    deps = [
-        "//arene/base/compiler_support:internal",
-        "//arene/base/testing:gtest",
-        "//testlibs:gtest",
-    ],
-)
+package(default_visibility = ["//tools:__subpackages__"])
 
 exports_files(
     glob(["*.cpp"]),
     visibility = ["//:__subpackages__"],
+)
+
+cc_test(
+    name = "cache_line_test",
+    srcs = ["cache_line_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support/hardware_queries:cache_line",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
 )

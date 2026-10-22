@@ -188,4 +188,13 @@ TEST(TypeTraits, IsIntegralConstantLike) { using arene::base::is_integral_consta
 /// @test `is_integral_constant_like_v` is declared
 TEST(TypeTraits, IsIntegralConstantLikeV) { using arene::base::is_integral_constant_like_v; }
 
+/// @test `basic_common_reference` is declared
+TEST(TypeTraits, BasicCommonReference) { using arene::base::basic_common_reference; }
+/// @test `common_reference` is declared
+TEST(TypeTraits, CommonReference) { using arene::base::common_reference; }
+/// @test `common_reference_t` is declared
+TEST(TypeTraits, CommonReferenceT) { using arene::base::common_reference_t; }
+/// @test `has_common_reference_with_v` is declared
+TEST(TypeTraits, HasCommonReferenceWithV) { using arene::base::has_common_reference_with_v; }
+
 }  // namespace

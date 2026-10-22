@@ -6,14 +6,15 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ALGORITHM_TESTS_SORT_HPP_
 
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/equal.hpp"
 #include "arene/base/algorithm/iota.hpp"
-#include "arene/base/algorithm/sort.hpp"
 #include "arene/base/algorithm/tests/generated_test_data.hpp"
 #include "arene/base/algorithm/tests/sort_fwd.hpp"
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
 #include "arene/base/math/log2.hpp"
 #include "arene/base/stdlib_choice/add_pointer.hpp"
@@ -23,7 +24,7 @@
 #include "arene/base/stdlib_choice/end.hpp"
 #include "arene/base/stdlib_choice/forward.hpp"
 #include "arene/base/stdlib_choice/greater.hpp"
-#include "arene/base/stdlib_choice/integer_sequence.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"  // IWYU pragma: keep
 #include "arene/base/stdlib_choice/iterator_tags.hpp"
 #include "arene/base/stdlib_choice/less.hpp"
 #include "arene/base/stdlib_choice/move.hpp"
@@ -130,40 +131,91 @@ constexpr auto is_sorted(R& values, C comp) -> bool {
 
 // @}
 
-// NOLINTBEGIN(hicpp-avoid-c-arrays)
-
-// create an @c arene::base::array from a C-array with a possibly-different value type
-//
-template <class T, std::size_t... Is, class U>
-constexpr auto to_array_of(std::index_sequence<Is...>, U const (&values)[sizeof...(Is)])
-    -> arene::base::array<T, sizeof...(Is)> {
-  return {T{values[Is]}...};
-}
-template <class T, class U, std::size_t N>
-constexpr auto to_array_of(U const (&values)[N]) -> arene::base::array<T, N> {
-  return to_array_of<T>(std::make_index_sequence<N>{}, values);
-}
-
-// NOLINTEND(hicpp-avoid-c-arrays)
-
 // invoke @c sort and check:
 // * algorithm postconditions are satisfied
 // * algorithm complexity does not exceed the complexity limit (if @c comp is provided)
+// * arene::base flavors can be called with a range
 //
-constexpr struct {
+constexpr struct checked_sort_t {
+  /// @brief invoke sort function under test and check post conditions
+  /// @tparam T range value type
+  /// @tparam N range size
+  /// @tparam C value comparision function object
+  /// @param values range of value to sort
+  /// @param comp comparision function object for values
+  ///
+  /// Overload that checks:
+  /// * comparison complexity limit
+  /// * values are sorted after a call to the sort algorithm
+  ///
+  /// @note This overload passes the range as first and last iterators,
+  /// indirectly via counted_algorithm.
   template <class T, std::size_t N, class C>
-  constexpr auto operator()(arene::base::array<T, N> values, C comp) const {
+  constexpr auto operator()(std::false_type, arene::base::array<T, N> values, C comp) const -> void {
     auto const result = testing::counted_algorithm(sort_test::sort_fn(), values, comp);
 
     CONSTEXPR_ASSERT(result.applications <= sort_test::complexity_limit(N));
     CONSTEXPR_ASSERT(sort_test::is_sorted(values, comp));
   }
 
+  /// @brief invoke sort function under test and check post conditions
+  /// @tparam T range value type
+  /// @tparam N range size
+  /// @tparam C value comparision function object
+  /// @param values range of value to sort
+  /// @param comp comparision function object for values
+  ///
+  /// Overload that checks:
+  /// * comparison complexity limit
+  /// * values are sorted after a call to sort
+  ///
+  /// @note This overload passes the range as a single argument to the sort algorithm
+  template <class T, std::size_t N, class C>
+  constexpr auto operator()(std::true_type, arene::base::array<T, N> values, C comp) const -> void {
+    (*this)(std::false_type{}, values, comp);  // params are copied
+
+    auto count = std::size_t{};
+    sort_test::sort_fn()(values, testing::counted<C>{comp, count});
+
+    CONSTEXPR_ASSERT(count <= sort_test::complexity_limit(N));
+    CONSTEXPR_ASSERT(sort_test::is_sorted(values, comp));
+  }
+
+  /// @brief invoke sort function under test and check post conditions
+  /// @tparam T range value type
+  /// @tparam N range size
+  /// @tparam C value comparision function object
+  /// @param values range of value to sort
+  /// @param comp comparision function object for values
+  ///
+  /// Overload that checks:
+  /// * comparison complexity limit
+  /// * values are sorted after a call to sort
+  ///
+  /// @note Calls the sort algorithm under test with iterators for the std
+  /// flavor, otherwise it calls the sort algorithm with a range argument.
+  template <class T, std::size_t N, class C>
+  constexpr auto operator()(arene::base::array<T, N> values, C comp) const -> void {
+    (*this)(std::integral_constant<bool, !sort_test::is_std_version()>{}, values, std::move(comp));
+  }
+
+  /// @brief invoke sort function under test and check post conditions
+  /// @tparam T range value type
+  /// @tparam N range size
+  /// @param values range of value to sort
+  ///
+  /// Overload that checks:
+  /// * comparison complexity limit
+  /// * values are sorted after a call to sort
+  ///
+  /// @note This overload passes the range as first and last iterators.
+  /// @note This overload uses the documented comparison function object to
+  /// check complexity.
   template <class T, std::size_t N>
-  constexpr auto operator()(arene::base::array<T, N> values) const {
+  constexpr auto operator()(std::false_type, arene::base::array<T, N> values) const {
     using compare = arene::base::conditional_t<  //
         is_std_version(),
-        decltype(arene::base::algorithm_detail::operator_less),
+        decltype(arene::base::functional_detail::operator_less),
         std::less<>>;
 
     auto copied_values = values;
@@ -175,6 +227,40 @@ constexpr struct {
     CONSTEXPR_ASSERT(result.applications <= sort_test::complexity_limit(N));
     CONSTEXPR_ASSERT(arene::base::equal(values.begin(), values.end(), copied_values.begin()));
   }
+
+  /// @brief invoke sort function under test and check post conditions
+  /// @tparam T range value type
+  /// @tparam N range size
+  /// @param values range of value to sort
+  ///
+  /// Overload that checks:
+  /// * values are sorted after a call to sort
+  ///
+  /// @note This overload passes the range as a single argument to the sort algorithm
+  template <class T, std::size_t N>
+  constexpr auto operator()(std::true_type, arene::base::array<T, N> values) const -> void {
+    (*this)(std::false_type{}, values);  // param is copied
+
+    using compare = std::less<>;
+
+    sort_test::sort_fn()(values);
+    CONSTEXPR_ASSERT(sort_test::is_sorted(values, compare{}));
+  }
+
+  /// @brief invoke sort function under test and check post conditions
+  /// @tparam T range value type
+  /// @tparam N range size
+  /// @param values range of value to sort
+  ///
+  /// Overload that checks:
+  /// * values are sorted after a call to sort
+  ///
+  /// @note Calls the sort algorithm under test with iterators for the std
+  /// flavor, otherwise it calls the sort algorithm with a range argument.
+  template <class T, std::size_t N>
+  constexpr auto operator()(arene::base::array<T, N> values) const -> void {
+    (*this)(std::integral_constant<bool, !sort_test::is_std_version()>{}, values);
+  }
 } checked_sort{};
 
 // @}
@@ -182,6 +268,8 @@ constexpr struct {
 }  // namespace sort_test
 
 namespace {
+
+using arene::base::to_array_of;
 
 template <class T>
 struct Sort : ::testing::Test {};
@@ -252,8 +340,8 @@ TYPED_TEST(Sort, SingleElementRange) {
 
   using T = typename TypeParam::value_type;
 
-  sort_test::checked_sort(sort_test::to_array_of<T>({0}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({1}), comp);
+  sort_test::checked_sort(to_array_of<T>({0}), comp);
+  sort_test::checked_sort(to_array_of<T>({1}), comp);
 }
 
 /// @test @c sort on a 2 element range leaves the elements sorted
@@ -264,9 +352,9 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, TwoElementRange, ::sort_test::run_test_
 
   using T = typename TypeParam::value_type;
 
-  sort_test::checked_sort(sort_test::to_array_of<T>({2, 1}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({1, 1}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({1, 2}), comp);
+  sort_test::checked_sort(to_array_of<T>({2, 1}), comp);
+  sort_test::checked_sort(to_array_of<T>({1, 1}), comp);
+  sort_test::checked_sort(to_array_of<T>({1, 2}), comp);
 }
 
 /// @test @c sort on a 3 element range leaves the elements sorted
@@ -277,22 +365,22 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, ThreeElementRange, ::sort_test::run_tes
 
   using T = typename TypeParam::value_type;
 
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 0, 0}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({1, 1, 1}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({2, 2, 2}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 0, 1}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 1, 0}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({1, 0, 0}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 0, 2}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 2, 0}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({2, 0, 0}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 1, 2}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({1, 2, 0}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({2, 0, 1}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({2, 0, 2}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({2, 1, 2}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({1, 2, 2}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({2, 2, 1}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 0, 0}), comp);
+  sort_test::checked_sort(to_array_of<T>({1, 1, 1}), comp);
+  sort_test::checked_sort(to_array_of<T>({2, 2, 2}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 0, 1}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 1, 0}), comp);
+  sort_test::checked_sort(to_array_of<T>({1, 0, 0}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 0, 2}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 2, 0}), comp);
+  sort_test::checked_sort(to_array_of<T>({2, 0, 0}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 1, 2}), comp);
+  sort_test::checked_sort(to_array_of<T>({1, 2, 0}), comp);
+  sort_test::checked_sort(to_array_of<T>({2, 0, 1}), comp);
+  sort_test::checked_sort(to_array_of<T>({2, 0, 2}), comp);
+  sort_test::checked_sort(to_array_of<T>({2, 1, 2}), comp);
+  sort_test::checked_sort(to_array_of<T>({1, 2, 2}), comp);
+  sort_test::checked_sort(to_array_of<T>({2, 2, 1}), comp);
 }
 
 /// @test @c sort on a 10 element range leaves the elements sorted
@@ -303,12 +391,12 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, TenElementRange, ::sort_test::run_test_
 
   using T = typename TypeParam::value_type;
 
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 0, 0, 0, 0, 0, 0, 0, 0, 0}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 1, 2, 3, 4, 7, 6, 5, 8, 9}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({0, 1, 8, 3, 4, 5, 6, 7, 2, 9}), comp);
-  sort_test::checked_sort(sort_test::to_array_of<T>({9, 8, 7, 6, 5, 4, 3, 2, 1, 0}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 0, 0, 0, 0, 0, 0, 0, 0, 0}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 1, 2, 3, 4, 7, 6, 5, 8, 9}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}), comp);
+  sort_test::checked_sort(to_array_of<T>({0, 1, 8, 3, 4, 5, 6, 7, 2, 9}), comp);
+  sort_test::checked_sort(to_array_of<T>({9, 8, 7, 6, 5, 4, 3, 2, 1, 0}), comp);
 }
 
 /// @test @c sort on a 20 element range leaves the elements sorted
@@ -320,7 +408,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, TwentyElementRange, ::sort_test::run_te
   using T = typename TypeParam::value_type;
 
   sort_test::checked_sort(
-      sort_test::to_array_of<T>({
+      to_array_of<T>({
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0   //
       }),
@@ -328,7 +416,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, TwentyElementRange, ::sort_test::run_te
   );
 
   sort_test::checked_sort(
-      sort_test::to_array_of<T>({
+      to_array_of<T>({
           1, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0   //
       }),
@@ -336,7 +424,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, TwentyElementRange, ::sort_test::run_te
   );
 
   sort_test::checked_sort(
-      sort_test::to_array_of<T>({
+      to_array_of<T>({
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  //
           0, 0, 0, 0, 0, 0, 0, 0, 0, 1   //
       }),
@@ -344,7 +432,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, TwentyElementRange, ::sort_test::run_te
   );
 
   sort_test::checked_sort(
-      sort_test::to_array_of<T>({
+      to_array_of<T>({
           0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  //
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0   //
       }),
@@ -352,7 +440,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, TwentyElementRange, ::sort_test::run_te
   );
 
   sort_test::checked_sort(
-      sort_test::to_array_of<T>({
+      to_array_of<T>({
           1, 0, 0, 0, 0, 0, 0, 0, 0, 1,  //
           0, 0, 0, 0, 0, 0, 0, 0, 0, 1   //
       }),
@@ -363,7 +451,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, TwentyElementRange, ::sort_test::run_te
 /// @test @c sort on a 100 element range leaves the elements sorted
 /// and does not exceed the complexity limit
 ///
-CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, OneHundredElementRange, ::sort_test::run_test_in_constexpr()) {
+TYPED_TEST(Sort, OneHundredElementRange) {
   auto const comp = typename TypeParam::compare_type{};
 
   using T = typename TypeParam::value_type;
@@ -374,7 +462,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, OneHundredElementRange, ::sort_test::ru
   {
     int increasing[100] = {};
     arene::base::iota(std::begin(increasing), std::end(increasing), int{});
-    sort_test::checked_sort(sort_test::to_array_of<T>(increasing), comp);
+    sort_test::checked_sort(to_array_of<T>(increasing), comp);
   }
 
   {
@@ -384,7 +472,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, OneHundredElementRange, ::sort_test::ru
         arene::base::make_reverse_iterator(std::begin(decreasing)),
         int{}
     );
-    sort_test::checked_sort(sort_test::to_array_of<T>(decreasing), comp);
+    sort_test::checked_sort(to_array_of<T>(decreasing), comp);
   }
   // NOLINTEND(hicpp-avoid-c-arrays)
 }
@@ -392,7 +480,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(Sort, OneHundredElementRange, ::sort_test::ru
 /// @test @c sort with std::greater as the comparator sorts in decending order
 ///
 TEST(Sort, WithStdGreater) {
-  auto values = sort_test::to_array_of<int>({2, 1, 3});
+  auto values = to_array_of<int>({2, 1, 3});
   sort_test::checked_sort(values, std::greater<>{});
 
   sort_test::sort_fn()(values.begin(), values.end(), std::greater<>{});
@@ -410,9 +498,9 @@ TEST(Sort, OnGeneratedData) { arene::base::for_each(algorithm_test::test_data, s
 CONDITIONALLY_CONSTEXPR_TYPED_TEST(SortLessComparable, UsesOperatorLess, ::sort_test::run_test_in_constexpr()) {
   using T = typename TypeParam::value_type;
 
-  sort_test::checked_sort(sort_test::to_array_of<T>({2, 1}));
-  sort_test::checked_sort(sort_test::to_array_of<T>({1, 1}));
-  sort_test::checked_sort(sort_test::to_array_of<T>({1, 2}));
+  sort_test::checked_sort(to_array_of<T>({2, 1}));
+  sort_test::checked_sort(to_array_of<T>({1, 1}));
+  sort_test::checked_sort(to_array_of<T>({1, 2}));
 }
 
 /// @test @c sort is not @c noexcept if members of the range value type can throw

@@ -4,20 +4,15 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "internal",
+    hdrs = [
         "binary_tree_node.hpp",
         "detail/default_tag.hpp",
         "priority_queue.hpp",
         "queue.hpp",
         "singly_linked_node.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "internal",
-    hdrs = [":hdrs"],
     visibility = [
         ":__subpackages__",
     ],
@@ -25,7 +20,6 @@ cc_library_with_variants(
         "//arene/base:constraints",
         "//arene/base:contracts",
         "//arene/base:math",
-        "//arene/base:type_traits",
         "//arene/base:utility",
         "//arene/base/stdlib_choice:climits",
         "//arene/base/stdlib_choice:cstddef",
@@ -34,6 +28,7 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:is_const",
         "//arene/base/stdlib_choice:less",
         "//arene/base/stdlib_choice:move",
+        "//arene/base/type_traits:is_invocable",
         "//configs:incompatible_with_toolchain_stdlib_disabled",
     ],
 )
@@ -50,7 +45,9 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob([
+        "*.hpp",
+        "detail/*.hpp",
+    ]),
     visibility = ["//arene/base:__pkg__"],
 )

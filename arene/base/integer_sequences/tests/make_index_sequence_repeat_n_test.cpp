@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include "arene/base/integer_sequences/make_index_sequence_repeat_n.hpp"
+
 #include <gtest/gtest.h>
 
-#include "arene/base/integer_sequences.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 
 namespace {

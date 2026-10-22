@@ -30,6 +30,9 @@ TEST(Functional, BindBack) { using ::arene::base::bind_back; }
 /// @test `bind_overloads` is declared
 TEST(Functional, BindOverloads) { using ::arene::base::bind_overloads; }
 
+/// @test `construct` is declared
+TEST(Functional, Construct) { using ::arene::base::construct; }
+
 /// @test Ensure `identity` is available
 TEST(Functional, identity) { using ::arene::base::identity; }
 

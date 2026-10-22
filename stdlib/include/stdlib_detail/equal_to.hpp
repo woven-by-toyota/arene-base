@@ -42,9 +42,11 @@ class equal_to {
 };
 
 // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: 'equal_to' does not hide anything"
+// parasoft-begin-suppress AUTOSAR-A2_7_3-a "False positive: there is a comment with @brief"
 /// @brief Function object that can be invoked for equality comparisons, specialized for type deduction
 template <>
 class equal_to<void> {
+  // parasoft-end-suppress AUTOSAR-A2_7_3-a
  public:
   // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: 'is_transparent' does not hide anything"
   /// @brief Denotes that this is a transparent function object type
@@ -54,6 +56,8 @@ class equal_to<void> {
   // parasoft-begin-suppress AUTOSAR-M6_2_2-a "The type being compared is up to the user"
   ARENE_IGNORE_START();
   ARENE_IGNORE_ALL("-Wfloat-equal", "The type being compared is up to the user");
+  ARENE_IGNORE_CLANG("-Wimplicit-int-float-conversion", "The type being compared is up to the user");
+  ARENE_IGNORE_GCC("-Wconversion", "The type being compared is up to the user");
   /// @brief Returns if two values are equal with parameter and return type deduced
   /// @tparam T The type of the first value
   /// @tparam U The type of the second value

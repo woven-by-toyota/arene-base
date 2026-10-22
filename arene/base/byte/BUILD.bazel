@@ -4,16 +4,11 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "byte.hpp",
-    ],
-)
-
 cc_library(
     name = "internal",
-    hdrs = [":hdrs"],
+    hdrs = [
+        "byte.hpp",
+    ],
     visibility = [
         ":__subpackages__",
         "//arene/base:__pkg__",
@@ -34,7 +29,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

@@ -14,6 +14,9 @@
 #include <gtest/gtest.h>
 
 namespace {
+/// @test `accumulate` is declared
+TEST(AlgorithmExports, AccumulateIsExported) { using ::arene::base::accumulate; }
+
 /// @test `all_of` is declared
 TEST(AlgorithmExports, AllOfIsExported) { using ::arene::base::all_of; }
 
@@ -58,11 +61,17 @@ TEST(AlgorithmExports, LexicographicalCompareThreeWayIsExported) {
   using ::arene::base::lexicographical_compare_three_way;
 }
 
+/// @test `max_element` is declared
+TEST(AlgorithmExports, MaxElementIsExported) { using ::arene::base::max_element; }
+
 /// @test `move` is declared
 TEST(AlgorithmExports, MoveIsExported) { using ::arene::base::move; }
 
 /// @test `move_backward` is declared
 TEST(AlgorithmExports, MoveBackwardIsExported) { using ::arene::base::move_backward; }
+
+/// @test `reduce` is declared
+TEST(AlgorithmExports, ReduceIsExported) { using ::arene::base::reduce; }
 
 /// @test `rotate` is declared
 TEST(AlgorithmExports, RotateIsExported) { using ::arene::base::rotate; }

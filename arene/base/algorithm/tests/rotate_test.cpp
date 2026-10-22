@@ -5,10 +5,12 @@
 #include "arene/base/algorithm/rotate.hpp"
 
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "arene/base/algorithm/copy.hpp"
 #include "arene/base/algorithm/equal.hpp"
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/iterator/distance.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/iterator/prev.hpp"

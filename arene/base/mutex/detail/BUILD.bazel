@@ -4,20 +4,17 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+package(default_visibility = ["//tools:__subpackages__"])
+
+cc_library(
+    name = "detail",
+    hdrs = [
         "has_native_handle.hpp",
         "lock_guard.hpp",
         "mutex.hpp",
         "only_aliases.hpp",
         "timed_mutex.hpp",
     ],
-)
-
-cc_library(
-    name = "detail",
-    hdrs = [":hdrs"],
     visibility = [
         ":__subpackages__",
         "//arene/base/mutex:__subpackages__",
@@ -25,7 +22,6 @@ cc_library(
     deps = [
         "//arene/base:constraints",
         "//arene/base:contracts",
-        "//arene/base:type_traits",
         "//arene/base/compiler_support",
         "//configs:incompatible_with_toolchain_stdlib_disabled",
     ],
@@ -35,7 +31,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/mutex:__subpackages__"],
 )

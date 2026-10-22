@@ -60,10 +60,12 @@ html {
      * font-family: the normal font for text, headlines, menus
      * font-family-monospace: used for preformatted text in memtitle, code, fragments
      */
-  --font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  --font-family-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo,
-    Consolas, Liberation Mono, monospace;
+  --font-family:
+    -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
+    Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  --font-family-monospace:
+    ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono,
+    monospace;
 
   /* font sizes */
   --page-font-size: 15.6px;
@@ -1025,16 +1027,26 @@ html.dark-mode div.contents table iframe {
 h2.groupheader {
   border-bottom: 0px;
   color: var(--page-foreground-color);
-  box-shadow: 100px 0 var(--page-background-color),
-    -100px 0 var(--page-background-color), 100px 0.75px var(--separator-color),
-    -100px 0.75px var(--separator-color), 500px 0 var(--page-background-color),
-    -500px 0 var(--page-background-color), 500px 0.75px var(--separator-color),
-    -500px 0.75px var(--separator-color), 900px 0 var(--page-background-color),
-    -900px 0 var(--page-background-color), 900px 0.75px var(--separator-color),
-    -900px 0.75px var(--separator-color), 1400px 0 var(--page-background-color),
-    -1400px 0 var(--page-background-color), 1400px 0.75px var(--separator-color),
-    -1400px 0.75px var(--separator-color), 1900px 0 var(--page-background-color),
-    -1900px 0 var(--page-background-color), 1900px 0.75px var(--separator-color),
+  box-shadow:
+    100px 0 var(--page-background-color),
+    -100px 0 var(--page-background-color),
+    100px 0.75px var(--separator-color),
+    -100px 0.75px var(--separator-color),
+    500px 0 var(--page-background-color),
+    -500px 0 var(--page-background-color),
+    500px 0.75px var(--separator-color),
+    -500px 0.75px var(--separator-color),
+    900px 0 var(--page-background-color),
+    -900px 0 var(--page-background-color),
+    900px 0.75px var(--separator-color),
+    -900px 0.75px var(--separator-color),
+    1400px 0 var(--page-background-color),
+    -1400px 0 var(--page-background-color),
+    1400px 0.75px var(--separator-color),
+    -1400px 0.75px var(--separator-color),
+    1900px 0 var(--page-background-color),
+    -1900px 0 var(--page-background-color),
+    1900px 0.75px var(--separator-color),
     -1900px 0.75px var(--separator-color);
 }
 
@@ -1365,7 +1377,8 @@ div.fragment span.lineno a {
 }
 
 div.fragment .line:first-child .lineno {
-  box-shadow: -999999px 0px 0 999999px var(--fragment-linenumber-background),
+  box-shadow:
+    -999999px 0px 0 999999px var(--fragment-linenumber-background),
     -999998px 0px 0 999999px var(--fragment-linenumber-border);
 }
 
@@ -1510,7 +1523,8 @@ div.memitem {
 }
 
 h2.memtitle {
-  box-shadow: 0px var(--spacing-medium) 0 -1px var(--fragment-background),
+  box-shadow:
+    0px var(--spacing-medium) 0 -1px var(--fragment-background),
     var(--box-shadow);
 }
 
@@ -1680,7 +1694,9 @@ dl.reflist dd {
 }
 
 .contents
-  > table:not(.memberdecls):not(.mlabels):not(.fieldtable):not(.memname):not(.classindex) {
+  > table:not(.memberdecls):not(.mlabels):not(.fieldtable):not(.memname):not(
+    .classindex
+  ) {
   margin-left: calc(0px - var(--spacing-large));
   margin-right: calc(0px - var(--spacing-large));
   max-width: calc(100% + 2 * var(--spacing-large));
@@ -2036,10 +2052,14 @@ hr {
 }
 
 .contents hr {
-  box-shadow: 100px 0 0 var(--separator-color),
-    -100px 0 0 var(--separator-color), 500px 0 0 var(--separator-color),
-    -500px 0 0 var(--separator-color), 1500px 0 0 var(--separator-color),
-    -1500px 0 0 var(--separator-color), 2000px 0 0 var(--separator-color),
+  box-shadow:
+    100px 0 0 var(--separator-color),
+    -100px 0 0 var(--separator-color),
+    500px 0 0 var(--separator-color),
+    -500px 0 0 var(--separator-color),
+    1500px 0 0 var(--separator-color),
+    -1500px 0 0 var(--separator-color),
+    2000px 0 0 var(--separator-color),
     -2000px 0 0 var(--separator-color);
 }
 
@@ -2521,7 +2541,9 @@ a.anchorlink {
   text-decoration: none;
   opacity: 0.15;
   display: none;
-  transition: opacity 0.1s ease-in-out, color 0.1s ease-in-out;
+  transition:
+    opacity 0.1s ease-in-out,
+    color 0.1s ease-in-out;
 }
 
 a.anchorlink svg {

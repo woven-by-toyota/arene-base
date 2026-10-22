@@ -113,6 +113,7 @@ class compare_three_way {
   ARENE_IGNORE_START();
   ARENE_IGNORE_ALL("-Wfloat-equal", "Three-way comparison requires equality check");
 
+  // parasoft-begin-suppress AUTOSAR-A8_4_12-a "False positive: 'lhs' nor 'rhs' are always 'std::unique_ptr'"
   /// @brief Compare two objects using less-than and equality.
   /// @tparam T The type of @c lhs
   /// @tparam U The type of @c rhs
@@ -141,6 +142,7 @@ class compare_three_way {
     }
     return strong_ordering::greater;
   }
+  // parasoft-end-suppress AUTOSAR-A8_4_12-a
 
   ARENE_IGNORE_END();
 
@@ -185,6 +187,7 @@ class compare_three_way {
     return T::three_way_compare(lhs, rhs);
   }
 
+  // parasoft-begin-suppress AUTOSAR-A8_4_12-a "False positive: 'lhs' is not always a 'std::unique_ptr'"
   /// @brief Compare two objects using a @c three_way_compare static member function.
   /// @tparam T The type of @c lhs
   /// @tparam U The type of @c rhs
@@ -202,6 +205,7 @@ class compare_three_way {
     return opposite_ordering(U::three_way_compare(rhs, lhs));
   }
 };
+// parasoft-end-suppress AUTOSAR-A8_4_12-a
 
 }  // namespace three_way_compare_detail
 

@@ -10,7 +10,7 @@
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
@@ -37,61 +37,50 @@ auto swap() -> void = delete;
 /// @brief CPO implementation of @c arene::base::swap .
 /// @see arene::base::swap
 class swap_fn_impl {
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  ///
-  /// @brief specialization for when the input does not have an ADL-discoverable @c swap implementation.
-  ///
-  /// @tparam T type of the elements to swap. Must satisfy @c is_default_swappable_v .
-  /// @param lhs element to swap
-  /// @param rhs element to swap
-  /// @post @c lhs 's state will be as if it had been move-assigned from @c rhs , and vise-versa.
-  template <typename T, constraints<std::enable_if_t<is_default_swappable_v<T>>> = nullptr>
-  static constexpr void default_swap(T& lhs, T& rhs) noexcept(is_nothrow_default_swappable_v<T>) {
-    auto temp = std::move(lhs);
-    lhs = std::move(rhs);
-    rhs = std::move(temp);
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
  public:
   ///
   /// @brief Overload for non-c-array types that provide ADL swap.
   ///
-  /// @tparam T type of the elements to swap. Must satisfy @c is_swappable_v .
-  /// @param lhs element to swap.
-  /// @param rhs element to swap.
+  /// @tparam T type of the first element to swap. Must satisfy <c>is_swappable_with_v<T, U></c>.
+  /// @tparam U type of the second element to swap. Must satisfy <c>is_swappable_with_v<T, U></c>.
+  /// @param lhs first element to swap.
+  /// @param rhs second element to swap.
   /// @post @c lhs and @c rhs will have had their states exchanged via an unqualified call to @c swap.
   ///
-  template <typename T, constraints<std::enable_if_t<is_adl_swappable_v<T>>> = nullptr>
-  constexpr void operator()(T& lhs, T& rhs) const noexcept(noexcept(swap(lhs, rhs))) {
+  template <typename T, typename U, constraints<std::enable_if_t<is_adl_swappable_with_v<T&, U&>>> = nullptr>
+  constexpr void operator()(T& lhs, U& rhs) const noexcept(noexcept(swap(lhs, rhs))) {
     swap(lhs, rhs);
   }
   ///
   /// @brief Overload for non-c-array types that do not provide ADL swap.
   ///
-  /// @tparam T type of the elements to swap. Must satisfy @c is_swappable_v .
+  /// @tparam T type of the elements to swap. Must satisfy <c>is_swappable_v<T></c>.
   /// @param lhs element to swap.
   /// @param rhs element to swap.
-  /// @post @c lhs and @c rhs will have had their states exchanged via an unqualified call to @c swap.
+  /// @post @c lhs and @c rhs will have had their states exchanged by assigning to each other using a temp variable.
   ///
   template <
       typename T,
-      constraints<std::enable_if_t<!is_adl_swappable_v<T>>, std::enable_if_t<is_default_swappable_v<T>>> = nullptr>
-  constexpr void operator()(T& lhs, T& rhs) const noexcept(noexcept(default_swap(lhs, rhs))) {
-    default_swap(lhs, rhs);
+      constraints<std::enable_if_t<!is_adl_swappable_with_v<T&, T&>>, std::enable_if_t<is_default_swappable_v<T>>> =
+          nullptr>
+  constexpr void operator()(T& lhs, T& rhs) const noexcept(is_nothrow_default_swappable_v<T>) {
+    T temp{std::move(lhs)};
+    lhs = std::move(rhs);
+    rhs = std::move(temp);
   }
 
   ///
   /// @brief Overload for c-array types.
   ///
-  /// @tparam T type of the elements to swap. Must satisfy @c is_swappable_v .
-  /// @param lhs c-array of elements to swap.
-  /// @param rhs c-array elements to swap.
-  /// @post @c lhs and @c rhs will have their elements, in order, exchanged via an unqualified call to @c swap.
+  /// @tparam T element type of the left c-array to swap. Must satisfy <c>is_swappable_with_v<T, U></c>.
+  /// @tparam T element type of the right c-array to swap. Must satisfy <c>is_swappable_with_v<T, U></c>.
+  /// @param lhs left c-array of elements to swap.
+  /// @param rhs right c-array of elements to swap.
+  /// @post @c lhs and @c rhs will have their elements, in order, exchanged via calls to <c>arene::base::swap</c>.
   ///
-  template <class T, std::size_t N, constraints<std::enable_if_t<is_swappable_v<T>>> = nullptr>
+  template <class T, class U, std::size_t N, constraints<std::enable_if_t<is_swappable_with_v<T&, U&>>> = nullptr>
   // NOLINTNEXTLINE(hicpp-avoid-c-arrays) explicitly providing c-array support
-  constexpr void operator()(T (&lhs)[N], T (&rhs)[N]) const noexcept(is_nothrow_swappable_v<T>) {
+  constexpr void operator()(T (&lhs)[N], U (&rhs)[N]) const noexcept(is_nothrow_swappable_v<T>) {
     for (std::size_t idx{}; idx < N; ++idx) {
       (*this)(lhs[idx], rhs[idx]);
     }
@@ -104,13 +93,18 @@ inline namespace swap_cpo {
 ///
 /// @brief A Customization Point Object implementation of the @c constexpr compatible @c std::swap from C++17.
 ///
-/// @tparam T type of the elements to swap.
+/// @tparam T type of the first element to swap.
+/// @tparam U type of the second element to swap.
 /// @param lhs element(s) to swap.
 /// @param rhs element(s) to swap.
 /// @post @c lhs and @c rhs will have had their states exchanged by one of the described methods.
 ///
-/// Functionally equivalent to @c std::swap , including support for c-arrays. Unlike @c std::swap , @c arene::base::swap
-/// is implemented as a _Customization Point Object_. This means it has the following properties:
+/// Occupies a position between @c std::swap and <c>std::ranges::swap</c>. Like the latter, this is a _Customization
+/// Point Object_ (CPO) that picks up user-specified @c swap overloads using ADL, and can swap pairs of arguments which
+/// are not the same type when a custom ADL implementation exists for them. Unlike <c>std::ranges::swap</c> (but like
+/// <c>std::swap</c>), this function object is not invocable on rvalue operands.
+///
+/// As a CPO, @c arene::base::swap has the following properties:
 ///
 /// 1. It supports user customizations directly, performing discovery of @c swap customizations automatically.
 ///    Customizations are given the following preference:

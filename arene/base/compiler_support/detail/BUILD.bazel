@@ -2,16 +2,43 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "asan_annotations_disabled.hpp",
-        "asan_annotations_enabled.hpp",
-        "expect_builtin.hpp",
-        "expect_plain.hpp",
-        "thread_safety_annotations_disabled.hpp",
-        "thread_safety_annotations_enabled.hpp",
-    ],
+load("//bazel_lib:if_host_platform.bzl", "if_host_platform")
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "asan_annotations_disabled",
+    hdrs = ["asan_annotations_disabled.hpp"],
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)
+
+cc_library_with_variants(
+    name = "asan_annotations_enabled",
+    hdrs = ["asan_annotations_enabled.hpp"],
+    tags = if_host_platform.is_macos(["no-arene-iwyu"]),
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)
+
+cc_library_with_variants(
+    name = "expect_builtin",
+    hdrs = ["expect_builtin.hpp"],
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)
+
+cc_library_with_variants(
+    name = "expect_plain",
+    hdrs = ["expect_plain.hpp"],
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)
+
+cc_library_with_variants(
+    name = "thread_safety_annotations_disabled",
+    hdrs = ["thread_safety_annotations_disabled.hpp"],
+    visibility = ["//arene/base/compiler_support:__pkg__"],
+)
+
+cc_library_with_variants(
+    name = "thread_safety_annotations_enabled",
+    hdrs = ["thread_safety_annotations_enabled.hpp"],
     visibility = ["//arene/base/compiler_support:__pkg__"],
 )
 
@@ -19,7 +46,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/compiler_support:__pkg__"],
 )

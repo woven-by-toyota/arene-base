@@ -1,0 +1,21 @@
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+cc_test_with_variants(
+    name = "synthesize_range1_overload_test",
+    srcs = ["synthesize_range1_overload_test.cpp"],
+    deps = [
+        "//arene/base/algorithm:accumulate",
+        "//arene/base/algorithm:all_of",
+        "//arene/base/algorithm:any_of",
+        "//arene/base/algorithm:inner_product",
+        "//arene/base/algorithm:reduce",
+        "//arene/base/algorithm:sort",
+        "//arene/base/algorithm:stable_sort",
+        "//arene/base/algorithm:transform_reduce",
+        "//arene/base/utility:make_subrange",
+        "//testlibs:test_main",
+        "//testlibs/utilities:iterator_types",
+    ],
+)

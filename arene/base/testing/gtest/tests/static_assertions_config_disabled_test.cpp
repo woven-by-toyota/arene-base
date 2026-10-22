@@ -8,7 +8,7 @@
 ///
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/testing/gtest/static_assertions_config.hpp"
 
 namespace {

@@ -87,7 +87,7 @@ TYPED_TEST(TupleElement, TupleElementReturnsIthElement) {
   });
 }
 
-/// @test <tt> tuple_element_t<I, const Tuple> is the same as <tt> add_const_t<tuple_element_t<I, Tuple>> </tt>
+/// @test <tt> tuple_element_t<I, const Tuple> </tt> is the same as <tt> add_const_t<tuple_element_t<I, Tuple>> </tt>
 TYPED_TEST(TupleElement, ConstTupleElement) {
   test::for_each_element_of<TypeParam>([](auto index_constant) {
     static_assert(

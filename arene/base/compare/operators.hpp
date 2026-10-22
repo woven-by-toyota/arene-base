@@ -13,11 +13,14 @@
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/deprecated.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
+#include "arene/base/stdlib_choice/is_base_of.hpp"
+#include "arene/base/stdlib_choice/is_class.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/type_traits/comparison_traits.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
@@ -715,6 +718,617 @@ extern constexpr bool has_fast_inequality_check_v<
         decltype(T::fast_inequality_check(std::declval<T const&>(), std::declval<U const&>())),
         inequality_heuristic>::value>>> = true;
 
+template <typename Derived>
+class generic_ordering_from_three_way_compare;
+
+template <typename Derived>
+class generic_ordering_from_three_way_compare_and_equals;
+
+namespace operators_detail {
+
+/// @brief Non-class types never derive from the mixin.
+/// @tparam Type The type to test
+template <typename Type, typename = constraints<>>
+extern constexpr bool uses_generic_three_way_v = false;
+
+/// @brief Specialization for class types, which are the only ones that can derive from the mixin.
+/// @tparam Type The type to test
+template <typename Type>
+extern constexpr bool uses_generic_three_way_v<Type, constraints<std::enable_if_t<std::is_class<Type>::value>>> =
+    std::is_base_of<generic_ordering_from_three_way_compare<Type>, Type>::value;
+
+/// @brief Type trait detecting whether @c Type uses the @c generic_ordering_from_three_way_compare_and_equals mixin.
+/// @tparam Type The type to test
+template <typename Type, typename = constraints<>>
+extern constexpr bool uses_generic_three_way_and_equals_v = false;
+
+/// @brief Specialization for class types, which are the only ones that can derive from the mixin.
+/// @tparam Type The type to test
+template <typename Type>
+extern constexpr bool
+    uses_generic_three_way_and_equals_v<Type, constraints<std::enable_if_t<std::is_class<Type>::value>>> =
+        std::is_base_of<generic_ordering_from_three_way_compare_and_equals<Type>, Type>::value;
+
+/// @brief Type trait to check if we can provide a reversed operator== for this pair of types (breaks an infinite loop)
+/// @tparam Self The type which is inheriting from this operator mixin
+/// @tparam Other The type which we're trying to compare with (the LHS of a reversed comparison)
+template <typename Self, typename Other>
+extern constexpr bool eligible_for_reversed_equals_with_v =
+    !std::is_same<Self, Other>::value && comparison_traits_detail::is_equality_comparable_helper::test<Self, Other>(0);
+
+/// @brief Non-template base class of @c generic_ordering_from_three_way_compare that declares its
+/// comparison operators as hidden friends.
+///
+/// The operators are declared here rather than in @c generic_ordering_from_three_way_compare to avoid creating
+/// a set of hidden friend functions for every derived class. That caused a long compile time problem for gcc 8.3.0
+/// as the template resolution lookup became quadratic in the number of instantiations.
+class generic_ordering_tag {
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Less-than comparison for a type using generic_ordering_from_three_way_compare.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator<(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) == strong_ordering::less;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Less-than comparison for a type using generic_ordering_from_three_way_compare.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator<(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(RhsType::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return RhsType::three_way_compare(rhs, lhs) == strong_ordering::greater;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Greater-than comparison for a type using generic_ordering_from_three_way_compare.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator>(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) == strong_ordering::greater;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Greater-than comparison for a type using generic_ordering_from_three_way_compare.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator>(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(RhsType::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return RhsType::three_way_compare(rhs, lhs) == strong_ordering::less;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Less-than-or-equal comparison for a type using generic_ordering_from_three_way_compare.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator<=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) != strong_ordering::greater;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Less-than-or-equal comparison for a type using generic_ordering_from_three_way_compare.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator<=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(RhsType::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return RhsType::three_way_compare(rhs, lhs) != strong_ordering::less;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Greater-than-or-equal comparison for a type using generic_ordering_from_three_way_compare.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator>=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) != strong_ordering::less;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Greater-than-or-equal comparison for a type using generic_ordering_from_three_way_compare.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator>=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(RhsType::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return RhsType::three_way_compare(rhs, lhs) != strong_ordering::greater;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Equality comparison, without a fast-inequality heuristic.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>,
+          std::enable_if_t<!has_fast_inequality_check_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator==(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) == strong_ordering::equal;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Equality comparison, using the fast-inequality heuristic.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>,
+          std::enable_if_t<has_fast_inequality_check_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator==(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    static_assert(noexcept(LhsType::fast_inequality_check(lhs, rhs)), "fast_inequality_check must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return (LhsType::fast_inequality_check(lhs, rhs) == inequality_heuristic::may_be_equal_or_not_equal) &&
+           (LhsType::three_way_compare(lhs, rhs) == strong_ordering::equal);
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Reversed equality comparison.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator==(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    return rhs == lhs;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Inequality comparison.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator!=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    return !(lhs == rhs);
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Reversed inequality comparison.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator!=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    return !(lhs == rhs);
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+ protected:
+  /// @brief Default constructor is protected
+  constexpr generic_ordering_tag() noexcept = default;
+  /// @brief Default destructor is protected
+  ~generic_ordering_tag() noexcept = default;
+  /// @brief Default copy constructor is protected
+  /// @param other The source object
+  constexpr generic_ordering_tag(generic_ordering_tag const& other) noexcept = default;
+  /// @brief Default move constructor is protected
+  /// @param other The source object
+  constexpr generic_ordering_tag(generic_ordering_tag&& other) noexcept = default;
+  /// @brief Default copy assignment is protected
+  /// @param other The source object
+  constexpr auto operator=(generic_ordering_tag const& other) & noexcept -> generic_ordering_tag& = default;
+  /// @brief Default move assignment is protected
+  /// @param other The source object
+  constexpr auto operator=(generic_ordering_tag&& other) & noexcept -> generic_ordering_tag& = default;
+};
+
+/// @brief Non-template base class of @c generic_ordering_from_three_way_compare_and_equals that declares its
+/// comparison operators as hidden friends.
+///
+/// The operators are declared here rather than in @c generic_ordering_from_three_way_compare_and_equals.
+/// See the comment in @c generic_ordering_tag.
+class generic_ordering_and_equals_tag {
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Less-than comparison for a type using generic_ordering_from_three_way_compare_and_equals.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator<(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) == strong_ordering::less;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Less-than comparison for a type using generic_ordering_from_three_way_compare_and_equals.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator<(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(RhsType::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return RhsType::three_way_compare(rhs, lhs) == strong_ordering::greater;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Greater-than comparison for a type using generic_ordering_from_three_way_compare_and_equals.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator>(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) == strong_ordering::greater;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Greater-than comparison for a type using generic_ordering_from_three_way_compare_and_equals.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator>(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(RhsType::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return RhsType::three_way_compare(rhs, lhs) == strong_ordering::less;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Less-than-or-equal comparison for a type using generic_ordering_from_three_way_compare_and_equals.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator<=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) != strong_ordering::greater;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Less-than-or-equal comparison for a type using generic_ordering_from_three_way_compare_and_equals.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator<=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(RhsType::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return RhsType::three_way_compare(rhs, lhs) != strong_ordering::less;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Greater-than-or-equal comparison for a type using generic_ordering_from_three_way_compare_and_equals.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<LhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator>=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(LhsType::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return LhsType::three_way_compare(lhs, rhs) != strong_ordering::less;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Greater-than-or-equal comparison for a type using generic_ordering_from_three_way_compare_and_equals.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<RhsType>>,
+          std::enable_if_t<is_three_way_comparable_v<RhsType, LhsType>>,
+          std::enable_if_t<!is_three_way_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator>=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
+    // side-effects"
+    static_assert(noexcept(RhsType::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
+    // parasoft-end-suppress CERT_C-PRE31-c-3
+    return RhsType::three_way_compare(rhs, lhs) != strong_ordering::greater;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Reversed equality comparison, delegating to the derived class's operator==.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<RhsType>>,
+          std::enable_if_t<operators_detail::eligible_for_reversed_equals_with_v<RhsType, LhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator==(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    return rhs == lhs;
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Inequality comparison, delegating to the derived class's operator==.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<LhsType>>,
+          std::enable_if_t<is_equality_comparable_v<LhsType, RhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator!=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    return !(lhs == rhs);
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  /// @brief Reversed inequality comparison, delegating to the derived class's operator==.
+  /// @tparam LhsType The type of the left-hand operand
+  /// @tparam RhsType The type of the right-hand operand
+  /// @param lhs The left-hand operand
+  /// @param rhs The right-hand operand
+  /// @return bool The result of the comparison
+  template <
+      typename LhsType,
+      typename RhsType,
+      constraints<
+          std::enable_if_t<operators_detail::uses_generic_three_way_and_equals_v<RhsType>>,
+          std::enable_if_t<operators_detail::eligible_for_reversed_equals_with_v<RhsType, LhsType>>> = nullptr>
+  ARENE_NODISCARD friend constexpr auto operator!=(LhsType const& lhs, RhsType const& rhs) noexcept -> bool {
+    return !(lhs == rhs);
+  }
+  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
+
+ protected:
+  /// @brief Default constructor is protected
+  constexpr generic_ordering_and_equals_tag() noexcept = default;
+  /// @brief Default destructor is protected
+  ~generic_ordering_and_equals_tag() noexcept = default;
+  /// @brief Default copy constructor is protected
+  /// @param other The source object
+  constexpr generic_ordering_and_equals_tag(generic_ordering_and_equals_tag const& other) noexcept = default;
+  /// @brief Default move constructor is protected
+  /// @param other The source object
+  constexpr generic_ordering_and_equals_tag(generic_ordering_and_equals_tag&& other) noexcept = default;
+  /// @brief Default copy assignment is protected
+  /// @param other The source object
+  constexpr auto operator=(generic_ordering_and_equals_tag const& other) & noexcept
+      -> generic_ordering_and_equals_tag& = default;
+  /// @brief Default move assignment is protected
+  /// @param other The source object
+  constexpr auto operator=(generic_ordering_and_equals_tag&& other) & noexcept
+      -> generic_ordering_and_equals_tag& = default;
+};
+
+}  // namespace operators_detail
+
 /// @brief Helper class that can be inherited from by a class to define the relational comparison operators in terms of
 /// a @c three_way_compare function provided by the @c Derived class, and an optional fast-inequality check heuristic.
 ///
@@ -741,306 +1355,8 @@ extern constexpr bool has_fast_inequality_check_v<
 /// avoid calling a potentially expensive @c three_way_compare for instances that are definitely not equal. e.g. this
 /// may be used to check the size of a container, and avoid doing elementwise comparisons when ordering is not required.
 template <typename Derived>
-class generic_ordering_from_three_way_compare {
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Less-than comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is less than @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(lhs,rhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator<(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) == strong_ordering::less;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Less-than comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other The type of the object to compare to
-  /// @param lhs The instance of @c Other to compare
-  /// @param rhs The instance of @c Derived to compare
-  /// @return bool @c true if @c lhs is less than @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(rhs,lhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator<(Other const& lhs, Self const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(rhs, lhs) == strong_ordering::greater;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Greater-than comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is greater than @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(lhs,rhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator>(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) == strong_ordering::greater;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Greater-than comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Other to compare
-  /// @param rhs The instance of @c Derived to compare
-  /// @return bool @c true if @c lhs is greater than @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(rhs,lhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator>(Other const& lhs, Self const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(rhs, lhs) == strong_ordering::less;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Less-than-or-equal comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is less than or equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(lhs,rhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator<=(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) != strong_ordering::greater;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Less-than-or-equal comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Other to compare
-  /// @param rhs The instance of @c Derived to compare
-  /// @return bool @c true if @c lhs is less than or equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(rhs,lhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator<=(Other const& lhs, Self const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(rhs, lhs) != strong_ordering::less;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Greater-than-or-equal comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is greater than or equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(lhs,rhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator>=(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) != strong_ordering::less;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Greater-than-or-equal comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Other to compare
-  /// @param rhs The instance of @c Derived to compare
-  /// @return bool @c true if @c lhs is greater than or equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(rhs,lhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator>=(Other const& lhs, Self const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(rhs, lhs) != strong_ordering::greater;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Equality comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(lhs,rhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!has_fast_inequality_check_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator==(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) == strong_ordering::equal;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Equality comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(lhs,rhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<has_fast_inequality_check_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator==(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    static_assert(noexcept(Derived::fast_inequality_check(lhs, rhs)), "fast_inequality_check must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return (Derived::fast_inequality_check(lhs, rhs) == inequality_heuristic::may_be_equal_or_not_equal) &&
-           (Derived::three_way_compare(lhs, rhs) == strong_ordering::equal);
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Equality comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(rhs,lhs) is well-formed
-  /// @pre @c Other::three_way_compare(lhs,rhs) is *not* well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator==(Other const& lhs, Self const& rhs) noexcept -> bool {
-    return rhs == lhs;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Inequality comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is not equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(lhs,rhs) is well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator!=(Self const& lhs, Other const& rhs) noexcept -> bool {
-    return !(lhs == rhs);
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Inequality comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is not equal to @c rhs, @c false otherwise
-  /// @pre @c Derived::three_way_compare(rhs,lhs) is well-formed
-  /// @pre @c Other::three_way_compare(lhs,rhs) is *not* well-formed
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator!=(Other const& lhs, Self const& rhs) noexcept -> bool {
-    return !(lhs == rhs);
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
+class generic_ordering_from_three_way_compare : private operators_detail::generic_ordering_tag {
+  // The comparison operators are declared as hidden friends of the non-template base class
  protected:
   /// @brief Default constructor is protected
   constexpr generic_ordering_from_three_way_compare() noexcept = default;
@@ -1063,15 +1379,6 @@ class generic_ordering_from_three_way_compare {
       -> generic_ordering_from_three_way_compare& = default;
 };
 
-namespace operators_detail {
-/// @brief Type trait to check if we can provide a reversed operator== for this pair of types (breaks an infinite loop)
-/// @tparam Self The type which is inheriting from this operator mixin
-/// @tparam Other The type which we're trying to compare with (the LHS of a *reversed* comparison)
-template <typename Self, typename Other>
-constexpr bool eligible_for_reversed_equals_with_v =
-    !std::is_same<Self, Other>::value && is_equality_comparable_v<Self, Other>;
-}  // namespace operators_detail
-
 /// @brief Helper class that can be inherited from by a class to define the relational comparison operators in terms of
 /// a @c three_way_compare function provided by the @c Derived class, but preferentially implementing @c == and @c !=
 /// to use <c>operator==(Derived, Other)</c> rather than <c>three_way_compare</c>.
@@ -1093,240 +1400,8 @@ constexpr bool eligible_for_reversed_equals_with_v =
 /// OtherClass, or with @c YetAnotherClass. Equality comparisons with @c OtherClass will use <c>operator==</c>, while
 /// comparisons with @c YetAnotherClass will use <c>three_way_compare</c>.
 template <typename Derived>
-class generic_ordering_from_three_way_compare_and_equals {
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Less-than comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is less than @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator<(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) == strong_ordering::less;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Less-than comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other The type of the object to compare to
-  /// @param lhs The instance of @c Other to compare
-  /// @param rhs The instance of @c Derived to compare
-  /// @return bool @c true if @c lhs is less than @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator<(Other const& lhs, Self const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(rhs, lhs) == strong_ordering::greater;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Greater-than comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is greater than @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator>(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) == strong_ordering::greater;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Greater-than comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Other to compare
-  /// @param rhs The instance of @c Derived to compare
-  /// @return bool @c true if @c lhs is greater than @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator>(Other const& lhs, Self const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(rhs, lhs) == strong_ordering::less;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Less-than-or-equal comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is less than or equal to @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator<=(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) != strong_ordering::greater;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Less-than-or-equal comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Other to compare
-  /// @param rhs The instance of @c Derived to compare
-  /// @return bool @c true if @c lhs is less than or equal to @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator<=(Other const& lhs, Self const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(rhs, lhs) != strong_ordering::less;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Greater-than-or-equal comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is greater than or equal to @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator>=(Self const& lhs, Other const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(lhs, rhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(lhs, rhs) != strong_ordering::less;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Greater-than-or-equal comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Other to compare
-  /// @param rhs The instance of @c Derived to compare
-  /// @return bool @c true if @c lhs is greater than or equal to @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_three_way_comparable_v<Derived, Other>>,
-          std::enable_if_t<!is_three_way_comparable_v<Other, Derived>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator>=(Other const& lhs, Self const& rhs) noexcept -> bool {
-    // parasoft-begin-suppress CERT_C-PRE31-c-3 "False positive: static_assert is a compile-time assert and can have no
-    // side-effects"
-    static_assert(noexcept(Derived::three_way_compare(rhs, lhs)), "three_way_compare must be noexcept");
-    // parasoft-end-suppress CERT_C-PRE31-c-3
-    return Derived::three_way_compare(rhs, lhs) != strong_ordering::greater;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Equality comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is equal to @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<operators_detail::eligible_for_reversed_equals_with_v<Self, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator==(Other const& lhs, Self const& rhs) noexcept -> bool {
-    return rhs == lhs;
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Inequality comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is not equal to @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<is_equality_comparable_v<Self, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator!=(Self const& lhs, Other const& rhs) noexcept -> bool {
-    return !(lhs == rhs);
-  }
-  // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
-
-  // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
-  /// @brief Inequality comparison operator for instances of @c Derived with @c Other.
-  /// @tparam Self the type of the @c Derived object to compare, used for constraints
-  /// @tparam Other the type of the object to compare to
-  /// @param lhs The instance of @c Derived to compare
-  /// @param rhs The instance of @c Other to compare
-  /// @return bool @c true if @c lhs is not equal to @c rhs, @c false otherwise
-  template <
-      typename Self,
-      typename Other,
-      constraints<
-          std::enable_if_t<std::is_same<Self, Derived>::value>,
-          std::enable_if_t<operators_detail::eligible_for_reversed_equals_with_v<Self, Other>>> = nullptr>
-  ARENE_NODISCARD friend constexpr auto operator!=(Other const& lhs, Self const& rhs) noexcept -> bool {
-    return !(lhs == rhs);
-  }
-
+class generic_ordering_from_three_way_compare_and_equals : private operators_detail::generic_ordering_and_equals_tag {
+  // The comparison operators are declared as hidden friends of the non-template base class
  protected:
   /// @brief Default constructor is protected
   constexpr generic_ordering_from_three_way_compare_and_equals() noexcept = default;

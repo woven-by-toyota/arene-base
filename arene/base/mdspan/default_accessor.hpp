@@ -52,6 +52,7 @@ class default_accessor {
   /// @note This constructor has no visible effect
   constexpr default_accessor() noexcept = default;
 
+  // parasoft-begin-suppress CERT_C-EXP37-a "False positive: The rule does not mention naming all parameters"
   /// @brief converting constructor
   /// @tparam OtherElementType element type of the other @c default_accessor
   /// @note This constructor has no visible effect
@@ -61,6 +62,7 @@ class default_accessor {
       constraints<std::enable_if_t<std::is_convertible<OtherElementType (*)[], element_type (*)[]>::value>> = nullptr>
   // NOLINTNEXTLINE(hicpp-explicit-conversions)
   constexpr default_accessor(default_accessor<OtherElementType>) noexcept {}
+  // parasoft-end-suppress CERT_C-EXP37-a
 
   // parasoft-begin-suppress AUTOSAR-M5_0_15-a "[mdspan.accessor.default] specifies indexing and incrementing a pointer"
   // parasoft-begin-suppress AUTOSAR-M9_3_3-a "[mdspan.accessor.default] specifies these functions to be non-static"

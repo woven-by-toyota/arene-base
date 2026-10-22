@@ -29,7 +29,7 @@
 /// @brief Adds a type-parameterized test to a Google Test suite which is conditionally run based on the third parameter
 /// @param SuiteName The name of a Google Test suite previously defined with TYPED_TEST_SUITE_P
 /// @param TestName The name of this test; needs to be registered later with REGISTER_TYPED_TEST_SUITE_P
-/// @param Condition A condition convertible to @c bool which depends on @c TypeParam
+/// The condition must be convertible to @c bool and may depend on @c TypeParam.
 #define CONDITIONAL_TYPED_TEST_P(SuiteName, TestName, ...)                                           \
   namespace GTEST_SUITE_NAMESPACE_(SuiteName) {                                                      \
   template <typename TypeParam, bool CondOk>                                                         \
@@ -55,9 +55,9 @@
   void GTEST_SUITE_NAMESPACE_(SuiteName)::ARENE_CONCATENATE(TestName, _Impl)<TypeParam_Internal_, true>::TestBody()
 
 /// @brief Adds a type-parameterized test to a Google Test suite which is conditionally run based on the third parameter
-/// @param SuiteName The name of a Google Test suite previously defined with TYPED_TEST_SUITE
-/// @param TestName The name of this test
-/// @param Condition A condition convertible to @c bool which depends on @c TypeParam
+/// @param testsuite The name of a Google Test suite previously defined with TYPED_TEST_SUITE
+/// @param testcase The name of this test
+/// The condition must be convertible to @c bool and may depend on @c TypeParam.
 #define CONDITIONAL_TYPED_TEST(testsuite, testcase, ...)                                                        \
   template <typename TypeParam_Internal_>                                                                       \
   class GTEST_TEST_CLASS_NAME_(testsuite, testcase)                                                             \

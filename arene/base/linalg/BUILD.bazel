@@ -5,6 +5,319 @@
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
 cc_library_with_variants(
+    name = "add",
+    hdrs = ["add.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":elementwise_binary_transform",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:plus",
+    ],
+)
+
+cc_library_with_variants(
+    name = "constant",
+    hdrs = ["constant.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":object_traits",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:constant_accessor",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+    ],
+)
+
+cc_library_with_variants(
+    name = "diagonal_tags",
+    hdrs = ["diagonal_tags.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:remove_cv",
+    ],
+)
+
+cc_library_with_variants(
+    name = "copy_elements",
+    hdrs = ["copy_elements.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":elementwise_unary_transform",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:identity",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "dot",
+    hdrs = ["dot.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":object_traits",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/linalg/detail:constraints_for",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/linalg/detail:preconditions",
+        "//arene/base/math:arithmetic_identities",
+        "//arene/base/stdlib_choice:common_type",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_traits:arithmetic_traits",
+        "//arene/base/utility:safe_comparisons",
+    ],
+)
+
+cc_library_with_variants(
+    name = "matrix_observers",
+    hdrs = ["matrix_observers.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":math_traits",
+        ":object_traits",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_library_with_variants(
+    name = "swap_elements",
+    hdrs = ["swap_elements.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:index_permutation_range",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/utility:swap",
+    ],
+)
+
+cc_library_with_variants(
+    name = "swap_rows",
+    hdrs = ["swap_rows.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":object_traits",
+        ":row_column_view",
+        ":swap_elements",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_swappable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "transposed",
+    hdrs = ["transposed.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":layout_transpose",
+        "//arene/base:array",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan/detail:reverse_extents",
+    ],
+)
+
+cc_library_with_variants(
+    name = "triangular_tags",
+    hdrs = ["triangular_tags.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:remove_cv",
+    ],
+)
+
+cc_library_with_variants(
+    name = "elementwise_binary_transform",
+    hdrs = ["elementwise_binary_transform.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:index_permutation_range",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "elementwise_unary_transform",
+    hdrs = ["elementwise_unary_transform.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":object_traits",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:index_permutation_range",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "equal_elements",
+    hdrs = ["equal_elements.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:index_permutation_range",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/mdspan/detail:to_array",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:equal_to",
+        "//arene/base/type_traits:is_binary_predicate",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "factor_result",
+    hdrs = ["factor_result.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:contracts",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+cc_library_with_variants(
+    name = "identity_matrix",
+    hdrs = ["identity_matrix.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":layout_constant_diagonal",
+        ":matrix_observers",
+        ":object_traits",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/array",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/math:arithmetic_identities",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+cc_library_with_variants(
+    name = "layout_constant_diagonal",
+    hdrs = ["layout_constant_diagonal.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:algorithm",
+        "//arene/base:array",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/mdspan",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/type_manipulation:ebo_holder",
+        "//arene/base/type_traits:comparison_traits",
+    ],
+)
+
+cc_library_with_variants(
+    name = "layout_transpose",
+    hdrs = ["layout_transpose.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/mdspan:is_layout_mapping",
+        "//arene/base/mdspan:is_sliceable_mapping",
+        "//arene/base/mdspan:submdspan_mapping_result",
+        "//arene/base/mdspan/detail:do_submdspan_mapping",
+        "//arene/base/mdspan/detail:reverse_extents",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_instantiation_of",
+    ],
+)
+
+cc_library_with_variants(
     name = "math_traits",
     hdrs = ["math_traits.hpp"],
     visibility = [
@@ -14,6 +327,84 @@ cc_library_with_variants(
         ":object_traits",
         "//arene/base:constraints",
         "//arene/base/stdlib_choice:enable_if",
+    ],
+)
+
+cc_library_with_variants(
+    name = "matrix_one_norm",
+    hdrs = ["matrix_one_norm.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/algorithm:transform_reduce",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_back",
+        "//arene/base/functional/detail:max_fn",
+        "//arene/base/linalg:math_traits",
+        "//arene/base/linalg:object_traits",
+        "//arene/base/linalg:row_column_view",
+        "//arene/base/linalg:vector_abs_sum",
+        "//arene/base/linalg:vector_idx_abs_max",
+        "//arene/base/linalg/detail:constraints_for",
+        "//arene/base/linalg/detail:zero_scalar",
+        "//arene/base/math:abs_cpo",
+        "//arene/base/math/detail:less_nan_highest",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "matrix_rank_1_update",
+    hdrs = ["matrix_rank_1_update.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":math_traits",
+        ":object_traits",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/linalg/detail:constraints_for",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/linalg/detail:zero_object",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:multiplies",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "matrix_vector_product",
+    hdrs = ["matrix_vector_product.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":dot",
+        ":matrix_observers",
+        ":object_traits",
+        ":row_column_view",
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/linalg/detail:constraints_for",
+        "//arene/base/linalg/detail:mandates",
+        "//arene/base/linalg/detail:preconditions",
+        "//arene/base/stdlib_choice:common_type",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/utility:safe_comparisons",
     ],
 )
 
@@ -33,13 +424,143 @@ cc_library_with_variants(
 )
 
 cc_library_with_variants(
-    name = "internal",
+    name = "row_column_view",
+    hdrs = ["row_column_view.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":object_traits",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/mdspan:axis_view",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "scaled_accessor",
+    hdrs = ["scaled_accessor.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/linalg:object_traits",
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:is_accessor_policy",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_reference",
+        "//arene/base/stdlib_choice:remove_const",
+    ],
+)
+
+cc_library_with_variants(
+    name = "subtract",
+    hdrs = ["subtract.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":elementwise_binary_transform",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:minus",
+    ],
+)
+
+cc_library_with_variants(
+    name = "vector_abs_sum",
+    hdrs = ["vector_abs_sum.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
     ],
     deps = [
         ":math_traits",
         ":object_traits",
+        "//arene/base:constraints",
+        "//arene/base/algorithm:transform_reduce",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:make_range_from_indexable",
+        "//arene/base/linalg/detail:constraints_for",
+        "//arene/base/linalg/detail:zero_scalar",
+        "//arene/base/math:complex_norm",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_assignable",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:plus",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "vector_idx_abs_max",
+    hdrs = ["vector_idx_abs_max.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/algorithm/detail:relative_find",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/detail:make_range_from_indexable",
+        "//arene/base/functional/detail:flip",
+        "//arene/base/linalg:math_traits",
+        "//arene/base/linalg:object_traits",
+        "//arene/base/linalg/detail:constraints_for",
+        "//arene/base/math:complex_norm",
+        "//arene/base/math/detail:less_nan_highest",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/type_traits:comparison_traits",
+        "//arene/base/type_traits:is_invocable",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        "//arene/base:__subpackages__",
+    ],
+    deps = [
+        ":add",
+        ":constant",
+        ":copy_elements",
+        ":diagonal_tags",
+        ":dot",
+        ":elementwise_binary_transform",
+        ":elementwise_unary_transform",
+        ":equal_elements",
+        ":factor_result",
+        ":identity_matrix",
+        ":layout_constant_diagonal",
+        ":layout_transpose",
+        ":math_traits",
+        ":matrix_observers",
+        ":matrix_one_norm",
+        ":matrix_rank_1_update",
+        ":matrix_vector_product",
+        ":object_traits",
+        ":row_column_view",
+        ":scaled_accessor",
+        ":subtract",
+        ":swap_elements",
+        ":swap_rows",
+        ":transposed",
+        ":triangular_tags",
+        ":vector_abs_sum",
+        ":vector_idx_abs_max",
     ],
 )
 

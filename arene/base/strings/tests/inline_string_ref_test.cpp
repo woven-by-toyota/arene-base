@@ -10,6 +10,7 @@
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/forward.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/strings/algorithm/length.hpp"
 #include "arene/base/strings/detail/string_length.hpp"
 #include "arene/base/strings/inline_string.hpp"
@@ -554,6 +555,38 @@ TEST(InlineStringRef, AtInvocabilityMatchesAreExceptionsEnabled) {
   STATIC_ASSERT_EQ(has_at_v<const_ref_t const&>, arene::base::detail::are_exceptions_enabled_v);
   STATIC_ASSERT_EQ(has_at_v<const_ref_t&&>, arene::base::detail::are_exceptions_enabled_v);
   STATIC_ASSERT_EQ(has_at_v<const_ref_t const&&>, arene::base::detail::are_exceptions_enabled_v);
+}
+
+template <typename Capacity>
+class InlineStringReferenceLargeCapacityTest : public ::testing::Test {};
+
+using large_capacities = ::testing::Types<
+    std::integral_constant<std::size_t, 50'000>,
+    std::integral_constant<std::size_t, 100'000>,
+    std::integral_constant<std::size_t, 1'000'000>>;
+
+TYPED_TEST_SUITE(InlineStringReferenceLargeCapacityTest, large_capacities, );
+
+/// @test inline_string_reference can be constructed from and used with
+///   inline_string instances of very large capacity
+TYPED_TEST(InlineStringReferenceLargeCapacityTest, WorksWithVeryLargeCapacity) {
+  static inline_string<TypeParam::value> str{"hello"};
+
+  ref_t const ref{str};
+  ASSERT_EQ(ref.size(), std::size_t{5});
+  EXPECT_EQ(ref.capacity(), TypeParam::value);
+  EXPECT_EQ(ref[0], 'h');
+}
+
+/// @test const_inline_string_reference can be constructed from and used with
+///   inline_string instances of very large capacity
+TYPED_TEST(InlineStringReferenceLargeCapacityTest, ConstWorksWithVeryLargeCapacity) {
+  static inline_string<TypeParam::value> const str{"hello"};
+
+  const_ref_t const ref{str};
+  ASSERT_EQ(ref.size(), std::size_t{5});
+  EXPECT_EQ(ref.capacity(), TypeParam::value);
+  EXPECT_EQ(ref[0], 'h');
 }
 
 }  // namespace

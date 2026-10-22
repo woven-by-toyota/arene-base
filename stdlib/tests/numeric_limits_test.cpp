@@ -454,7 +454,7 @@ CONSTEXPR_TEST(NumericLimits, ConstantsForFloat) {
   ASSERT_EQ(std::numeric_limits<float>::digits10, FLT_DIG);
   ASSERT_EQ(std::numeric_limits<float>::is_signed, true);
   ASSERT_FALSE(std::numeric_limits<float>::is_integer);
-  ASSERT_TRUE(std::numeric_limits<float>::is_exact);
+  ASSERT_FALSE(std::numeric_limits<float>::is_exact);
   ASSERT_TRUE(std::numeric_limits<float>::is_bounded);
   ASSERT_FALSE(std::numeric_limits<float>::is_modulo);
   ASSERT_FALSE(std::numeric_limits<float>::traps);
@@ -519,7 +519,7 @@ CONSTEXPR_TEST(NumericLimits, ConstantsForDouble) {
   ASSERT_EQ(std::numeric_limits<double>::digits10, DBL_DIG);
   ASSERT_EQ(std::numeric_limits<double>::is_signed, true);
   ASSERT_FALSE(std::numeric_limits<double>::is_integer);
-  ASSERT_TRUE(std::numeric_limits<double>::is_exact);
+  ASSERT_FALSE(std::numeric_limits<double>::is_exact);
   ASSERT_TRUE(std::numeric_limits<double>::is_bounded);
   ASSERT_FALSE(std::numeric_limits<double>::is_modulo);
   ASSERT_FALSE(std::numeric_limits<double>::traps);

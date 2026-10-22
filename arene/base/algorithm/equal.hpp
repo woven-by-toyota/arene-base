@@ -15,7 +15,7 @@
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/iterator/distance.hpp"
 #include "arene/base/stdlib_choice/equal_to.hpp"

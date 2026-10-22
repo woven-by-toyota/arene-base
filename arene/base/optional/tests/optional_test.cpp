@@ -10,9 +10,9 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/constraints/substitution_succeeds.hpp"
 #include "arene/base/detail/exceptions.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
@@ -798,6 +798,16 @@ TEST(Optional, Swap) {
   ASSERT_FALSE(ocs->swap_rhs);
 }
 
+/// @test Two empty `optional` instances can be swapped, resulting in both still being empty (this used to crash)
+TEST(Optional, SwapBothEmpty) {
+  optional<int> opt_int;
+  optional<int> opt_int2;
+
+  opt_int.swap(opt_int2);
+  EXPECT_FALSE(opt_int2.has_value());
+  EXPECT_FALSE(opt_int2.has_value());
+}
+
 /// @test `optional` can be assigned a value of the type it may hold or of a type convertible to the type it may hold.
 /// No additional instances of the value are kept.
 /// Given a const value
@@ -935,6 +945,7 @@ TEST(Optional, NullOpt) {
   ASSERT_TRUE(!opt_str);
 }
 
+/// @test `null_opt_t` and `null_opt` are aliases of `nullopt_t` and `nullopt`, and are interchangeable with them.
 TEST(Optional, NullOptAliasesAreEquivalentToNonAliases) {
   ::testing::StaticAssertTypeEq<nullopt_t, null_opt_t>();
   constexpr optional<int> aliased(null_opt);
@@ -1144,7 +1155,7 @@ TEST(Optional, NonCopyableComparisons) {
   ASSERT_EQ(oncc3, opt_ither);
   ASSERT_EQ(opt_ither, oncc3);
 }
-/// @test Given an @c arene::base::optional<T> and @c arene::base::optional<U> where @c
+/// @test Given an @c arene::base::optional<T> and `arene::base::optional<U>` where @c
 /// arene::base::is_equality_comparable<T,U> is @c true , the optionals are equality comparable.
 TEST(Optional, MixedOptionalEquality) {
   constexpr optional<int> opt_int{};
@@ -1233,7 +1244,7 @@ TEST(Optional, CanCompareWhenOnlyEqualsSupported) {
   STATIC_ASSERT_NE(*val1, val2);
   STATIC_ASSERT_NE(*val1, empty);
 }
-/// @test @c arene::base::optional<T> is constructable from @c arene::base:optional<U> if @c T can be constructed from
+/// @test @c arene::base::optional<T> is constructable from `arene::base:optional<U>` if @c T can be constructed from
 /// @c U .
 TEST(Optional, ConstructionFromOtherOptional) {
   std::int16_t const i16v = 42;
@@ -1727,7 +1738,7 @@ struct engaged_visitor : visitor_base {
   /// @}
 };
 
-/// @test The return type of @c arene::base::optional<T>::and_then(value_handler) is @c arene::base::optional<U> , which
+/// @test The return type of @c arene::base::optional<T>::and_then(value_handler) is `arene::base::optional<U>`, which
 /// is the return type of @c value_handler .
 TEST(OptionalAndThen, ReturnTypeIsReturnTypeFromHandler) {
   {
@@ -1913,7 +1924,7 @@ TEST(OptionalAndThen, ANullOptionalIsReturnedIfTheOptionalIsNull) {
   }
 }
 
-/// @test The return type of @c arene::base::optional<T>::transform(value_handler) is @c arene::base::optional<U> ,
+/// @test The return type of @c arene::base::optional<T>::transform(value_handler) is `arene::base::optional<U>`,
 /// where @c U is the return type of @c value_handler .
 TEST(OptionalTransform, ReturnTypeIsOptionalContainingReturnTypeFromHandler) {
   {
@@ -1976,7 +1987,7 @@ TEST(OptionalTransform, CallsProvidedVisitorWithValueQualifiedAsResultIfValueIsP
 }
 /// @test Given an instance of @c arene::base::optional<T> , invoking @c optional.transform(value_handler) when
 /// @c optional.has_value() is @c true invokes @c value_handler with the return of @c *optional and its return is
-/// a new @c optional<U> in-place constructed from the return of @c value_handler .
+/// a new `optional<U>` in-place constructed from the return of @c value_handler .
 TEST(OptionalTransform, TheVisitorIsCalledWithTheHeldValueAndReturnsAnOptionalProducedFromTheReturn) {
   auto const original_value = engaged_visitor::optional_t::value_type{10};
   engaged_visitor handle_value;
@@ -2074,7 +2085,7 @@ struct nullopt_visitor : visitor_base {
     return {return_value};
   }
 };
-/// @test The return type of @c arene::base::optional<T>::or_else(nullopt_handler) is @c arene::base::optional<U> ,
+/// @test The return type of @c arene::base::optional<T>::or_else(nullopt_handler) is `arene::base::optional<U>`,
 /// which is the return type of @c nullopt_handler .
 TEST(OptionalOrElse, ReturnTypeIsReturnTypeFromHandler) {
   {

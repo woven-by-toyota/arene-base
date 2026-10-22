@@ -4,18 +4,13 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "are_exceptions_enabled_hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "are_exceptions_enabled",
+    hdrs = [
         "are_exceptions_enabled.hpp",
         "are_exceptions_enabled_disabled.hpp",
         "are_exceptions_enabled_enabled.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "are_exceptions_enabled",
-    hdrs = [":are_exceptions_enabled_hdrs"],
     visibility = [
         "//:__subpackages__",
     ],
@@ -26,18 +21,13 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "mixin_at_hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "mixin_at",
+    hdrs = [
         "mixin_at.hpp",
         "mixin_at_exceptions_disabled.hpp",
         "mixin_at_exceptions_enabled.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "mixin_at",
-    hdrs = [":mixin_at_hdrs"],
     visibility = [
         "//:__subpackages__",
     ],
@@ -70,8 +60,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":are_exceptions_enabled_hdrs",
-        ":mixin_at_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/detail:__pkg__"],
 )

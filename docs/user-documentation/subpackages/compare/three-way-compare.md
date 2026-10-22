@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -35,7 +39,7 @@ auto r6 = arene::base::three_way_compare(arene::base::string_view{"hello"},
                                      arene::base::string_view{"goodbye"});  // OK, compares strings with member function
 ```
 
-## Custom three-way comparison for class types {#custom-three-way-comparison-for-class-types}
+# Custom three-way comparison for class types {#subpackages-compare-three-way-compare-custom-three-way-comparison-for-class-types}
 
 You can specify a three-way comparison operation for your type by writing a
 `static` member function called `three_way_compare` that accepts the two values
@@ -79,7 +83,7 @@ auto r7 = arene::base::three_way_compare(X{42}, X{99});                   // OK,
 auto r8 = arene::base::three_way_compare(X{42}, 99);                      // OK, compares object and int with member function
 ```
 
-### Three-way comparison for multiple data members {#three-way-comparison-for-multiple-data-members}
+## Three-way comparison for multiple data members {#subpackages-compare-three-way-compare-three-way-comparison-for-multiple-data-members}
 
 If you have a class with multiple data members, and you wish to write a
 `three_way_compare` function that compares all the data members, you can use

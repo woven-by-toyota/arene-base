@@ -4,14 +4,9 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "as_type_list_hdrs",
-    srcs = ["as_type_list.hpp"],
-)
-
 cc_library_with_variants(
     name = "as_type_list",
-    hdrs = [":as_type_list_hdrs"],
+    hdrs = ["as_type_list.hpp"],
     visibility = [
         "//arene/base/tuple:__subpackages__",
     ],
@@ -28,15 +23,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "get_hdrs",
-    srcs = ["get.hpp"],
-)
-
 cc_library_with_variants(
     name = "get",
-    hdrs = [":get_hdrs"],
+    hdrs = ["get.hpp"],
     visibility = [
+        "//arene/base/algorithm:__subpackages__",
         "//arene/base/mdspan:__subpackages__",
         "//arene/base/tuple:__subpackages__",
         "//arene/base/type_traits:__pkg__",
@@ -53,14 +44,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "reverse_as_tuple_hdrs",
-    srcs = ["reverse_as_tuple.hpp"],
-)
-
 cc_library_with_variants(
     name = "reverse_as_tuple",
-    hdrs = [":reverse_as_tuple_hdrs"],
+    hdrs = ["reverse_as_tuple.hpp"],
     visibility = [
         "//arene/base/mdspan:__subpackages__",
         "//arene/base/tuple:__subpackages__",
@@ -80,16 +66,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "tuple_reduce_hdrs",
-    srcs = ["tuple_reduce.hpp"],
-)
-
 cc_library_with_variants(
     name = "tuple_reduce",
-    hdrs = [":tuple_reduce_hdrs"],
+    hdrs = ["tuple_reduce.hpp"],
     visibility = [
-        "//arene/base/mdspan:__subpackages__",
+        "//arene/base:__subpackages__",
     ],
     deps = [
         "//arene/base/compiler_support:cpp14_inline",
@@ -104,14 +85,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "tuple_transform_hdrs",
-    srcs = ["tuple_transform.hpp"],
-)
-
 cc_library_with_variants(
     name = "tuple_transform",
-    hdrs = [":tuple_transform_hdrs"],
+    hdrs = ["tuple_transform.hpp"],
     visibility = [
         "//arene/base/mdspan:__subpackages__",
         "//arene/base/testing:__subpackages__",
@@ -139,14 +115,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "tuple_transform_reduce_hdrs",
-    srcs = ["tuple_transform_reduce.hpp"],
-)
-
 cc_library_with_variants(
     name = "tuple_transform_reduce",
-    hdrs = [":tuple_transform_reduce_hdrs"],
+    hdrs = ["tuple_transform_reduce.hpp"],
     visibility = [
         "//arene/base/mdspan:__subpackages__",
         "//arene/base/tuple:__subpackages__",
@@ -171,15 +142,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "tuple_zip_hdrs",
-    srcs = ["tuple_zip.hpp"],
-)
-
 cc_library_with_variants(
     name = "tuple_zip",
-    hdrs = [":tuple_zip_hdrs"],
+    hdrs = ["tuple_zip.hpp"],
     visibility = [
+        "//arene/base/mdspan:__subpackages__",
         "//arene/base/tuple:__subpackages__",
     ],
     deps = [
@@ -208,13 +175,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":as_type_list_hdrs",
-        ":get_hdrs",
-        ":reverse_as_tuple_hdrs",
-        ":tuple_reduce_hdrs",
-        ":tuple_transform_hdrs",
-        ":tuple_transform_reduce_hdrs",
-        ":tuple_zip_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/tuple:__pkg__"],
 )

@@ -2,29 +2,31 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "cache_line.hpp",
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "cache_line",
+    hdrs = ["cache_line.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        "//arene/base/compiler_support:attributes",
+        "//arene/base/compiler_support/hardware_queries/detail:cache_line_impl_32",
+        "//arene/base/compiler_support/hardware_queries/detail:cache_line_impl_64",
+        "//arene/base/stdlib_choice:cstddef",
     ],
-    visibility = ["//arene/base/compiler_support:__pkg__"],
 )
 
-filegroup(
-    name = "detail_hdrs",
-    srcs = [
-        "detail/cache_line_impl_32.hpp",
-        "detail/cache_line_impl_64.hpp",
-    ],
+cc_library_with_variants(
+    name = "internal",
     visibility = ["//arene/base/compiler_support:__pkg__"],
+    deps = [":cache_line"],
 )
 
 filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":detail_hdrs",
-        ":hdrs",
-    ],
+        "//arene/base/compiler_support/hardware_queries/detail:package",
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/compiler_support:__pkg__"],
 )

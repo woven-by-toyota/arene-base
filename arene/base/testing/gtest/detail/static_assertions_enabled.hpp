@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/preprocessor/stringize.hpp"
 #include "arene/base/math/abs.hpp"                                        // IWYU pragma: keep
 #include "arene/base/testing/gtest/detail/static_assertions_helpers.hpp"  // IWYU pragma: keep
 

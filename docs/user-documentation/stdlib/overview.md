@@ -1,3 +1,9 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
 \page stdlib Partial Implementation of the C++ Standard Library
@@ -24,7 +30,7 @@ The Arene Base implementation of the C++ Standard Library is only available for
 specific targets; on other platforms users are expected to use the
 toolchain-provided Standard Library implementation.
 
-## Usage {#usage}
+# Usage {#stdlib-overview-usage}
 
 To use the Arene Base C++ Standard Library implementation, add a dependency to
 `@arene-base//stdlib` to your Bazel target. `@arene-base//stdlib` _cannot_ be
@@ -52,7 +58,7 @@ config settings `@arene-base//configs:toolchain_stdlib_enabled` and
     }),
 ```
 
-## Deviations from the Standard {#deviations-from-the-standard}
+## Deviations from the Standard {#stdlib-overview-deviations-from-the-standard}
 
 The Arene Base stdlib generally follows the published C++14 standard closely,
 but there are a few exceptions:

@@ -5,13 +5,13 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_HARDWARE_QUERIES_CACHE_LINE_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_HARDWARE_QUERIES_CACHE_LINE_HPP_
 
-// IWYU pragma: private
-// IWYU pragma: friend "arene/base/compiler_support/hardware_queries/.*"
+// IWYU pragma: private, include "arene/base/compiler_support/hardware_queries.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 // To respect AUTOSAR C++14 constraints on C++ preprocessor usage A16-0-1

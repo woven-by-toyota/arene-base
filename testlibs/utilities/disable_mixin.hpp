@@ -5,9 +5,9 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_DISABLE_MIXIN_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_DISABLE_MIXIN_HPP_
 
-#include "stdlib/include/cstddef"
-#include "stdlib/include/cstdint"
-#include "stdlib/include/type_traits"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+#include "arene/base/stdlib_choice/enable_if.hpp"
 
 namespace testing {
 
@@ -178,6 +178,7 @@ struct disable_mixin
     , disable_move_assign<contains<SpecialMembers>(disable::move_assign)>
     , disable_copy_assign<contains<SpecialMembers>(disable::copy_assign)> {
   static constexpr auto is_default_constructible = !contains<SpecialMembers>(disable::default_construct);
+  static constexpr auto is_value_constructible = !contains<SpecialMembers>(disable::value_construct);
 
   template <bool B = is_default_constructible, class = std::enable_if_t<B>>
   constexpr disable_mixin() noexcept {}

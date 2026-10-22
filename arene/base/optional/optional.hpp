@@ -14,7 +14,7 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/constraints/substitution_succeeds.hpp"
@@ -84,13 +84,21 @@ class nullopt_t {
 /// @deprecated
 using null_opt_t = nullopt_t;
 
+// parasoft-begin-suppress AUTOSAR-M3_4_1-b "This is a per-TU reference to a global used in multiple TUs"
+// parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variable is initialized"
 /// @brief Tag variable for empty-optional construction
-ARENE_MAYBE_UNUSED constexpr nullopt_t nullopt{{}};
+ARENE_CPP14_INLINE_VARIABLE_INIT(nullopt, nullopt_t{{}});
+// parasoft-end-suppress CERT_CPP-DCL56-a
+// parasoft-end-suppress AUTOSAR-M3_4_1-b
 
+// parasoft-begin-suppress AUTOSAR-M3_4_1-b "This is a per-TU reference to a global used in multiple TUs"
+// parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variable is initialized"
 /// @brief alias to maintain backwards compatibility with older versions of Arene Base.
 /// @see arene::base::nullopt
 /// @deprecated
-ARENE_MAYBE_UNUSED constexpr nullopt_t null_opt{nullopt};
+ARENE_CPP14_INLINE_VARIABLE_INIT(null_opt, nullopt);
+// parasoft-end-suppress CERT_CPP-DCL56-a
+// parasoft-end-suppress AUTOSAR-M3_4_1-b
 
 /// @brief Implementation of @c std::optional for pre-C++17 compilers, and which replaces defined undefined behavior
 /// with @c ARENE_PRECONDITION guards.
@@ -601,9 +609,11 @@ class optional
     } else if (this->has_value()) {
       other.construct_from(std::move(**this));
       this->reset();
-    } else {
+    } else if (other.has_value()) {
       construct_from(std::move(*other));
       other.reset();
+    } else {
+      // They're both empty, so do nothing. (This else block is required by AUTOSAR-M6_4_2)
     }
   }
   // parasoft-end-suppress AUTOSAR-A2_10_1-d
@@ -804,7 +814,11 @@ class optional
           std::enable_if_t<is_equality_comparable_v<T, U>>> = nullptr>
   friend constexpr auto operator==(Self const& lhs, U const& rhs) noexcept -> bool {
     if (lhs) {
+      // parasoft-begin-suppress AUTOSAR-M5_0_4-a "The type being compared is up to the user"
+      // parasoft-begin-suppress AUTOSAR-M6_2_2-a "The type being compared is up to the user"
       return *lhs == rhs;
+      // parasoft-end-suppress AUTOSAR-M6_2_2-a
+      // parasoft-end-suppress AUTOSAR-M5_0_4-a
     }
     return false;
   }

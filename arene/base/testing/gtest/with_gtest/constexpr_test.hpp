@@ -112,7 +112,7 @@ class conditionally_constexpr_test<TestTag, false> : public ::testing::Test {
 /// @param testcase The GoogleTest testcase name
 ///
 /// Performs custom test registration for testsuite @c testsuite and testcase
-/// @testcase that invokes a @c constexpr test implementation function. The
+/// @c testcase that invokes a @c constexpr test implementation function. The
 /// implementation function is invoked twice: once at compile-time to ensure it
 /// is in-fact compile-time invocable, and again at runtime in order to generate
 /// test coverage.
@@ -156,7 +156,7 @@ class conditionally_constexpr_test<TestTag, false> : public ::testing::Test {
 /// @brief defines a test case that is conditionally invoked at compile-time
 /// @param testsuite The GoogleTest testsuite name
 /// @param testcase The GoogleTest testcase name
-/// @param Condition A condition convertible to @c bool
+/// The condition must be convertible to @c bool.
 ///
 /// Defines a @c TEST that conditionally invokes a @c constexpr test implementation
 /// function. The implementation function is invoked at least once at runtime, and
@@ -255,7 +255,7 @@ class conditionally_constexpr_test<TestTag, false> : public ::testing::Test {
 /// @brief defines a typed test case that is conditionally invoked at compile-time
 /// @param testsuite The GoogleTest testsuite name
 /// @param testcase The GoogleTest testcase name
-/// @param Condition A condition convertible to @c bool which depends on @c TypeParam
+/// The condition must be convertible to @c bool and may depend on @c TypeParam.
 ///
 /// Defines a @c TYPED_TEST that conditionally invokes a @c constexpr test implementation
 /// function. The implementation function is invoked at least once at runtime, and possibly a second time at
@@ -308,7 +308,7 @@ class conditionally_constexpr_test<TestTag, false> : public ::testing::Test {
 /// parameter
 /// @param testsuite The GoogleTest testsuite name
 /// @param testcase The GoogleTest testcase name
-/// @param Condition A condition convertible to @c bool which depends on @c TypeParam
+/// The condition must be convertible to @c bool and may depend on @c TypeParam.
 ///
 /// Defines a @c TYPED_TEST that invokes a @c constexpr test implementation
 /// function. The implementation function is invoked twice: once at compile-time

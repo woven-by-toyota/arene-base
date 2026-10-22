@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -6,24 +10,33 @@
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#subpackages-testing-gtest-static-assertions-introduction}
 
 Arene Base provides a unit testing support library, compatible with gtest, which
-provides `STATIC_ASSERT_XXX` macros which mirror their non-static counterparts
-in a 1:1 manner. This allows writing compile-time tests which look and feel like
-their runtime counterparts, with a couple of
-[known limitations](#known-limitations). These macros are only for use within
-test code; non-test code should continue to use static assertions.
+provides `STATIC_ASSERT_XXX` macros whose arguments are invoked at compile-time
+and again at run-time. The compile-time invocation provides evidence of
+compile-time correctness and `constexpr` invocability while the run-time
+invocation provides evidence of run-time correctness. The run-time invocation
+further enables collection of run-time code coverage data. This allows writing
+compile-time tests which look and feel like their runtime counterparts, with a
+couple of
+[known limitations](#subpackages-testing-gtest-static-assertions-known-limitations).
+These macros are only for use within test code; non-test code should continue to
+use static assertions.
 
-## Background {#background}
+If you need to ensure the _entire test body_ is invoked at compile-time and
+run-time, consider using the [Constexpr Test Macros](constexpr_test).
+
+## Background {#subpackages-testing-gtest-static-assertions-background}
 
 When writing C++ code which can be evaluated at compile time such as a type
 trait, or `constexpr` function/method, it is often desirable to write unit test
 cases which:
 
-1. Unconditionally evaluate at compile time.
-1. Cause compilation to fail if the unit test fails, pushing validation to
-   earlier in the iteration cycle.
+- Unconditionally evaluate at compile time.
+
+- Cause compilation to fail if the unit test fails, pushing validation to
+  earlier in the iteration cycle.
 
 Such tests are particularly important for `constexpr` annotated APIs: It is not
 a compilation error to use `constexpr`-incompatible logic in a `constexpr`
@@ -54,6 +67,7 @@ There are several drawbacks of this approach:
 
 - The error messages are written by the test developer, potentially making them
   inconsistent with similar operations.
+
 - The static assertion is more burdensome to write than a regular `ASSERT_XXX`.
 
 - There is no runtime-evaluated component.
@@ -63,7 +77,7 @@ There are several drawbacks of this approach:
   have to write the test case twice; once with `static_assert` and once with a
   regular gtest `ASSERT_XXX`, to properly measure coverage.
 
-### Provided Assertions {#provided-assertions}
+### Provided Assertions {#subpackages-testing-gtest-static-assertions-provided-assertions}
 
 The following set of assertions are provided by the framework:
 
@@ -94,9 +108,9 @@ the last place.” Users should fall back to the normal gtest `ASSERT_FLOAT_EQ`
 and `ASSERT_DOUBLE_EQ` assertions for more accurate floating point comparison if
 needed.
 
-## Known Limitations {#known-limitations}
+## Known Limitations {#subpackages-testing-gtest-static-assertions-known-limitations}
 
-### Inputs Must Be Constant Expressions {#inputs-must-be-constant-expressions}
+### Inputs Must Be Constant Expressions {#subpackages-testing-gtest-static-assertions-inputs-must-be-constant-expressions}
 
 A limitation of any simple _wrapper_ approach to compile-time unit tests using
 `static_assert` inside a runtime testing framework like gtest is that ultimately
@@ -162,15 +176,16 @@ This change in shape accomplishes the goal of failing at compile time if
 testing across a robust set of initial states. However its readability has been
 harmed in a couple of ways:
 
-1. A portion of the body of the test is no longer located inside the TEST
-   declaration, meaning a future maintainer has to look in multiple places to
-   see what the assertion actually does.
-1. To maintain the state accumulation aspect of the test, the indirection
-   function needs to now consume the state to put the system in before the
-   actual assertion of interest runs. This results in additional error-prone
-   boilerplate, increasing the likelihood of oracle problems.
+- A portion of the body of the test is no longer located inside the TEST
+  declaration, meaning a future maintainer has to look in multiple places to see
+  what the assertion actually does.
 
-### Printing Values On Failure {#printing-values-on-failure}
+- To maintain the state accumulation aspect of the test, the indirection
+  function needs to now consume the state to put the system in before the actual
+  assertion of interest runs. This results in additional error-prone
+  boilerplate, increasing the likelihood of oracle problems.
+
+### Printing Values On Failure {#subpackages-testing-gtest-static-assertions-printing-values-on-failure}
 
 Because ultimately the assertion macros are simply wrapping `static_assert`, and
 until C++26 `static_assert`'s message must be a string-literal, it's not
@@ -187,7 +202,7 @@ would look like this:
 bazel test //foo/bar/... --cxxopt="-DARENE_GTEST_STATIC_ASSERTIONS=0"
 ```
 
-## Conditionally Static Assertions {#conditionally-static-assertions}
+## Conditionally Static Assertions {#subpackages-testing-gtest-static-assertions-conditionally-static-assertions}
 
 In addition to the assertions above which always perform both a runtime
 assertion and a static assertion, Arene Base also provides a set of assertion

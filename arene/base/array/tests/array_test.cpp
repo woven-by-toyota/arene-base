@@ -23,7 +23,6 @@
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
-#include "arene/base/stdlib_choice/exchange.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/is_const.hpp"
@@ -210,6 +209,20 @@ TEST(Array, MemberTypes) {
   STATIC_ASSERT_TRUE(arene::base::is_random_access_iterator_v<arr_t::const_reverse_iterator>);
   ::testing::StaticAssertTypeEq<std::iterator_traits<arr_t::const_reverse_iterator>::reference, arr_t::const_reference>(
   );
+}
+
+/// @test Given arrays with the same element type and different capacities, when their iterator types are inspected,
+/// then all corresponding iterator types are identical.
+TEST(Array, IteratorTypesAreIndependentOfCapacity) {
+  using small_array_t = arene::base::array<user_type, 3>;
+  using large_array_t = arene::base::array<user_type, 5>;
+
+  ::testing::StaticAssertTypeEq<typename small_array_t::iterator, typename large_array_t::iterator>();
+  ::testing::StaticAssertTypeEq<typename small_array_t::const_iterator, typename large_array_t::const_iterator>();
+  ::testing::StaticAssertTypeEq<typename small_array_t::reverse_iterator, typename large_array_t::reverse_iterator>();
+  ::testing::StaticAssertTypeEq<
+      typename small_array_t::const_reverse_iterator,
+      typename large_array_t::const_reverse_iterator>();
 }
 
 /// @test Invoking `size` or `max_size` on an `array` yields the number of elements in the array; `empty` returns
@@ -903,105 +916,6 @@ TEST(ArrayComparison, ArraysWithDeclaredButBrokenLessThanCanBeComparedForEqualit
   STATIC_ASSERT_FALSE(three != three);
 
   // Using ordering assertions like STATIC_ASSERT_LT would cause a compilation error.
-}
-
-///  @test `to_array` can be used to construct an `array` from a built-in array, deducing the size and element type from
-///  the supplied built-in array. The elements of the constructed `array` are copy-constructed from the elements of the
-///  source array.
-TEST(Array, ToArray) {
-  constexpr auto size = 5;
-  // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-  constexpr std::int32_t source[size] = {1, 22, 333, 4444, 55555};
-  // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-  std::int32_t source2[size] = {1, 22, 333, 4444, 55555};
-  // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-  std::int32_t const(&source3)[size] = source2;
-
-  constexpr auto dest = arene::base::to_array(source);
-  auto dest2 = arene::base::to_array(source2);
-  auto runtime_const_array = arene::base::to_array(source3);
-
-  ::testing::StaticAssertTypeEq<decltype(dest), arene::base::array<std::int32_t, size> const>();
-  ::testing::StaticAssertTypeEq<decltype(dest2), arene::base::array<std::int32_t, size>>();
-
-  for (unsigned idx = 0; idx < size; ++idx) {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    ASSERT_EQ(dest[idx], source[idx]);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    ASSERT_EQ(dest2[idx], source2[idx]);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    ASSERT_EQ(runtime_const_array[idx], source3[idx]);
-  }
-}
-
-///  @test `to_array` can be used to construct an `array` from an rvalue built-in array, deducing the size and element
-///  type from the supplied built-in array. The elements of the constructed `array` are move-constructed from the
-///  corresponding elements from the source array.
-TEST(Array, ToArrayForRValues) {
-  constexpr auto val = -123;
-  struct custom_type {
-    int value = val;
-    custom_type() noexcept = default;
-    custom_type(custom_type const&) noexcept = default;
-    auto operator=(custom_type const&) noexcept -> custom_type& = default;
-    custom_type(custom_type&& other) noexcept
-        : value(std::exchange(other.value, 0)) {}
-    auto operator=(custom_type&&) noexcept -> custom_type& = delete;
-    ~custom_type() = default;
-  };
-
-  constexpr auto size = 5;
-  // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-  custom_type source[size]{};
-
-  auto dest = arene::base::to_array(std::move(source));
-
-  ::testing::StaticAssertTypeEq<decltype(dest), arene::base::array<custom_type, size>>();
-
-  for (unsigned i = 0; i < size; ++i) {
-    ASSERT_EQ(dest[i].value, val);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,bugprone-use-after-move,hicpp-invalid-access-moved)
-    ASSERT_EQ(source[i].value, 0);
-  }
-}
-
-/// @test If a `std::index_sequence` is passed to the internal `detail::to_array` function in addition to the source
-/// array, then the resulting array contains the elements specified by the index sequence values from the source array
-/// as the initial elements, and the remaining elements are default-constructed
-TEST(Array, ToArrayForSelectedIndices) {
-  constexpr auto size = 5;
-  // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-  std::uint32_t source[size]{10, 20, 30, 40, 50};
-
-  auto dest = arene::base::array_detail::to_array(source, std::index_sequence<2, 3, 0>{});
-
-  ::testing::StaticAssertTypeEq<decltype(dest), arene::base::array<std::uint32_t, size>>();
-
-  ASSERT_EQ(dest[0], 30);
-  ASSERT_EQ(dest[1], 40);
-  ASSERT_EQ(dest[2], 10);
-  ASSERT_EQ(dest[3], 0);
-  ASSERT_EQ(dest[4], 0);
-}
-
-/// @test If a `std::index_sequence` is passed to the internal `detail::to_array` function in addition to the source
-/// array, then the resulting array contains elements move-constructed from the elements of the source array specified
-/// by the index sequence values as the initial elements, and the remaining elements are default-constructed
-TEST(Array, ToArrayForSelectedIndicesFromRValue) {
-  constexpr auto size = 5;
-  // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-  std::uint32_t source[size]{10, 20, 30, 40, 50};
-
-  // NOLINTNEXTLINE(hicpp-move-const-arg)
-  auto const dest = arene::base::array_detail::to_array(std::move(source), std::index_sequence<2, 3, 0>{});
-
-  ::testing::StaticAssertTypeEq<decltype(dest), arene::base::array<std::uint32_t, size> const>();
-
-  ASSERT_EQ(dest[0], 30);
-  ASSERT_EQ(dest[1], 40);
-  ASSERT_EQ(dest[2], 10);
-  ASSERT_EQ(dest[3], 0);
-  ASSERT_EQ(dest[4], 0);
 }
 
 /// @test use of 'operator[]' does not prevent compilation if used in a constant expression

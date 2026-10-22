@@ -19,6 +19,7 @@ namespace std {
 // parasoft-begin-suppress CERT_CPP-DCL51-f "This is an implementation of the standard library function"
 // parasoft-begin-suppress AUTOSAR-A7_1_1-a "This definition is required by the standard specification."
 // parasoft-begin-suppress AUTOSAR-A7_1_5-a-2 "Trailing return syntax permitted by A7-1-5 Permit #1 v1.0.0"
+// parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: no 'count' becomes inaccessible due to this declaration"
 
 /// @brief copies one buffer to another
 /// @param dest destination buffer
@@ -33,6 +34,7 @@ inline auto memcpy(void* dest, void const* src, std::size_t count) -> void* {
 // parasoft-end-suppress AUTOSAR-A7_1_1-a
 // parasoft-end-suppress CERT_CPP_DCL51-f
 // parasoft-end-suppress AUTOSAR-M17_0_3-a
+// parasoft-end-suppress AUTOSAR-A2_10_1-a
 
 }  // namespace std
 

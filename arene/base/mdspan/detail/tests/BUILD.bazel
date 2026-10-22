@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test_with_variants(
     name = "checked_math_test",
@@ -14,7 +15,7 @@ cc_test_with_variants(
         "//arene/base/mdspan/tests:test_index_types",
         "//arene/base/stdlib_choice:numeric_limits",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -26,7 +27,7 @@ cc_test_with_variants(
         "//arene/base/mdspan/tests:test_index_types",
         "//arene/base/stdlib_choice:is_signed",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -44,7 +45,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:ignore",
         "//arene/base/testing:gtest",
         "//arene/base/utility:safe_comparisons",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -57,7 +58,24 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "extract_dynamic_extents_for_death_test",
+    srcs = ["extract_dynamic_extents_for_death_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan/detail:extract_dynamic_extents_for",
+        "//arene/base/mdspan/tests:test_index_types",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:is_signed",
+        "//arene/base/stdlib_choice:is_unsigned",
+        "//arene/base/testing:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
     ],
 )
 
@@ -67,7 +85,7 @@ cc_test_with_variants(
     deps = [
         "//arene/base/mdspan/detail:mandate_each_argtype_is_submdspan_slice",
         "//arene/base/stdlib_choice:cstddef",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -77,7 +95,7 @@ cc_test_with_variants(
     deps = [
         "//arene/base/mdspan:full_extent",
         "//arene/base/mdspan/detail:map_rank",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -94,7 +112,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:pair",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -106,21 +124,7 @@ cc_test_with_variants(
         "//arene/base/mdspan/detail:extent_sequence",
         "//arene/base/stdlib_choice:equal_to",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
-    ],
-)
-
-cc_test_with_variants(
-    name = "is_representable_as_test",
-    srcs = ["is_representable_as_test.cpp"],
-    deps = [
-        "//arene/base/mdspan/detail:is_representable_as",
-        "//arene/base/stdlib_choice:cstdint",
-        "//arene/base/stdlib_choice:is_same",
-        "//arene/base/stdlib_choice:numeric_limits",
-        "//arene/base/testing:gtest",
-        "//arene/base/type_traits:type_identity",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -133,7 +137,7 @@ cc_test_with_variants(
         "//arene/base/mdspan/detail:is_valid_submdspan_slice_for",
         "//arene/base/stdlib_choice:numeric_limits",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -147,39 +151,64 @@ cc_test_with_variants(
         "//arene/base/mdspan/detail:is_valid_submdspan_slice_type_for",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:integral_constant",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
-    name = "rank_scan_test",
-    srcs = ["rank_scan_test.cpp"],
+    name = "masked_array_test",
+    srcs = ["masked_array_test.cpp"],
     deps = [
         "//arene/base:array",
         "//arene/base/algorithm:transform",
         "//arene/base/detail:dynamic_extent",
         "//arene/base/mdspan/detail:count",
         "//arene/base/mdspan/detail:map_rank",
-        "//arene/base/mdspan/detail:rank_scan",
+        "//arene/base/mdspan/detail:masked_array",
         "//arene/base/mdspan/tests:test_index_types",
         "//arene/base/stdlib_choice:begin",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:end",
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_build_error_test(
+    name = "masked_array_domain_size_equals_sentinel_test",
+    src = inline_src.cpp("""\
+#include "arene/base/detail/dynamic_extent.hpp"
+#include "arene/base/mdspan/detail/masked_array.hpp"
+#include "arene/base/stdlib_choice/declval.hpp"
+
+// Given a domain size equal to the sentinel, instantiating masked_array must fail.
+using codomain_size_type = decltype(
+    std::declval<arene::base::mdspan_detail::masked_array<arene::base::dynamic_extent>>().codomain_size()
+);
+
+auto main() -> int {}
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        "error: (static_assert|static assertion) failed.*The domain size must differ from the unmapped-index sentinel",
+    ),
+    deps = [
+        "//arene/base/detail:dynamic_extent",
+        "//arene/base/mdspan/detail:masked_array",
+        "//arene/base/stdlib_choice:declval",
     ],
 )
 
 cc_test_with_variants(
-    name = "rank_scan_death_test",
-    srcs = ["rank_scan_death_test.cpp"],
+    name = "masked_array_death_test",
+    srcs = ["masked_array_death_test.cpp"],
     deps = [
         "//arene/base:array",
-        "//arene/base/mdspan/detail:rank_scan",
+        "//arene/base/array:to_array",
+        "//arene/base/mdspan/detail:masked_array",
         "//arene/base/stdlib_choice:ignore",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -193,7 +222,7 @@ cc_test_with_variants(
         "//arene/base/testing:gtest",
         "//arene/base/type_traits:type_identity",
         "//arene/base/utility:safe_comparisons",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -205,7 +234,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/testing:gtest",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -221,7 +250,7 @@ cc_test_with_variants(
         "//arene/base/mdspan/detail:submdspan_offset",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -241,7 +270,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/testing:gtest",
         "//arene/base/type_traits:is_invocable",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -259,7 +288,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:ignore",
         "//arene/base/stdlib_choice:numeric_limits",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -276,7 +305,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:ignore",
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -288,7 +317,7 @@ cc_test_with_variants(
         "//arene/base/mdspan/detail:slice_upper_bound",
         "//arene/base/stdlib_choice:cstdint",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -302,7 +331,21 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:is_same",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "make_extents_range_test",
+    srcs = ["make_extents_range_test.cpp"],
+    deps = [
+        "//arene/base/iterator/detail:iter_concept",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan/detail:make_extents_range",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -318,7 +361,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/testing:gtest",
         "//arene/base/type_traits:remove_cvref",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

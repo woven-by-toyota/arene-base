@@ -9,7 +9,7 @@ set -euxo pipefail
 log="$1"
 length="$2"
 
-expected="arene/base/contracts/tests/contract_output.cpp:11: error: Precondition violation: false"
+expected="arene/base/contracts/tests/contract_output.cpp:9: error: Precondition violation: false"
 
 [[ "$(head -n1 "$log")" == "$expected" ]]
 eval "(( $(wc -l <"$log") $length ))"

@@ -5,6 +5,7 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MDSPAN_DETAIL_TUPLE_SPAN_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MDSPAN_DETAIL_TUPLE_SPAN_HPP_
 
+// parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/detail/dynamic_extent.hpp"
 #include "arene/base/span/span.hpp"
@@ -12,6 +13,7 @@
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/tuple_size.hpp"
+// parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 namespace arene {
 namespace base {

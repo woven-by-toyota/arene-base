@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #include "arene/base/array.hpp"
 #include "arene/base/inline_container/testing/vector.hpp"
 
@@ -18,12 +22,12 @@ using vector_test::my_class;
 
 template <>
 auto const arene::base::testing::test_value_array<my_class> =
-    arene::base::to_array<my_class>({my_class{1}, my_class{2}, my_class{3}, my_class{4}, my_class{5}});
+    arene::base::to_array({my_class{1}, my_class{2}, my_class{3}, my_class{4}, my_class{5}});
 
 // As an arithmetic type, a default array is provided for double; defining this here overrides it.
 template <>
 constexpr auto arene::base::testing::test_value_array<double> =
-    arene::base::to_array<double>({1., 2., -42., 1.23, 99, -10, 77, 65, 4.567, 3.123});
+    arene::base::to_array({1., 2., -42., 1.23, 99., -10., 77., 65., 4.567, 3.123});
 
 //! [vector_test_values_example]
 #include "arene/base/array.hpp"
@@ -35,14 +39,14 @@ constexpr auto arene::base::testing::test_value_array<double> =
 
 template <>
 constexpr auto arene::base::testing::test_value_array<std::int32_t> =
-    arene::base::to_array<std::int32_t>({1, -2, 6, -24, 120, -720, 5'040, -40'320, 362'880, -3'628'800});
+    arene::base::to_array_of<std::int32_t>({1, -2, 6, -24, 120, -720, 5'040, -40'320, 362'880, -3'628'800});
 
 // For non-literal types, the array can be const instead of constexpr.
 // As std::string is a non-arithmetic type, defining this specialization is *required* to instantiate the tests for it.
 
 template <>
 auto const arene::base::testing::test_value_array<std::string> =
-    arene::base::to_array<std::string>({"up", "down", "left", "right", "other"});
+    arene::base::to_array_of<std::string>({"up", "down", "left", "right", "other"});
 
 // Any tests populating an inline_vector with one or more values will pull them
 // from the test_value_array specialization for that type.

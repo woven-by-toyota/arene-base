@@ -1,0 +1,46 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load(
+    "//rules:cc_build_error.bzl",
+    "cc_build_error_test",
+    "inline_src",
+    "mandate_error_matcher",
+)
+
+cc_build_error_test(
+    name = "identity_matrix_scalar_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/identity_matrix.hpp"
+
+auto main() -> int {{
+  auto id_mat = arene::base::linalg::identity_matrix<int&>(0);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "To create a valid matrix, the ElementType must be a linalg scalar",
+        requirement = "is_scalar_v<int &>",
+    ),
+    deps = [
+        "//arene/base/linalg:identity_matrix",
+    ],
+)
+
+cc_build_error_test(
+    name = "identity_matrix_extents_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/linalg/identity_matrix.hpp"
+
+auto main() -> int {{
+  auto id_mat = arene::base::linalg::identity_matrix<int>(0);
+}}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "The argument to linalg::identity_matrix should be an instance of arene::base::extents",
+        requirement = "is_extents_v<int>",
+    ),
+    deps = [
+        "//arene/base/linalg:identity_matrix",
+    ],
+)

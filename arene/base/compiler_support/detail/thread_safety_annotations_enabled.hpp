@@ -7,8 +7,8 @@
 /// @brief Implementation helper for compiler_support/thread_safety_annotations.hpp for when TSA is supported.
 ///
 
-// IWYU pragma: private
-// IWYU pragma: friend "arene/base/compiler_support/thread_safety_annotations.hpp"
+// IWYU pragma: private, include "arene/base/compiler_support/thread_safety_annotations.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_DETAIL_THREAD_SAFETY_ANNOTATIONS_ENABLED_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_DETAIL_THREAD_SAFETY_ANNOTATIONS_ENABLED_HPP_

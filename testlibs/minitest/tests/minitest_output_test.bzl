@@ -46,7 +46,7 @@ def minitest_output_test(
         expected_return_code = 0,
         srcs = None,
         deps = [
-            "//testlibs/minitest",
+            "//testlibs/minitest:minitest_main",
         ],
         test_xml_output = False,
         **kwargs):
@@ -77,7 +77,7 @@ def minitest_output_test(
         Expected return code of the minitest executable when executed.
       srcs: label_list
         Sources to compile in the `cc_binary` target.
-      deps: label_list (default `[//testlibs/minitest]`)
+      deps: label_list (default `["//testlibs/minitest:minitest_main"]`)
         Dependencies for the `cc_binary` target.
       test_xml_output: bool (default `False`)
         Specify XML output when running `minitest` binary.

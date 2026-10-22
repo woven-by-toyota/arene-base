@@ -14,13 +14,13 @@
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/iterator/distance.hpp"
 #include "arene/base/iterator/next.hpp"
+#include "arene/base/iterator/prev.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
 #include "arene/base/optional/optional.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
-#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_assignable.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_copy_assignable.hpp"
@@ -49,6 +49,7 @@ using ::arene::base::inline_set;
 using ::arene::base::make_strong_ordering;
 using ::arene::base::next;
 using ::arene::base::nullopt;
+using ::arene::base::prev;
 using ::arene::base::strong_ordering;
 
 // A capacity large enough for most tests
@@ -726,6 +727,30 @@ TEST(InlineSet, CanEraseElementByKey) {
   ASSERT_TRUE(set.contains(key5));
 }
 
+/// @test Erasing by key on the highest-sorted element works and reports the right result (this exercises a former bug)
+TEST(InlineSet, ErasingLastElementWorksCorrectly) {
+  using set_t = standard_set;
+
+  std::int32_t const key1 = 42;
+  std::int32_t const key2 = 19;
+  std::int32_t const key3 = 123;
+  std::int32_t const key4 = -123;
+  std::int32_t const key5 = -2371632;
+  set_t set{key1, key2, key3, key4, key5};
+
+  // key3 is sorted as the highest so it's the last element in the set
+  ASSERT_EQ(*set.rbegin(), key3);
+
+  auto const res = set.erase(key3);
+  ASSERT_EQ(res, 1);
+  ASSERT_EQ(set.size(), 4);
+  ASSERT_FALSE(set.contains(key3));
+  ASSERT_TRUE(set.contains(key1));
+  ASSERT_TRUE(set.contains(key2));
+  ASSERT_TRUE(set.contains(key4));
+  ASSERT_TRUE(set.contains(key5));
+}
+
 /// @test Invoking `erase` with the value of an element that is not in the `inline_set` returns 0, and leaves the
 /// `inline_set` instance unchanged, with the same size and values.
 TEST(InlineSet, EraseElementByKeyDoesNothingIfKeyNotPresent) {
@@ -796,6 +821,57 @@ TEST(InlineSet, CanEraseElementByIterator) {
   ASSERT_TRUE(set.contains(key1));
   ASSERT_TRUE(set.contains(key2));
   ASSERT_TRUE(set.contains(key3));
+  ASSERT_TRUE(set.contains(key5));
+}
+
+/// @test Erasing the last element using an iterator correctly erases the element and returns the end iterator
+TEST(InlineSet, CanEraseLastElementByIterator) {
+  using set_t = standard_set;
+
+  std::int32_t const key1 = 42;
+  std::int32_t const key2 = 19;
+  std::int32_t const key3 = 123;
+  std::int32_t const key4 = -123;
+  std::int32_t const key5 = -2371632;
+  set_t set{key1, key2, key3, key4, key5};
+
+  auto highest_element = set.find(key3);
+  ASSERT_EQ(next(highest_element), set.end());
+
+  auto after_erased = set.erase(highest_element);
+  ASSERT_EQ(after_erased, set.end());
+
+  ASSERT_EQ(set.size(), 4);
+  ASSERT_FALSE(set.contains(key3));
+  ASSERT_TRUE(set.contains(key1));
+  ASSERT_TRUE(set.contains(key2));
+  ASSERT_TRUE(set.contains(key4));
+  ASSERT_TRUE(set.contains(key5));
+}
+
+/// @test Erasing an iterator range containing the last element erases the range and returns the end iterator
+TEST(InlineSet, CanEraseIteratorRangeContainingLastElement) {
+  using set_t = standard_set;
+
+  std::int32_t const key1 = 42;
+  std::int32_t const key2 = 19;
+  std::int32_t const key3 = 123;
+  std::int32_t const key4 = -123;
+  std::int32_t const key5 = -2371632;
+  set_t set{key1, key2, key3, key4, key5};
+
+  auto highest_element = set.find(key3);
+  ASSERT_EQ(prev(highest_element), set.find(key1));
+  ASSERT_EQ(next(highest_element), set.end());
+
+  auto after_erased = set.erase(prev(highest_element), next(highest_element));
+  ASSERT_EQ(after_erased, set.end());
+
+  ASSERT_EQ(set.size(), 3);
+  ASSERT_FALSE(set.contains(key1));
+  ASSERT_FALSE(set.contains(key3));
+  ASSERT_TRUE(set.contains(key2));
+  ASSERT_TRUE(set.contains(key4));
   ASSERT_TRUE(set.contains(key5));
 }
 
@@ -2586,6 +2662,26 @@ TYPED_TEST(InlineSetComparisonTest, RelationalComparisonsAreLexicographicalOrder
   ASSERT_GE(s_more_elements, l_values);
   ASSERT_GE(s_values, l_fewer_elements);
   ASSERT_GE(s_values, l_values);
+}
+
+template <typename T>
+class InlineSetLargeCapacityTest : public ::testing::Test {};
+
+using large_capacity_isets = ::testing::
+    Types<inline_set<std::int64_t, 50'000>, inline_set<std::int32_t, 100'000>, inline_set<std::int32_t, 1'000'000>>;
+
+TYPED_TEST_SUITE(InlineSetLargeCapacityTest, large_capacity_isets, );
+
+/// @test `inline_map` can be constructed and used even with very large capacities
+TYPED_TEST(InlineSetLargeCapacityTest, WorksWithVeryLargeCapacity) {
+  static TypeParam set{};
+  set.clear();
+  set.emplace(0);
+  set.emplace(100);
+
+  EXPECT_EQ(set.find(1), set.end());
+  ASSERT_NE(set.find(0), set.end());
+  EXPECT_EQ(*set.find(0), 0);
 }
 
 }  // namespace

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -23,7 +27,7 @@ The Bazel target is
 //:endian
 ```
 
-## Determining the endianness of the current system {#determining-the-endianness-of-the-current-system}
+# Determining the endianness of the current system {#subpackages-endian-determining-the-endianness-of-the-current-system}
 
 The `arene::base::endian` enumeration is a back-port of the C++20 `std::endian`
 enumeration. The `arene::base::endian::native` value can be compared against
@@ -33,7 +37,7 @@ current target platform is big-endian or little-endian.
 The specifications for `std::endian`is available on
 [cppreference](https://en.cppreference.com/w/cpp/types/endian).
 
-## Reading and writing data with a specific endianness {#reading-and-writing-data-with-a-specific-endianness}
+## Reading and writing data with a specific endianness {#subpackages-endian-reading-and-writing-data-with-a-specific-endianness}
 
 The various overloads of `arene::base::read_little_endian` and
 `arene::base::read_big_endian` facilitate reading values that are stored in
@@ -74,7 +78,7 @@ the specified buffer. `buffer.subspan` or `buffer.last` could also be used to
 obtain a fixed-size span for other parts of the buffer, or `read` and `write`
 could accept fixed-size spans directly.
 
-## Swapping the byte order of an integer {#swapping-the-byte-order-of-an-integer}
+## Swapping the byte order of an integer {#subpackages-endian-swapping-the-byte-order-of-an-integer}
 
 If you're manually processing data with a specific endianness, then you may need
 to swap the order of bytes in an integral value, depending on the value of

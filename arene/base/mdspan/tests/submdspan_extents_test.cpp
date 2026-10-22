@@ -16,6 +16,7 @@
 #include "arene/base/mdspan/tests/mdspan_test_utilities.hpp"
 #include "arene/base/mdspan/tests/submdspan_slices_handling_test_common.hpp"  //  IWYU pragma: keep
 #include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
@@ -23,6 +24,7 @@
 #include "arene/base/stdlib_choice/tuple.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/tuple/apply.hpp"
+#include "arene/base/type_list/concat.hpp"
 
 namespace {
 using ::arene::base::apply;
@@ -47,7 +49,7 @@ template <std::size_t First, std::size_t Last>
 using static_pair_slice =
     std::tuple<std::integral_constant<std::size_t, First>, std::integral_constant<std::size_t, Last>>;
 
-using IndexTypes = ::testing::Types<int, std::size_t>;
+using IndexTypes = ::testing::Types<std::int8_t, std::uint8_t, std::int16_t, std::uint16_t, int, std::size_t>;
 
 template <class T>
 struct SubmdspanExtents : testing::Test {};
@@ -77,19 +79,18 @@ struct test_case {
 template <class I, std::size_t R>
 constexpr decltype(std::get<R>(extents_test_types<I>)) test_case<I, R>::extents;
 
-using ParamTypes = ::testing::Types<
-    test_case<int, 0>,
-    test_case<int, 1>,
-    test_case<int, 2>,
-    test_case<int, 3>,
-    test_case<int, 4>,
-    test_case<int, 5>,
-    test_case<std::size_t, 0>,
-    test_case<std::size_t, 1>,
-    test_case<std::size_t, 2>,
-    test_case<std::size_t, 3>,
-    test_case<std::size_t, 4>,
-    test_case<std::size_t, 5>>;
+/// @brief test cases covering every rank in @c extents_test_types for index type @c I
+template <class I>
+using test_cases_for = ::testing::
+    Types<test_case<I, 0>, test_case<I, 1>, test_case<I, 2>, test_case<I, 3>, test_case<I, 4>, test_case<I, 5>>;
+
+using ParamTypes = arene::base::type_lists::concat_t<
+    test_cases_for<std::int8_t>,
+    test_cases_for<std::uint8_t>,
+    test_cases_for<std::int16_t>,
+    test_cases_for<std::uint16_t>,
+    test_cases_for<int>,
+    test_cases_for<std::size_t>>;
 
 TYPED_TEST_SUITE(SubmdspanExtentsParamTest, ParamTypes, );
 

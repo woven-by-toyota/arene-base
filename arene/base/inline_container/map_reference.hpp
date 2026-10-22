@@ -15,12 +15,14 @@
 #include "arene/base/inline_container/detail/compare.hpp"
 #include "arene/base/inline_container/detail/container_base_type.hpp"
 #include "arene/base/inline_container/detail/erased_member_function.hpp"  // IWYU pragma: keep
-#include "arene/base/inline_container/detail/range_interface.hpp"
 #include "arene/base/inline_container/map.hpp"
 #include "arene/base/inline_container/map_reference_iterator.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
+#include "arene/base/ranges/detail/range_interface.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_copy_constructible.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/pair.hpp"
@@ -153,6 +155,7 @@ struct operations {
 template <class MemFn, MemFn Func, class Return = member_function_return_t<MemFn>>
 extern constexpr auto erased_member_function = inline_container::detail::erased_member_function<MemFn, Func, Return>;
 
+// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: inline function used in multiple translation units"
 /// @brief capacity-erased function that returns a compile-time constant
 /// @tparam Map The associated @c inline_map type (used to deduce @c MapBase)
 /// @tparam T the type of the constant
@@ -163,6 +166,7 @@ template <class Map, class T, T Value, class MapBase = inline_container::detail:
 auto erased_integral_constant_function(MapBase const*) noexcept -> T {
   return Value;
 }
+// parasoft-end-suppress AUTOSAR-M3_3_2-a
 
 /// @brief function pointers to dispatch to const member functions
 /// @tparam Map The associated @c inline_map type
@@ -349,48 +353,48 @@ template <
     class Map,
     class MapBase = inline_container::detail::container_base_type_t<Map>,
     bool ComparisonIsNoexcept = comparison_is_noexcept_v<typename Map::key_type, typename Map::compare_type>>
-extern constexpr auto map_operations_with_at = operations<MapBase> {
-  &const_map_operations_with_at<Map>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
-      &Map::find,
-      iterator<MapBase>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
-      &Map::lower_bound,
-      iterator<MapBase>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
-      &Map::upper_bound,
-      iterator<MapBase>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)
-          ->std::pair<typename Map::iterator, typename Map::iterator>,
-      &Map::equal_range,
-      std::pair<iterator<MapBase>, iterator<MapBase>>>,
-  erased_member_function < auto (Map::*)(typename Map::key_type const&) noexcept(false)->typename Map::mapped_type&,
-  &Map::operator[]>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(false)->typename Map::mapped_type&,
-      &Map::at>,
-  erased_member_function<
-      auto (Map::*)(typename Map::value_type const&) noexcept(false)->std::pair<typename Map::iterator, bool>,
-      &Map::insert,
-      std::pair<iterator<MapBase>, bool>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&, typename Map::mapped_type const&) noexcept(false)
-          ->std::pair<typename Map::iterator, bool>,
-      &Map::insert_or_assign,
-      std::pair<iterator<MapBase>, bool>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
-      &Map::erase,
-      iterator<MapBase>>,
-  &erase_fn_iterator_argument_adaptor<Map>::one_argument_overload,
-  &erase_fn_iterator_argument_adaptor<Map>::two_argument_overload,
-  erased_member_function<decltype(&Map::clear), &Map::clear>,
-  erased_member_function<auto (Map::*)() noexcept -> typename Map::iterator, &Map::begin, iterator<MapBase>>,
-  erased_member_function<auto (Map::*)() noexcept -> typename Map::iterator, &Map::end, iterator<MapBase>>
+extern constexpr auto map_operations_with_at = operations<MapBase>{
+    &const_map_operations_with_at<Map>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
+        &Map::find,
+        iterator<MapBase>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
+        &Map::lower_bound,
+        iterator<MapBase>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
+        &Map::upper_bound,
+        iterator<MapBase>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)
+            ->std::pair<typename Map::iterator, typename Map::iterator>,
+        &Map::equal_range,
+        std::pair<iterator<MapBase>, iterator<MapBase>>>,
+    erased_member_function < auto (Map::*)(typename Map::key_type const&) noexcept(false)->typename Map::mapped_type&,
+    &Map::operator[]>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(false)->typename Map::mapped_type&,
+        &Map::at>,
+    erased_member_function<
+        auto (Map::*)(typename Map::value_type const&) noexcept(false)->std::pair<typename Map::iterator, bool>,
+        &Map::insert,
+        std::pair<iterator<MapBase>, bool>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&, typename Map::mapped_type const&) noexcept(false)
+            ->std::pair<typename Map::iterator, bool>,
+        &Map::insert_or_assign,
+        std::pair<iterator<MapBase>, bool>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
+        &Map::erase,
+        iterator<MapBase>>,
+    &erase_fn_iterator_argument_adaptor<Map>::one_argument_overload,
+    &erase_fn_iterator_argument_adaptor<Map>::two_argument_overload,
+    erased_member_function<decltype(&Map::clear), &Map::clear>,
+    erased_member_function<auto (Map::*)() noexcept -> typename Map::iterator, &Map::begin, iterator<MapBase>>,
+    erased_member_function<auto (Map::*)() noexcept -> typename Map::iterator, &Map::end, iterator<MapBase>>
 };
 
 /// @brief function pointers to dispatch to non-const member functions
@@ -413,46 +417,46 @@ template <
     class Map,
     class MapBase = inline_container::detail::container_base_type_t<Map>,
     bool ComparisonIsNoexcept = comparison_is_noexcept_v<typename Map::key_type, typename Map::compare_type>>
-extern constexpr auto map_operations_without_at = operations<MapBase> {
-  &const_map_operations_without_at<Map>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
-      &Map::find,
-      iterator<MapBase>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
-      &Map::lower_bound,
-      iterator<MapBase>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
-      &Map::upper_bound,
-      iterator<MapBase>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)
-          ->std::pair<typename Map::iterator, typename Map::iterator>,
-      &Map::equal_range,
-      std::pair<iterator<MapBase>, iterator<MapBase>>>,
-  erased_member_function < auto (Map::*)(typename Map::key_type const&) noexcept(false)->typename Map::mapped_type&,
-  &Map::operator[]>,
-  nullptr,  // this is &Map::at, which does not exist (and is removed from map_reference by SFINAE)
-  erased_member_function<
-      auto (Map::*)(typename Map::value_type const&) noexcept(false)->std::pair<typename Map::iterator, bool>,
-      &Map::insert,
-      std::pair<iterator<MapBase>, bool>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&, typename Map::mapped_type const&) noexcept(false)
-          ->std::pair<typename Map::iterator, bool>,
-      &Map::insert_or_assign,
-      std::pair<iterator<MapBase>, bool>>,
-  erased_member_function<
-      auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
-      &Map::erase,
-      iterator<MapBase>>,
-  &erase_fn_iterator_argument_adaptor<Map>::one_argument_overload,
-  &erase_fn_iterator_argument_adaptor<Map>::two_argument_overload,
-  erased_member_function<decltype(&Map::clear), &Map::clear>,
-  erased_member_function<auto (Map::*)() noexcept -> typename Map::iterator, &Map::begin, iterator<MapBase>>,
-  erased_member_function<auto (Map::*)() noexcept -> typename Map::iterator, &Map::end, iterator<MapBase>>
+extern constexpr auto map_operations_without_at = operations<MapBase>{
+    &const_map_operations_without_at<Map>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
+        &Map::find,
+        iterator<MapBase>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
+        &Map::lower_bound,
+        iterator<MapBase>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
+        &Map::upper_bound,
+        iterator<MapBase>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)
+            ->std::pair<typename Map::iterator, typename Map::iterator>,
+        &Map::equal_range,
+        std::pair<iterator<MapBase>, iterator<MapBase>>>,
+    erased_member_function < auto (Map::*)(typename Map::key_type const&) noexcept(false)->typename Map::mapped_type&,
+    &Map::operator[]>,
+    nullptr,  // this is &Map::at, which does not exist (and is removed from map_reference by SFINAE)
+    erased_member_function<
+        auto (Map::*)(typename Map::value_type const&) noexcept(false)->std::pair<typename Map::iterator, bool>,
+        &Map::insert,
+        std::pair<iterator<MapBase>, bool>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&, typename Map::mapped_type const&) noexcept(false)
+            ->std::pair<typename Map::iterator, bool>,
+        &Map::insert_or_assign,
+        std::pair<iterator<MapBase>, bool>>,
+    erased_member_function<
+        auto (Map::*)(typename Map::key_type const&) noexcept(ComparisonIsNoexcept)->typename Map::iterator,
+        &Map::erase,
+        iterator<MapBase>>,
+    &erase_fn_iterator_argument_adaptor<Map>::one_argument_overload,
+    &erase_fn_iterator_argument_adaptor<Map>::two_argument_overload,
+    erased_member_function<decltype(&Map::clear), &Map::clear>,
+    erased_member_function<auto (Map::*)() noexcept -> typename Map::iterator, &Map::begin, iterator<MapBase>>,
+    erased_member_function<auto (Map::*)() noexcept -> typename Map::iterator, &Map::end, iterator<MapBase>>
 };
 
 /// @brief CRTP helper providing const member functions
@@ -682,7 +686,7 @@ template <class Key, class Value, class Compare>
 class inline_map_reference
     : public inline_map_reference_detail::const_inline_map_reference_interface<
           inline_map_reference<Key, Value, Compare>>
-    , public inline_container::detail::range_interface<inline_map_reference<Key, Value, Compare>> {
+    , public ranges::detail::range_interface<inline_map_reference<Key, Value, Compare>> {
  public:
   /// @brief alias to the map base class
   using map_base_type = inline_map_detail::inline_map_base<Key, Value, Compare>;
@@ -719,7 +723,7 @@ class inline_map_reference
   using interface_base = inline_map_reference_detail::const_inline_map_reference_interface<inline_map_reference>;
 
   /// @brief alias to the range interface class providing range member functions
-  using range_base = inline_container::detail::range_interface<inline_map_reference<Key, Value, Compare>>;
+  using range_base = ranges::detail::range_interface<inline_map_reference<Key, Value, Compare>>;
 
   /// @brief pointer to the base class
   map_base_type* map_ptr_;
@@ -965,7 +969,7 @@ template <class Key, class Value, class Compare>
 class const_inline_map_reference
     : public inline_map_reference_detail::const_inline_map_reference_interface<
           const_inline_map_reference<Key, Value, Compare>>
-    , public inline_container::detail::range_interface<const_inline_map_reference<Key, Value, Compare>> {
+    , public ranges::detail::range_interface<const_inline_map_reference<Key, Value, Compare>> {
  public:
   /// @brief alias to the capacity-erased map base class
   using map_base_type = inline_map_detail::inline_map_base<Key, Value, Compare>;
@@ -999,7 +1003,7 @@ class const_inline_map_reference
   using interface_base = inline_map_reference_detail::const_inline_map_reference_interface<const_inline_map_reference>;
 
   /// @brief alias to the range interface class providing range member functions
-  using range_base = inline_container::detail::range_interface<const_inline_map_reference<Key, Value, Compare>>;
+  using range_base = ranges::detail::range_interface<const_inline_map_reference<Key, Value, Compare>>;
 
   /// @brief pointer to the base class
   map_base_type const* map_ptr_;
@@ -1068,6 +1072,15 @@ class const_inline_map_reference
 
 // parasoft-end-suppress AUTOSAR-A10_1_1-a-2
 // parasoft-end-suppress AUTOSAR-A12_1_5-a
+
+namespace ranges {
+/// @brief Indicate that @c inline_map_reference is a borrowed range
+/// @tparam Key The key type for the map
+/// @tparam Value The mapped type for the map
+/// @tparam Compare The comparison function
+template <typename Key, typename Value, typename Compare>
+class enable_borrowed_range<inline_map_reference<Key, Value, Compare>> : public std::true_type {};
+}  // namespace ranges
 
 }  // namespace base
 }  // namespace arene

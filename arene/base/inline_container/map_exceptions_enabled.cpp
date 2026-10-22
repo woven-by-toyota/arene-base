@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
 #include "arene/base/stdlib_choice/stdexcept.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 

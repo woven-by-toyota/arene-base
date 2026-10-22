@@ -13,15 +13,17 @@
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/detail/raw_c_string.hpp"
 #include "arene/base/detail/wrapped_iterator.hpp"  // IWYU pragma: keep
 #include "arene/base/iterator/advance.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/span/span.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/string.hpp"
 #include "arene/base/strings/detail/lexicographic_string_compare.hpp"
@@ -178,16 +180,20 @@ class null_terminated_string_view
   // parasoft-end-suppress AUTOSAR-A11_3_1-a-2
   // parasoft-end-suppress AUTOSAR-A13_5_5-b-2
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'begin' does not hide anything"
   /// @brief Get an iterator to the first element of the string.
   /// @return const_iterator An iterator to the first character in the string.
   ARENE_NODISCARD constexpr auto begin() const noexcept -> const_iterator { return const_iterator{passkey{}, string_}; }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'end' does not hide anything"
   /// @brief Get the sentinel (end-iterator) of this string.
   /// @return sentinel The sentinel comparable to an iterator to mark the end of the string.
   // If we make this a static method then we end up getting warnings at the usage site about calling a static member
   // function using .end() syntax. So instead we rather keep this as a non-static member function.
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   ARENE_NODISCARD static constexpr auto end() noexcept -> sentinel { return {}; }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Query if this string is the empty string.
   /// @return true if the string is empty, false otherwise
@@ -202,6 +208,7 @@ class null_terminated_string_view
   /// @c string_view first and use that instead.
   ARENE_NODISCARD constexpr auto length() const noexcept -> size_type { return detail::string_length(string_); }
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Query the length of the string.
   ///
   /// @return The number of 'char' elements in the null-terminate string, not including the null-terminator.
@@ -210,6 +217,7 @@ class null_terminated_string_view
   /// repeatedly. If you need to call @c size() repeatedly then either cache the value or convert this object to a @c
   /// string_view first and use that instead.
   ARENE_NODISCARD constexpr auto size() const noexcept -> size_type { return length(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Obtain a C-style null-terminated string pointer.
   /// @return const_pointer A pointer to the first character in the string.
@@ -437,6 +445,12 @@ constexpr auto operator""_ntsv(detail::raw_c_string const str, std::size_t /*siz
 // parasoft-end-suppress AUTOSAR-A7_1_3-a
 
 }  // namespace literals
+
+namespace ranges {
+/// @brief Indicate that @c null_terminated_string_view is a borrowed range
+template <>
+class enable_borrowed_range<null_terminated_string_view> : public std::true_type {};
+}  // namespace ranges
 
 }  // namespace base
 }  // namespace arene

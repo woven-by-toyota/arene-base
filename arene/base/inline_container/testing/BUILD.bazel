@@ -7,22 +7,17 @@ load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
 package(default_visibility = ["//:__subpackages__"])
 
-filegroup(
-    name = "customization_hdrs",
-    srcs = [
-        "customization.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "customization",
     testonly = True,
-    hdrs = [":customization_hdrs"],
+    hdrs = [
+        "customization.hpp",
+    ],
     deps = [
         "//arene/base:array",
         "//arene/base:constraints",
         "//arene/base:contracts",
-        "//arene/base/inline_container/detail:iterator_interface",
+        "//arene/base/detail:iterator_interface",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:initializer_list",
@@ -47,17 +42,12 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "unique_test_value_hdrs",
-    srcs = [
-        "unique_test_value.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "unique_test_value",
     testonly = True,
-    hdrs = [":unique_test_value_hdrs"],
+    hdrs = [
+        "unique_test_value.hpp",
+    ],
     # IWYU removes a required forward declaration and I have not found a way to suppress
     # https://github.com/include-what-you-use/include-what-you-use/issues/1573
     tags = ["no-arene-iwyu"],
@@ -65,27 +55,22 @@ cc_library_with_variants(
     deps = [
         ":customization",
         "//arene/base:type_info",
-        "//arene/base:type_traits",
         "//arene/base/compiler_support",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:ignore",
         "//arene/base/stdlib_choice:terminate",
+        "//arene/base/type_traits:comparison_traits",
         "//arene/base/type_traits:conditional",
-    ],
-)
-
-filegroup(
-    name = "default_constructible_properties_hdrs",
-    srcs = [
-        "default_constructible_properties.hpp",
     ],
 )
 
 cc_library_with_variants(
     name = "default_constructible_properties",
     testonly = True,
-    hdrs = [":default_constructible_properties_hdrs"],
+    hdrs = [
+        "default_constructible_properties.hpp",
+    ],
     visibility = [":__subpackages__"],
     deps = [
         "//arene/base:constraints",
@@ -98,17 +83,12 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "vector_hdrs",
-    srcs = [
-        "vector.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "vector",
     testonly = True,
-    hdrs = [":vector_hdrs"],
+    hdrs = [
+        "vector.hpp",
+    ],
     visibility = [
         "//arene/base/inline_container:__subpackages__",
     ],
@@ -155,17 +135,12 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "external_vector_hdrs",
-    srcs = [
-        "external_vector.hpp",
-    ],
-)
-
 cc_library(
     name = "external_vector",
     testonly = True,
-    hdrs = [":external_vector_hdrs"],
+    hdrs = [
+        "external_vector.hpp",
+    ],
     tags = ["no-arene-iwyu"],  # build failure
     visibility = [
         "//arene/base/inline_container:__subpackages__",
@@ -180,17 +155,12 @@ cc_library(
     ],
 )
 
-filegroup(
-    name = "deque_hdrs",
-    srcs = [
-        "deque.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "deque",
     testonly = True,
-    hdrs = [":deque_hdrs"],
+    hdrs = [
+        "deque.hpp",
+    ],
     visibility = [
         "//arene/base/inline_container:__subpackages__",
     ],
@@ -250,12 +220,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":customization_hdrs",
-        ":default_constructible_properties_hdrs",
-        ":deque_hdrs",
-        ":external_vector_hdrs",
-        ":unique_test_value_hdrs",
-        ":vector_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/inline_container:__pkg__"],
 )
