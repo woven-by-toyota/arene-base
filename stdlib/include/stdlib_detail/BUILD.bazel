@@ -483,7 +483,6 @@ stdlib_detail_component_library(
         ":is_copy_assignable",
         ":is_copy_constructible",
         "//arene/base:constraints",
-        "//arene/base/algorithm/detail:functional",
         "//arene/base/algorithm/detail:traits",
         "//arene/base/type_traits:is_predicate",
         "//arene/base/type_traits:iterator_category_traits",
