@@ -192,10 +192,6 @@ COMPONENTS = [
         public_header = None,
     ),
     struct(
-        name = "internal_relative_find",
-        public_header = None,
-    ),
-    struct(
         name = "iota",
         public_header = "numeric",
     ),
