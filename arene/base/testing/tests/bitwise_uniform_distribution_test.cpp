@@ -1,9 +1,14 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #include "arene/base/testing/bitwise_uniform_distribution.hpp"
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
 
 #include "arene/base/array/array.hpp"
-#include "arene/base/inline_container/vector.hpp"
+#include "arene/base/compiler_support/diagnostics.hpp"
+#include "arene/base/math/float_sign.hpp"
 #include "arene/base/stdlib_choice/climits.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
@@ -14,12 +19,16 @@
 #include "arene/base/stdlib_choice/numeric_limits.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/testing/prng_xoshiro.hpp"
+#include "arene/base/testing/tests/float_test_patterns.hpp"
+#include "arene/base/testing/tests/sequenced_mock_prng.hpp"
 #include "arene/base/type_list/cartesian_product.hpp"
 
 namespace {
 
 using arene::base::testing::bitwise_uniform_distribution;
 using arene::base::testing::prng_xoshiro;
+using arene::base::testing::tests::float_test_patterns;
+using arene::base::testing::tests::sequenced_mock_prng;
 
 template <typename T>
 class BitwiseUniformDistributionTest : public ::testing::Test {};
@@ -105,38 +114,6 @@ TYPED_TEST(BitwiseUniformDistributionTest, NoexceptSpecMatchesBitGenerator) {
       noexcept(std::declval<prng_type&>()())
   );
 }
-
-// A testing generator that emits a pre-primed sequence of values, cycling back to the start once exhausted.
-template <typename T>
-class sequenced_mock_prng {
-  arene::base::inline_vector<T, 256> values_{};
-  std::size_t index_{};
-
- public:
-  using seed_type = T;
-  using result_type = T;
-
-  /// @brief Construct from a list of values that will be returned in order
-  constexpr sequenced_mock_prng(std::initializer_list<T> values) noexcept
-      : values_{values} {}
-
-  /// @brief Return the next value in the buffer and advance the internal index, wrapping at the buffer boundary
-  constexpr auto operator()() noexcept -> result_type {
-    auto const value = values_[index_ % values_.size()];
-    ++index_;
-    return value;
-  }
-
-  /// @brief Return the next value in the buffer without advancing the state.
-  constexpr auto peek() noexcept -> result_type {
-    auto const value = values_[index_ % values_.size()];
-    return value;
-  }
-
-  static constexpr auto min() noexcept -> result_type { return {}; }
-  static constexpr auto max() noexcept -> result_type { return static_cast<result_type>(~min()); }
-  constexpr auto size() noexcept -> result_type { return values_.size(); }
-};
 
 template <typename T>
 class BitwiseUniformDistributionOpenBoxTest : public ::testing::Test {};
@@ -267,5 +244,88 @@ TYPED_TEST(BitwiseUniformDistributionOpenBoxTest, BigGenerationOneHotBitReachesO
     EXPECT_EQ(expected_bits, output_bits) << "Wrong output for one-hot input at bit " << bit_idx;
   }
 }
+
+using floating_point_types = ::testing::Types<float, double>;
+using floating_point_test_case_types =
+    arene::base::type_lists::cartesian_product_as_t<test_case, floating_point_types, bit_gen_types>;
+
+template <typename T>
+class BitwiseUniformFloatingPointDistributionTest : public ::testing::Test {};
+
+TYPED_TEST_SUITE(BitwiseUniformFloatingPointDistributionTest, floating_point_test_case_types, );
+
+ARENE_IGNORE_START();
+ARENE_IGNORE_ALL("-Wfloat-equal", "These tests don't perform arithmetic, so equality is OK even for floating point");
+
+/// @test The noexcept-specification of the @c generator class's call operator matches that of the underlying PRNG's
+TYPED_TEST(BitwiseUniformFloatingPointDistributionTest, NoexceptSpecMatchesBitGenerator) {
+  using value_type = typename TypeParam::value_type;
+  using prng_type = typename TypeParam::prng;
+
+  STATIC_ASSERT_TRUE(noexcept(bitwise_uniform_distribution<value_type>{}));
+  STATIC_ASSERT_EQ(
+      noexcept(std::declval<bitwise_uniform_distribution<value_type> const&>()(std::declval<prng_type&>())),
+      noexcept(std::declval<prng_type&>()())
+  );
+}
+
+/// @test Predetermined bit patterns fed through the distribution produce the corresponding IEEE-754 values.
+TYPED_TEST(BitwiseUniformFloatingPointDistributionTest, KnownPatterns) {
+  using value_type = typename TypeParam::value_type;
+  using patterns = float_test_patterns<value_type>;
+  using bits_type = typename patterns::bits_type;
+  using limits = std::numeric_limits<value_type>;
+
+  auto const dist = bitwise_uniform_distribution<value_type>{};
+
+  sequenced_mock_prng<bits_type> zero_prng{patterns::zero};
+  EXPECT_EQ(dist(zero_prng), static_cast<value_type>(0));
+  EXPECT_FALSE(arene::base::signbit(dist(zero_prng)));
+
+  sequenced_mock_prng<bits_type> negative_zero_prng{patterns::negative_zero};
+  EXPECT_EQ(dist(negative_zero_prng), -static_cast<value_type>(0));
+  EXPECT_TRUE(arene::base::signbit(dist(negative_zero_prng)));
+
+  sequenced_mock_prng<bits_type> denorm_min_prng{patterns::denorm_min};
+  EXPECT_EQ(dist(denorm_min_prng), limits::denorm_min());
+
+  sequenced_mock_prng<bits_type> min_prng{patterns::min_normal};
+  EXPECT_EQ(dist(min_prng), limits::min());
+
+  sequenced_mock_prng<bits_type> max_prng{patterns::max_finite};
+  EXPECT_EQ(dist(max_prng), limits::max());
+
+  sequenced_mock_prng<bits_type> one_prng{patterns::one};
+  EXPECT_EQ(dist(one_prng), static_cast<value_type>(1));
+
+  sequenced_mock_prng<bits_type> one_plus_eps_prng{patterns::one_plus_epsilon};
+  EXPECT_EQ(dist(one_plus_eps_prng), static_cast<value_type>(1) + limits::epsilon());
+
+  sequenced_mock_prng<bits_type> negative_one_prng{patterns::negative_one};
+  EXPECT_EQ(dist(negative_one_prng), static_cast<value_type>(-1));
+
+  sequenced_mock_prng<bits_type> two_prng{patterns::two};
+  EXPECT_EQ(dist(two_prng), static_cast<value_type>(2));
+
+  sequenced_mock_prng<bits_type> positive_infinity_prng{patterns::positive_infinity};
+  EXPECT_EQ(dist(positive_infinity_prng), limits::infinity());
+
+  sequenced_mock_prng<bits_type> negative_infinity_prng{patterns::negative_infinity};
+  EXPECT_EQ(dist(negative_infinity_prng), -limits::infinity());
+
+  sequenced_mock_prng<bits_type> quiet_nan_prng{patterns::quiet_nan};
+  auto const quiet_nan_val = dist(quiet_nan_prng);
+  EXPECT_NE(quiet_nan_val, quiet_nan_val);  // NaN != NaN by IEEE-754
+
+  sequenced_mock_prng<bits_type> signaling_nan_prng{patterns::signaling_nan};
+  auto const signaling_nan_val = dist(signaling_nan_prng);
+  EXPECT_NE(signaling_nan_val, signaling_nan_val);
+
+  sequenced_mock_prng<bits_type> negative_nan_prng{patterns::negative_nan};
+  auto const negative_nan_val = dist(negative_nan_prng);
+  EXPECT_NE(negative_nan_val, negative_nan_val);
+}
+
+ARENE_IGNORE_END();
 
 }  // namespace

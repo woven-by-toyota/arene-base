@@ -76,6 +76,10 @@ class make_mdspan_impl {
 
   // parasoft-begin-suppress CERT_C-EXP37-a "False positive: All arguments are named"
   // parasoft-begin-suppress AUTOSAR-M3_3_2-a-2 "False positive: inline function used in multiple translation units"
+  // parasoft-begin-suppress AUTOSAR-A0_1_4-a "False positive: Parameters are all used"
+  // parasoft-begin-suppress AUTOSAR-A8_4_2-a "False positive: Function does return a value"
+  // parasoft-begin-suppress CERT_C-MSC37-a "False positive: Function does return a value"
+  // parasoft-begin-suppress CERT_CPP-MSC52-a "False positive: Function does return a value"
   /// @brief Helper function to create an @c mdspan with a default accessor from a pointer to an array of objects and
   /// the extents of the dimensions
   /// @tparam ElementType The type of the pointed-to objects
@@ -103,6 +107,10 @@ class make_mdspan_impl {
         }
     };
   }
+  // parasoft-end-suppress CERT_C-MSC37-a
+  // parasoft-end-suppress CERT_CPP-MSC52-a
+  // parasoft-end-suppress AUTOSAR-A8_4_2-a
+  // parasoft-end-suppress AUTOSAR-A0_1_4-a
   // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
   // parasoft-begin-suppress CERT_C-EXP37-a
 
@@ -230,7 +238,6 @@ class make_mdspan_impl {
 };
 }  // namespace make_mdspan_detail
 
-/// @def arene::base::make_mdspan
 /// @brief Helper function to create an @c mdspan from a C array, or pointer to data and a set of extents for the
 /// dimensions. See the documentation for the function call operator overloads for the details.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global

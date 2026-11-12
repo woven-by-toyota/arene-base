@@ -9,6 +9,8 @@
 
 #include <gtest/gtest.h>
 
+#include "arene/base/ranges/enable_borrowed_range.hpp"
+#include "arene/base/span/span.hpp"
 #include "arene/base/span/tests/span_test/helpers.hpp"
 #include "arene/base/stdlib_choice/add_lvalue_reference.hpp"
 #include "arene/base/stdlib_choice/add_pointer.hpp"
@@ -31,6 +33,10 @@ TYPED_TEST_SUITE_P(StaticProperties);
 TYPED_TEST_P(StaticProperties, ExtentIsTParamExtent) {
   STATIC_ASSERT_EQ(TypeParam::extent, TestFixture::template_extent());
   STATIC_ASSERT_EQ(TypeParam::extent(), TestFixture::template_extent());
+}
+/// @test Given a @c span<T,Extent>, when @c enable_borrowed_range is queried, then its value is @c true .
+TYPED_TEST_P(StaticProperties, IsBorrowedRange) {
+  STATIC_ASSERT_TRUE(::arene::base::ranges::enable_borrowed_range_v<TypeParam>);
 }
 /// @test Validates that @c span<T,Extent>::element_type is @c T .
 TYPED_TEST_P(StaticProperties, ElementTypeIsTemplateType) {
@@ -107,6 +113,7 @@ TYPED_TEST_P(StaticProperties, ConstReverseIteratorIsARandomAccessIteratorToCons
 REGISTER_TYPED_TEST_SUITE_P(
     StaticProperties,
     ExtentIsTParamExtent,
+    IsBorrowedRange,
     ElementTypeIsTemplateType,
     ValueTypeIsCVRefRemovedTemplateType,
     SizeTypeIsStdSizeT,

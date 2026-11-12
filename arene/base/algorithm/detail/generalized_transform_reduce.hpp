@@ -13,9 +13,6 @@
 // parasoft-begin-suppress AUTOSAR-M2_10_1-a-2 "Similar names permitted by M2-10-1 Permit #1"
 
 #include "arene/base/stdlib_choice/declval.hpp"
-#include "arene/base/stdlib_choice/forward.hpp"
-#include "arene/base/stdlib_choice/is_assignable.hpp"
-#include "arene/base/stdlib_choice/move.hpp"
 
 namespace arene {
 namespace base {
@@ -25,49 +22,9 @@ namespace algorithm_detail {
 ///   and @c inner_product
 class generalized_transform_reduce {
  public:
-  /// @brief default policy for handling the accumulator
-  /// @tparam Value accumulator value type
-  ///
-  /// This default policy has an @c access function equivalent to @c std::move
-  /// and an @c assign function equivalent to @c operator=.
-  ///
-  /// The policy @c value is simply @c Value unchanged.
-  ///
-  template <class Value>
-  class default_reduce_value_policy {
-   public:
-    /// @brief value type to use in the underlying implementation function
-    using value_type = Value;
-
-    /// @brief generalized assignment
-    /// @tparam Result result type
-    /// @param acc reference to the accumulator
-    /// @param result value to assign
-    ///
-    /// Update @c acc with @c result with the @c value_type assignment
-    /// operation.
-    ///
-    template <class Result>
-    static constexpr auto assign(value_type& acc, Result&& result) noexcept(
-        std::is_nothrow_assignable<Value&, Result&&>::value
-    ) -> void {
-      acc = std::forward<Result>(result);
-    }
-    /// @brief generalized access
-    /// @param acc lvalue reference to the accumulator
-    /// @return <c> move(acc) </c>
-    ///
-    static constexpr auto access(value_type& acc) noexcept -> Value&& { return std::move(acc); }
-    /// @brief generalized access
-    /// @param acc rvalue reference to the accumulator
-    /// @return <c> move(acc) </c>
-    ///
-    static constexpr auto access(value_type&& acc) noexcept -> Value&& { return std::move(acc); }
-  };
-
   // parasoft-begin-suppress CERT_C-EXP37-a "False positive: The rule does not mention naming all parameters"
   /// @brief applies an invocable, then reduces out of order
-  /// @tparam ReducePolicy type specifying access and assignment of the accumulator
+  /// @tparam ReducePolicy type specifying access and assignment of the accumulator. See below.
   /// @tparam InputIt1 type of the iterator for the first range
   /// @tparam InputIt2 type of the iterator for the second range
   /// @tparam Reduce type of the reduction operation
@@ -80,7 +37,6 @@ class generalized_transform_reduce {
   ///   to a single value
   /// @param transform binary function object applied to each pair of elements
   ///   of the input ranges
-  ///
   /// @return The generalized sum of @c init and @c values over @c reduce, where
   ///   @c values are the values transformed by @c transform, each value is
   ///   transformed from a pair of elements from the two input ranges.
@@ -89,7 +45,13 @@ class generalized_transform_reduce {
   ///   and @c inner_product
   ///
   /// @note This implementation currently always reduces *in* order.
-  ///
+  /// @note  A valid @c ReducePolicy must provide the following:
+  ///           - a @c value_type type alias specifying the type to reduce into
+  ///           - a static @c assign function that takes a reference to a @c value_type and a value to assign to it, and
+  ///           performs the assignment.
+  ///           - a static @c access function that takes a reference to a @c value_type and returns a reference to the
+  ///           value to be used in the reduction (this is generally just an identity function, but can be used to
+  ///           transparently wrap the accumulation value ala @c reduce_policy_movable_box).
   template <
       class ReducePolicy,
       class InputIt1,
@@ -103,7 +65,10 @@ class generalized_transform_reduce {
       InputIt1& last1,
       InputIt2& first2,
       typename ReducePolicy::value_type init,
+      // parasoft-begin-suppress AUTOSAR-A2_10_1-a "It does not matter if 'reduce' hides an identifier at global or
+      // namespace scope"
       Reduce& reduce,
+      // parasoft-end-suppress AUTOSAR-A2_10_1-a
       Transform& transform
   ) const noexcept(                                                        //
       noexcept(std::declval<InputIt1&>() != std::declval<InputIt1&>()) &&  //

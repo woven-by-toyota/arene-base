@@ -5,9 +5,9 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_UNIQUE_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_UNIQUE_HPP_
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
+#include "arene/base/functional/detail/operator_equal.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/type_traits/is_binary_predicate.hpp"
 #include "arene/base/type_traits/iterator_category_traits.hpp"
@@ -144,13 +144,13 @@ template <
         std::enable_if_t<
             internal::named_requirement::is_move_assignable_v<arene::base::algorithm_detail::iter_value_t<I>>>,
         std::enable_if_t<arene::base::is_predicate_v<
-            arene::base::algorithm_detail::operator_equal_t&,
+            arene::base::functional_detail::operator_equal_t&,
             arene::base::algorithm_detail::iter_reference_t<I>,
             arene::base::algorithm_detail::iter_reference_t<I>>>> = nullptr>
 auto unique(I first, I last) noexcept(  //
-    noexcept(std::unique(std::move(first), std::move(last), arene::base::algorithm_detail::operator_equal))
+    noexcept(std::unique(std::move(first), std::move(last), arene::base::functional_detail::operator_equal))
 ) -> I {
-  return std::unique(std::move(first), std::move(last), arene::base::algorithm_detail::operator_equal);
+  return std::unique(std::move(first), std::move(last), arene::base::functional_detail::operator_equal);
 }
 
 // parasoft-end-suppress AUTOSAR-M3_3_2-a

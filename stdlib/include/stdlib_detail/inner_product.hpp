@@ -15,6 +15,7 @@
 // IWYU pragma: friend "stdlib_detail/.*"
 //
 #include "arene/base/algorithm/detail/generalized_transform_reduce.hpp"
+#include "arene/base/algorithm/detail/reduce_policy_copy_assign.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
@@ -28,51 +29,6 @@
 #include "arene/base/type_traits/iterator_category_traits.hpp"
 
 namespace std {
-namespace inner_product_detail {
-
-/// @brief reduce value policy for a C++14 compliant implementation
-/// @tparam Value accumulator value type
-///
-/// This reduce value policy has an @c access function that does *not* @c
-/// std::move the accumulator, it simply provides a reference.
-/// The @c assign function is equivalent to @c operator=.
-///
-/// The policy @c value is simply @c Value unchanged.
-template <class Value>
-class reduce_value_policy {
- public:
-  /// @brief value type to use in the underlying implementation function
-  using value_type = Value;
-
-  /// @brief generalized assignment
-  /// @tparam Result result type
-  /// @param acc reference to the accumulator
-  /// @param result value to assign
-  ///
-  /// Update @c acc with @c result with the @c value_type assignment
-  /// operation.
-  ///
-  // parasoft-begin-suppress AUTOSAR-A8_4_8-a "'acc' is a reference to the
-  // assigned value and must be passed in as a parameter"
-  template <class Result>
-  static constexpr auto assign(value_type& acc, Result&& result) noexcept(
-      std::is_nothrow_assignable<Value&, Result&&>::value
-  ) -> void {
-    acc = std::forward<Result>(result);
-  }
-  // parasoft-end-suppress AUTOSAR-A8_4_8-a
-
-  /// @brief generalized access
-  /// @param acc lvalue reference to the accumulator
-  /// @return <c> acc </c>
-  static constexpr auto access(value_type& acc) noexcept -> Value& { return acc; }
-  /// @brief generalized access
-  /// @param acc rvalue reference to the accumulator
-  /// @return <c> move(acc) </c>
-  static constexpr auto access(value_type&& acc) noexcept -> Value&& { return std::move(acc); }
-};
-
-}  // namespace inner_product_detail
 
 // parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: inline function used in multiple translation units"
 /// @brief computes the inner product of two ranges of elements
@@ -153,7 +109,7 @@ auto inner_product(
         std::is_nothrow_move_constructible<Value>::value &&
         arene::base::is_nothrow_invocable_v<
             arene::base::algorithm_detail::generalized_transform_reduce,
-            inner_product_detail::reduce_value_policy<Value>,
+            arene::base::algorithm_detail::reduce_policy_copy_assign<Value>,
             InputIt1&,
             InputIt1&,
             InputIt2&,
@@ -164,7 +120,7 @@ auto inner_product(
     -> Value
 {
   using arene::base::algorithm_detail::generalized_transform_reduce;
-  using policy = inner_product_detail::reduce_value_policy<Value>;
+  using policy = arene::base::algorithm_detail::reduce_policy_copy_assign<Value>;
 
   return policy::access(               //
       generalized_transform_reduce{}(  //

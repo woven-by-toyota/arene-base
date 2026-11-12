@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
 #include "arene/base/optional/optional.hpp"
 #include "arene/base/optional/optional_resetter.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"

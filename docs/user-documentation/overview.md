@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 
@@ -6,7 +10,7 @@
 
 <!-- markdownlint-enable MD041 -->
 
-## Introduction {#introduction}
+# Introduction {#overview-introduction}
 
 Arene Base is a loosely-connected collection of low-level utility features for
 use in C++ programs. These include:
@@ -24,7 +28,7 @@ Arene Base also provides a partial implementation of the <!-- break comment -->
 [C++ Standard Library](\ref stdlib) for use on platforms that do not have a
 suitable C++ Standard Library provided by the toolchain.
 
-## Documentation Structure {#documentation-structure}
+## Documentation Structure {#overview-documentation-structure}
 
 This manual is broken down into the following sections for easier browsing:
 

@@ -23,7 +23,6 @@
 #include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_convertible.hpp"
-#include "arene/base/stdlib_choice/make_tuple.hpp"
 #include "arene/base/stdlib_choice/max_value_overload.hpp"
 #include "arene/base/stdlib_choice/numeric_limits.hpp"
 #include "arene/base/tuple/apply.hpp"

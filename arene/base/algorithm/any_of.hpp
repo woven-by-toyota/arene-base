@@ -11,10 +11,11 @@
 // parasoft-begin-suppress AUTOSAR-A7_1_5-a-2 "Trailing return syntax permitted by A7-1-5 Permit #1 v1.0.0"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/algorithm/detail/convert_to.hpp"
+#include "arene/base/algorithm/detail/synthesize_range1_overload.hpp"  // IWYU pragma: export
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
+#include "arene/base/functional/construct.hpp"
 #include "arene/base/functional/identity.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
@@ -48,6 +49,7 @@ class any_of_fn  //
   /// @param proj Projection to apply to elements before checking the predicate
   /// @return bool @c true if @c pred returns true for any of the projected
   ///   elements in the range, @c false otherwise.
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifiers 'begin' and 'end' do not hide anything"
   template <
       typename Iterator,
       typename UnaryPredicate,
@@ -73,6 +75,7 @@ class any_of_fn  //
     }
     return false;
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
   /// @brief Check if any of the elements in a range are true
   /// @tparam Iterator the type of the iterator
@@ -83,6 +86,7 @@ class any_of_fn  //
   ///
   /// This overload casts the elements to @c bool.
   ///
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifiers 'begin' and 'end' do not hide anything"
   template <
       typename Iterator,
       constraints<
@@ -93,15 +97,16 @@ class any_of_fn  //
           any_of_fn const&,                                                //
           Iterator&&,                                                      //
           Iterator&&,                                                      //
-          algorithm_detail::convert_to<bool>>                              //
+          decltype(construct<bool>)>                                       //
   )                                                                        //
       -> bool {                                                            // CODEQLFP(DCL51-CPP)
     return (*this)(                                                        //
         std::move(begin),
         std::move(end),
-        algorithm_detail::convert_to<bool>{}
+        construct<bool>
     );
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
   /// @brief Check if any the values in the supplied list are true.
   /// @param values A list of values
@@ -122,14 +127,16 @@ class any_of_fn  //
 };
 }  // namespace any_of_detail
 
-/// @def arene::base::any_of
 /// @brief checks if a predicate is true for any of the elements in a range
-/// @copydoc arene::base::any_of_detail::any_of_fn::operator()
+/// Returns @c true if a predicate holds for at least one projected element in the range.
+/// Overloads also check whether any of the supplied Boolean values are true.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
-ARENE_CPP14_INLINE_VARIABLE(any_of_detail::any_of_fn, any_of);
+// parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variable is initialized"
+ARENE_CPP14_INLINE_VARIABLE(algorithm_detail::synthesize_range1_overload_t<any_of_detail::any_of_fn>, any_of);
+// parasoft-end-suppress CERT_CPP-DCL56-a
 // parasoft-end-suppress AUTOSAR-M7_3_3-a
 // parasoft-end-suppress CERT_CPP-DCL59-a
 

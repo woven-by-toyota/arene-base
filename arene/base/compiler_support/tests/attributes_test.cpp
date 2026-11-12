@@ -10,9 +10,12 @@
 /// do better without the ability to test if code compiles, which is non-trivial in pre C++20 contexts.
 ///
 
-#include "arene/base/compiler_support/attributes.hpp"
-
 #include <gtest/gtest.h>
+
+#include "arene/base/compiler_support/attributes/deprecated.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
 
 namespace {
 /// @test Ensure that `ARENE_NODISCARD` is defined

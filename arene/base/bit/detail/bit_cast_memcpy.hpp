@@ -20,6 +20,7 @@ namespace bit_cast_detail {
 
 // parasoft-begin-suppress AUTOSAR-M2_10_1-a "Similar names permitted by M2-10-1 Permit #1"
 
+// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: inline function used in multiple translation units"
 /// @brief Implementation helper for @c arene::base::bit_cast when @c __builtin_bit_cast is not available.
 /// @tparam To type to reinterpret as
 /// @tparam From type to reinterpret from
@@ -34,10 +35,15 @@ auto bit_cast(From const& from) noexcept -> To {
   // gcc8 flags memcpy on types with user-declared (but defaulted) special members even though they are
   // trivially copyable; the caller has already asserted trivial-copyability via SFINAE constraints.
   ARENE_IGNORE_GCC("-Wclass-memaccess", "Callers constrain both From and To to be trivially copyable");
+  // parasoft-begin-suppress CERT_C-DCL39-a CERT_CPP-DCL55-a CERT_CPP-OOP57-a
+  // "Public entrypoint 'arene::base::bit_cast' requires both types to be
+  // trivially copyable"
   std::ignore = std::memcpy(&result, &from, sizeof(To));
+  // parasoft-end-suppress CERT_C-DCL39-a CERT_CPP-DCL55-a CERT_CPP-OOP57-a
   ARENE_IGNORE_END();
   return result;
 }
+// parasoft-end-suppress AUTOSAR-M3_3_2-a
 
 // parasoft-end-suppress AUTOSAR-M2_10_1-a
 

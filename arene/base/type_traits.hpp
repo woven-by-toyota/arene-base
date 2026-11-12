@@ -16,6 +16,7 @@
 #include "arene/base/type_traits/always_false.hpp"                      // IWYU pragma: export
 #include "arene/base/type_traits/any_of.hpp"                            // IWYU pragma: export
 #include "arene/base/type_traits/arithmetic_traits.hpp"                 // IWYU pragma: export
+#include "arene/base/type_traits/common_reference.hpp"                  // IWYU pragma: export
 #include "arene/base/type_traits/comparison_traits.hpp"                 // IWYU pragma: export
 #include "arene/base/type_traits/conditional.hpp"                       // IWYU pragma: export
 #include "arene/base/type_traits/conjunction.hpp"                       // IWYU pragma: export

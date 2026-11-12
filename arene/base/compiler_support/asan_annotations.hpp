@@ -10,9 +10,10 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_ASAN_ANNOTATIONS_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_ASAN_ANNOTATIONS_HPP_
 
+#include "arene/base/compiler_support/platform_queries/asan_enabled.hpp"
+#include "arene/base/compiler_support/platform_queries/has_include.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 
 // clang-format off
 // formatting is disabled because clang-format doesn't understand the include syntax for HAS_INCLUDE

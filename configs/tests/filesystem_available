@@ -1,13 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright 2024, Toyota Motor Corporation
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-set -e
+set -euo pipefail
+
+COMPILER="${COMPILER:-clang}"
+CPP_VERSION="${CPP_VERSION:-c++14}"
 
 echo "Checking filesystem is in :everything"
 # shellcheck disable=SC2086
-result=$(bazelisk $BAZEL_STARTUP_OPTION cquery "--config=${COMPILER}" --copt "-std=${CPP_VERSION}" \
+result=$(bazelisk cquery "--config=${COMPILER}" --cxxopt="-std=${CPP_VERSION}" \
   'somepath(//:everything, //arene/base/filesystem:internal)' --noshow_progress)
 
 if [[ -z "$result" ]]; then
@@ -17,7 +20,7 @@ fi
 
 echo "Checking filesystem supported explicitly"
 # shellcheck disable=SC2086
-result=$(bazelisk $BAZEL_STARTUP_OPTION cquery "--config=${COMPILER}" --copt "-std=${CPP_VERSION}" \
+result=$(bazelisk cquery "--config=${COMPILER}" --cxxopt="-std=${CPP_VERSION}" \
   'somepath(//:filesystem, //arene/base/filesystem:internal)' --noshow_progress)
 
 if [[ -z "$result" ]]; then

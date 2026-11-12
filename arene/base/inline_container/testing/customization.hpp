@@ -6,16 +6,14 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_INLINE_CONTAINER_TESTING_CUSTOMIZATION_HPP_
 
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
-#include "arene/base/inline_container/detail/iterator_interface.hpp"
+#include "arene/base/detail/iterator_interface.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
-#include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"  // IWYU pragma: keep
-#include "arene/base/stdlib_choice/is_array.hpp"
-#include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_copy_constructible.hpp"
 #include "arene/base/stdlib_choice/is_floating_point.hpp"
 #include "arene/base/stdlib_choice/is_integral.hpp"
@@ -26,9 +24,6 @@
 #include "arene/base/stdlib_choice/iterator_tags.hpp"
 #include "arene/base/stdlib_choice/make_signed.hpp"
 #include "arene/base/stdlib_choice/move.hpp"
-#include "arene/base/stdlib_choice/remove_cv.hpp"
-#include "arene/base/stdlib_choice/remove_reference.hpp"
-#include "arene/base/type_traits/remove_cvref.hpp"
 #include "testlibs/utilities/configurable_value.hpp"
 
 namespace arene {
@@ -38,42 +33,6 @@ namespace testing {
 //////////////////////////////////////////////////////////////////////
 // Customization points for generating values of user-defined types //
 //////////////////////////////////////////////////////////////////////
-
-namespace customization_detail {
-/// @brief A version of arene::base::to_array where the individual elements are cast to the specified type
-/// @tparam OutType The element type of the output array, specified by the caller
-/// @tparam InType The element type of the input C-array, deduced from the first argument
-/// @tparam Indices A pack of indices the same size as the input and output arrays, deduced from the second argument
-/// @param arr A C-Array containing the values as instances of some type @c InType
-/// @return An <c>arene::base::array<OutType, sizeof...(Indices)></c> where the elements are constructed from @c arr
-template <typename OutType, typename InType, std::size_t... Indices>
-constexpr auto to_array_cast(
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-    InType (&&arr)[sizeof...(Indices)],
-    std::index_sequence<Indices...>
-) noexcept(std::is_nothrow_constructible<OutType, InType&&>::value) -> array<base::remove_cvref_t<OutType>, sizeof...(Indices)> {
-  return {{std::move(arr[Indices])...}};
-}
-}  // namespace customization_detail
-
-/// @brief A version of arene::base::to_array where the individual elements are cast to the specified type
-/// @tparam OutType The element type of the output array, specified by the caller
-/// @tparam InType The element type of the input C-array, deduced from the argument
-/// @tparam Size The size of the input and output arrays, deduced from the argument
-/// @param arr A C-Array containing the values as instances of some type @c InType
-/// @return An <c>arene::base::array<OutType, Size></c> where the elements are constructed from the elements of @c arr
-template <
-    typename OutType,
-    typename InType,
-    std::size_t Size,
-    constraints<
-        std::enable_if_t<!std::is_array<InType>::value>,
-        std::enable_if_t<std::is_constructible<OutType, InType&&>::value>> = nullptr>
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays)
-constexpr auto to_array_cast(InType (&&arr)[Size]) noexcept(std::is_nothrow_constructible<OutType, InType&&>::value)
-    -> array<base::remove_cvref_t<OutType>, Size> {
-  return customization_detail::to_array_cast<OutType>(std::move(arr), std::make_index_sequence<Size>());
-}
 
 /// @brief An array used in the default implementation of @c ::test_value ; by default it's empty and unusable
 /// @note This must be explicitly specialized to be usable; specializations can use different array sizes
@@ -88,7 +47,7 @@ extern constexpr auto test_value_array<
     T,
     ::arene::base::
         constraints<std::enable_if_t<std::is_integral<T>::value>, std::enable_if_t<std::is_unsigned<T>::value>>> =
-    to_array_cast<T>({0U, 8U, 19U, 6612U, 777124U, 7U, 609124U, 1224545862U, 2561U, 976173U});
+    to_array_of<T>({0U, 8U, 19U, 6612U, 777124U, 7U, 609124U, 1224545862U, 2561U, 976173U});
 
 /// @brief A partial specialization of @c test_value_array for built-in signed integers to make it easier to use
 /// @tparam T The type of which this is an array of test values
@@ -97,14 +56,14 @@ extern constexpr auto test_value_array<
     T,
     ::arene::base::
         constraints<std::enable_if_t<std::is_integral<T>::value>, std::enable_if_t<std::is_signed<T>::value>>> =
-    to_array_cast<T>({1, -2, 6, -24, 120, -720, 5'040, -40'320, 362'880, -3'628'800});
+    to_array_of<T>({1, -2, 6, -24, 120, -720, 5'040, -40'320, 362'880, -3'628'800});
 
 /// @brief A partial specialization of @c test_value_array for built-in floating point numbers to make it easier to use
 /// @tparam T The type of which this is an array of test values
 template <typename T>
 extern constexpr auto
     test_value_array<T, ::arene::base::constraints<std::enable_if_t<std::is_floating_point<T>::value>>> =
-        to_array_cast<T>({0.0, -1.0, 3.14, 2.72, 1.41, 0.577});
+        to_array_of<T>({0.0, -1.0, 3.14, 2.72, 1.41, 0.577});
 
 namespace customization_detail {
 /// @brief A class to hold the default generation function so that it can be partially specialized for our test classes
@@ -212,12 +171,12 @@ extern constexpr customization_detail::init_list_holder<T, has_constexpr_test_va
 /// @brief An iterator whose i'th position yields an rvalue reference to @c test_value(i) of the given type
 /// @tparam T The type to yield
 template <typename T>
-class rvalue_iterator : public inline_container_detail::iterator_interface<rvalue_iterator<T>> {
+class rvalue_iterator : public detail::iterator_interface<rvalue_iterator<T>> {
   /// @brief A type trait indicating whether or not retrieving a @c test_value<T> can throw an exception
   static constexpr bool test_value_is_noexcept = noexcept(test_value<T>(0));
 
   /// @brief Alias for the iterator mixin, used to initialize it in various constructors
-  using iterator_interface = inline_container_detail::iterator_interface<rvalue_iterator<T>>;
+  using iterator_interface = detail::iterator_interface<rvalue_iterator<T>>;
 
  public:
   /// @brief The value type of the iterator; this is the type whose test values are being retrieved
@@ -303,7 +262,7 @@ class rvalue_iterator : public inline_container_detail::iterator_interface<rvalu
   T current_value_;
 
   /// @brief Get the @c test_value<T> with the given index, checking to make sure the index hasn't become negative
-  /// @param Index to retrieve the test value with
+  /// @param index Index to retrieve the test value with
   /// @return @c test_value<T>(index)
   /// @pre <c>index >= 0</c>, otherwise ARENE_PRECONDITION violation
   static constexpr auto get_test_value(difference_type index) noexcept(test_value_is_noexcept) -> T {

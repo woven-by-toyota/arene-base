@@ -1,0 +1,74 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+[
+    (
+        expand_template(
+            name = name.replace("add", "subtract") + "_src",
+            out = name.replace("add", "subtract") + ".cpp",
+            substitutions = {
+                "linalg/add.hpp": "linalg/subtract.hpp",
+                "linalg::add": "linalg::subtract",
+                "@c add": "@c subtract",
+                "LinalgAdd": "LinalgSubtract",
+                "::plus": "::minus",
+                " sum": " difference",
+            },
+            template = ":{}.cpp".format(name),
+        ),
+        cc_test_with_variants(
+            name = name,
+            srcs = [name + ".cpp"],
+            deps = deps,
+        ),
+        cc_test_with_variants(
+            name = name.replace("add", "subtract"),
+            # the generated source rather than the rule writing it, so that the
+            # test specification collects it like any other `.cpp`
+            srcs = [":{}.cpp".format(name).replace("add", "subtract")],
+            deps = [
+                dep.replace(":add", ":subtract").replace(":plus", ":minus")
+                for dep in deps
+            ],
+        ),
+    )
+    for name, deps in [
+        (
+            "add_test",
+            [
+                "//arene/base:array",
+                "//arene/base/functional:bind_back",
+                "//arene/base/linalg:add",
+                "//arene/base/linalg:elementwise_binary_transform",
+                "//arene/base/linalg/tests:test_array",
+                "//arene/base/mdspan",
+                "//arene/base/mdspan:extents",
+                "//arene/base/mdspan:layout",
+                "//arene/base/stdlib_choice:cstddef",
+                "//arene/base/stdlib_choice:cstdint",
+                "//arene/base/stdlib_choice:plus",
+                "//arene/base/testing:gtest",
+                "//arene/base/testing:property_assertions",
+                "//arene/base/testing:property_macros",
+                "//arene/base/type_traits:is_invocable",
+                "//testlibs:test_main",
+                "//testlibs/utilities:configurable_value",
+            ],
+        ),
+        (
+            "add_death_test",
+            [
+                "//arene/base/linalg:add",
+                "//arene/base/linalg/tests:test_array",
+                "//testlibs:death_test_support",
+                "//testlibs:test_main",
+            ],
+        ),
+    ]
+]

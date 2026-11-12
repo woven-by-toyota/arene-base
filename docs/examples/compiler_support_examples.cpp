@@ -1,4 +1,6 @@
 // Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/compiler_support/preprocessor.hpp"

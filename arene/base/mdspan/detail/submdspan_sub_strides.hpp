@@ -126,9 +126,11 @@ class submdspan_sub_strides_fn {
 
     auto result = array<IndexType, inverse_map_rank<CanonicalSliceSpecifiers...>.size()>{};
 
+    // parasoft-begin-suppress AUTOSAR-A6_5_2-a "False positive: The loop counter is 'i'"
     for (std::size_t i{}; i != inverse_map_rank<CanonicalSliceSpecifiers...>.size(); ++i) {
       result[i] = sub_strides[inverse_map_rank<CanonicalSliceSpecifiers...>[i]];
     }
+    // parasoft-end-suppress AUTOSAR-A6_5_2-a
 
     return result;
   }

@@ -10,9 +10,10 @@
 /// do better without the ability to test if code compiles, which is non-trivial in pre C++20 contexts.
 ///
 
+#include "arene/base/compiler_support/preprocessor/stringize.hpp"
+
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/preprocessor.hpp"
 #include "arene/base/testing/gtest.hpp"
 
 namespace {

@@ -34,7 +34,7 @@ class negate {
   /// @brief Returns the negation of the value
   /// @tparam U Template parameter to enable constraints.
   /// @param value The value to negate
-  /// @return Returns the result of invoking @c operator- on @c value
+  /// Produces the result of invoking @c operator- on @c value.
   template <class U = T, arene::base::constraints<std::enable_if_t<!is_integral_v<U>>> = nullptr>
   constexpr auto operator()(T const& value) const noexcept(noexcept(-std::declval<T>())) -> T {
     return -value;
@@ -43,7 +43,7 @@ class negate {
   /// @brief Returns the negation of the value
   /// @tparam U Template parameter to enable constraints.
   /// @param value The value to negate
-  /// @return Returns the result of invoking @c operator- on @c value
+  /// Produces the result of invoking @c operator- on @c value.
   ///
   /// @note This overload explicitly casts the result of the computation to the type @c T. This avoids any warning for
   /// implicit conversion (present on gcc8).

@@ -5,6 +5,7 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MDSPAN_DETAIL_SUBMDSPAN_MAPPING_IMPL_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MDSPAN_DETAIL_SUBMDSPAN_MAPPING_IMPL_HPP_
 
+// IWYU pragma: no_include "arene/base/mdspan/detail/do_submdspan_mapping.hpp"
 // IWYU pragma: no_include "arene/base/mdspan/layout.hpp"
 
 #include "arene/base/mdspan/detail/submdspan_offset.hpp"
@@ -19,8 +20,16 @@ namespace arene {
 namespace base {
 namespace mdspan_detail {
 
+// parasoft-begin-suppress CERT_C-EXP37-a "False positive: The rule does not mention naming all parameters"
 // parasoft-begin-suppress AUTOSAR-A2_7_3-b "False Positive: The @param tags are followed by the correct parameter
 // names"
+
+// parasoft-begin-suppress AUTOSAR-M0_1_3-a "False positive: 'offset' and 'sub_ext' are used"
+// parasoft-begin-suppress AUTOSAR-M0_1_3-b "False positive: 'offset' and 'sub_ext' are used"
+
+// parasoft-begin-suppress AUTOSAR-A8_4_2-a "False positive: function does have a return"
+// parasoft-begin-suppress CERT_C-MSC37-a "False positive: function does have a return"
+// parasoft-begin-suppress CERT_CPP-MSC52-a "False positive: function does have a return"
 /// @brief layout-preserving implementation of @c submdspan_mapping
 /// @tparam SubExtents the sub-extents type of the result
 /// @tparam Mapping the source mapping type
@@ -48,6 +57,11 @@ constexpr auto submdspan_mapping_impl(
   using result_mapping = typename Mapping::layout_type::template mapping<SubExtents>;
   return {result_mapping{SubExtents{sub_ext}}, offset};
 }
+// parasoft-end-suppress CERT_CPP-MSC52-a
+// parasoft-end-suppress CERT_C-MSC37-a
+// parasoft-end-suppress AUTOSAR-A8_4_2-a
+// parasoft-end-suppress AUTOSAR-M0_1_3-b
+// parasoft-end-suppress AUTOSAR-M0_1_3-a
 // parasoft-end-suppress AUTOSAR-A2_7_3-b
 
 // parasoft-begin-suppress AUTOSAR-M2_10_1-a "Similar names permitted by M2-10-1 Permit #1"
@@ -74,6 +88,7 @@ constexpr auto submdspan_mapping_impl(
   return submdspan_mapping(stride_mapping{src.extents(), strides, std::move(passkey)}, std::move(slices)...);
 }
 // parasoft-end-suppress AUTOSAR-M2_10_1-a
+// parasoft-end-suppress CERT_C-EXP37-a
 
 }  // namespace mdspan_detail
 }  // namespace base

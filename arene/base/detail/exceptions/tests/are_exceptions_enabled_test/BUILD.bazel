@@ -11,6 +11,13 @@ load(
     "transition_use_toolchain_stdlib",
 )
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_library_with_variants(
     name = "exceptions_disabled_by_use_exceptions",
     testonly = True,
@@ -23,7 +30,7 @@ cc_library_with_variants(
     deps = [
         "//arene/base/detail/exceptions:are_exceptions_enabled",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
     alwayslink = True,
 )
@@ -37,7 +44,7 @@ cc_test_with_variants(
     deps = [
         "//arene/base/detail/exceptions:are_exceptions_enabled",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -48,7 +55,7 @@ cc_test_with_variants(
         "//arene/base/detail/exceptions:are_exceptions_enabled",
         "//arene/base/testing:gtest",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -58,7 +65,7 @@ cc_test_with_variants(
     deps = [
         "//arene/base/detail/exceptions:are_exceptions_enabled",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -95,9 +102,4 @@ cc_test(
     deps = [
         ":exceptions_disabled_by_use_exceptions_wrapper.without_toolchain_stdlib",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

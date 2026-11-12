@@ -11,7 +11,6 @@
 // parasoft-begin-suppress CERT_CPP-DCL58-a-2 "Part of a standard library implementation"
 // parasoft-begin-suppress AUTOSAR-A17_6_1-a-2 "Part of a standard library implementation"
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
 #include "arene/base/iterator/advance.hpp"

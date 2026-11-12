@@ -296,8 +296,7 @@ class rotate_impl_fn {
 }  // namespace rotate_detail
 }  // namespace algorithm_detail
 
-/// @def arene::base::rotate
-/// @copydoc arene::base::algorithm_detail::rotate_detail::rotate_impl_fn::operator()
+/// @brief Rotate the elements of a range around a new first element.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

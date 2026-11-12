@@ -16,8 +16,8 @@
 #include "arene/base/byte/byte.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/exceptions_enabled.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/detail/exceptions.hpp"
 #include "arene/base/memory/construct_at.hpp"
@@ -55,6 +55,7 @@
 #include "arene/base/type_traits/index_of.hpp"
 #include "arene/base/type_traits/void_t.hpp"
 #include "arene/base/utility/forward_like.hpp"
+#include "arene/base/utility/in_place.hpp"
 #include "arene/base/variant/traits.hpp"
 
 #if ARENE_IS_ON(ARENE_EXCEPTIONS_ENABLED)
@@ -737,6 +738,57 @@ class variant : full_ordering_operators_from_less_than_and_equals<variant<Ts...>
     construct_at(reinterpret_cast<Tj*>(data_.data()), std::forward<T>(value));
   }
 
+  /// @brief Constructor that initializes this variant from a specified alternative index.
+  ///
+  /// @tparam I the alternative index to construct. Must be less than @c num_types.
+  /// @tparam Args the types of the arguments to forward to the constructor of the selected alternative.
+  ///         The selected alternative must be constructible from these types.
+  /// @param args the arguments to forward to the constructor of the selected alternative
+  template <
+      std::size_t I,
+      typename... Args,
+      constraints<
+          std::enable_if_t<(I < num_types)>,
+          std::enable_if_t<std::is_constructible<nth_type<I>, Args...>::value>> = nullptr>
+  // parasoft-begin-suppress CERT_C-EXP37-a-3 "False positive: The rule does not mention naming all parameters"
+  explicit variant(in_place_index_t<I>, Args&&... args) noexcept(
+      std::is_nothrow_constructible<nth_type<I>, Args...>::value
+  )
+      // parasoft-end-suppress CERT_C-EXP37-a-3
+      : full_ordering_operators_from_less_than_and_equals<variant<Ts...>>{},
+        idx_(I) {
+    // Justification: It's intended to use reinterpret_cast to construct
+    // the object on an uninitialized address.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    construct_at(reinterpret_cast<nth_type<I>*>(data_.data()), std::forward<Args>(args)...);
+  }
+
+  /// @brief Constructor that initializes this variant from a specified alternative index via an initializer list
+  ///
+  /// @tparam I the alternative index to construct. Must be less than @c num_types.
+  /// @tparam U the type of the elements in the initializer list
+  /// @tparam Args the types of the arguments to forward to the constructor of the selected alternative.
+  ///         The selected alternative must be constructible from an lvalue initializer list of @c U and these types.
+  /// @param init_list the initializer list to forward to the constructor of the selected alternative
+  /// @param args the arguments to forward to the constructor of the selected alternative
+  template <
+      std::size_t I,
+      typename U,
+      typename... Args,
+      constraints<
+          std::enable_if_t<(I < num_types)>,
+          std::enable_if_t<std::is_constructible<nth_type<I>, std::initializer_list<U>&, Args...>::value>> = nullptr>
+  variant(in_place_index_t<I>, std::initializer_list<U> init_list, Args&&... args) noexcept(
+      std::is_nothrow_constructible<nth_type<I>, std::initializer_list<U>&, Args...>::value
+  )
+      : full_ordering_operators_from_less_than_and_equals<variant<Ts...>>{},
+        idx_(I) {
+    // Justification: It's intended to use reinterpret_cast to construct
+    // the object on an uninitialized address.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    construct_at(reinterpret_cast<nth_type<I>*>(data_.data()), init_list, std::forward<Args>(args)...);
+  }
+
   /// @brief Copy Assignment operator from another variant of the same alternative types.
   ///
   /// If the other type is valueless, or exception is thrown during copying, this variant will also be valueless.
@@ -1155,68 +1207,80 @@ inline constexpr auto get(variant<Ts...> const&& var) noexcept(!detail::are_exce
 
 /// @brief Get value held by a variant by index.
 /// @tparam Index the index into @c Ts of the alternative to get
+/// The variant to get from is passed as @c var.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param var variant to get from
+/// @endcond
 /// @throw bad_variant_access if @c ARENE_IS_ON(ARENE_EXCEPTIONS_ENABLED) and if the type index of the object currently
 /// held by the variant does not match the index requested.
 /// @pre If @c ARENE_IS_OFF(ARENE_EXCEPTIONS_ENABLED) the type index of the object currently held by the variant must
 /// match the type requested else @c ARENE_PRECONDITION violation.
 /// @return The reference to the held object.
 // parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive, this is not a member function and thus cannot be static."
-template <std::size_t I, typename... Ts>
+template <std::size_t Index, typename... Ts>
 constexpr auto get(variant<Ts...>& var) noexcept(!detail::are_exceptions_enabled_v)
-    -> variant_alternative_t<I, variant<Ts...>>& {
-  static_assert(I < sizeof...(Ts), "The index should be in [0, number of alternatives)");
-  return var.template get<I>();
+    -> variant_alternative_t<Index, variant<Ts...>>& {
+  static_assert(Index < sizeof...(Ts), "The index should be in [0, number of alternatives)");
+  return var.template get<Index>();
 }
 // parasoft-end-suppress AUTOSAR-M3_3_2-a "False positive, this is not a member function and thus cannot be static."
 /// @brief Get value held by a variant by index.
 /// @tparam Index the index into @c Ts of the alternative to get
+/// The variant to get from is passed as @c var.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param var variant to get from
+/// @endcond
 /// @throw bad_variant_access if @c ARENE_IS_ON(ARENE_EXCEPTIONS_ENABLED) and if the type index of the object currently
 /// held by the variant does not match the index requested.
 /// @pre If @c ARENE_IS_OFF(ARENE_EXCEPTIONS_ENABLED) the type index of the object currently held by the variant must
 /// match the type requested else @c ARENE_PRECONDITION violation.
 /// @return The reference to the held object.
 // parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive, this is not a member function and thus cannot be static."
-template <std::size_t I, typename... Ts>
+template <std::size_t Index, typename... Ts>
 constexpr auto get(variant<Ts...> const& var) noexcept(!detail::are_exceptions_enabled_v)
-    -> variant_alternative_t<I, variant<Ts...>> const& {
-  static_assert(I < sizeof...(Ts), "The index should be in [0, number of alternatives)");
-  return var.template get<I>();
+    -> variant_alternative_t<Index, variant<Ts...>> const& {
+  static_assert(Index < sizeof...(Ts), "The index should be in [0, number of alternatives)");
+  return var.template get<Index>();
 }
 // parasoft-end-suppress AUTOSAR-M3_3_2-a "False positive, this is not a member function and thus cannot be static."
 
 /// @brief Get value held by a variant by index.
 /// @tparam Index the index into @c Ts of the alternative to get
+/// The variant to get from is passed as @c var.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param var variant to get from
+/// @endcond
 /// @throw bad_variant_access if @c ARENE_IS_ON(ARENE_EXCEPTIONS_ENABLED) and if the type index of the object currently
 /// held by the variant does not match the index requested.
 /// @pre If @c ARENE_IS_OFF(ARENE_EXCEPTIONS_ENABLED) the index type of the object currently held by the variant must
 /// match the type requested else @c ARENE_PRECONDITION violation.
 /// @return The reference to the held object.
 // parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive, this is not a member function and thus cannot be static."
-template <std::size_t I, typename... Ts>
+template <std::size_t Index, typename... Ts>
 constexpr auto get(variant<Ts...>&& var) noexcept(!detail::are_exceptions_enabled_v)
-    -> variant_alternative_t<I, variant<Ts...>>&& {
-  static_assert(I < sizeof...(Ts), "The index should be in [0, number of alternatives)");
-  return std::move(var).template get<I>();
+    -> variant_alternative_t<Index, variant<Ts...>>&& {
+  static_assert(Index < sizeof...(Ts), "The index should be in [0, number of alternatives)");
+  return std::move(var).template get<Index>();
 }
 // parasoft-end-suppress AUTOSAR-M3_3_2-a "False positive, this is not a member function and thus cannot be static."
 /// @brief Get value held by a variant by index.
 /// @tparam Index the index into @c Ts of the alternative to get
+/// The variant to get from is passed as @c var.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param var variant to get from
+/// @endcond
 /// @throw bad_variant_access if @c ARENE_IS_ON(ARENE_EXCEPTIONS_ENABLED) and if the type index of the object currently
 /// held by the variant does not match the index requested.
 /// @pre If @c ARENE_IS_OFF(ARENE_EXCEPTIONS_ENABLED) the type index of the object currently held by the variant must
 /// match the type requested else @c ARENE_PRECONDITION violation.
 /// @return The reference to the held object.
 // parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive, this is not a member function and thus cannot be static."
-template <std::size_t I, typename... Ts>
+template <std::size_t Index, typename... Ts>
 constexpr auto get(variant<Ts...> const&& var) noexcept(!detail::are_exceptions_enabled_v)
-    -> variant_alternative_t<I, variant<Ts...>> const&& {
-  static_assert(I < sizeof...(Ts), "The index should be in [0, number of alternatives)");
+    -> variant_alternative_t<Index, variant<Ts...>> const&& {
+  static_assert(Index < sizeof...(Ts), "The index should be in [0, number of alternatives)");
   // parasoft-begin-suppress AUTOSAR-A18_9_3-a "Must maintain the reference type of the return value"
-  return std::move(var).template get<I>();
+  return std::move(var).template get<Index>();
   // parasoft-end-suppress AUTOSAR-A18_9_3-a "Must maintain the reference type of the return value"
 }
 // parasoft-end-suppress AUTOSAR-M3_3_2-a "False positive, this is not a member function and thus cannot be static."
@@ -1236,35 +1300,35 @@ constexpr auto holds_alternative(variant<Ts...> const& var) noexcept -> bool {
 // parasoft-end-suppress AUTOSAR-M3_3_2-a
 
 /// @brief Attempt to get a pointer to the object held by the variant by index.
-/// @tparam I Index of the type in @c Ts to get
+/// @tparam Index Index of the type in @c Ts to get
 /// @tparam Ts the types that the variant can hold
 /// @param ptr A pointer to the variant to access
 /// @return A pointer to the held object if the variant holds a value of the type, else @c nullptr .
-template <std::size_t I, typename... Ts>
+template <std::size_t Index, typename... Ts>
 inline constexpr auto get_if(variant<Ts...>* ptr) noexcept
-    -> std::add_pointer_t<variant_alternative_t<I, variant<Ts...>>> {
-  using type = variant_alternative_t<I, variant<Ts...>>;
-  static_assert(I < sizeof...(Ts), "The index should be in [0, number of alternatives)");
+    -> std::add_pointer_t<variant_alternative_t<Index, variant<Ts...>>> {
+  using type = variant_alternative_t<Index, variant<Ts...>>;
+  static_assert(Index < sizeof...(Ts), "The index should be in [0, number of alternatives)");
   static_assert(!std::is_void<type>::value, "T should not be void");
-  if ((ptr != nullptr) && (ptr->index() == I)) {
-    return std::addressof(ptr->template get<I>());
+  if ((ptr != nullptr) && (ptr->index() == Index)) {
+    return std::addressof(ptr->template get<Index>());
   }
   return nullptr;
 }
 
 /// @brief Attempt to get a pointer to the object held by the variant by index.
-/// @tparam I Index of the type in @c Ts to get
+/// @tparam Index Index of the type in @c Ts to get
 /// @tparam Ts the types that the variant can hold
 /// @param ptr A pointer to the variant to access
 /// @return A pointer to the held object if the variant holds a value of the type, else @c nullptr .
-template <std::size_t I, typename... Ts>
+template <std::size_t Index, typename... Ts>
 inline constexpr auto get_if(variant<Ts...> const* ptr) noexcept
-    -> std::add_pointer_t<variant_alternative_t<I, variant<Ts...>> const> {
-  using type = variant_alternative_t<I, variant<Ts...>>;
-  static_assert(I < sizeof...(Ts), "The index should be in [0, number of alternatives)");
+    -> std::add_pointer_t<variant_alternative_t<Index, variant<Ts...>> const> {
+  using type = variant_alternative_t<Index, variant<Ts...>>;
+  static_assert(Index < sizeof...(Ts), "The index should be in [0, number of alternatives)");
   static_assert(!std::is_void<type>::value, "T should not be void");
-  if ((ptr != nullptr) && (ptr->index() == I)) {
-    return std::addressof(ptr->template get<I>());
+  if ((ptr != nullptr) && (ptr->index() == Index)) {
+    return std::addressof(ptr->template get<Index>());
   }
   return nullptr;
 }
@@ -1272,7 +1336,10 @@ inline constexpr auto get_if(variant<Ts...> const* ptr) noexcept
 /// @brief Attempt to get a pointer to the object held by the variant by type.
 /// @tparam T Type in @c Ts to get
 /// @tparam Ts the types that the variant can hold
+/// The variant to access is passed as @c ptr.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param ptr A pointer to the variant to access
+/// @endcond
 /// @return A pointer to the held object if the variant holds a value of the type, else @c nullptr .
 template <typename T, typename... Ts>
 inline constexpr auto get_if(variant<Ts...>* ptr) noexcept -> std::add_pointer_t<T> {
@@ -1282,7 +1349,10 @@ inline constexpr auto get_if(variant<Ts...>* ptr) noexcept -> std::add_pointer_t
 /// @brief Attempt to get a pointer to the object held by the variant by type.
 /// @tparam T Type in @c Ts to get
 /// @tparam Ts the types that the variant can hold
+/// The variant to access is passed as @c ptr.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
 /// @param ptr A pointer to the variant to access
+/// @endcond
 /// @return A pointer to the held object if the variant holds a value of the type, else @c nullptr .
 template <typename T, typename... Ts>
 inline constexpr auto get_if(variant<Ts...> const* ptr) noexcept -> std::add_pointer_t<T const> {

@@ -13,10 +13,10 @@
 #include "arene/base/array/array.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/detail/dynamic_extent.hpp"
+#include "arene/base/detail/is_representable_as.hpp"
 #include "arene/base/integer_sequences/sequential_values.hpp"
 #include "arene/base/mdspan/detail/de_ice.hpp"
 #include "arene/base/mdspan/detail/is_nonnegative.hpp"
-#include "arene/base/mdspan/detail/is_representable_as.hpp"
 #include "arene/base/mdspan/detail/representable_cast.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
@@ -90,6 +90,8 @@ class extract_dynamic_extents_for_fn  //
   /// @brief rank_dynamic dynamic rank of the destination extent_type
   static constexpr auto rank_dynamic = DestExtents::rank_dynamic();
 
+  // parasoft-begin-suppress AUTOSAR-A7_1_2-a "False positive: the implicit range-for iteration variables cannot be
+  // constexpr"
   /// @brief extracts the dynamic extent values from a range
   /// @tparam Iterator random access iterator to source extent values
   /// @param first beginning to the range of source extent values
@@ -128,7 +130,7 @@ class extract_dynamic_extents_for_fn  //
         all_of(          //
             first,
             last,
-            is_representable_as<index_type>,
+            detail::is_representable_as<index_type>,
             de_ice
         )
     );
@@ -161,6 +163,7 @@ class extract_dynamic_extents_for_fn  //
     }
     return dynamic_values;
   }
+  // parasoft-end-suppress AUTOSAR-A7_1_2-a
 
  public:
   /// @brief extracts the dynamic extent values from a range

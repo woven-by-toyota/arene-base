@@ -5,7 +5,7 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_MUTATE_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_MUTATE_HPP_
 
-#include "arene/base/type_list.hpp"
+#include "arene/base/type_list/concat.hpp"
 
 namespace testing {
 

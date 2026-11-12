@@ -4,14 +4,9 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "consume_values_hdrs",
-    srcs = ["consume_values.hpp"],
-)
-
 cc_library_with_variants(
     name = "consume_values",
-    hdrs = [":consume_values_hdrs"],
+    hdrs = ["consume_values.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -25,14 +20,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "ebo_holder_hdrs",
-    srcs = ["ebo_holder.hpp"],
-)
-
 cc_library_with_variants(
     name = "ebo_holder",
-    hdrs = [":ebo_holder_hdrs"],
+    hdrs = ["ebo_holder.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -53,14 +43,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "give_qualifiers_to_hdrs",
-    srcs = ["give_qualifiers_to.hpp"],
-)
-
 cc_library_with_variants(
     name = "give_qualifiers_to",
-    hdrs = [":give_qualifiers_to_hdrs"],
+    hdrs = ["give_qualifiers_to.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -70,14 +55,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "implicit_constructor_base_hdrs",
-    srcs = ["implicit_constructor_base.hpp"],
-)
-
 cc_library_with_variants(
     name = "implicit_constructor_base",
-    hdrs = [":implicit_constructor_base_hdrs"],
+    hdrs = ["implicit_constructor_base.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -87,28 +67,18 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "non_constructible_dummy_hdrs",
-    srcs = ["non_constructible_dummy.hpp"],
-)
-
 cc_library_with_variants(
     name = "non_constructible_dummy",
-    hdrs = [":non_constructible_dummy_hdrs"],
+    hdrs = ["non_constructible_dummy.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
 )
 
-filegroup(
-    name = "repeat_type_hdrs",
-    srcs = ["repeat_type.hpp"],
-)
-
 cc_library_with_variants(
     name = "repeat_type",
-    hdrs = [":repeat_type_hdrs"],
+    hdrs = ["repeat_type.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -118,20 +88,16 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "smallest_integer_for_hdrs",
-    srcs = ["smallest_integer_for.hpp"],
-)
-
 cc_library_with_variants(
     name = "smallest_integer_for",
-    hdrs = [":smallest_integer_for_hdrs"],
+    hdrs = ["smallest_integer_for.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
     deps = [
         "//arene/base:constraints",
+        "//arene/base/stdlib_choice:climits",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:numeric_limits",
@@ -139,17 +105,15 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "static_if_hdrs",
-    srcs = ["static_if.hpp"],
-)
-
 cc_library_with_variants(
     name = "static_if",
-    hdrs = [":static_if_hdrs"],
+    hdrs = ["static_if.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:is_same",
     ],
 )
 
@@ -184,14 +148,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":consume_values_hdrs",
-        ":ebo_holder_hdrs",
-        ":give_qualifiers_to_hdrs",
-        ":implicit_constructor_base_hdrs",
-        ":non_constructible_dummy_hdrs",
-        ":repeat_type_hdrs",
-        ":smallest_integer_for_hdrs",
-        ":static_if_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

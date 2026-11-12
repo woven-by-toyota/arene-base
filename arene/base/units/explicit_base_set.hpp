@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 // parasoft-begin-suppress AUTOSAR-A2_8_1-a "False positive: also defines arene::base::units_detail::explicit_base_set"
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_UNITS_EXPLICIT_BASE_SET_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_UNITS_EXPLICIT_BASE_SET_HPP_

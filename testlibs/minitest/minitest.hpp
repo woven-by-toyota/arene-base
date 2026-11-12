@@ -8,7 +8,6 @@
 #include "testlibs/minitest/assertion_strings.hpp"  // IWYU pragma: export
 #include "testlibs/minitest/cstring.hpp"
 #include "testlibs/minitest/death_tests.hpp"      // IWYU pragma: export
-#include "testlibs/minitest/functional.hpp"       // IWYU pragma: export
 #include "testlibs/minitest/line_number.hpp"      // IWYU pragma: export
 #include "testlibs/minitest/matcher.hpp"          // IWYU pragma: export
 #include "testlibs/minitest/minitest_output.hpp"  // IWYU pragma: export
@@ -240,7 +239,7 @@ class test_base {
   auto operator=(test_base const&) -> test_base& = delete;
   auto operator=(test_base&&) -> test_base& = delete;
 
-  static auto run_tests() -> bool;
+  static auto run_tests(output&) -> bool;
 
   virtual auto get_context() const noexcept -> test_context = 0;
   virtual auto do_test() -> void = 0;

@@ -1,3 +1,6 @@
+// parasoft-suppress CERT_C-EXP37-a AUTOSAR-A10_2_1-a "False positive: No requirement to name parameters; redefining
+// from a privately inherited base is allowed"
+
 // Copyright 2026, Toyota Motor Corporation
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
@@ -163,8 +166,8 @@ class mdspan
       "ElementType must match AccessorPolicy::element_type"
   );
   static_assert(
-      is_layout_mapping_policy_v<LayoutPolicy>,
-      "LayoutPolicy must meet the layout mapping policy requirements"
+      is_layout_mapping_policy_for_extents_v<LayoutPolicy, Extents>,
+      "LayoutPolicy must meet the layout mapping policy requirements for the given Extents"
   );
 
  public:
@@ -179,7 +182,11 @@ class mdspan
   /// @brief The element type
   using element_type = ElementType;
   /// @brief The value type
+
+  // parasoft-begin-suppress AUTOSAR-A2_10_1 "This name is specified by the C++ standard - access to
+  // ebo_holder::value_type is not required here."
   using value_type = std::remove_cv_t<element_type>;
+  // parasoft-end-suppress AUTOSAR-A2_10_1
 
   /// @brief The index type
   using index_type = typename extents_type::index_type;
@@ -536,6 +543,7 @@ class mdspan
 
   // parasoft-end-suppress AUTOSAR-A12_1_1-a
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: No identifiers are hidden by this function"
   /// @brief Get the size of the multidimensional index space
   /// @return The size of the multidimensional index space
   constexpr auto size() const noexcept -> size_type {
@@ -543,6 +551,7 @@ class mdspan
         layout_detail::extent_product(this->extents(), {static_cast<rank_type>(0), rank()}).value
     );
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Check if the size is zero
   /// @return @c true if the size is zero, @c false otherwise
@@ -589,9 +598,9 @@ class mdspan
       ))            //
       -> reference  //
   {
-    return accessor().access(
+    return this->accessor().access(
         data_handle(),
-        mdspan_detail::representable_cast<std::size_t>(mapping()(std::move(indices)...))
+        mdspan_detail::representable_cast<std::size_t>(this->mapping()(std::move(indices)...))
     );
   }
 

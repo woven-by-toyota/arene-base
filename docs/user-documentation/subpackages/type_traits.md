@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -23,7 +27,7 @@ The Bazel target is
 //:type_traits
 ```
 
-## Back-ported C++ Standard Library Traits {#back-ported-cpp-standard-library-traits}
+# Back-ported C++ Standard Library Traits {#subpackages-type-traits-back-ported-cpp-standard-library-traits}
 
 The `type_traits` sub-package provides the following type traits which are
 backports of traits from the C++ Standard Library:
@@ -45,9 +49,11 @@ backports of traits from the C++ Standard Library:
 | Type          | `arene::base::unwrap_ref_decay` and `arene::base::unwrap_ref_decay_t`             | Backport of [`std::unwrap_ref_decay`](https://en.cppreference.com/w/cpp/utility/functional/unwrap_reference). Decays a type and then applies `unwrap_reference` to it. This construction is used in some standard facilities which take generic construction parameters and use them to deduce value types, like in `std::make_tuple`.          |
 | Value         | `arene::base::conjunction` and `arene::base::conjunction_v`                       | Backport of [`std::conjunction`](https://en.cppreference.com/w/cpp/types/conjunction) and `std::conjunction_v`. Performs a logical AND of a set of boolean traits.                                                                                                                                                                              |
 | Value         | `arene::base::disjunction` and `arene::base::disjunction_v`                       | Backport of [`std::disjunction`](https://en.cppreference.com/w/cpp/types/disjunction) and `std::disjunction_v`. Performs a logical OR of a set of boolean traits.                                                                                                                                                                               |
-| Value         | `arene::base::negation` and `arene::base::negation_v`                             | Backport of [`std::negation`](https://en.cppreference.com/w/cpp/types/disjunction) and `std::negation_v`. Performs a logical NOT on a boolean trait.                                                                                                                                                                                            |
+| Value         | `arene::base::negation` and `arene::base::negation_v`                             | Backport of [`std::negation`](https://en.cppreference.com/w/cpp/types/negation) and `std::negation_v`. Performs a logical NOT on a boolean trait.                                                                                                                                                                                               |
+| Type          | `arene::base::common_reference` and `arene::base::common_reference_t`             | Backport of [`std::common_reference`](https://en.cppreference.com/cpp/types/common_reference). Deduces a common reference type (which may be a reference or a value type) that N types can bind to.                                                                                                                                             |
+| Value         | `arene::base::has_common_reference_with_v`                                        | Backport of [`std::common_reference_with`](https://en.cppreference.com/cpp/concepts/common_reference_with). Tests if two types have share a common reference type.                                                                                                                                                                              |
 
-## Additional Type Traits {#additional-type-traits}
+## Additional Type Traits {#subpackages-type-traits-additional-type-traits}
 
 The `type_traits` sub-package also provides the following additional type
 traits:

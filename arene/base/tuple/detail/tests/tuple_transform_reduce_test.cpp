@@ -11,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/functional/identity.hpp"
 #include "arene/base/stdlib_choice/make_tuple.hpp"
 #include "arene/base/stdlib_choice/multiplies.hpp"

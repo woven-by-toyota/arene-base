@@ -6,13 +6,14 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_INLINE_CONTAINER_TESTING_VECTOR_HPP_
 
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "arene/base/algorithm/all_of.hpp"
 #include "arene/base/algorithm/equal.hpp"
 #include "arene/base/array/array.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/exceptions_enabled.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/constraints/substitution_succeeds.hpp"
 #include "arene/base/inline_container/testing/customization.hpp"
 #include "arene/base/inline_container/testing/default_constructible_properties.hpp"
@@ -287,10 +288,15 @@ class InlineVectorTest : public ::testing::Test {
   /// @return The @c N 'th test value of the current @c T
   /// @note This requires <tt> test_value(0), ..., test_value(N) </tt> are unique values
   template <std::size_t N>
+#ifdef ARENE_DOC_GENERATION_RUNNING
+  // Doxygen cannot resolve the dependent return type and body, so expose only the declaration while generating docs.
+  static constexpr auto unique_test_value() noexcept;
+#else
   static constexpr auto unique_test_value() noexcept(noexcept(::arene::base::testing::unique_test_value<T, N>()))
       -> decltype(::arene::base::testing::unique_test_value<T, N>()) {
     return ::arene::base::testing::unique_test_value<T, N>();
   }
+#endif
 
   /// @brief Return a @c Vector containing the test values @c [begin,end) of @c T , parameterized by test suite users
   /// @param begin The index of the first test value to put into the test vector

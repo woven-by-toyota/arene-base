@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/constraints/substitution_succeeds.hpp"
 #include "arene/base/pointer/detail/to_address.hpp"
 #include "arene/base/stdlib_choice/hash.hpp"
@@ -20,7 +21,6 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/attributes.hpp"
 #include "arene/base/pointer.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"

@@ -11,6 +11,7 @@
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 #include "arene/base/algorithm/detail/heap_sort.hpp"
+#include "arene/base/algorithm/detail/synthesize_range1_overload.hpp"  // IWYU pragma: export
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
@@ -129,13 +130,17 @@ class sort_impl_fn {
 }  // namespace sort_detail
 }  // namespace algorithm_detail
 
-/// @def arene::base::sort
-/// @copydoc arene::base::algorithm_detail::sort_detail::sort_impl_fn::operator()
+/// @brief Sort a range in ascending order using the supplied comparison.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
-ARENE_CPP14_INLINE_VARIABLE(algorithm_detail::sort_detail::sort_impl_fn, sort);
+// parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variable is initialized"
+ARENE_CPP14_INLINE_VARIABLE(
+    algorithm_detail::synthesize_range1_overload_t<algorithm_detail::sort_detail::sort_impl_fn>,
+    sort
+);
+// parasoft-end-suppress CERT_CPP-DCL56-a
 // parasoft-end-suppress AUTOSAR-M7_3_3-a
 // parasoft-end-suppress CERT_CPP-DCL59-a
 

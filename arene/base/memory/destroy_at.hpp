@@ -52,10 +52,9 @@ class do_destroy_at {
 
 }  // namespace destroy_at_detail
 
-/// @def arene::base::destroy_at
 /// @brief Destroys the object(s) located at the given memory address @c std::destroy_at back ported from C++20.
 /// @tparam T the type to destroy.
-/// @param ptr a pointer to the object(s) to be destroyed.
+/// The pointer @c ptr identifies the object(s) to destroy.
 /// @post If @c T is not an array type, equivalent to having called the destructor on the object pointed to by @c ptr.
 ///       If @c T is an array type, recursively destroys elements of @c *ptr in order.
 /// @note Unlike @c std::destroy_at, constexpr evaluation is not supported as dynamic memory allocation (even using

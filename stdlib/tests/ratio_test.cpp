@@ -299,6 +299,7 @@ CONSTEXPR_TYPED_TEST(RatioComparison, HelperFunctions) {
   EXPECT_FALSE(std::ratio_detail::fraction_less({R2::num, R2::den}, {R1::num, R1::den}));
 }
 
+/// @test The SI ratio typedefs have the numerator and denominator required by the standard
 CONSTEXPR_TEST(RatioUnparameterized, SiTypedefValues) {
   EXPECT_EQ(std::atto::den, power_of_ten(18));
   EXPECT_EQ(std::femto::den, power_of_ten(15));

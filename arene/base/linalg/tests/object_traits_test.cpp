@@ -83,22 +83,31 @@ TYPED_TEST(LinalgTraitsTest, IsMatrix) {
   );
 }
 
-/// @test <c>mdspan</c>s are linalg objects when they're rank 1 or 2, and they're out/inout when the element is movable
+/// @test <c>mdspan</c>s are linalg objects for any rank (unlike std::linalg which requires rank-1 or rank-2), and
+/// they're out/inout when the element is movable
 TYPED_TEST(LinalgTraitsTest, IsLinalgObject) {
   STATIC_ASSERT_EQ(
       arene::base::linalg::is_in_object_v<typename TypeParam::type>,
-      ((TypeParam::expectation == category::in_vector) || (TypeParam::expectation == category::inout_vector) ||
-       (TypeParam::expectation == category::in_matrix) || (TypeParam::expectation == category::inout_matrix))
+      ((TypeParam::expectation == category::in_vector) ||     //
+       (TypeParam::expectation == category::inout_vector) ||  //
+       (TypeParam::expectation == category::in_matrix) ||     //
+       (TypeParam::expectation == category::inout_matrix) ||  //
+       (TypeParam::expectation == category::in_object) ||     //
+       (TypeParam::expectation == category::inout_object))
   );
 
   STATIC_ASSERT_EQ(
       arene::base::linalg::is_out_object_v<typename TypeParam::type>,
-      ((TypeParam::expectation == category::inout_vector) || (TypeParam::expectation == category::inout_matrix))
+      ((TypeParam::expectation == category::inout_vector) ||  //
+       (TypeParam::expectation == category::inout_matrix) ||  //
+       (TypeParam::expectation == category::inout_object))
   );
 
   STATIC_ASSERT_EQ(
       arene::base::linalg::is_inout_object_v<typename TypeParam::type>,
-      ((TypeParam::expectation == category::inout_vector) || (TypeParam::expectation == category::inout_matrix))
+      ((TypeParam::expectation == category::inout_vector) ||  //
+       (TypeParam::expectation == category::inout_matrix) ||  //
+       (TypeParam::expectation == category::inout_object))
   );
 }
 

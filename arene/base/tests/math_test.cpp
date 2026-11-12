@@ -13,6 +13,14 @@
 
 namespace {
 
+// Basic functionality in the `arene::base` namespace
+
+/// @test `abs` is declared
+TEST(Math, Abs) { using arene::base::abs; }
+
+/// @test `abs_diff` is declared
+TEST(Math, AbsDiff) { using arene::base::abs_diff; }
+
 /// @test `log2` is declared
 TEST(Math, Log2) { using arene::base::log2; }
 
@@ -52,5 +60,28 @@ TEST(Math, Pi) { using arene::base::numbers::pi; }
 
 /// @test `pi_v` is declared
 TEST(Math, PiV) { using arene::base::numbers::pi_v; }
+
+/// @test `ulp_distance` is declared
+TEST(Math, UlpDistance) { using arene::base::ulp_distance; }
+
+/// @test `ulp_tolerance` is declared
+TEST(Math, UlpTolerance) { using ::arene::base::ulp_tolerance; }
+
+/// @test `complex_l1_norm` is declared
+TEST(Math, ComplexL1Norm) { using ::arene::base::complex_l1_norm; }
+
+// Customization-focused `arene::base::math` namespace
+
+/// @test `math::abs` is declared
+TEST(Math, AbsCpo) { using arene::base::math::abs; }
+
+/// @test `math::real` is declared
+TEST(Math, Real) { using arene::base::math::real; }
+
+/// @test `math::imag` is declared
+TEST(Math, Imag) { using ::arene::base::math::imag; }
+
+/// @test `math::is_complex_v` is declared
+TEST(Math, IsComplexV) { using ::arene::base::math::is_complex_v; }
 
 }  // namespace

@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #include "arene/base/testing/run_property.hpp"
 
 #include <gtest/gtest.h>  // IWYU pragma: keep
@@ -7,7 +11,7 @@
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
-#include "arene/base/testing/prng_xoshiro.hpp"
+#include "arene/base/testing/detail/any_prng_ref.hpp"
 #include "arene/base/testing/property_assertions.hpp"
 #include "arene/base/testing/property_config.hpp"
 #include "arene/base/testing/property_error.hpp"
@@ -22,14 +26,14 @@ using arene::base::testing::property_error;
 using arene::base::testing::run_property;
 using error_code = property_error::error_code;
 
-// the property test macros will generate callables with a specific prng argument type
-using prng_type = arene::base::testing::prng_xoshiro&;
+// the property test macros will generate callables taking a type-erased PRNG reference
+using prng_ref = arene::base::testing::detail::any_prng_ref;
 
 /// @test @c run_property uses the seed supplied via @c property_config and
 /// propagates it
 TEST(TestingRunProperty, UsesConfigSeed) {
   for (auto seed : std::initializer_list<std::uint64_t>{0U, 1U, 2U, 42U}) {
-    auto const summary = run_property([](prng_type&) { ARENE_PROP_ASSERT(true); }, {1U, 0U, seed});
+    auto const summary = run_property([](prng_ref) { ARENE_PROP_ASSERT(true); }, {1U, 0U, seed});
 
     ASSERT_EQ(summary.successes, 1U);
     ASSERT_EQ(summary.discards, 0U);
@@ -43,7 +47,7 @@ TEST(TestingRunProperty, UsesConfigSeed) {
 /// @note How those arguments are created is currently unspecified
 TEST(TestingRunProperty, UsableWithCallableThatHasArguments) {
   std::ignore = run_property(  //
-      [](prng_type&, int, double, char) { ARENE_PROP_ASSERT(true); },
+      [](prng_ref, int, double, char) { ARENE_PROP_ASSERT(true); },
       {0U, 0U, 0U}
   );
 }
@@ -55,7 +59,7 @@ TEST(TestingRunProperty, ObservesFailure) {
   for (auto const passing_trials : std::initializer_list<std::size_t>{0, 1, 2, 3, 4, 5}) {
     auto i = passing_trials;
     auto const summary = run_property(
-        [&i](prng_type&) {
+        [&i](prng_ref) {
           auto const j = i--;
           ARENE_PROP_ASSERT(j);
         },
@@ -75,7 +79,7 @@ TEST(TestingRunProperty, FirstFailingPropertyAssertion) {
   constexpr auto config = property_config{1U, 0U, 42U};
 
   auto const summary = run_property(
-      [](prng_type&) {
+      [](prng_ref) {
         ARENE_PROP_ASSERT(true);
         ARENE_PROP_ASSERT(false);
         ARENE_PROP_ASSERT(false);
@@ -89,7 +93,7 @@ TEST(TestingRunProperty, FirstFailingPropertyAssertion) {
   ASSERT_EQ(summary.seed, config.seed);
 
   ASSERT_EQ((*summary.first_failure).error, error_code::failure);
-  ASSERT_EQ((*summary.first_failure).location.line, 80U);
+  ASSERT_EQ((*summary.first_failure).location.line, 84U);
 }
 
 /// @test @c run_property reports failure if max_discards are reached before required_successes
@@ -98,7 +102,7 @@ TEST(TestingRunProperty, MaxDiscardsReached) {
     auto const config = property_config{100U, discard_limit, 42U};
 
     auto i = 0U;
-    auto const discard_if_odd = [&i](prng_type&) {
+    auto const discard_if_odd = [&i](prng_ref) {
       ARENE_PROP_PRE(i++ % 2U == 0U);
       ARENE_PROP_ASSERT(true);
     };
@@ -119,7 +123,7 @@ TEST(TestingRunProperty, RequiredSuccessesReached) {
     auto const config = property_config{required_successes, 100U, 42U};
 
     auto i = 0U;
-    auto const discard_if_odd = [&i](prng_type&) {
+    auto const discard_if_odd = [&i](prng_ref) {
       ARENE_PROP_PRE(i++ % 2U == 0U);
       ARENE_PROP_ASSERT(true);
     };

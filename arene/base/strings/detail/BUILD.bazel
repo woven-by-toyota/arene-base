@@ -4,17 +4,12 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "helper_hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "helpers",
+    hdrs = [
         "lexicographic_string_compare.hpp",
         "string_length.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "helpers",
-    hdrs = [":helper_hdrs"],
     visibility = [
         "//arene/base/strings:__subpackages__",
     ],
@@ -48,8 +43,8 @@ cc_library_with_variants(
 filegroup(
     name = "string_view_srcs",
     srcs = select({
-        "//configs:toolchain_stdlib_enabled": ["//arene/base/strings/detail/with_toolchain_std:string_view_srcs"],
-        "//configs:toolchain_stdlib_disabled": ["//arene/base/strings/detail/with_arene_std:string_view_srcs"],
+        "//configs:toolchain_stdlib_enabled": ["//arene/base/strings/detail/with_toolchain_std:string_view.cpp"],
+        "//configs:toolchain_stdlib_disabled": ["//arene/base/strings/detail/with_arene_std:string_view.cpp"],
     }),
     visibility = [
         "//arene/base/strings:__pkg__",
@@ -84,9 +79,8 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":helper_hdrs",
         "//arene/base/strings/detail/with_arene_std:package",
         "//arene/base/strings/detail/with_toolchain_std:package",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/strings:__pkg__"],
 )

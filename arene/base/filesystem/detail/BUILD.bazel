@@ -4,28 +4,10 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-filegroup(
-    name = "srcs",
-    srcs = [
-        "encode_counter.cpp",
-    ],
-)
-
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "encode_counter.hpp",
-    ],
-)
-
 cc_library(
     name = "detail",
-    srcs = [
-        ":srcs",
-    ],
-    hdrs = [
-        ":hdrs",
-    ],
+    srcs = ["encode_counter.cpp"],
+    hdrs = ["encode_counter.hpp"],
     visibility = ["//arene/base/filesystem:__subpackages__"],
     deps = [
         "//arene/base:math",
@@ -39,8 +21,9 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-        ":srcs",
-    ],
+    ] + glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
     visibility = ["//arene/base/filesystem:__pkg__"],
 )

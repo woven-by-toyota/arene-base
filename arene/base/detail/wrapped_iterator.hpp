@@ -18,7 +18,7 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/iterator/advance.hpp"
@@ -53,10 +53,12 @@ class wrapped_iterator : public generic_ordering_from_three_way_compare<wrapped_
   using operator_base = generic_ordering_from_three_way_compare<wrapped_iterator<Itr, Passkey>>;
   static_assert(is_iterator_v<Itr>, "Can only wrap iterators.");
 
+  // parasoft-begin-suppress AUTOSAR-M0_1_3-c	"False positive: member 'is_compatible_iterator' is used"
   template <typename OtherIterator, typename OtherPasskey>
   static constexpr bool is_compatible_iterator{
       std::is_convertible<OtherIterator const&, Itr>::value && std::is_convertible<OtherPasskey const&, Passkey>::value
   };
+  // parasoft-end-suppress AUTOSAR-M0_1_3-c "False positive: member 'is_compatible_iterator' is used"
 
  public:
   // parasoft-begin-suppress AUTOSAR-A2_10_1-e "False positive: these type aliases do not hide anything"

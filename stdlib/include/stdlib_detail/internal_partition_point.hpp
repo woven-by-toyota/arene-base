@@ -5,7 +5,6 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_INTERNAL_PARTITION_POINT_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_INTERNAL_PARTITION_POINT_HPP_
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
 #include "arene/base/iterator/distance.hpp"

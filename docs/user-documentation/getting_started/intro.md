@@ -1,4 +1,8 @@
-<!-- Copyright 2026, Toyota Motor Corporation -->
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -6,13 +10,13 @@
 
 <!-- markdownlint-enable MD041 -->
 
-## Consuming arene_base in Your Project {#consuming-arene_base-in-your-project}
+# Consuming arene_base in Your Project {#consuming-arene_base-in-your-project}
 
 `arene_base` releases are published on github as tarballs, which can be pulled
 into Bazel using appropriate rules. Other build systems are not supported at
 this time. Use of `arene_base` requires Bazel 7+.
 
-### Bazel using `bzlmod` {#bazel-using-bzlmod}
+## Bazel using `bzlmod` {#bazel-using-bzlmod}
 
 The recommended way to import Arene Base is via Bazel modules. _Please note that
 Bazel 6 is not supported when using `arene-base` through Bazel modules. Ensure

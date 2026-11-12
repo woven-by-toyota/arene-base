@@ -13,7 +13,7 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/pointer/detail/to_address.hpp"
@@ -549,6 +549,7 @@ class non_null : generic_ordering_from_three_way_compare_and_equals<non_null<P>>
     return compare_three_way{}(lhs.unwrap(), rhs.unwrap());
   }
 
+  // parasoft-begin-suppress AUTOSAR-A8_4_12-a "False positive: 'rhs' is not always a 'std::unique_ptr'"
   /// @brief Three-way comparison of @c non_null against another value. The result is equivalent to comparing the held
   /// pointer against that other value
   /// @tparam OtherType The type to compare the @c non_null to. It must not be a instantiation of @c non_null. @c
@@ -565,6 +566,7 @@ class non_null : generic_ordering_from_three_way_compare_and_equals<non_null<P>>
       -> strong_ordering {
     return compare_three_way{}(lhs.unwrap(), rhs);
   }
+  // parasoft-end-suppress AUTOSAR-A8_4_12-a
 
   /// @brief Three-way comparison of @c non_null against a null pointer.
   /// @tparam Dummy Dummy template parameter that is the same as @c held_pointer to enable SFINAE

@@ -5,14 +5,14 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_PLATFORM_QUERIES_STDLIB_INFO_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_PLATFORM_QUERIES_STDLIB_INFO_HPP_
 
-// IWYU pragma: private
-// IWYU pragma: friend "arene/base/compiler_support/platform_queries/.*"
+// IWYU pragma: private, include "arene/base/compiler_support/platform_queries.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 
-#include "arene/base/compiler_support/preprocessor.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 // IWYU pragma: no_include <__configuration/language.h>
 
@@ -98,8 +98,8 @@
 /// 1. If @c ARENE_STDLIB_LIBARENECXX has been explicitly defined via a @c -D flag to the compiler or similar:
 ///    * @c ARENE_ON if it is truthy
 ///    * @c ARENE_OFF if it is not truthy
-/// 1. If the inclusion of @c <cstddef> results in detection of internal stdlib defines known to be in that header, it
-/// is @c ARENE_ON_BY_DEFAULT
+/// 1. If the inclusion of the @c cstddef header results in detection of internal stdlib defines known to be in that
+/// header, it is @c ARENE_ON_BY_DEFAULT
 /// 1. Otherwise, it is @c ARENE_OFF_BY_DEFAULT
 
 #if defined(ARENE_STDLIB_LIBARENECXX)

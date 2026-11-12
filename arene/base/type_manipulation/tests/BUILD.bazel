@@ -4,14 +4,14 @@
 
 load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test(
     name = "consume_values_test",
     srcs = ["consume_values_test.cpp"],
     deps = [
         "//arene/base/type_manipulation",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -28,7 +28,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:plus",
         "//arene/base/testing:gtest",
         "//arene/base/type_manipulation:ebo_holder",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -37,7 +37,7 @@ cc_test(
     srcs = ["give_qualifiers_to_test.cpp"],
     deps = [
         "//arene/base/type_manipulation",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -47,7 +47,7 @@ cc_test(
     deps = [
         "//arene/base/testing:gtest",
         "//arene/base/type_manipulation",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -56,7 +56,7 @@ cc_test(
     srcs = ["repeat_type_test.cpp"],
     deps = [
         "//arene/base/type_manipulation",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -65,7 +65,7 @@ cc_test(
     srcs = ["smallest_integer_for_test.cpp"],
     deps = [
         "//arene/base/type_manipulation",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -73,8 +73,9 @@ cc_test(
     name = "static_if_test",
     srcs = ["static_if_test.cpp"],
     deps = [
+        "//arene/base/testing:gtest",
         "//arene/base/type_manipulation",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

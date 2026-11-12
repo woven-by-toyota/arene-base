@@ -9,12 +9,15 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 jobs:
   ubuntu-default-compilers:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Install libc++
         run: |
           sudo apt update

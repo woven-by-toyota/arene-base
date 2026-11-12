@@ -16,7 +16,9 @@
 #include "arene/base/array.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/tuple.hpp"
-#include "arene/base/type_list.hpp"
+#include "arene/base/type_list/apply_all.hpp"
+#include "arene/base/type_list/concat.hpp"
+#include "arene/base/type_list/type_list.hpp"
 #include "testlibs/utilities/iterator_types.hpp"
 #include "testlibs/utilities/throws_on.hpp"
 

@@ -4,16 +4,11 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "alignment_hdrs",
-    srcs = [
-        "alignment.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "alignment",
-    hdrs = [":alignment_hdrs"],
+    hdrs = [
+        "alignment.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -33,16 +28,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "as_const_hdrs",
-    srcs = [
-        "as_const.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "as_const",
-    hdrs = [":as_const_hdrs"],
+    hdrs = [
+        "as_const.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -52,16 +42,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "forward_like_hdrs",
-    srcs = [
-        "forward_like.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "forward_like",
-    hdrs = [":forward_like_hdrs"],
+    hdrs = [
+        "forward_like.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -75,35 +60,26 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "in_place_hdrs",
-    srcs = [
-        "in_place.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "in_place",
-    hdrs = [":in_place_hdrs"],
+    hdrs = [
+        "in_place.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
     deps = [
+        "//arene/base/compiler_support:cpp14_inline",
         "//arene/base/stdlib_choice:cstddef",
-    ],
-)
-
-filegroup(
-    name = "make_subrange_hdrs",
-    srcs = [
-        "make_subrange.hpp",
     ],
 )
 
 cc_library_with_variants(
     name = "make_subrange",
-    hdrs = [":make_subrange_hdrs"],
+    hdrs = [
+        "make_subrange.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -111,7 +87,10 @@ cc_library_with_variants(
     ],
     deps = [
         "//arene/base:constraints",
+        "//arene/base/ranges:enable_borrowed_range",
+        "//arene/base/ranges/detail:range_interface",
         "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/stdlib_choice:is_copy_constructible",
         "//arene/base/stdlib_choice:is_move_constructible",
         "//arene/base/stdlib_choice:iterator_traits",
@@ -121,16 +100,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "safe_comparisons_hdrs",
-    srcs = [
-        "safe_comparisons.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "safe_comparisons",
-    hdrs = [":safe_comparisons_hdrs"],
+    hdrs = [
+        "safe_comparisons.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -148,16 +122,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "swap_hdrs",
-    srcs = [
-        "swap.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "swap",
-    hdrs = [":swap_hdrs"],
+    hdrs = [
+        "swap.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -168,22 +137,16 @@ cc_library_with_variants(
         "//arene/base/compiler_support:cpp14_inline",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:enable_if",
-        "//arene/base/stdlib_choice:is_fundamental",
         "//arene/base/stdlib_choice:move",
         "//arene/base/type_traits:is_swappable",
     ],
 )
 
-filegroup(
-    name = "to_underlying_hdrs",
-    srcs = [
-        "to_underlying.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "to_underlying",
-    hdrs = [":to_underlying_hdrs"],
+    hdrs = [
+        "to_underlying.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -215,14 +178,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        "to_underlying_hdrs",
-        ":alignment_hdrs",
-        ":as_const_hdrs",
-        ":forward_like_hdrs",
-        ":in_place_hdrs",
-        ":make_subrange_hdrs",
-        ":safe_comparisons_hdrs",
-        ":swap_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

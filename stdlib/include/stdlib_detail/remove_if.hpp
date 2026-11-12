@@ -5,7 +5,6 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_REMOVE_IF_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_REMOVE_IF_HPP_
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/algorithm/find_if.hpp"
 #include "arene/base/constraints.hpp"

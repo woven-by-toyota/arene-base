@@ -31,6 +31,39 @@ extern constexpr bool is_scalar_v{
 };
 
 namespace linalg_traits_detail {
+/// @brief Determine if the given type is an in-object, usable as an input object for linalg algorithms
+/// @tparam T The type to check
+template <typename T>
+extern constexpr bool is_in_object_v{false};
+
+/// @brief Determine if the given type is an in-object, usable as an input object for linalg algorithms
+/// @tparam ElementType The element type of an @c mdspan being checked
+/// @tparam Extents The extents type of an @c mdspan being checked
+/// @tparam LayoutPolicy The layout policy type (note: not the layout mapping) of an @c mdspan being checked
+/// @tparam AccessorPolicy The accessor policy type of an @c mdspan being checked
+template <typename ElementType, typename Extents, typename LayoutPolicy, typename AccessorPolicy>
+extern constexpr bool is_in_object_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>{is_scalar_v<
+    typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::value_type>};
+
+/// @brief Determine if the given type is an out-object, usable as an output object for linalg algorithms
+/// @tparam T The type to check
+template <typename T>
+extern constexpr bool is_out_object_v{false};
+
+/// @brief Determine if the given type is an out-object, usable as an output object for linalg algorithms
+/// @tparam ElementType The element type of an @c mdspan being checked
+/// @tparam Extents The extents type of an @c mdspan being checked
+/// @tparam LayoutPolicy The layout policy type (note: not the layout mapping) of an @c mdspan being checked
+/// @tparam AccessorPolicy The accessor policy type of an @c mdspan being checked
+template <typename ElementType, typename Extents, typename LayoutPolicy, typename AccessorPolicy>
+extern constexpr bool is_out_object_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>{
+    is_in_object_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>> &&
+    std::is_assignable<
+        typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::reference,
+        typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::element_type>::value &&
+    mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::is_always_unique()
+};
+
 /// @brief Determine if the given type is an in-vector, usable as an input vector for linalg algorithms
 /// @tparam T The type to check
 template <typename T>
@@ -43,8 +76,8 @@ extern constexpr bool is_in_vector_v{false};
 /// @tparam AccessorPolicy The accessor policy type of an @c mdspan being checked
 template <typename ElementType, typename Extents, typename LayoutPolicy, typename AccessorPolicy>
 extern constexpr bool is_in_vector_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>{
-    mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::rank() == 1U &&                   //
-    is_scalar_v<typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::value_type>  //
+    mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::rank() == 1U &&  //
+    is_in_object_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>   //
 };
 
 /// @brief Determine if the given type is an out-vector, usable as an output vector for linalg algorithms
@@ -59,11 +92,8 @@ extern constexpr bool is_out_vector_v{false};
 /// @tparam AccessorPolicy The accessor policy type of an @c mdspan being checked
 template <typename ElementType, typename Extents, typename LayoutPolicy, typename AccessorPolicy>
 extern constexpr bool is_out_vector_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>{
-    is_in_vector_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>> &&
-    std::is_assignable<
-        typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::reference,
-        typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::element_type>::value &&
-    mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::is_always_unique()
+    is_in_vector_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>> &&  //
+    is_out_object_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>    //
 };
 
 /// @brief Determine if the given type is an in-matrix, usable as an input matrix for linalg algorithms
@@ -78,8 +108,8 @@ extern constexpr bool is_in_matrix_v{false};
 /// @tparam AccessorPolicy The accessor policy type of an @c mdspan being checked
 template <typename ElementType, typename Extents, typename LayoutPolicy, typename AccessorPolicy>
 extern constexpr bool is_in_matrix_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>{
-    mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::rank() == 2U &&                   //
-    is_scalar_v<typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::value_type>  //
+    mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::rank() == 2U &&  //
+    is_in_object_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>   //
 };
 
 /// @brief Determine if the given type is an out-matrix, usable as an output matrix for linalg algorithms
@@ -94,11 +124,8 @@ extern constexpr bool is_out_matrix_v{false};
 /// @tparam AccessorPolicy The accessor policy type of an @c mdspan being checked
 template <typename ElementType, typename Extents, typename LayoutPolicy, typename AccessorPolicy>
 extern constexpr bool is_out_matrix_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>{
-    is_in_matrix_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>> &&
-    std::is_assignable<
-        typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::reference,
-        typename mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::element_type>::value &&
-    mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::is_always_unique()
+    is_in_matrix_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>> && //
+    is_out_object_v<mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>>
 };
 }  // namespace linalg_traits_detail
 
@@ -132,20 +159,20 @@ extern constexpr bool is_out_matrix_v{linalg_traits_detail::is_out_matrix_v<std:
 template <typename T>
 extern constexpr bool is_inout_matrix_v{is_out_matrix_v<T>};
 
-/// @brief Determine if the given type is an in-object, i.e. an in-vector or in-matrix
+/// @brief Determine if the given type is an in-object, e.g. an in-vector or in-matrix
 /// @tparam T The type to check
 template <typename T>
-extern constexpr bool is_in_object_v{is_in_vector_v<T> || is_in_matrix_v<T>};
+extern constexpr bool is_in_object_v{linalg_traits_detail::is_in_object_v<std::remove_cv_t<T>>};
 
-/// @brief Determine if the given type is an out-object, i.e. an out-vector or out-matrix
+/// @brief Determine if the given type is an out-object, e.g. an out-vector or out-matrix
 /// @tparam T The type to check
 template <typename T>
-extern constexpr bool is_out_object_v{is_out_vector_v<T> || is_out_matrix_v<T>};
+extern constexpr bool is_out_object_v{linalg_traits_detail::is_out_object_v<std::remove_cv_t<T>>};
 
-/// @brief Determine if the given type is an inout-object, i.e. an inout-vector or inout-matrix
+/// @brief Determine if the given type is an inout-object, e.g. an inout-vector or inout-matrix
 /// @tparam T The type to check
 template <typename T>
-extern constexpr bool is_inout_object_v{is_inout_vector_v<T> || is_inout_matrix_v<T>};
+extern constexpr bool is_inout_object_v{is_out_object_v<T>};
 
 }  // namespace linalg
 }  // namespace base

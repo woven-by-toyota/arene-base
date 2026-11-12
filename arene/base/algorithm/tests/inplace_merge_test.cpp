@@ -5,6 +5,7 @@
 #include "arene/base/algorithm/inplace_merge.hpp"
 
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "arene/base/algorithm/detail/heap_sort.hpp"
 #include "arene/base/algorithm/tests/generated_test_data.hpp"
@@ -18,7 +19,7 @@
 #include "arene/base/stdlib_choice/is_sorted.hpp"
 #include "arene/base/stdlib_choice/iterator_tags.hpp"
 #include "arene/base/stdlib_choice/less.hpp"
-#include "arene/base/stdlib_choice/tuple.hpp"
+#include "arene/base/stdlib_choice/tuple.hpp"  // IWYU pragma: keep (for std::get)
 #include "arene/base/stdlib_choice/tuple_size.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/type_traits/is_invocable.hpp"

@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
 #include "arene/base/optional/optional.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/move.hpp"

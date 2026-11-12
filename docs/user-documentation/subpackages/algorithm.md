@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -22,7 +26,7 @@ and the stable bazel target is:
 //:algorithm
 ```
 
-## Standard Library Backports {#standard-library-backports}
+# Standard Library Backports {#subpackages-algorithm-standard-library-backports}
 
 The following algorithms are backported from newer versions of C++ either
 because they did not yet exist in C++14, or because improvements were introduced
@@ -40,11 +44,13 @@ algorithm is from the most recent ratified `stdlib` version.
 | `arene::base::fill`                              | Fills a sequence with a given value by repeated assignment.                                                                                   | [`std::fill`](https://en.cppreference.com/w/cpp/algorithm/fill)                                                           |
 | `arene::base::find`                              | Return the first iterator in the specified range with the value specified, or `last` if there is no such iterator                             | [`std::find`](https://en.cppreference.com/w/cpp/algorithm/find)                                                           |
 | `arene::base::find_if`                           | Return the first iterator in the specified range whose value satisfies the specified predicate, or `last` if there is no such iterator        | [`std::find_if`](https://en.cppreference.com/w/cpp/algorithm/find)                                                        |
+| `arene::base::generate`                          | Assigns each element in a sequence the result of a successive invocation of a generator                                                       | [`std::generate`](https://en.cppreference.com/w/cpp/algorithm/generate)                                                   |
 | `arene::base::inner_product`                     | Computes the inner product of two ranges of elements                                                                                          | [`std::inner_product`](https://en.cppreference.com/w/cpp/algorithm/inner_product)                                         |
 | `arene::base::iota`                              | Fills a range with successive increments of the starting value                                                                                | [`std::iota`](https://en.cppreference.com/w/cpp/algorithm/iota)                                                           |
 | `arene::base::iter_swap`                         | Swaps the values of the elements the given iterators are pointing to.                                                                         | [`std::iter_swap`](https://en.cppreference.com/w/cpp/algorithm/iter_swap)                                                 |
 | `arene::base::lexicographical_compare`           | Imparts a lexicographical ordering of two sequences                                                                                           | [`std::lexicographical_compare`](https://en.cppreference.com/w/cpp/algorithm/lexicographical_compare)                     |
 | `arene::base::lexicographical_compare_three_way` | Determines the three-way (less, equal, greater) lexicographical ordering of two sequences                                                     | [`std::lexicographical_compare_three_way`](https://en.cppreference.com/w/cpp/algorithm/lexicographical_compare_three_way) |
+| `arene::base::max_element`                       | Returns the largest element in a range                                                                                                        | [`std::max_element`](https://en.cppreference.com/w/cpp/algorithm/max_element)                                             |
 | `arene::base::move`                              | Indicate that an object's resources may be transferred to another object                                                                      | [`std::move`](https://en.cppreference.com/w/cpp/utility/move)                                                             |
 | `arene::base::move_backward`                     | Moves the elements from a range to another range in reverse order                                                                             | [`std::move_backward`](https://en.cppreference.com/w/cpp/algorithm/move_backward)                                         |
 | `arene::base::rotate`                            | Rotates the order of the elements in the specified range in such a way that the element specified as the middle becomes the new first element | [`std::rotate`](https://en.cppreference.com/w/cpp/algorithm/rotate)                                                       |

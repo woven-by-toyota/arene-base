@@ -243,6 +243,7 @@ TEST(IsCompare, WithWrongReturnType) {
 
 /// @test @c is_binary_predicate and @c is_compare return @c false for other basic types
 TEST(IsCompare, OtherBasicTypes) {
+  EXPECT_TRUE((!is_binary_predicate_v<int, void, void>));
   EXPECT_TRUE((!is_binary_predicate_v<int, int, int>));
   EXPECT_TRUE((!is_binary_predicate_v<int*, int, int>));
   EXPECT_TRUE((!is_binary_predicate_v<int&, int, int>));
@@ -250,6 +251,7 @@ TEST(IsCompare, OtherBasicTypes) {
   EXPECT_TRUE((!is_binary_predicate_v<decltype(nullptr), int, int>));
   EXPECT_TRUE((!is_binary_predicate_v<int[], int, int>));  // NOLINT(hicpp-avoid-c-arrays)
 
+  EXPECT_TRUE((!is_compare_v<int, void, void>));
   EXPECT_TRUE((!is_compare_v<int, int, int>));
   EXPECT_TRUE((!is_compare_v<int*, int, int>));
   EXPECT_TRUE((!is_compare_v<int&, int, int>));

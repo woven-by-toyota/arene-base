@@ -5,36 +5,12 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ALGORITHM_TESTS_ANY_ALL_TEST_UTILITIES_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ALGORITHM_TESTS_ANY_ALL_TEST_UTILITIES_HPP_
 
-#include "arene/base/array/array.hpp"
-#include "arene/base/stdlib_choice/cstddef.hpp"
-#include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/iterator_tags.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/type_traits/is_invocable.hpp"
 #include "testlibs/utilities/iterator_types.hpp"
-#include "testlibs/utilities/throws_on.hpp"
 
 namespace test {
-
-/// @brief return an array of values, converting to type 'T'
-/// @tparam To type to convert to
-/// @tparam From type to convert from
-/// @tparam Size number of elements in the array
-/// @note Works around a deficiency in GCC8 related to type deduction,
-///   preventing use of 'arene::base::to_array'.
-///
-/// @{
-// NOLINTBEGIN(hicpp-avoid-c-arrays)
-template <class To, class From, std::size_t Size, std::size_t... Is>
-constexpr auto to_array_of_impl(From const (&values)[Size], std::index_sequence<Is...>) {
-  return arene::base::array<To, Size>{To{values[Is]}...};
-}
-template <class To, class From, std::size_t Size>
-constexpr auto to_array_of(From const (&values)[Size]) {
-  return to_array_of_impl<To>(values, std::make_index_sequence<Size>{});
-}
-// NOLINTEND(hicpp-avoid-c-arrays)
-/// @}
 
 struct is_even {
   constexpr auto operator()(int value) const -> bool { return value % 2 == 0; }
@@ -70,13 +46,6 @@ auto static_assert_not_invocable_with_invalid_predicate(Algorithm) -> void {
       "must be invocable with valid predicate (the default)"
   );
 
-  // 'value_of' requires a 'wrapped_int' as an argument
-  using not_valid_with_element = value_of;
-  static_assert(
-      !arene::base::is_invocable_v<Algorithm, int const*, int const*, not_valid_with_element>,
-      "must not be invocable with invalid predicate"
-  );
-
   static_assert(
       !arene::base::is_invocable_v<Algorithm, int const*, int const*, only_int_ref_arg>,
       "must not be invocable with invalid predicate"
@@ -93,13 +62,6 @@ auto static_assert_not_invocable_with_invalid_projection(Algorithm) -> void {
   static_assert(
       arene::base::is_invocable_v<Algorithm, int const*, int const*, is_even>,
       "must be invocable with valid projection (the default)"
-  );
-
-  // 'value_of' requires a 'wrapped_int' as an argument
-  using not_valid_with_element = value_of;
-  static_assert(
-      !arene::base::is_invocable_v<Algorithm, int const*, int const*, is_even, not_valid_with_element>,
-      "must not be invocable with invalid projection"
   );
 
   using not_valid_with_predicate = test::result_not_boolean_convertible;

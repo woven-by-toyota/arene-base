@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "arene/base/algorithm/detail/functional.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "stdlib/include/algorithm"
 #include "stdlib/include/cstddef"
@@ -15,6 +15,7 @@
 #include "testlibs/minitest/minitest.hpp"
 #include "testlibs/utilities/constexpr_traits.hpp"
 #include "testlibs/utilities/counted_algorithm.hpp"
+#include "testlibs/utilities/functional.hpp"
 #include "testlibs/utilities/iterator_types.hpp"
 
 // NOLINTBEGIN(readability-identifier-length,hicpp-avoid-c-arrays)
@@ -62,8 +63,6 @@ struct MinMaxElement : testing::Test {
   /// @tparam Max argmax value
   /// @tparam Compare comparison type
   /// @param values range of values
-  /// @param argmin index of the min element in @c range
-  /// @param argmin index of the max element in @c range
   /// @param cmp comparison value
   ///
   template <class T, std::size_t N, std::ptrdiff_t Min, std::ptrdiff_t Max, class Compare>
@@ -88,8 +87,6 @@ struct MinMaxElement : testing::Test {
   /// @tparam Min argmin value
   /// @tparam Max argmax value
   /// @param values range of values
-  /// @param argmin index of the min element in @c range
-  /// @param argmin index of the max element in @c range
   ///
   template <class T, std::size_t N, std::ptrdiff_t Min, std::ptrdiff_t Max>
   static constexpr auto assert_minmax_element_result(T const (&values)[N], test::argmin_t<Min>, test::argmax_t<Max>) {
@@ -97,12 +94,12 @@ struct MinMaxElement : testing::Test {
         values,
         test::argmin<Min>,
         test::argmax<Max>,
-        arene::base::algorithm_detail::operator_less
+        arene::base::functional_detail::operator_less
     );
 
     auto const range = testing::demoted_view(TypeParam{}, values);
     ASSERT_EQ(
-        std::minmax_element(range.begin(), range.end(), arene::base::algorithm_detail::operator_less),
+        std::minmax_element(range.begin(), range.end(), arene::base::functional_detail::operator_less),
         std::minmax_element(range.begin(), range.end())
     );
   }
@@ -120,7 +117,7 @@ CONDITIONALLY_CONSTEXPR_TYPED_TEST(MinMaxElement, EmptyRange, using_cpp17) {
   auto const result = testing::counted_algorithm(
       FUNCTION_LIFT(std::minmax_element),
       range,
-      arene::base::algorithm_detail::operator_less
+      arene::base::functional_detail::operator_less
   );
 
   ASSERT_EQ(result.iter.first, range.begin());

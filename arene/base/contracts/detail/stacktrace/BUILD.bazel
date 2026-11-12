@@ -4,16 +4,11 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "stacktrace_hdrs",
-    srcs = [
-        "stacktrace.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "stacktrace",
-    hdrs = [":stacktrace_hdrs"],
+    hdrs = [
+        "stacktrace.hpp",
+    ],
     visibility = [
         "//arene/base/contracts:__subpackages__",
     ],
@@ -32,9 +27,8 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":stacktrace_hdrs",
         "//arene/base/contracts/detail/stacktrace/execinfo:package",
         "//arene/base/contracts/detail/stacktrace/noop:package",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/contracts/detail:__pkg__"],
 )

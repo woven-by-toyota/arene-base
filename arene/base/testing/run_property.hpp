@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TESTING_RUN_PROPERTY_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TESTING_RUN_PROPERTY_HPP_
 
@@ -5,6 +9,8 @@
 // IWYU pragma: no_include "arene/base/optional/optional.hpp"
 // IWYU pragma: no_include "arene/base/stdlib_choice/remove_cv.hpp"
 #include "arene/base/stdlib_choice/tuple.hpp"
+#include "arene/base/testing/default_distribution.hpp"
+#include "arene/base/testing/detail/any_prng_ref.hpp"
 #include "arene/base/testing/detail/property_context.hpp"
 #include "arene/base/testing/prng_xoshiro.hpp"
 #include "arene/base/testing/property_config.hpp"
@@ -35,8 +41,7 @@ struct generate_argument {
   /// @return generated value of type @c T
   template <class T>
   constexpr auto operator()(type_identity<T>) const -> T {
-    // TODO: use prng to generate the argument
-    return {};
+    return default_distribution<T>(prng);
   }
 };
 
@@ -83,7 +88,7 @@ auto run_property(Callable callable, property_config const config) -> property_s
     apply(
         callable,
         tuple_cat(  //
-            std::tuple<decltype(prng)&>{prng},
+            std::tuple<detail::any_prng_ref>{prng},
             tuple_detail::tuple_transform(
                 argument_types{},
                 run_property_detail::generate_argument<decltype(prng)>{prng}

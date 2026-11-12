@@ -10,7 +10,7 @@
 
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
-#include "arene/base/mdspan/detail/is_representable_as.hpp"
+#include "arene/base/detail/is_representable_as.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/is_integral.hpp"
@@ -44,12 +44,12 @@ class representable_cast_fn  //
   ///
   template <
       class From,
-      constraints<std::enable_if_t<is_invocable_v<decltype(is_representable_as<To>), From const&>>> = nullptr>
+      constraints<std::enable_if_t<is_invocable_v<decltype(detail::is_representable_as<To>), From const&>>> = nullptr>
   constexpr auto operator()(From const& value) const                    //
       noexcept(noexcept(static_cast<To>(std::declval<From const&>())))  //
       -> To                                                             //
   {
-    ARENE_PRECONDITION(is_representable_as<To>(value));
+    ARENE_PRECONDITION(detail::is_representable_as<To>(value));
     return static_cast<To>(value);
   }
 };

@@ -40,7 +40,15 @@ namespace base {
 /// ~~~
 ///
 template <std::size_t N>
-class priority_tag : public priority_tag<N - std::size_t{1}> {};
+// parasoft-begin-suppress AUTOSAR-A16_0_1-a "Doxygen needs a non-recursive declaration for this type"
+#ifdef ARENE_DOC_GENERATION_RUNNING
+class priority_tag {
+};
+#else
+class priority_tag : public priority_tag<N - std::size_t{1}> {
+};
+#endif
+// parasoft-end-suppress AUTOSAR-A16_0_1-a
 
 // parasoft-end-suppress AUTOSAR-A2_7_2-a "False positive: No code is commented out, an example is included in the
 // docstring"
@@ -51,7 +59,6 @@ class priority_tag : public priority_tag<N - std::size_t{1}> {};
 /// The base priority_tag which ends the inheritance hierarchy.
 template <>
 class priority_tag<std::size_t{0}> {};
-/// @}
 
 }  // namespace base
 }  // namespace arene

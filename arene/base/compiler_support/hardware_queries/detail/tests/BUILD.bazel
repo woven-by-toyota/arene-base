@@ -4,13 +4,20 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_test(
     name = "cache_line_impl_32_test",
     srcs = ["cache_line_impl_32_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/hardware_queries/detail:cache_line_impl_32",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -18,13 +25,8 @@ cc_test(
     name = "cache_line_impl_64_test",
     srcs = ["cache_line_impl_64_test.cpp"],
     deps = [
-        "//arene/base/compiler_support:internal",
+        "//arene/base/compiler_support/hardware_queries/detail:cache_line_impl_64",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

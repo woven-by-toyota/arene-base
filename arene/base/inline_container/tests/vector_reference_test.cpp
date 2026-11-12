@@ -10,12 +10,13 @@
 #include "arene/base/algorithm/find.hpp"
 #include "arene/base/array/array.hpp"
 #include "arene/base/byte/byte.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/exceptions_enabled.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/detail/exceptions.hpp"
 #include "arene/base/inline_container/external_vector.hpp"
 #include "arene/base/inline_container/vector.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/span/span.hpp"
 #include "arene/base/stdlib_choice/basic_insert_iterator.hpp"
 #include "arene/base/stdlib_choice/begin.hpp"
@@ -140,6 +141,12 @@ using vector_types =
     ::testing::Types<test_case<std::int32_t, inline_vector_tag>, test_case<std::int32_t, external_vector_tag>>;
 
 TYPED_TEST_SUITE(VectorReference, vector_types, );
+
+/// @test Given a @c vector_reference, when @c enable_borrowed_range is queried, then its value is @c true .
+TYPED_TEST(VectorReference, IsBorrowedRange) {
+  using value_type = typename TypeParam::value_type;
+  STATIC_ASSERT_TRUE(::arene::base::ranges::enable_borrowed_range_v<::arene::base::vector_reference<value_type>>);
+}
 
 /// @test A `vector_reference` can be constructed from a vector with any capacity
 CONDITIONALLY_CONSTEXPR_TYPED_TEST(VectorReference, CanCreateVectorReferenceFromAnySizeVector, supports_constexpr_v<TypeParam>) {
@@ -799,6 +806,44 @@ TYPED_TEST(VectorReference, MemberFunctionsAreConstInvocable) {
   ASSERT_TRUE((is_invocable_v<decltype(&vector_reference::pop_back), vector_reference const&>));
   ASSERT_TRUE((is_invocable_v<decltype(&vector_reference::clear), vector_reference const&>));
   ASSERT_TRUE((is_invocable_v<decltype(&vector_reference::resize), vector_reference const&, size_type>));
+}
+
+template <typename Vector>
+class InlineVectorReferenceLargeCapacityTest : public ::testing::Test {};
+
+using large_capacity_ivecs = ::testing::Types<
+    arene::base::inline_vector<std::int64_t, 50'000>,
+    arene::base::inline_vector<std::int32_t, 100'000>,
+    arene::base::inline_vector<std::int32_t, 1'000'000>>;
+
+TYPED_TEST_SUITE(InlineVectorReferenceLargeCapacityTest, large_capacity_ivecs, );
+
+/// @test vector_reference can be constructed from and used with inline_vector
+///   instances of very large capacity
+TYPED_TEST(InlineVectorReferenceLargeCapacityTest, WorksWithVeryLargeCapacity) {
+  static TypeParam vec{};
+  vec.clear();
+  vec.push_back(0);
+  vec.push_back(42);
+
+  arene::base::vector_reference<typename TypeParam::value_type> const ref{vec};
+  ASSERT_EQ(ref.size(), std::size_t{2});
+  EXPECT_EQ(ref[0], 0);
+  EXPECT_EQ(ref[1], 42);
+}
+
+/// @test const_vector_reference can be constructed from and used with
+///   inline_vector instances of very large capacity
+TYPED_TEST(InlineVectorReferenceLargeCapacityTest, ConstWorksWithVeryLargeCapacity) {
+  static TypeParam vec{};
+  vec.clear();
+  vec.push_back(0);
+  vec.push_back(42);
+
+  arene::base::const_vector_reference<typename TypeParam::value_type> const ref{static_cast<TypeParam const&>(vec)};
+  ASSERT_EQ(ref.size(), std::size_t{2});
+  EXPECT_EQ(ref[0], 0);
+  EXPECT_EQ(ref[1], 42);
 }
 
 }  // namespace

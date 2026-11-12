@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-load("@local_config_platform//:constraints.bzl", "HOST_CONSTRAINTS")
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_binary")
 load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+load("//rules:cc_output_test.bzl", "cc_output_test")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 load("//rules:diff_test.bzl", "diff_test")
 
@@ -22,7 +23,7 @@ cc_test_with_variants(
     srcs = ["gtest_test.cpp"],
     deps = [
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -34,7 +35,100 @@ cc_test_with_variants(
         "//arene/base/testing:gtest",
         "//arene/base/testing:property_assertions",
         "//arene/base/testing/detail:property_context",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_output_test(
+    name = "property_macros_output_test",
+    srcs = ["property_macros_binary.cpp"],
+    expected_output = select({
+        "//configs:toolchain_stdlib_enabled": "expected_property_macros_output.googletest.log",
+        "//configs:toolchain_stdlib_disabled": "expected_property_macros_output.minitest.log",
+    }),
+    expected_return_code = 1,
+    tags = [
+        # does not contain tests for production-intent code
+        "no-test-spec",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/testing/detail:any_prng_ref",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_output_test(
+    name = "arene_prop_check_test",
+    srcs = ["arene_prop_check_binary.cpp"],
+    expected_output = "expected_arene_prop_check_output.log",
+    tags = [
+        # does not contain tests for production-intent code
+        "no-test-spec",
+    ],
+    deps = [
+        "//arene/base/inline_container:vector",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//configs:incompatible_with_toolchain_stdlib_disabled",
+    ],
+)
+
+cc_library(
+    name = "property_config_env_helpers",
+    testonly = True,
+    hdrs = ["property_config_env_helpers.hpp"],
+    deps = [
+        "//arene/base:optional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/strings:inline_string",
+        "//arene/base/testing:property_config",
+    ],
+)
+
+cc_test_with_variants(
+    name = "property_config_test",
+    srcs = ["property_config_test.cpp"],
+    tags = ["exclusive"],
+    deps = [
+        ":property_config_env_helpers",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:property_config",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "property_config_death_test",
+    srcs = ["property_config_death_test.cpp"],
+    tags = ["exclusive"],
+    deps = [
+        ":property_config_env_helpers",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/testing:property_config",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "property_config_env_test",
+    srcs = ["property_config_env_test.cpp"],
+    env = {
+        "ARENE_PROP_PARAM_REQUIRED_SUCCESSES": "7",
+        "ARENE_PROP_PARAM_MAX_DISCARDS": "3",
+        "ARENE_PROP_PARAM_SEED": "42",
+    },
+    deps = [
+        "//arene/base/testing:property_config",
+        "//testlibs:test_main",
     ],
 )
 
@@ -46,12 +140,12 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:ignore",
         "//arene/base/stdlib_choice:initializer_list",
-        "//arene/base/testing:prng_xoshiro",
         "//arene/base/testing:property_assertions",
         "//arene/base/testing:property_config",
         "//arene/base/testing:property_error",
         "//arene/base/testing:run_property",
-        "//testlibs:gtest",
+        "//arene/base/testing/detail:any_prng_ref",
+        "//testlibs:test_main",
     ],
 )
 
@@ -64,7 +158,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/testing:gtest",
         "//arene/base/testing:prng_xoshiro",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -142,6 +236,10 @@ _TEST_SIZE = "256M"
 
 test_suite(
     name = "xoshiro_reference_test",
+    tags = [
+        # does not contain tests for production-intent code
+        "no-test-spec",
+    ],
     tests = [
         name
         for seed in _TEST_SEEDS_U64
@@ -159,7 +257,50 @@ test_suite(
                 seed,
                 size,
             ),
+            tags = [
+                # does not contain tests for production-intent code
+                "no-test-spec",
+            ],
         )]
+    ],
+)
+
+cc_library(
+    name = "sequenced_mock_prng",
+    testonly = True,
+    hdrs = ["sequenced_mock_prng.hpp"],
+    deps = [
+        "//arene/base/inline_container",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:initializer_list",
+    ],
+)
+
+cc_library(
+    name = "float_test_patterns",
+    testonly = True,
+    hdrs = ["float_test_patterns.hpp"],
+    deps = [
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+cc_test_with_variants(
+    name = "array_distribution_test",
+    srcs = ["array_distribution_test.cpp"],
+    deps = [
+        ":sequenced_mock_prng",
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/testing:array_distribution",
+        "//arene/base/testing:bitwise_uniform_distribution",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
     ],
 )
 
@@ -167,14 +308,16 @@ cc_test_with_variants(
     name = "bitwise_uniform_distribution_test",
     srcs = ["bitwise_uniform_distribution_test.cpp"],
     deps = [
+        ":float_test_patterns",
+        ":sequenced_mock_prng",
         "//arene/base:array",
-        "//arene/base/inline_container",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/math:float_sign",
         "//arene/base/math:power_of_2",
         "//arene/base/stdlib_choice:climits",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:declval",
-        "//arene/base/stdlib_choice:initializer_list",
         "//arene/base/stdlib_choice:is_signed",
         "//arene/base/stdlib_choice:make_unsigned",
         "//arene/base/stdlib_choice:numeric_limits",
@@ -182,7 +325,45 @@ cc_test_with_variants(
         "//arene/base/testing:gtest",
         "//arene/base/testing:prng_xoshiro",
         "//arene/base/type_list:cartesian_product",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "default_distribution_test",
+    srcs = ["default_distribution_test.cpp"],
+    deps = [
+        ":sequenced_mock_prng",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/testing:bitwise_uniform_distribution",
+        "//arene/base/testing:default_distribution",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "nan_rejecting_distribution_test",
+    srcs = ["nan_rejecting_distribution_test.cpp"],
+    deps = [
+        ":float_test_patterns",
+        ":sequenced_mock_prng",
+        "//arene/base/compiler_support",
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/math:float_properties",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:bitwise_uniform_distribution",
+        "//arene/base/testing:gtest",
+        "//arene/base/testing:nan_rejecting_distribution",
+        "//arene/base/testing:prng_xoshiro",
+        "//testlibs:test_main",
     ],
 )
 

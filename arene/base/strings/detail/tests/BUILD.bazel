@@ -4,6 +4,13 @@
 
 load("//rules:cc_test.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_test(
     name = "string_length_test",
     srcs = [
@@ -12,7 +19,7 @@ cc_test(
     deps = [
         "//arene/base/strings/detail:helpers",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -26,11 +33,6 @@ cc_test(
         "//arene/base:span",
         "//arene/base/strings/detail:helpers",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

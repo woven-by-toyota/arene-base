@@ -19,6 +19,7 @@
 
 namespace {
 
+using ::arene::base::default_inline_function_alignment;
 using ::arene::base::default_inline_function_size;
 using ::arene::base::inline_function;
 using ::arene::base::is_invocable_r_v;
@@ -28,6 +29,11 @@ using ::arene::base::noexcept_inline_function;
 /// @test `default_inline_function_size` is equivalent to `4*sizeof(void*)`.
 TEST(DefaultInlineFunctionSize, IsFourTimesSizeOfPointer) {
   STATIC_ASSERT_EQ(default_inline_function_size, 4 * sizeof(void*));
+}
+
+/// @test `default_inline_function_alignment` is equivalent to `alignof(std::max_align_t)`.
+TEST(DefaultInlineFunctionAlignment, IsAlignmentOfMaxAlignT) {
+  STATIC_ASSERT_EQ(default_inline_function_alignment, alignof(std::max_align_t));
 }
 
 /// @brief simple enum specifying if the function should be noexcept or not.
@@ -41,9 +47,13 @@ struct inline_function_type {
   /// outer template.
   /// @tparam Signature The signature of the generated inline_function.
   /// @tparam BufferSize The buffer size of the generated inline_function.
-  template <typename Signature, std::size_t BufferSize = default_inline_function_size>
+  /// @tparam Alignment The buffer alignment of the generated inline_function.
+  template <
+      typename Signature,
+      std::size_t BufferSize = default_inline_function_size,
+      std::size_t Alignment = default_inline_function_alignment>
   using inline_function =
-      ::arene::base::inline_function<Signature, BufferSize, ::arene::base::to_underlying(IsNoexcept)>;
+      ::arene::base::inline_function<Signature, BufferSize, ::arene::base::to_underlying(IsNoexcept), Alignment>;
 };
 
 /// @brief A set of inline_function generators which includes all permutations of noexcept.
@@ -286,6 +296,41 @@ TYPED_TEST(AllInlineFunctionsTest, CannotAssignIfBufferTooSmall) {
   STATIC_ASSERT_TRUE(std::is_assignable<
                      typename TypeParam::template inline_function<double(), sizeof(large_callable)>,
                      large_callable>::value);
+}
+
+/// @brief The alignment requested by `over_aligned_callable`, which is stricter than any fundamental type's.
+constexpr std::size_t over_alignment{2U * default_inline_function_alignment};
+
+struct alignas(over_alignment) over_aligned_callable {
+  int value;
+
+  auto operator()() const noexcept -> int { return value; }
+};
+
+/// @test An invocable that needs stricter alignment than the buffer has is rejected by a `static_assert`, so the
+/// constructibility and assignability traits still report `true`
+TYPED_TEST(AllInlineFunctionsTest, TraitsDoNotReportBufferUnderAlignment) {
+  using under_aligned_function =
+      typename TypeParam::template inline_function<int(), sizeof(over_aligned_callable), over_alignment / 2U>;
+
+  STATIC_ASSERT_TRUE(std::is_constructible<under_aligned_function, over_aligned_callable>::value);
+  STATIC_ASSERT_TRUE(std::is_assignable<under_aligned_function, over_aligned_callable>::value);
+}
+
+/// @test An `inline_function` is aligned strictly enough for the invocables it accepts, and can invoke an over-aligned
+/// one
+TYPED_TEST(AllInlineFunctionsTest, OverAlignedStoredInvocableIsCorrectlyAligned) {
+  // The internal buffer is the first member of the function object, so the object's own alignment is what determines
+  // whether the invocable is placement-constructed at a suitably aligned address.
+  using under_aligned_function = typename TypeParam::template inline_function<int()>;
+  using over_aligned_function =
+      typename TypeParam::template inline_function<int(), sizeof(over_aligned_callable), over_alignment>;
+
+  STATIC_ASSERT_EQ(alignof(under_aligned_function), default_inline_function_alignment);
+  STATIC_ASSERT_EQ(alignof(over_aligned_function), over_alignment);
+
+  over_aligned_function func{over_aligned_callable{forty_two}};
+  ASSERT_EQ(func(), forty_two);
 }
 
 /// @test `inline_function` is not constructible from an invocable with a throwing move constructor.

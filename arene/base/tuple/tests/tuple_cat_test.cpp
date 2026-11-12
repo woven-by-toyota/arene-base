@@ -4,7 +4,7 @@
 
 #include "arene/base/tuple/tests/tuple_cat.hpp"  // IWYU pragma: keep
 
-// IWYU pragma: no_include "testlibs/minitest/minitest.hpp"
+#include <gtest/gtest.h>
 
 #include "arene/base/array/array.hpp"
 #include "arene/base/stdlib_choice/move.hpp"

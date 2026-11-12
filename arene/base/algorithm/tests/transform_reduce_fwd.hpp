@@ -14,7 +14,11 @@ namespace config {
 struct override {};
 
 /// @brief specifies the variant of the generalized transform reduce under test
-enum struct flavor { transform_reduce, inner_product, std_inner_product };
+enum struct flavor {  //
+  transform_reduce,
+  inner_product,
+  std_inner_product
+};
 
 /// @brief specifies which version of @c transform_reduce is being tested
 ///
@@ -24,6 +28,15 @@ enum struct flavor { transform_reduce, inner_product, std_inner_product };
 ///
 template <class>
 constexpr auto version = flavor::transform_reduce;
+
+/// @brief specifies the range arity of the @c transform_reduce overload set
+///
+/// Used to configure tests for the @c transform_reduce algorithm. For example,
+/// tests will be skipped if written for range arity 2 but the version and
+/// overloads under test are range arity 1.
+///
+template <class>
+constexpr auto range_arity = 2U;
 
 /// @brief specifies the function under test
 ///

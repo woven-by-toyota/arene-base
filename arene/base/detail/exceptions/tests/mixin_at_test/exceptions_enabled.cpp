@@ -11,8 +11,8 @@
 #include "arene/base/stdlib_choice/move.hpp"
 #include "arene/base/stdlib_choice/stdexcept.hpp"
 #include "arene/base/testing/gtest.hpp"
-#include "arene/base/type_list/at.hpp"
-#include "arene/base/type_list/type_list.hpp"
+// IWYU pragma: no_include "arene/base/type_list/at.hpp"
+// IWYU pragma: no_include "arene/base/type_list/type_list.hpp"
 
 namespace {
 

@@ -6,7 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MATH_PI_HPP_
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"

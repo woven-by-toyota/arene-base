@@ -97,6 +97,7 @@ struct index_array {
   value_type values[N]{};
   // parasoft-end-suppress AUTOSAR-A18_1_1-a
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: these standard range API names do not hide anything"
   /// @brief iterator to the beginning of the range
   /// @return iterator to the beginning of the range
   constexpr auto begin() noexcept -> value_type* { return values; }
@@ -112,6 +113,7 @@ struct index_array {
   /// @return iterator past the end of the range
   constexpr auto end() const noexcept -> value_type const* { return begin() + N; }
   // parasoft-end-suppress AUTOSAR-M5_0_15-a
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 };
 
 // parasoft-end-suppress AUTOSAR-A11_0_2-a

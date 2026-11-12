@@ -11,6 +11,7 @@
 #include "arene/base/linalg/tests/test_helpers.hpp"
 #include "arene/base/mdspan/extents.hpp"
 #include "arene/base/mdspan/layout.hpp"
+#include "arene/base/mdspan/make_mdspan.hpp"
 #include "arene/base/mdspan/mdspan.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
@@ -141,7 +142,17 @@ using matrix_types = ::testing::Types<
     mdspan<double, dextents<std::size_t, 2>>,
     mdspan<std::uint32_t, extents<std::size_t, arene::base::dynamic_extent, 4>, arene::base::layout_left>>;
 
-using linalg_object_types = arene::base::type_lists::concat_t<vector_types, matrix_types>;
+using rank3_types = ::testing::Types<
+    // Mdspans that are input objects only but not writeable
+    mdspan<std::int32_t const, extents<std::size_t, 3, 4, 5>>,
+    mdspan<double const, extents<std::size_t, 1, dynamic_extent, 2>>,
+    // Mdspans that are input/output objects
+    mdspan<std::int32_t, extents<std::size_t, 3, 4, 5>>,
+    mdspan<double, extents<std::size_t, 1, dynamic_extent, 2>>,
+    mdspan<double, dextents<std::size_t, 3>>,
+    mdspan<std::uint32_t, extents<std::size_t, arene::base::dynamic_extent, 4, 5>, arene::base::layout_left>>;
+
+using linalg_object_types = arene::base::type_lists::concat_t<vector_types, matrix_types, rank3_types>;
 
 TYPED_TEST_SUITE(LinalgPreconditionsTest, linalg_object_types, );
 
@@ -282,6 +293,39 @@ TYPED_TEST(LinalgMatrixPreconditionsTest, NotAddableWithDifferentWidths) {
   STATIC_ASSERT_TRUE(noexcept(actually_addable(original, original, different_width)));
   STATIC_ASSERT_TRUE(noexcept(actually_addable(original, different_width, original)));
   STATIC_ASSERT_TRUE(noexcept(actually_addable(different_width, original, original)));
+}
+
+/// @test @c actually_addable with Rank 3 object is @c true if all extents
+/// values are the same
+TEST(LinalgObjectRank3PreconditionsTest, ActuallyAddable) {
+  auto const mdspan_with_extents = [](auto... extents) {
+    return arene::base::make_mdspan(  //
+        static_cast<int*>(nullptr),
+        arene::base::make_extents(extents...)
+    );
+  };
+
+  EXPECT_TRUE(actually_addable(      //
+      mdspan_with_extents(1, 2, 3),  //
+      mdspan_with_extents(1, 2, 3),  //
+      mdspan_with_extents(1, 2, 3)   //
+  ));
+
+  EXPECT_FALSE(actually_addable(     //
+      mdspan_with_extents(4, 2, 3),  //
+      mdspan_with_extents(1, 2, 3),  //
+      mdspan_with_extents(1, 2, 3)   //
+  ));
+  EXPECT_FALSE(actually_addable(     //
+      mdspan_with_extents(1, 2, 3),  //
+      mdspan_with_extents(1, 4, 3),  //
+      mdspan_with_extents(1, 2, 3)   //
+  ));
+  EXPECT_FALSE(actually_addable(     //
+      mdspan_with_extents(1, 2, 3),  //
+      mdspan_with_extents(1, 2, 3),  //
+      mdspan_with_extents(1, 2, 4)   //
+  ));
 }
 
 /// @test @c actually_addable is not invocable with a matrix and anything that isn't a matrix

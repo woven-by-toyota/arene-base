@@ -8,11 +8,13 @@
 
 #include "arene/base/algorithm/equal.hpp"
 #include "arene/base/array/array.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/compiler_info.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/detail/dynamic_extent.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/span/span.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
@@ -496,6 +498,20 @@ TEST(StringView, ReverseFindWithPosition) {
   STATIC_ASSERT_EQ(str_view.rfind("o"_asv, 5), 4);
   STATIC_ASSERT_EQ(str_view.rfind("world"_asv, 5), string_view::npos);
   STATIC_ASSERT_EQ(str_view.rfind("hello"_asv, string_view::npos), 0);
+
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 0), string_view::npos);  // start at 'h'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 1), string_view::npos);  // start at 'e'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 2), 2);                  // start at 'l'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 3), 3);                  // start at 'l'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 4), 3);                  // start at 'o'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 5), 3);                  // start at ' '
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 6), 3);                  // start at 'w'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 7), 3);                  // start at 'o'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 8), 3);                  // start at 'r'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 9), 9);                  // start at 'l'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 10), 9);                 // start at 'd'
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, 11), 9);                 // start at end
+  STATIC_ASSERT_EQ(str_view.rfind("l"_asv, string_view::npos), 9);  // start at infinity
 }
 
 /// @test Invoking `rfind` with a single character returns the index of the last instance of that character
@@ -516,8 +532,14 @@ TEST(StringView, ReverseFindEmptyString) {
 /// character less than the specified position
 TEST(StringView, ReverseFindSingleCharWithStartPosition) {
   STATIC_ASSERT_EQ(string_view{"test"}.rfind('x', 0), string_view::npos);
-  STATIC_ASSERT_EQ(string_view{"test"}.rfind('t', 1), 0);
   STATIC_ASSERT_EQ(string_view{"test"}.rfind('s', 1), string_view::npos);
+
+  STATIC_ASSERT_EQ(string_view{"test"}.rfind('t', 0), 0);                  // start at 't'
+  STATIC_ASSERT_EQ(string_view{"test"}.rfind('t', 1), 0);                  // start at 'e'
+  STATIC_ASSERT_EQ(string_view{"test"}.rfind('t', 2), 0);                  // start at 's'
+  STATIC_ASSERT_EQ(string_view{"test"}.rfind('t', 3), 3);                  // start at 't'
+  STATIC_ASSERT_EQ(string_view{"test"}.rfind('t', 4), 3);                  // start at end
+  STATIC_ASSERT_EQ(string_view{"test"}.rfind('t', string_view::npos), 3);  // start at infinity
 }
 
 /// @test Invoking `rfind` with something implicitly convertible to a pointer to a NUL-terminated string returns the
@@ -656,6 +678,7 @@ TEST(StringView, FindFirstNotOf) {
 TEST(StringView, FindFirstNotOfWithOffset) {
   constexpr string_view str_view = "hello world!";
   STATIC_ASSERT_EQ(str_view.find_first_not_of("", 1), 1);
+  STATIC_ASSERT_EQ(str_view.find_first_not_of("", str_view.size()), string_view::npos);
   ASSERT_EQ(str_view.find_first_not_of("abcde"_asv, 2), 2);
   ASSERT_EQ(str_view.find_first_not_of(" elo"_asv, 1), 6);
   ASSERT_EQ(str_view.find_first_not_of("world! "_asv, 2), string_view::npos);
@@ -1135,5 +1158,8 @@ TEST(StringView, StringViewNullByteInInput) {
   ASSERT_NE(full.size(), std::string(&msg_nullbyte_constchar[0]).size());
 #endif
 }
+
+/// @test Given a @c string_view, when @c enable_borrowed_range is queried, then its value is @c true .
+TEST(StringView, IsBorrowedRange) { STATIC_ASSERT_TRUE(::arene::base::ranges::enable_borrowed_range_v<string_view>); }
 
 }  // namespace

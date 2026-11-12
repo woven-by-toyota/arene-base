@@ -5,6 +5,7 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_CONFIGURABLE_VALUE_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_CONFIGURABLE_VALUE_HPP_
 
+#include "arene/base/compiler_support/diagnostics.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_default_constructible.hpp"
@@ -54,7 +55,13 @@ class configurable_value : private noexcept_mixin<ThrowsOn> {
     allow_constexpr_if(std::integral_constant<bool, static_cast<bool>(Constexpr)>{});
   }
 
-  template <class U, class = std::enable_if_t<std::is_constructible<T, U>::value>>
+  template <  //
+      class U,
+      class DisableBase = disable_mixin<Disable>,
+      class = std::enable_if_t<
+          DisableBase::is_value_constructible &&  //
+          std::is_constructible<T, U>::value>     //
+      >
   // NOLINTNEXTLINE(hicpp-explicit-conversions)
   constexpr configurable_value(U val) noexcept(!contains<ThrowsOn>(throws_on::value_construct))
       : disable_spec_{nullptr},
@@ -68,7 +75,10 @@ class configurable_value : private noexcept_mixin<ThrowsOn> {
 
   template <disable D = Disable, class = std::enable_if_t<!contains<D>(disable::equal)>>
   friend constexpr auto operator==(configurable_value const& lhs, configurable_value const& rhs) noexcept -> bool {
+    ARENE_IGNORE_START();
+    ARENE_IGNORE_ALL("-Wfloat-equal", "This class is only used in internal test code where == is usually intended");
     return lhs.value == rhs.value;
+    ARENE_IGNORE_END();
   }
 
   template <disable D = Disable, class = std::enable_if_t<!contains<D>(disable::not_equal)>>
@@ -239,7 +249,7 @@ class configurable_value : private noexcept_mixin<ThrowsOn> {
     return istr >> wrapper.value;
   }
 
-  // This is intended to be implicitly convertible to the wrapped type.
+  // This is intended to be implicitly convertible to the wrapped type for convenience.
   // NOLINTNEXTLINE(hicpp-explicit-conversions)
   constexpr operator T() const { return value; }
 };

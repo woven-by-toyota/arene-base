@@ -1,4 +1,6 @@
 // Copyright 2024, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // Examples from the docs of \c arene::base::type_name_v
 

@@ -10,7 +10,7 @@
 
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 
 namespace arene {
 namespace base {
@@ -20,9 +20,23 @@ namespace base {
 template <class InlineString>
 class inline_string_std_string_mixin {
  private:
+  /// @brief Internal type for use as a comparison argument, so the functions exist
   struct dummy {};
 
  protected:
+  /// @brief Do-nothing default constructor
+  constexpr inline_string_std_string_mixin() = default;
+  /// @brief Do-nothing destructor
+  ~inline_string_std_string_mixin() = default;
+  /// @brief Do-nothing copy constructor
+  constexpr inline_string_std_string_mixin(inline_string_std_string_mixin const&) = default;
+  /// @brief Do-nothing move constructor
+  constexpr inline_string_std_string_mixin(inline_string_std_string_mixin&&) = default;
+  /// @brief Do-nothing copy assignment operator
+  constexpr auto operator=(inline_string_std_string_mixin const&) -> inline_string_std_string_mixin& = default;
+  /// @brief Do-nothing move assignment operator
+  constexpr auto operator=(inline_string_std_string_mixin&&) -> inline_string_std_string_mixin& = default;
+
   /// @brief Dummy definition of @c three_way_compare for cases when @c std::string is not available
   /// @return strong_ordering::equal (but it's not actually possible to call this)
   ARENE_NODISCARD static constexpr auto three_way_compare(dummy, dummy) noexcept -> strong_ordering {

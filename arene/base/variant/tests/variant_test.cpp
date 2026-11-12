@@ -3,18 +3,22 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "arene/base/compiler_support/diagnostics.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/ignore.hpp"
 
 ARENE_IGNORE_START();
 ARENE_IGNORE_ALL("-Wfloat-equal", "Comparisons are against copied values, no maths performed");
 
 #include <gtest/gtest.h>
 
+#include "arene/base/detail/raw_c_string.hpp"
 #include "arene/base/inline_container/map.hpp"
 #include "arene/base/inline_container/vector.hpp"
 #include "arene/base/monostate/monostate.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
+#include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_copy_assignable.hpp"
 #include "arene/base/stdlib_choice/is_copy_constructible.hpp"
 #include "arene/base/stdlib_choice/is_default_constructible.hpp"
@@ -27,11 +31,18 @@ ARENE_IGNORE_ALL("-Wfloat-equal", "Comparisons are against copied values, no mat
 #include "arene/base/stdlib_choice/remove_reference.hpp"
 #include "arene/base/strings/inline_string.hpp"
 #include "arene/base/testing/gtest.hpp"
+#include "arene/base/utility/in_place.hpp"
 #include "arene/base/variant/variant.hpp"
 #include "testlibs/utilities/configurable_value.hpp"
+#include "testlibs/utilities/counting_wrapper.hpp"
 #include "testlibs/utilities/has_broken_less_than.hpp"
 
 namespace {
+
+using ::arene::base::in_place_index_t;
+using ::arene::base::variant;
+
+using counted_int32_t = testing::counting_wrapper<std::int32_t>;
 
 /// @brief test string class with the same semantics as @c std::string but using @c inline_string
 class test_string {
@@ -50,7 +61,22 @@ class test_string {
     other.str_.clear();
   }
 
+  /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters) The order of the parameters is consistent with std::string
+  test_string(std::size_t len, ::arene::base::detail::character chr)
+      : str_(len, chr) {}
+
   test_string(test_string const& other) = default;
+
+  /// this is a stub consuming a sequence of chars and a len to allow differentiation based on the signature of the
+  /// constructor. The len is not used to construct the string, but is used to verify that the correct constructor was
+  /// called.
+  test_string(
+      std::initializer_list<char> source,
+      counted_int32_t stub  // NOLINT(performance-unnecessary-value-param) we need sink to validate forwarding
+  )
+      : str_(source.begin(), source.end()) {
+    std::ignore = stub;
+  }
 
   auto operator=(test_string const& other) -> test_string& = default;
   auto operator=(test_string&& other) noexcept -> test_string& {
@@ -290,6 +316,153 @@ TEST(Variant, AcceptedIndex) {
   //   T>::type::value; static_assert(is_valid == 2,
   //                 "Accepted Index failed");  // test_string is a better match
   // }
+}
+
+class VariantInPlaceIndexConstructorTest : public ::testing::Test {
+ protected:
+  void SetUp() override { counted_int32_t::count = {}; }
+  using inline_string = ::arene::base::inline_string<50U>;
+  using variant_type = variant<counted_int32_t, inline_string, double, double>;
+};
+
+/// @test Given a `variant<Ts...>` and an index `I`, when the constructor `variant<Ts...>(in_place_index<I>, args...)`
+///       is called, then the `I`-th alternative is constructed with `args...`
+TEST_F(VariantInPlaceIndexConstructorTest, ConstructsTheIthAlternativeWithArgs) {
+  auto const expected_int = std::int32_t{42};
+  ASSERT_EQ((variant_type{arene::base::in_place_index<0U>, expected_int}.get<0U>()), expected_int);
+
+  {
+    SCOPED_TRACE("inplace-from-type");
+    auto const expected_str = inline_string{"Magic String"};
+    ASSERT_EQ((variant_type{arene::base::in_place_index<1U>, expected_str}.get<1U>()), expected_str);
+  }
+  {
+    SCOPED_TRACE("inplace-from-args");
+    constexpr auto repeated_char = 'a';
+    constexpr auto repeated_count = std::size_t{5U};
+    auto const expected_str = inline_string(repeated_count, repeated_char);
+    ASSERT_EQ((variant_type{arene::base::in_place_index<1U>, repeated_count, repeated_char}.get<1U>()), expected_str);
+  }
+  {
+    SCOPED_TRACE("inplace-from-args-explicit-ctor");
+    constexpr ::arene::base::detail::raw_c_string expected_str = "Magic String";
+    ASSERT_EQ((variant_type{arene::base::in_place_index<1U>, expected_str}.get<1U>()), expected_str);
+  }
+
+  // We intentionally have two alternatives of type double to test that the correct alternative is constructed
+  auto const expected_double = double{42.0};
+  ASSERT_EQ((variant_type{arene::base::in_place_index<2U>, expected_double}.get<2U>()), expected_double);
+  ASSERT_EQ((variant_type{arene::base::in_place_index<3U>, expected_double}.get<3U>()), expected_double);
+}
+
+/// @test Given a `variant<Ts...>` and an index `I`, when the constructor `variant<Ts...>(in_place_index<I>, args...)`
+///       is called, then the args are perfectly forwarded to the constructor of the `I`-th alternative
+TEST_F(VariantInPlaceIndexConstructorTest, PerfectlyForwardsArgs) {
+  counted_int32_t::count = {};
+  auto const copy_int = counted_int32_t{42};
+  auto const variant_from_copy = variant_type{arene::base::in_place_index<0U>, copy_int};
+  ASSERT_EQ((variant_from_copy.get<0U>()).count.move_ctor, 0U);
+  ASSERT_EQ((variant_from_copy.get<0U>()).count.copy_ctor, 1U);
+
+  counted_int32_t::count = {};
+  auto const variant_from_move = variant_type{arene::base::in_place_index<0U>, counted_int32_t{42}};
+  ASSERT_EQ((variant_from_move.get<0U>()).count.move_ctor, 1U);
+  ASSERT_EQ((variant_from_move.get<0U>()).count.copy_ctor, 0U);
+}
+
+/// @test Given a `variant<Ts...>` and an index `I`, the constructor `variant<Ts...>(in_place_index<I>, args...)` is not
+/// invocable if `I>= sizeof...(Ts)`.
+TEST_F(VariantInPlaceIndexConstructorTest, InPlaceIndexConstructorNotInvocableIfIndexOutOfBounds) {
+  STATIC_ASSERT_FALSE((std::is_constructible<variant_type, in_place_index_t<4U>, inline_string>::value));
+  STATIC_ASSERT_FALSE((std::is_constructible<variant_type, in_place_index_t<5U>, inline_string>::value));
+  STATIC_ASSERT_FALSE((std::is_constructible<variant_type, in_place_index_t<6U>, inline_string>::value));
+  STATIC_ASSERT_FALSE((std::is_constructible<variant_type, in_place_index_t<7U>, inline_string>::value));
+}
+
+/// @test Given a `variant<Ts...>` and an index `I`, the constructor `variant<Ts...>(in_place_index<I>, args...)` is not
+/// invocable if the `I`-th alternative is not constructible from `args...`.
+TEST_F(VariantInPlaceIndexConstructorTest, NotInvocableIfTypeNotConstructible) {
+  STATIC_ASSERT_FALSE((std::is_constructible<variant_type, arene::base::in_place_index_t<0U>, inline_string>::value));
+  STATIC_ASSERT_FALSE((std::is_constructible<variant_type, arene::base::in_place_index_t<1U>, counted_int32_t>::value));
+  STATIC_ASSERT_FALSE((std::is_constructible<variant_type, arene::base::in_place_index_t<2U>, inline_string>::value));
+  STATIC_ASSERT_FALSE((std::is_constructible<variant_type, arene::base::in_place_index_t<3U>, inline_string>::value));
+}
+
+class VariantInPlaceIndexInitializerListConstructorTest : public ::testing::Test {
+ protected:
+  using vector_type = test_vector<std::int32_t>;
+  using map_type = test_map<std::int32_t, std::int32_t>;
+  using variant_type = arene::base::variant<map_type, vector_type, test_string, double, double>;
+};
+
+/// @test Given a `variant<Ts...>` and an index `I`, when the constructor
+/// `variant<Ts...>(in_place_index<I>, initializer_list<U>, args...)` is called, then the `I`-th alternative is
+/// constructed with `initializer_list, args...`
+TEST_F(VariantInPlaceIndexInitializerListConstructorTest, ConstructsTheIthAlternativeWithInitializerListAndArgs) {
+  auto const expected_map = map_type{{1, 2}, {3, 4}, {5, 6}};
+  ASSERT_EQ(
+      (variant_type{
+          arene::base::in_place_index<0U>,
+          {std::pair<std::int32_t const, std::int32_t>(1, 2),
+           std::pair<std::int32_t const, std::int32_t>(3, 4),
+           std::pair<std::int32_t const, std::int32_t>(5, 6)}
+      }.get<0U>()),
+      (expected_map)
+  );
+
+  auto const expected_vector = vector_type{1, 2, 3, 4, 5};
+  // Keep the element type explicit: on some cross toolchains std::int32_t is long, not int.
+  ASSERT_EQ(
+      (variant_type{arene::base::in_place_index<1U>, std::initializer_list<std::int32_t>{1, 2, 3, 4, 5}}.get<1U>()),
+      (expected_vector)
+  );
+
+  counted_int32_t::count = {};
+  auto const expected_string = test_string{{'a', 'b', 'c'}};
+  ASSERT_EQ(
+      (variant_type{arene::base::in_place_index<2U>, std::initializer_list<char>{'a', 'b', 'c'}, counted_int32_t{3U}}
+           .get<2U>()),
+      (expected_string)
+  );
+  ASSERT_EQ(counted_int32_t::count.copy_ctor, 0U);
+  ASSERT_EQ(counted_int32_t::count.move_ctor, 1U);
+
+  /// we can't test the other types as they're not constructible from an initializer list
+}
+
+/// @test Given a `variant<Ts...>` and an index `I`, the constructor
+/// `variant<Ts...>(in_place_index<I>, initializer_list<U>, args...)` is not invocable if `I>= sizeof...(Ts)`.
+TEST_F(VariantInPlaceIndexInitializerListConstructorTest, NotInvocableIfIndexOutOfBounds) {
+  STATIC_ASSERT_FALSE((
+      std::is_constructible<variant_type, arene::base::in_place_index_t<4U>, std::initializer_list<std::int32_t>>::value
+  ));
+  STATIC_ASSERT_FALSE((
+      std::is_constructible<variant_type, arene::base::in_place_index_t<5U>, std::initializer_list<std::int32_t>>::value
+  ));
+  STATIC_ASSERT_FALSE((
+      std::is_constructible<variant_type, arene::base::in_place_index_t<6U>, std::initializer_list<std::int32_t>>::value
+  ));
+  STATIC_ASSERT_FALSE((
+      std::is_constructible<variant_type, arene::base::in_place_index_t<7U>, std::initializer_list<std::int32_t>>::value
+  ));
+}
+
+/// @test Given a `variant<Ts...>` and an index `I`, the constructor
+/// `variant<Ts...>(in_place_index<I>, initializer_list<U>, args...)` is not invocable if the type is not constructible
+/// from the initializer list.
+TEST_F(VariantInPlaceIndexInitializerListConstructorTest, NotInvocableIfTypeNotConstructibleFromInitializerList) {
+  STATIC_ASSERT_FALSE((
+      std::is_constructible<variant_type, arene::base::in_place_index_t<0U>, std::initializer_list<std::int32_t>>::value
+  ));
+  STATIC_ASSERT_FALSE(
+      (std::is_constructible<variant_type, arene::base::in_place_index_t<1U>, std::initializer_list<double>>::value)
+  );
+  STATIC_ASSERT_FALSE((
+      std::is_constructible<variant_type, arene::base::in_place_index_t<2U>, std::initializer_list<std::int32_t>>::value
+  ));
+  STATIC_ASSERT_FALSE((
+      std::is_constructible<variant_type, arene::base::in_place_index_t<3U>, std::initializer_list<std::int32_t>>::value
+  ));
 }
 
 /// @test Copying a `variant` copies the index and value of the stored object

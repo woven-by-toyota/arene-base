@@ -4,14 +4,9 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "wrapped_iterator_hdrs",
-    srcs = ["wrapped_iterator.hpp"],
-)
-
 cc_library_with_variants(
     name = "wrapped_iterator",
-    hdrs = [":wrapped_iterator_hdrs"],
+    hdrs = ["wrapped_iterator.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base:compare",
@@ -28,26 +23,16 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "raw_c_string_hdrs",
-    srcs = ["raw_c_string.hpp"],
-)
-
 cc_library_with_variants(
     name = "raw_c_string",
-    hdrs = [":raw_c_string_hdrs"],
+    hdrs = ["raw_c_string.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [],
 )
 
-filegroup(
-    name = "dynamic_extent_hdrs",
-    srcs = ["dynamic_extent.hpp"],
-)
-
 cc_library_with_variants(
     name = "dynamic_extent",
-    hdrs = [":dynamic_extent_hdrs"],
+    hdrs = ["dynamic_extent.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/stdlib_choice:cstddef",
@@ -55,17 +40,93 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "exceptions_hdr",
-    srcs = ["exceptions.hpp"],
-)
-
 cc_library_with_variants(
     name = "exceptions",
-    hdrs = [":exceptions_hdr"],
+    hdrs = ["exceptions.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/detail/exceptions:internal",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_representable_as",
+    hdrs = ["is_representable_as.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_convertible",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/utility:safe_comparisons",
+    ],
+)
+
+cc_library_with_variants(
+    name = "iterator_interface",
+    hdrs = ["iterator_interface.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/iterator/detail:iter_concept",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+cc_library_with_variants(
+    name = "make_range_from_indexable",
+    hdrs = ["make_range_from_indexable.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":iterator_interface",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:invoke",
+        "//arene/base/ranges:size",
+        "//arene/base/stdlib_choice:conditional",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_move_constructible",
+        "//arene/base/stdlib_choice:is_reference",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_manipulation:ebo_holder",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:remove_cvref",
+        "//arene/base/utility:make_subrange",
+    ],
+)
+
+cc_library_with_variants(
+    name = "index_permutation_range",
+    hdrs = ["index_permutation_range.hpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base:contracts",
+        "//arene/base:monostate",
+        "//arene/base/algorithm:any_of",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:equal_to",
+        "//arene/base/stdlib_choice:integer_sequence",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/type_manipulation:consume_values",
     ],
 )
 
@@ -73,11 +134,7 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":dynamic_extent_hdrs",
-        ":exceptions_hdr",
-        ":raw_c_string_hdrs",
-        ":wrapped_iterator_hdrs",
         "//arene/base/detail/exceptions:package",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

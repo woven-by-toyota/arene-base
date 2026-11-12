@@ -10,6 +10,7 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/inline_container/testing/customization.hpp"
 #include "arene/base/testing/gtest.hpp"
 

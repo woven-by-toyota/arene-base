@@ -1,3 +1,9 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 <!-- markdownlint-disable MD041 MD013 -->
 <!-- prettier-ignore -->
 \page extern_constexpr Defining compile-time constants for use in multiple translation units
@@ -31,7 +37,7 @@ instances_ of the `constexpr` variable. This is thus a _violation of the
 [One Definition Rule (ODR)](https://en.cppreference.com/w/cpp/language/definition#One_Definition_Rule)_,
 and **Undefined Behaviour**.
 
-## C++17 inline variables {#cpp17-inline-variables}
+# C++17 inline variables {#best-practices-extern-constexpr-cpp17-inline-variables}
 
 C++17 introduces the concept of `inline` variables, which work like `inline`
 functions in that if they are duplicated in multiple translation units, then the
@@ -57,7 +63,7 @@ inline constexpr std::size_t inline_size_of_t = sizeof(T);
 The use of `inline` variables thus avoids the ODR violation and avoids undefined
 behaviour.
 
-## C++14 solution for variable templates {#cpp14-solution-for-variable-templates}
+## C++14 solution for variable templates {#best-practices-extern-constexpr-cpp14-solution-for-variable-templates}
 
 C++14 does not allow the `inline` keyword to be applied to variables. However,
 the same effect can be achieved for _variable templates_ by using the `extern`
@@ -89,7 +95,7 @@ definitions of `extern` variables is always an error.
 extern constexpr std::size_t the_answer = 42;
 ```
 
-## C++14 solution for non-template variables {#cpp14-solution-for-non-template-variables}
+## C++14 solution for non-template variables {#best-practices-extern-constexpr-cpp14-solution-for-non-template-variables}
 
 Having found a solution for variable templates, we can extend that to
 non-template variables. The first step is to define a variable template that has
@@ -130,10 +136,7 @@ defined using this pattern:
 \dontinclude arene/base/utility/swap.hpp
 \skipline namespace swap_detail
 \skipline class swap_fn_impl
-\skip *this
 \skipline };
-\skip std::nullptr_t = nullptr
-\until ;
-\skipline }
 \skipline auto const&
+\skipline ::arene::base::detail::cpp14_inline_static_const
 <!-- prettier-ignore-end -->

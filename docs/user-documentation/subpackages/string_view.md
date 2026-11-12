@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -23,7 +27,7 @@ The Bazel target is
 //:string_view
 ```
 
-# Introduction {#introduction}
+# Introduction {#subpackages-string-view-introduction}
 
 The `string_view` sub-package provides:
 
@@ -34,7 +38,7 @@ The `string_view` sub-package provides:
 - literal suffixes for creating instances of `arene::base::string_view` and
   `arene::base::null_terminated_string_view` directly from string literals.
 
-## The view types {#the-view-types}
+## The view types {#subpackages-string-view-the-view-types}
 
 The `string_view` sub-package provides two view types:
 `arene::base::string_view` and `arene::base::null_terminated_string_view`.
@@ -56,7 +60,7 @@ In addition, `arene::base::string_view` provides a `three_way_compare` member
 function, to facilitate \ref compare "three-way comparisons" similar to the
 C++20 `<=>` operator.
 
-### `arene::base::string_view` {#arene-base-string_view}
+### `arene::base::string_view` {#subpackages-string-view-arene-base-string_view}
 
 `arene::base::string_view` is a backport of
 [`std::string_view`](https://en.cppreference.com/w/cpp/header/string_view), and
@@ -90,7 +94,7 @@ Functions provided:
 - Searching for a character or string via `find`, `rfind`, `find_first_of`,
   `find_last_of`, `find_first_not_of`, and `find_last_not_of` member functions.
 
-### `arene::base::null_terminated_string_view` {#arene-base-null_terminated_string_view}
+### `arene::base::null_terminated_string_view` {#subpackages-string-view-arene-base-null_terminated_string_view}
 
 `arene::base::null_terminated_string_view` is a wrapper for a C-style string,
 terminated with a `NUL` character. If you have a function that accepts a string,
@@ -130,9 +134,9 @@ required, at the expense of computing the length. The operations provided are:
   C-style strings represented via `const char*`, using operators,
   `three_way_compare` and `compare`.
 
-### Examples {#examples}
+### Examples {#subpackages-string-view-examples}
 
-#### `string_view` function arguments {#string_view-function-arguments}
+#### `string_view` function arguments {#subpackages-string-view-string_view-function-arguments}
 
 Multiple string types can be seamlessly passed to the same function if it
 accepts an `arene::base::string_view` as an argument.
@@ -150,7 +154,7 @@ void bar() {
 }
 ```
 
-#### `null_terminated_string_view` for passing to C APIs {#null_terminated_string_view-for-passing-to-c-apis}
+#### `null_terminated_string_view` for passing to C APIs {#subpackages-string-view-null_terminated_string_view-for-passing-to-c-apis}
 
 If you intend to pass a string argument to an API that expects a C-style string,
 use `arene::base::null_terminated_string_view`. This will allow passing any
@@ -174,7 +178,7 @@ void bar() {
 }
 ```
 
-## Literal suffixes {#literal-suffixes}
+## Literal suffixes {#subpackages-string-view-literal-suffixes}
 
 The `string_view` sub-package provides literal suffixes for the view types in
 the `arene::base::literals` namespace. You can enable this by writing

@@ -4,17 +4,12 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "internal",
+    hdrs = [
         "lexicographic_compare.hpp",
         "trim.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "internal",
-    hdrs = [":hdrs"],
     visibility = [
         ":__subpackages__",
         "//arene/base:__pkg__",
@@ -27,16 +22,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "length_hdrs",
-    srcs = [
-        "length.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "length",
-    hdrs = [":length_hdrs"],
+    hdrs = [
+        "length.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -61,8 +51,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-        ":length_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/strings:__pkg__"],
 )

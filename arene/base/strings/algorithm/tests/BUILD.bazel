@@ -4,7 +4,7 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test_with_variants(
     name = "length_test",
@@ -13,7 +13,7 @@ cc_test_with_variants(
     ],
     deps = [
         "//arene/base/strings/algorithm:length",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -24,7 +24,7 @@ cc_test_with_variants(
     ],
     deps = [
         "//arene/base/strings/algorithm:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -37,7 +37,7 @@ cc_test_with_variants(
         "//arene/base:inline_string",
         "//arene/base/strings/algorithm:internal",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

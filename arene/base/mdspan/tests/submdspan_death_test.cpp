@@ -8,8 +8,6 @@
 #include "arene/base/mdspan/submdspan.hpp"
 #include "arene/base/mdspan/tests/submdspan_slices_handling_death_test_common.hpp"  // IWYU pragma: keep
 #include "arene/base/stdlib_choice/cstdint.hpp"
-#include "arene/base/stdlib_choice/make_tuple.hpp"
-#include "arene/base/stdlib_choice/tuple.hpp"
 // IWYU pragma: no_include "testlibs/minitest/minitest.hpp"
 
 namespace {

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ The Bazel target is
 //:constraints
 ```
 
-## Constraining function templates {#constraining-function-templates}
+# Constraining function templates {#subpackages-constraints-constraining-function-templates}
 
 When writing function templates, it can be useful to be able to impose
 constraints on the template parameters. For example, maybe a function should
@@ -60,7 +64,7 @@ void foo(T) {}
 important. Without the space, then they are parsed as a single `>=` token, and
 unpleasant compiler error messages will follow.
 
-### Constraining with a single constraint {#constraining-with-a-single-constraint}
+## Constraining with a single constraint {#subpackages-constraints-constraining-with-a-single-constraint}
 
 Obviously, there's not much point specifying an empty list of constraints. The
 following function can be used to add two integers, but will not be considered
@@ -88,7 +92,7 @@ The error message makes it clear which constraint was violated:
 
 <!-- markdownlint-enable MD046 -->
 
-### Constraining with multiple constraints {#constraining-with-multiple-constraints}
+## Constraining with multiple constraints {#subpackages-constraints-constraining-with-multiple-constraints}
 
 Multiple constraints can be added by specifying multiple `std::enable_if_t`
 parameters. In the following example, `convert` can only be called if the
@@ -145,7 +149,7 @@ For the first call it is rejected because of the `is_constructible` constraint
 not being satisfied; for the second it was rejected due to the
 `is_move_constructible` constraint not being satisfied.
 
-### "Type expression" constraints {#type-expression-constraints}
+## "Type expression" constraints {#subpackages-constraints-type-expression-constraints}
 
 Though the normal use case of `arene::base::constraints` will be for each
 constraint to be specified with `std::enable_if_t` and a boolean expression, it
@@ -173,7 +177,7 @@ of the appropriate type without knowing how to construct them. `std::declval` is
 a function from the `<utility>` header which is declared but not defined, and
 has a return value of the specified type.
 
-### Using constraints for overloads {#using-constraints-for-overloads}
+## Using constraints for overloads {#subpackages-constraints-using-constraints-for-overloads}
 
 An important aspect of using `arene::base::constraints` in this way is that
 constrained function overloads are ignored if the constraints are not met,
@@ -221,7 +225,7 @@ std::string to_string(T value){
 The first is only considered if `T` is a signed integral type, the second for an
 unsigned integral type, and the third for floating point types.
 
-## Constraining class templates {#constraining-class-templates}
+## Constraining class templates {#subpackages-constraints-constraining-class-templates}
 
 If a template should not be instantiated at all with template parameters that
 don't meet certain requirements, those requirements should be checked with
@@ -274,7 +278,7 @@ class Foo<T, arene::base::constraints<std::enable_if_t<std::is_integral<T>::valu
 Now `Foo<int>` and `Foo<unsigned long long>` will use the specialization, but
 `Foo<std::string>` will use the primary template.
 
-## Constraining variable templates {#constraining-variable-templates}
+## Constraining variable templates {#subpackages-constraints-constraining-variable-templates}
 
 Variable templates are similar to class templates: they can't be overloaded, but
 they can be partially specialized. Therefore the same partial specialization

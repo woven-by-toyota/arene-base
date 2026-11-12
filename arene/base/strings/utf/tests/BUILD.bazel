@@ -4,7 +4,7 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test_with_variants(
     name = "utf8_validation_test",
@@ -15,7 +15,7 @@ cc_test_with_variants(
         "//arene/base:array",
         "//arene/base:string_view",
         "//arene/base/strings/utf",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

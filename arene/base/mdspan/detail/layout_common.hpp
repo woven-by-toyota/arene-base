@@ -38,6 +38,7 @@ struct layout_stride {
 };
 
 /// @brief A strided data layout in which the leftmost stride is the largest and the rightmost stride is the smallest
+/// @note For rank 2 (i.e. matrices), this produces the "row major" layout.
 struct layout_right {
   /// @brief A mapping from a logical pack of indices into a single flat physical output index
   /// @tparam The extents of the space used for this mapping; must be a specialization of @c extents
@@ -46,6 +47,7 @@ struct layout_right {
 };
 
 /// @brief A strided data layout in which the leftmost stride is the smallest and the rightmost stride is the largest
+/// @note For rank 2 (i.e. matrices), this produces the "column major" layout.
 struct layout_left {
   /// @brief A mapping from a logical pack of indices into a single flat physical output index
   /// @tparam The extents of the space used for this mapping; must be a specialization of @c extents
@@ -60,6 +62,7 @@ namespace layout_detail {
 /// @param extents An extents object
 /// @return An array of strides; the rightmost is @c 1 and each entry is the product of the extents to its right
 /// @pre Each stride entry will fit in @c Extents::index_type without wrapping, else @c ARENE_PRECONDITION violation
+// parasoft-begin-suppress CERT_C-EXP37-a "False positive: All parameters are named"
 template <typename Extents, constraints<std::enable_if_t<Extents::rank() != 0U>> = nullptr>
 constexpr auto right_strides(Extents const& extents) noexcept
     -> ::arene::base::array<typename Extents::index_type, Extents::rank()> {
@@ -82,6 +85,7 @@ constexpr auto right_strides(Extents const& extents) noexcept
 
   return strides;
 }
+// parasoft-end-suppress CERT_C-EXP37-a
 
 /// @brief Get a set of strides with the smallest stride on the right and the largest on the left
 /// @note This special overload for <c>rank == 0</c> exists entirely to make it easier to measure test coverage.

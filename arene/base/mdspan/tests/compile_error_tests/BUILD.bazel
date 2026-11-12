@@ -1,0 +1,1032 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load(
+    "//rules:cc_build_error.bzl",
+    "cc_build_error_test",
+    "inline_src",
+    "mandate_error_matcher",
+    "matcher",
+)
+
+[
+    cc_build_error_test(
+        name = "mdspan_element_type_mandates_{}_test".format(i),
+        src = inline_src.cpp("""\
+#include "arene/base/mdspan/mdspan.hpp"
+
+class abstract
+{{
+    virtual ~abstract() = 0;
+}};
+
+using reference_type = int&;
+
+using array_type = int[];
+
+auto main() -> int
+{{
+   using extents = arene::base::dextents<int, 2>;
+   arene::base::mdspan<{element_type}, extents>{{}};
+}}
+""".format(
+            element_type = param["element_type"],
+        )),
+        compile_stderr = mandate_error_matcher(
+            diagnostic = param["diagnostic"],
+            requirement = param["requirement"],
+        ),
+        deps = [
+            "//arene/base/mdspan",
+        ],
+    )
+    for i, param in enumerate([
+        {
+            "element_type": "reference_type",
+            "diagnostic": "ElementType must be a complete object type",
+            "requirement": "std::is_object<.*>::value",
+        },
+        {
+            "element_type": "abstract",
+            "diagnostic": "ElementType must not be an abstract class",
+            "requirement": "!std::is_abstract<.*>::value",
+        },
+        {
+            "element_type": "array_type",
+            "diagnostic": "ElementType must not be an array",
+            "requirement": "!std::is_array<.*>::value",
+        },
+    ])
+]
+
+cc_build_error_test(
+    name = "mdspan_incomplete_element_type_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/mdspan.hpp"
+
+class incomplete;
+
+auto main() -> int
+{
+   using extents = arene::base::dextents<int, 2>;
+   arene::base::mdspan<incomplete, extents>{};
+}
+"""),
+    compile_stderr = matcher.contains_extended_regex(
+        select({
+            "//conditions:default": "error: incomplete type 'incomplete' used in type trait expression",
+            "//configs/compiler:gcc_or_qcc": "error: invalid use of incomplete type 'class incomplete'",
+        }),
+    ),
+    deps = [
+        "//arene/base/mdspan",
+    ],
+)
+
+cc_build_error_test(
+    name = "mdspan_extents_type_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int
+{
+   arene::base::mdspan<int, int>{};
+}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "Extents type parameter must be a specialization of arene::base::extents",
+        requirement = "is_extents_v<int>",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+    ],
+)
+
+cc_build_error_test(
+    name = "mdspan_accessor_type_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/mdspan.hpp"
+
+auto main() -> int
+{
+   using extents = arene::base::dextents<int, 2>;
+   using accessor = arene::base::default_accessor<float>;
+   arene::base::mdspan<int, extents, arene::base::layout_right, accessor>{};
+}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "ElementType must match AccessorPolicy::element_type",
+        requirement = "std::is_same<int, float>::value",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+    ],
+)
+
+cc_build_error_test(
+    name = "mdspan_valid_accessor_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/mdspan.hpp"
+
+struct non_accessor_policy {};
+auto main() -> int
+{
+   using extents = arene::base::dextents<int, 2>;
+   arene::base::mdspan<int, extents, arene::base::layout_right, non_accessor_policy>{};
+}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "AccessorPolicy must meet the accessor policy requirements",
+        requirement = "is_accessor_policy_v<non_accessor_policy>",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+    ],
+)
+
+cc_build_error_test(
+    name = "mdspan_valid_layout_policy_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/mdspan.hpp"
+
+struct non_layout_policy {};
+auto main() -> int
+{
+   using extents = arene::base::dextents<int, 2>;
+   arene::base::mdspan<int, extents, non_layout_policy>{};
+}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "LayoutPolicy must meet the layout mapping policy requirements for the given Extents",
+        requirement = "is_layout_mapping_policy_for_extents_v<non_layout_policy, .+>",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+    ],
+)
+
+cc_build_error_test(
+    name = "mdspan_checks_mapping_access_postcondition_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/layout.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+#include "arene/base/stdlib_choice/ignore.hpp"
+#include "arene/base/stdlib_choice/numeric_limits.hpp"
+
+struct bad_layout
+{
+  using base_layout = arene::base::layout_right;
+
+  template <class Extents>
+  struct mapping : public base_layout::template mapping<Extents> {
+    using base_mapping = typename base_layout::template mapping<Extents>;
+    static_assert(std::is_same<std::uint64_t, typename Extents::index_type>::value, "");
+
+   public:
+    using base_mapping::base_mapping;
+
+    template <class... OtherIndexArgs>
+    constexpr auto operator()(OtherIndexArgs&&...) const noexcept
+    {
+      // this value does *not* satify the postcondition requirements of a mapping
+      return std::uint64_t{std::numeric_limits<std::size_t>::max()} + std::uint64_t{1};
+    }
+  };
+};
+
+static_assert(
+  sizeof(std::size_t) < sizeof(std::uint64_t),
+  "this test is only intended for 32-bit platforms"
+);
+
+auto main() -> int
+{
+  using extents_type = arene::base::extents<std::uint64_t>;
+  static constexpr auto value = int{};
+  constexpr auto _ = arene::base::mdspan<int const, extents_type, bad_layout>{&value}();
+  std::ignore = _;
+}
+"""),
+    compile_stderr = matcher.contains_basic_regex("error.*contract_violation"),
+    target_compatible_with = [
+        "@platforms//cpu:cortex-r52",
+    ],
+    deps = [
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:layout",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+[
+    test_suite(
+        name = "{}_slice_mandates_test".format(flavor),
+        tests = [
+            subtest
+            for subtest, _ in [
+                (
+                    "{}_slice_mandates_{}_test".format(flavor, i),
+                    cc_build_error_test(
+                        name = "{}_slice_mandates_{}_test".format(flavor, i),
+                        src = inline_src.cpp("""\
+#include "arene/base/mdspan/slice.hpp"
+
+using slice = arene::base::{flavor}_slice<
+  {T1},
+  {T2},
+  {T3}
+>;
+
+auto main() -> int {{
+  slice{{}};
+}}
+                    """.format(
+                            T1 = args["T1"],
+                            T2 = args["T2"],
+                            T3 = args["T3"],
+                            flavor = flavor,
+                        )),
+                        compile_stderr = mandate_error_matcher(
+                            diagnostic = "'.+' must be an integer type or model integral-constant-like",
+                            requirement = "std::is_integral<.+>::value || is_integral_constant_like_v<.+>",
+                        ),
+                        deps = ["//arene/base/mdspan:slice"],
+                    ),
+                )
+                for default_args in [
+                    {
+                        "T1": "std::size_t",
+                        "T2": "int",
+                        "T3": "std::integral_constant<int, 0>",
+                    },
+                ]
+                for i, args in enumerate([
+                    # pointers are not integral-constant-like
+                    default_args | {"T1": "int*"},
+                    default_args | {"T2": "int*"},
+                    default_args | {"T3": "int*"},
+                    # references are not integral-constant-like
+                    default_args | {"T1": "int&"},
+                    default_args | {"T2": "int&"},
+                    default_args | {"T3": "int&"},
+                    # bool_constant does not satisfy integral-constant-like
+                    default_args | {"T1": "std::true_type"},
+                ])
+            ]
+        ],
+    )
+    for flavor in [
+        "extent",
+        "range",
+    ]
+]
+
+# An axis view past the end of a rank-2 mdspan.
+cc_build_error_test(
+    name = "axis_view_axis_out_of_range_rank2_test",
+    src = inline_src.cpp(
+        """\
+#include "arene/base/mdspan/axis_view.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+auto main() -> int
+{
+  static int const storage[6] = {};
+  arene::base::mdspan<int const, arene::base::extents<std::size_t, 2, 3>> const source{storage};
+  static_cast<void>(arene::base::axis_view<2>(source));
+}
+""",
+    ),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "axis_view: Axis must be less than the mdspan rank",
+        requirement = "2.+ < mdspan<.+>::rank\\(\\)",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:axis_view",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+# A rank-0 mdspan has no axis to collapse at all.
+cc_build_error_test(
+    name = "axis_view_axis_out_of_range_rank0_test",
+    src = inline_src.cpp(
+        """\
+#include "arene/base/mdspan/axis_view.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+auto main() -> int
+{
+  static int const storage[1] = {};
+  arene::base::mdspan<int const, arene::base::extents<std::size_t>> const source{storage};
+  static_cast<void>(arene::base::axis_view<0>(source));
+}
+""",
+    ),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "axis_view: Axis must be less than the mdspan rank",
+        requirement = "0.+ < mdspan<.+>::rank\\(\\)",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:axis_view",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+# An axis view with its index statically out of range.
+cc_build_error_test(
+    name = "axis_view_index_out_of_range_test",
+    src = inline_src.cpp(
+        """\
+#include "arene/base/mdspan/axis_view.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+
+auto main() -> int
+{
+  static int const storage[6] = {};
+  arene::base::mdspan<int const, arene::base::extents<std::size_t, 2, 3>> const source{storage};
+  static_cast<void>(arene::base::axis_view<0>(source, std::integral_constant<std::size_t, 2>{}));
+}
+""",
+    ),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "This is not a valid submdspan slice for the given extent \\(usually because it's statically out of bounds\\)",
+        requirement = "is_valid_submdspan_slice_type_for_v<std::integral_constant<unsigned long, 2>, 2UL>",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:axis_view",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+[
+    cc_build_error_test(
+        name = "default_accessor_element_type_{}_test".format(i),
+        src = inline_src.cpp("""\
+#include "arene/base/mdspan/default_accessor.hpp"
+
+class abstract
+{{
+    virtual ~abstract() = 0;
+}};
+
+auto main() -> int
+{{
+  arene::base::default_accessor<{element_type}>{{}};
+}}
+""".format(
+            element_type = param["element_type"],
+        )),
+        compile_stderr = mandate_error_matcher(
+            diagnostic = param["diagnostic"],
+            requirement = param["requirement"],
+        ),
+        deps = [
+            "//arene/base/mdspan:default_accessor",
+        ],
+    )
+    for i, param in enumerate([
+        {
+            "element_type": "int&",
+            "diagnostic": "'ElementType' must be an object",
+            "requirement": "std::is_object<.*>::value",
+        },
+        {
+            "element_type": "abstract",
+            "diagnostic": "'ElementType' must not be an abstract class",
+            "requirement": "!std::is_abstract<.*>::value",
+        },
+        {
+            "element_type": "int[]",
+            "diagnostic": "'ElementType' must not be an array",
+            "requirement": "!std::is_array<.*>::value",
+        },
+    ])
+]
+
+# Death tests are not yet supported for Cortex-R52 but we need to test this now.
+# We specifically want to test platforms where 'std::size_t' is 32-bits to
+# ensure that we are not silently clipping integer values.
+#
+cc_build_error_test(
+    name = "extent_value_exceed_size_t_test",
+    src = inline_src.cpp(
+        """\
+#include "arene/base/array/array.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+#include "arene/base/stdlib_choice/ignore.hpp"
+
+auto main() -> int
+{
+  using extents_type = arene::base::extents<std::size_t, arene::base::dynamic_extent, 1U>;
+  constexpr auto not_always_representable_with_size_t = (std::uint64_t{1U} << 32U) | std::uint64_t{1U};
+
+  static constexpr auto x = extents_type{arene::base::array<std::uint64_t, 2>{
+    // dimension 0 has a dynamic extent so any value is okay
+    42U,
+    // dimension 1 *must* match the static extent value of 1
+    // and we need to test that the value is not silently converted to
+    // 'std::size_t' on 32-bit systems
+    not_always_representable_with_size_t
+  }};
+
+  std::ignore = x;
+}
+""",
+    ),
+    compile_stderr = matcher.has_substr("contract_violation"),
+    deps = [
+        "//arene/base:array",
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:ignore",
+    ],
+)
+
+[
+    cc_build_error_test(
+        name = "extents_requires_non_bool_integral_index_type_{}_test".format(i),
+        src = inline_src.cpp(
+            """\
+#include "arene/base/mdspan/extents.hpp"
+
+auto main() -> int
+{{
+  arene::base::extents<{type}>{{}};
+}}
+""".format(type = type),
+        ),
+        compile_stderr = mandate_error_matcher(
+            diagnostic = "invalid template parameters for 'extents'",
+            requirement = "extents_detail::valid_extents_template_parameters_v<.+>",
+        ),
+        deps = [
+            "//arene/base/mdspan:extents",
+        ],
+    )
+    for i, type in enumerate([
+        "bool",
+        "float",
+        "int *",
+        "int &",
+    ])
+]
+
+[
+    cc_build_error_test(
+        name = "extents_requires_static_extent_in_range_of_index_type_{}_test".format(i),
+        src = inline_src.cpp(
+            """\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+#include "arene/base/stdlib_choice/numeric_limits.hpp"
+
+auto main() -> int
+{{
+  arene::base::extents<{type}, {value}>{{}};
+}}
+    """.format(
+                type = type,
+                value = value,
+            ),
+        ),
+        compile_stderr = mandate_error_matcher(
+            diagnostic = "invalid template parameters for 'extents'",
+            requirement = "extents_detail::valid_extents_template_parameters_v<.+>",
+        ),
+        deps = [
+            "//arene/base/mdspan:extents",
+            "//arene/base/stdlib_choice:cstdint",
+            "//arene/base/stdlib_choice:numeric_limits",
+        ],
+    )
+    for i, (type, value) in enumerate([
+        ("std::int8_t", 128),
+        ("std::uint8_t", 256),
+        # NOTE `numeric_limits<uint32_t>::max()` is *equal* to `dynamic_extent` on 32-bit platforms
+        ("std::int32_t", "std::numeric_limits<std::uint32_t>::max() - std::uint32_t{1}"),
+    ])
+]
+
+cc_build_error_test(
+    name = "make_extents_with_value_not_representable_in_std_size_t",
+    src = inline_src.cpp(
+        """\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+auto main() -> int
+{
+  arene::base::make_extents(std::integral_constant<std::uint64_t, (std::size_t(-1)) + std::uint64_t{1}>{});
+}
+""",
+    ),
+    compile_stderr = matcher.has_substr("error: narrowing conversion of"),
+    target_compatible_with = [
+        "@platforms//cpu:cortex-r52",
+    ],
+    deps = [
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_build_error_test(
+    name = "make_extents_with_negative_integral_constant_test",
+    src = inline_src.cpp(
+        """\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+
+auto main() -> int
+{
+  arene::base::make_extents(std::integral_constant<int, -1>{});
+}
+""",
+    ),
+    compile_stderr = matcher.contains_extended_regex(
+        select({
+            "//conditions:default": "evaluates to -1 which cannot be narrowed to type 'std::size_t'",
+            "//configs/compiler:gcc_or_qcc": "error: .* conversion .* '-1'",
+        }),
+    ),
+    deps = [
+        "//arene/base/mdspan:extents",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_build_error_test(
+    name = "is_submdspan_slice_hard_error_with_non_integer_index_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/is_submdspan_slice.hpp"
+
+auto main() -> int {
+  arene::base::is_submdspan_slice_v<float, float>;
+}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "'IndexType' must be an integer",
+        requirement = "std::is_integral<float>::value",
+    ),
+    deps = ["//arene/base/mdspan:is_submdspan_slice"],
+)
+
+[
+    (
+        cc_build_error_test(
+            name = "{}_canonical_index_mandates_test".format(function),
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/{function}.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+
+auto main() -> int {{
+  arene::base::{function}(
+    arene::base::extents<std::int8_t, 1>{{}},
+    std::integral_constant<int, 256>{{}}
+  );
+}}
+    """.format(function = function)),
+            compile_stderr = mandate_error_matcher(
+                diagnostic = "value of integral-constant-like must be representable as the extents' index type",
+                requirement = "detail::is_representable_as<.+>(.+)",
+            ),
+            deps = [
+                "//arene/base/mdspan:extents",
+                "//arene/base/mdspan:{}".format(function),
+                "//arene/base/stdlib_choice:cstdint",
+            ],
+        ),
+        test_suite(
+            name = "{}_canonical_slice_mandates_test".format(function),
+            tests = [
+                subtest
+                for subtest, _ in [
+                    (
+                        "{}_canonical_slice_mandates_{}_test".format(function, i),
+                        cc_build_error_test(
+                            name = "{}_canonical_slice_mandates_{}_test".format(function, i),
+                            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/slice.hpp"
+#include "arene/base/mdspan/{function}.hpp"
+#include "arene/base/stdlib_choice/pair.hpp"
+
+struct derived_from_extent_slice : arene::base::extent_slice<int> {{}};
+struct derived_from_range_slice : arene::base::range_slice<int> {{}};
+
+auto main() -> int {{
+  arene::base::{function}(
+    arene::base::extents<int, 1>{{}},
+    {bad_slice}
+  );
+}}
+                    """.format(
+                                bad_slice = bad_slice,
+                                function = function,
+                            )),
+                            compile_stderr = mandate_error_matcher(
+                                diagnostic = "each type in 'SliceSpecifiers' must be a 'submdspan' slice type",
+                                requirement = "all_of_v<is_submdspan_slice_v<.+>>",
+                            ),
+                            deps = [
+                                "//arene/base/mdspan:extents",
+                                "//arene/base/mdspan:slice",
+                                "//arene/base/mdspan:{}".format(function),
+                                "//arene/base/stdlib_choice:pair",
+                            ],
+                        ),
+                    )
+                    for i, bad_slice in enumerate([
+                        "nullptr",
+                        "derived_from_extent_slice{}",
+                        "derived_from_range_slice{}",
+                        "std::pair<int, std::integral_constant<int*, nullptr>>{}",
+                    ])
+                ]
+            ],
+        ),
+        cc_build_error_test(
+            name = "{}_canonical_slice_derived_from_extent_slice_mandates_test".format(function),
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/slice.hpp"
+#include "arene/base/mdspan/{function}.hpp"
+
+struct derived_from_extent_slice : arene::base::extent_slice<int, int, int> {{}};
+
+auto main() -> int {{
+  arene::base::{function}(
+    arene::base::dextents<int, 1>{{}},
+    derived_from_extent_slice{{}}
+  );
+}}
+    """.format(function = function)),
+            compile_stderr = mandate_error_matcher(
+                diagnostic = "each type in 'SliceSpecifiers' must be a 'submdspan' slice type",
+                requirement = "all_of_v<is_submdspan_slice_v<.+>>",
+            ),
+            deps = [
+                "//arene/base/mdspan:extents",
+                "//arene/base/mdspan:slice",
+                "//arene/base/mdspan:{}".format(function),
+            ],
+        ),
+        cc_build_error_test(
+            name = "{}_canonical_slice_derived_from_range_slice_mandates_test".format(function),
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/slice.hpp"
+#include "arene/base/mdspan/{function}.hpp"
+
+struct derived_from_range_slice : arene::base::range_slice<int, int, int> {{}};
+
+auto main() -> int {{
+  arene::base::{function}(
+    arene::base::dextents<int, 1>{{}},
+    derived_from_range_slice{{}}
+  );
+}}
+    """.format(function = function)),
+            compile_stderr = mandate_error_matcher(
+                diagnostic = "each type in 'SliceSpecifiers' must be a 'submdspan' slice type",
+                requirement = "all_of_v<is_submdspan_slice_v<.+>>",
+            ),
+            deps = [
+                "//arene/base/mdspan:extents",
+                "//arene/base/mdspan:slice",
+                "//arene/base/mdspan:{}".format(function),
+            ],
+        ),
+        cc_build_error_test(
+            name = "{}_valid_integral_slice_type_mandates_test".format(function),
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/{function}.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+
+auto main() -> int {{
+  arene::base::{function}(
+    arene::base::extents<int, 1>{{}},
+    std::integral_constant<int, 1>{{}}
+  );
+}}
+    """.format(function = function)),
+            compile_stderr = mandate_error_matcher(
+                diagnostic = "This is not a valid submdspan slice for the given extent \\(usually because it's statically out of bounds\\)",
+                requirement = "is_valid_submdspan_slice_type_for_v<.+>",
+            ),
+            deps = [
+                "//arene/base/mdspan:extents",
+                "//arene/base/mdspan:{}".format(function),
+                "//arene/base/stdlib_choice:integral_constant",
+            ],
+        ),
+        test_suite(
+            name = "{}_valid_extent_slice_type_mandates_test".format(function),
+            tests = [
+                subtest
+                for subtest, _ in [
+                    (
+                        "{}_valid_extent_slice_type_mandates_{}_test".format(function, i),
+                        cc_build_error_test(
+                            name = "{}_valid_extent_slice_type_mandates_{}_test".format(function, i),
+                            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/slice.hpp"
+#include "arene/base/mdspan/{function}.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+
+using arene::base::extent_slice;
+
+template <std::size_t I>
+using ic = std::integral_constant<std::size_t , I>;
+
+auto main() -> int {{
+  arene::base::{function}(
+    arene::base::extents<std::size_t, {static_extent}>{{}},
+    extent_slice<ic<{slice_offset}>, ic<{slice_extent}>, {stride_type}>{{}}
+  );
+}}
+                    """.format(
+                                function = function,
+                                slice_extent = args["slice_extent"],
+                                slice_offset = args["slice_offset"],
+                                static_extent = args["static_extent"],
+                                stride_type = args.get("stride_type", "ic<1>"),
+                            )),
+                            compile_stderr = mandate_error_matcher(
+                                diagnostic = "This is not a valid submdspan slice for the given extent \\(usually because it's statically out of bounds\\)",
+                                requirement = "is_valid_submdspan_slice_type_for_v<.+>",
+                            ),
+                            deps = [
+                                "//arene/base/mdspan:extents",
+                                "//arene/base/mdspan:slice",
+                                "//arene/base/mdspan:{}".format(function),
+                                "//arene/base/stdlib_choice:cstddef",
+                                "//arene/base/stdlib_choice:integral_constant",
+                            ],
+                        ),
+                    )
+                    for i, args in enumerate([
+                        {
+                            "slice_offset": 0,
+                            "slice_extent": 2,
+                            "static_extent": 1,
+                        },
+                        {
+                            "slice_offset": 2,
+                            "slice_extent": 0,
+                            "static_extent": 1,
+                        },
+                        {
+                            "slice_offset": 1,
+                            "slice_extent": 1,
+                            "static_extent": 1,
+                        },
+                        {
+                            "slice_offset": "std::size_t(3)",
+                            "slice_extent": "std::size_t(-3)",
+                            "static_extent": "std::size_t(-2)",
+                        },
+                        {
+                            "slice_offset": 0,
+                            "slice_extent": 3,
+                            "stride_type": "ic<std::size_t(-3)>",
+                            "static_extent": "std::size_t(-2)",
+                        },
+                        {
+                            "slice_offset": "std::size_t(-3)",
+                            "slice_extent": 3,
+                            "stride_type": "std::size_t",
+                            "static_extent": "std::size_t(-2)",
+                        },
+                    ])
+                ]
+            ],
+        ),
+    )
+    for function in [
+        "submdspan_extents",
+        "submdspan_canonicalize_slices",
+    ]
+]
+
+cc_build_error_test(
+    name = "submdspan_mapping_result_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/layout.hpp"
+#include "arene/base/mdspan/submdspan_mapping_result.hpp"
+
+auto main() -> int
+{
+   arene::base::submdspan_mapping_result<arene::base::layout_right>{};
+}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "LayoutMapping must meet the layout mapping requirements",
+        requirement = "is_layout_mapping_v<.+>",
+    ),
+    deps = [
+        "//arene/base/mdspan:layout",
+        "//arene/base/mdspan:submdspan_mapping_result",
+    ],
+)
+
+[
+    cc_build_error_test(
+        name = "submdspan_mapping_{}_mandate_test".format(layout),
+        src = inline_src.cpp("""\
+#include "arene/base/mdspan/layout.hpp"
+#include "arene/base/mdspan/extents.hpp"
+
+using extents_type = arene::base::extents<int, 2>;
+
+template <class T>
+auto submdspan_mapping() -> void = delete;
+
+auto main() -> int
+{{
+  auto const mapping = arene::base::{layout}::mapping<extents_type>{{}};
+  submdspan_mapping(mapping, nullptr);
+}}
+            """.format(
+            layout = layout,
+        )),
+        compile_stderr = matcher.contains_extended_regex(
+            "error: no matching function for call to 'submdspan_mapping",
+        ),
+        deps = [
+            "//arene/base/mdspan:extents",
+            "//arene/base/mdspan:layout",
+        ],
+    )
+    for layout in [
+        "layout_stride",
+        "layout_left",
+        "layout_right",
+    ]
+]
+
+cc_build_error_test(
+    name = "submdspan_subextents_type_invalid_slice_type_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/submdspan_subextents_type.hpp"
+
+auto main() -> int
+{
+   arene::base::submdspan_subextents_type<
+     arene::base::extents<int, 3>,
+     std::integral_constant<int, 3>
+   >{};
+}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "This is not a valid submdspan slice for the given extent \\(usually because it's statically out of bounds\\)",
+        requirement = "is_valid_submdspan_slice_type_for_v<.+>",
+    ),
+    deps = [
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:submdspan_subextents_type",
+    ],
+)
+
+cc_build_error_test(
+    name = "submdspan_subextents_type_wrong_number_of_slices_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/submdspan_subextents_type.hpp"
+
+auto main() -> int
+{
+   arene::base::submdspan_subextents_type<
+     arene::base::extents<int, 3>,
+     std::integral_constant<int, 1>,
+     std::integral_constant<int, 1>
+   >{};
+}
+"""),
+    compile_stderr = matcher.contains_basic_regex(
+        select({
+            "//conditions:default": "error: pack expansion contains parameter packs .* that have different lengths",
+            "//configs/compiler:gcc_or_qcc": "error: mismatched argument pack lengths",
+        }),
+    ),
+    deps = [
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:submdspan_subextents_type",
+    ],
+)
+
+cc_build_error_test(
+    name = "submdspan_is_slice_type_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/mdspan/submdspan.hpp"
+
+auto main() -> int {
+    arene::base::submdspan(
+        arene::base::mdspan<int, arene::base::dextents<int, 1>>{},
+        nullptr
+    );
+}
+"""),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "each type in 'SliceSpecifiers' must be a 'submdspan' slice type",
+        requirement = "all_of_v<is_submdspan_slice_v<.+>>",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:submdspan",
+    ],
+)
+
+cc_build_error_test(
+    name = "submdspan_is_valid_submdspan_slice_type_for_mandate_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/mdspan/submdspan.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+
+auto main() -> int {
+  arene::base::submdspan(
+      arene::base::mdspan<int, arene::base::extents<int, 1>>{nullptr},
+    std::integral_constant<int, 1>{}
+  );
+}
+    """),
+    compile_stderr = mandate_error_matcher(
+        diagnostic = "This is not a valid submdspan slice for the given extent \\(usually because it's statically out of bounds\\)",
+        requirement = "is_valid_submdspan_slice_type_for_v<.+>",
+    ),
+    deps = [
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:submdspan",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_build_error_test(
+    name = "submdspan_slice_type_mandate_backtrace_test",
+    src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/mdspan/submdspan.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+
+namespace my_ns {
+template <typename T>
+auto bad_function() -> void {
+  arene::base::submdspan(
+      arene::base::mdspan<T, arene::base::extents<int, 1>>{nullptr},
+    std::integral_constant<int, 1>{}
+  );
+}
+}  // namespace my_ns
+
+auto main() -> int {
+  my_ns::bad_function<int>();
+}
+    """),
+    compile_stderr = matcher.contains_extended_regex(
+        select({
+            "//conditions:default": "in instantiation of function template specialization 'my_ns::bad_function<int>' requested here",
+            "//configs/compiler:gcc_or_qcc": "required from 'void my_ns::bad_function\\(\\) \\[with T = int\\]'",
+        }),
+    ),
+    deps = [
+        "//arene/base/mdspan",
+        "//arene/base/mdspan:extents",
+        "//arene/base/mdspan:submdspan",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)

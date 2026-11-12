@@ -31,6 +31,22 @@
 namespace arene {
 namespace base {
 namespace tuple_detail {
+namespace tuple_zip_detail {
+// parasoft-begin-suppress AUTOSAR-A15_4_5-a "False positive: nothing can be thrown by this function"
+// parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: 'count' does not hide anything"
+/// @brief check that all tuple sizes are equal to a given value
+/// @param sizes list of tuple sizes
+/// @param count reference size to compare against
+/// @return true if all elements in @p sizes are equal to @c count
+constexpr auto all_are_equal_to(std::initializer_list<std::size_t> const sizes, std::size_t count) noexcept -> bool {
+  // arene::base::bind_back is currently implemented as a function
+  // template so we fully qualify it in case the same identifier is defined at
+  // global scope
+  return all_of(sizes.begin(), sizes.end(), arene::base::bind_back(std::equal_to<>{}, count));
+}
+// parasoft-end-suppress AUTOSAR-A2_10_1-a
+// parasoft-end-suppress AUTOSAR-A15_4_5-a
+}  // namespace tuple_zip_detail
 
 /// @brief function object implementing the zip algorithm for tuples
 ///
@@ -42,22 +58,6 @@ namespace tuple_detail {
 /// tuple_zip((a0, a1), (b0, b1)) -> ((a0, b0), (a1, b1))
 /// @endcode
 class tuple_zip_fn {
-  // parasoft-begin-suppress AUTOSAR-A15_4_5-a "False positive: nothing can be thrown by this function"
-  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: 'count' does not hide anything"
-  /// @brief check that all tuple sizes are equal to a given value
-  /// @param sizes list of tuple sizes
-  /// @param count reference size to compare against
-  /// @return true if all elements in @p sizes are equal to @c count
-  static constexpr auto all_are_equal_to(std::initializer_list<std::size_t> const sizes, std::size_t count) noexcept
-      -> bool {
-    // arene::base::bind_back is currently implemented as a function
-    // template so we fully qualify it in case the same identifier is defined at
-    // global scope
-    return all_of(sizes.begin(), sizes.end(), arene::base::bind_back(std::equal_to<>{}, count));
-  }
-  // parasoft-end-suppress AUTOSAR-A2_10_1-a
-  // parasoft-end-suppress AUTOSAR-A15_4_5-a
-
   // parasoft-begin-suppress CERT_C-EXP37-a-3 "False positive: The rule does not mention naming all parameters"
   /// @brief helper to deduce the type of a single zipped element
   /// @tparam I index of the element across all input tuples
@@ -187,7 +187,7 @@ class tuple_zip_fn {
   template <
       class Head,
       class... Tail,
-      constraints<std::enable_if_t<all_are_equal_to(
+      constraints<std::enable_if_t<tuple_zip_detail::all_are_equal_to(
           {std::tuple_size<std::remove_reference_t<Tail>>::value...},
           std::tuple_size<std::remove_reference_t<Head>>::value
       )>> = nullptr>

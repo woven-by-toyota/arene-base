@@ -51,3 +51,20 @@ def cc_build_error_test(*, name, **kwargs):
 
 inline_src = _inline_src
 matcher = _matcher
+
+def mandate_error_matcher(*, diagnostic = None, requirement = None):
+    return _matcher.contains_extended_regex(
+        select({
+            "//configs/compiler:gcc_or_qcc": "error: static assertion failed: {diagnostic}".format(
+                diagnostic = diagnostic,
+            ),
+            "//configs/compiler:arm_clang": "error: static_assert failed due to requirement '{requirement}' \"{diagnostic}\"".format(
+                diagnostic = diagnostic,
+                requirement = requirement,
+            ),
+            "//configs/compiler:clang": "error: static assertion failed due to requirement '{requirement}': {diagnostic}".format(
+                diagnostic = diagnostic,
+                requirement = requirement,
+            ),
+        }),
+    )

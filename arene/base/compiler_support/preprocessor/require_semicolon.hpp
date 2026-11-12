@@ -6,7 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_PREPROCESSOR_REQUIRE_SEMICOLON_HPP_
 
 // IWYU pragma: private, include "arene/base/compiler_support/preprocessor.hpp"
-// IWYU pragma: friend "arene/base/compiler_support/preprocessor/.*"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 // parasoft-begin-suppress AUTOSAR-A16_0_1-d-2 "Function-like macro permitted by A16-0-1 Permit #1"

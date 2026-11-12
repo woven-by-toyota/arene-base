@@ -9,16 +9,19 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 alias(
     name = "gcc",
     actual = "@rules_cc//cc/compiler:gcc",
+    visibility = ["//:__subpackages__"],
 )
 
 alias(
     name = "clang",
     actual = "@rules_cc//cc/compiler:clang",
+    visibility = ["//:__subpackages__"],
 )
 
 config_setting(
     name = "qcc",
     flag_values = {"@bazel_tools//tools/cpp:compiler": "qcc"},
+    visibility = ["//:__subpackages__"],
 )
 
 # This config will need to be updated if the compiler name is ever fixed
@@ -26,6 +29,7 @@ config_setting(
 config_setting(
     name = "arm_clang",
     flag_values = {"@bazel_tools//tools/cpp:compiler": "arm-6.16"},
+    visibility = ["//:__subpackages__"],
 )
 
 selects.config_setting_group(
@@ -34,6 +38,7 @@ selects.config_setting_group(
         ":gcc",
         ":qcc",
     ],
+    visibility = ["//:__subpackages__"],
 )
 
 filegroup(

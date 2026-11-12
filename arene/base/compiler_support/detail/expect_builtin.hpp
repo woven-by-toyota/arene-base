@@ -5,8 +5,7 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_DETAIL_EXPECT_BUILTIN_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_DETAIL_EXPECT_BUILTIN_HPP_
 
-// IWYU pragma: private
-// IWYU pragma: friend "arene/base/compiler_support/expect.hpp"
+// IWYU pragma: private, include "arene/base/compiler_support/expect.hpp"
 
 // parasoft-begin-suppress AUTOSAR-A16_0_1-d-2 "This header defines compiler support macros"
 

@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
+
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/preprocessor.hpp"
 #include "arene/base/testing/gtest.hpp"
 
 namespace {

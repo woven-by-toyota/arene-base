@@ -6,6 +6,7 @@
 
 #include "arene/base/algorithm/rotate.hpp"
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 
 namespace {
 

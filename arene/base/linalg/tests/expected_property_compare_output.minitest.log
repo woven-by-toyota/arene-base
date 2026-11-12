@@ -1,0 +1,6 @@
+arene/base/linalg/tests/property_compare_binary.cpp:34: Error: Assertion failed Execution reached an invocation of FAIL() for LinalgAssertCompare::DoubleNotWithinTolerance
+arene/base/linalg/tests/property_compare_binary.cpp:30: Error: Assertion failed Execution reached an invocation of FAIL() for LinalgAssertCompare::FloatNotWithinTolerance
+arene/base/linalg/tests/property_compare_binary.cpp:26: Error: Assertion failed Execution reached an invocation of FAIL() for LinalgAssertCompare::DoubleNotEqual
+arene/base/linalg/tests/property_compare_binary.cpp:22: Error: Assertion failed Execution reached an invocation of FAIL() for LinalgAssertCompare::FloatNotEqual
+arene/base/linalg/tests/property_compare_binary.cpp:18: Error: Assertion failed Execution reached an invocation of FAIL() for LinalgAssertCompare::IntNotEqual
+5 tests run. 0 PASSED. 5 FAILED

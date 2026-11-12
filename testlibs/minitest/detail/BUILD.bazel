@@ -4,28 +4,16 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-filegroup(
-    name = "death_tests_srcs_posix",
-    srcs = ["death_tests_posix.cpp"],
-)
-
-filegroup(
-    name = "death_tests_hdrs",
-    srcs = [
-        "death_tests_disabled.hpp",
-        "death_tests_enabled.hpp",
-    ],
-)
-
 cc_library(
     name = "death_tests",
     srcs = select({
-        "//configs:posix": [
-            ":death_tests_srcs_posix",
-        ],
+        "//configs:posix": ["death_tests_posix.cpp"],
         "//conditions:default": [],
     }),
-    hdrs = [":death_tests_hdrs"],
+    hdrs = [
+        "death_tests_disabled.hpp",
+        "death_tests_enabled.hpp",
+    ],
     defines = select({
         "//testlibs/minitest:death_tests_supported": [
             "MINITEST_DEATH_TESTS_ENABLED=1",
@@ -46,8 +34,9 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":death_tests_hdrs",
-        ":death_tests_srcs_posix",
-    ],
+    ] + glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
     visibility = ["//testlibs/minitest:__pkg__"],
 )

@@ -4,11 +4,7 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
-package(
-    default_visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
-)
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test(
     name = "scoped_change_directory_test",
@@ -17,7 +13,7 @@ cc_test(
     ],
     deps = [
         "//arene/base/filesystem:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -31,7 +27,7 @@ cc_test(
         "//arene/base:span",
         "//arene/base:string_view",
         "//arene/base/filesystem:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -42,7 +38,7 @@ cc_test(
     ],
     deps = [
         "//arene/base/filesystem:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -53,7 +49,7 @@ cc_test(
     ],
     deps = [
         "//arene/base/filesystem:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -65,7 +61,7 @@ cc_test(
     deps = [
         "//arene/base/filesystem:internal",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -78,7 +74,7 @@ cc_test(
     deps = [
         "//arene/base/filesystem:internal",
         "//arene/base/testing/filesystem:create_temporary_directory",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -92,13 +88,14 @@ cc_test(
 #
 cc_library(
     name = "intermediate_temporary_directory_test",
+    testonly = True,
     srcs = [
         "temporary_directory_symlink.cpp",
     ],
     deps = [
         "//arene/base/filesystem:internal",
         "//arene/base/testing/filesystem:create_temporary_directory",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -110,6 +107,7 @@ MANUAL_TEMPORARY_DIRECTORY_TEST_NUM_RUNS = 50
         tags = [
             "external",
             "manual",
+            "no-test-spec",
         ],
         deps = [
             ":intermediate_temporary_directory_test",
@@ -122,6 +120,7 @@ test_suite(
     name = "manual_temporary_directory_flaky_test",
     tags = [
         "manual",
+        "no-test-spec",
     ],
     tests = [
         ":manual_temporary_directory_{}_test".format(i)

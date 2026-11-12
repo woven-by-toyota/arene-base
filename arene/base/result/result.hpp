@@ -16,7 +16,7 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/functional/invoke.hpp"
@@ -846,7 +846,6 @@ class result : result_detail::result_base<T, E> {
     }
     return result_t{in_place_error, forward_like<SelfType>(std::forward<SelfType>(self).storage().unsafe_error())};
   }
-  /// @}
   // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   ///

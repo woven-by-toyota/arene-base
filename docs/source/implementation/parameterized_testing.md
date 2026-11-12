@@ -1,3 +1,9 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 # Type-parameterized Testing {#type-parameterized-testing}
 
 It can be helpful to write tests that are parameterized by type, so that users

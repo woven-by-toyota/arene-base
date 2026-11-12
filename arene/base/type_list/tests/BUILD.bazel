@@ -5,7 +5,7 @@
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_library_with_variants(
     name = "test_helpers",
@@ -13,9 +13,11 @@ cc_library_with_variants(
     hdrs = ["type_list_test_common.hpp"],
     deps = [
         "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:tuple",
         "//arene/base/testing:gtest",
-        "//arene/base/type_list:internal",
-        "//testlibs:gtest",
+        "//arene/base/type_list",
+        "//testlibs:test_main",
     ],
 )
 
@@ -24,7 +26,10 @@ cc_test_with_variants(
     srcs = [
         "apply_all_test.cpp",
     ],
-    deps = [":test_helpers"],
+    deps = [
+        ":test_helpers",
+        "//arene/base/type_list:apply_all",
+    ],
 )
 
 cc_test_with_variants(
@@ -32,7 +37,11 @@ cc_test_with_variants(
     srcs = [
         "apply_each_test.cpp",
     ],
-    deps = [":test_helpers"],
+    deps = [
+        ":test_helpers",
+        "//arene/base/type_list",
+        "//arene/base/type_list:apply_each",
+    ],
 )
 
 cc_test_with_variants(
@@ -40,7 +49,11 @@ cc_test_with_variants(
     srcs = [
         "at_test.cpp",
     ],
-    deps = [":test_helpers"],
+    deps = [
+        ":test_helpers",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/type_list:at",
+    ],
 )
 
 cc_test_with_variants(
@@ -50,11 +63,14 @@ cc_test_with_variants(
     ],
     deps = [
         "//arene/base:array",
+        "//arene/base/algorithm:reduce",
         "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:multiplies",
         "//arene/base/stdlib_choice:pair",
-        "//arene/base/testing:gtest",
         "//arene/base/type_list:cartesian_product",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -66,7 +82,7 @@ cc_test_with_variants(
     deps = [
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/type_list:concat",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -82,7 +98,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/type_list:concat",
         "//arene/base/type_list:concat_unique",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -93,6 +109,7 @@ cc_test_with_variants(
     ],
     deps = [
         ":test_helpers",
+        "//arene/base/type_list:contains",
     ],
 )
 
@@ -104,6 +121,8 @@ cc_test_with_variants(
     deps = [
         ":test_helpers",
         "//arene/base/stdlib_choice:is_same",
+        "//arene/base/type_list",
+        "//arene/base/type_list:drop",
     ],
 )
 
@@ -117,6 +136,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:is_class",
         "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/type_list:filter",
     ],
 )
 
@@ -125,7 +145,10 @@ cc_test_with_variants(
     srcs = [
         "flat_map_test.cpp",
     ],
-    deps = [":test_helpers"],
+    deps = [
+        ":test_helpers",
+        "//arene/base/type_list:flat_map",
+    ],
 )
 
 cc_test_with_variants(
@@ -136,6 +159,7 @@ cc_test_with_variants(
     deps = [
         ":test_helpers",
         "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/type_list:flat_map",
     ],
 )
 
@@ -144,7 +168,10 @@ cc_test_with_variants(
     srcs = [
         "index_of_test.cpp",
     ],
-    deps = [":test_helpers"],
+    deps = [
+        ":test_helpers",
+        "//arene/base/type_list:index_of",
+    ],
 )
 
 cc_test_with_variants(
@@ -154,7 +181,11 @@ cc_test_with_variants(
     ],
     deps = [
         ":test_helpers",
+        "//arene/base/functional:bind_back",
+        "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:not_equal_to",
+        "//arene/base/type_list:remove_duplicates",
     ],
 )
 
@@ -179,6 +210,7 @@ cc_test_with_variants(
     deps = [
         ":test_helpers",
         "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/type_list:remove_nth",
     ],
 )
 
@@ -191,6 +223,8 @@ cc_test_with_variants(
         ":test_helpers",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:tuple",
+        "//arene/base/type_list",
+        "//arene/base/type_list:size",
     ],
 )
 
@@ -206,6 +240,9 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:tuple",
+        "//arene/base/type_list:apply_all",
+        "//arene/base/type_list:size",
+        "//arene/base/type_list:sort",
     ],
 )
 
@@ -217,6 +254,7 @@ cc_test_with_variants(
     deps = [
         ":test_helpers",
         "//arene/base/stdlib_choice:is_same",
+        "//arene/base/type_list:take",
     ],
 )
 
@@ -232,6 +270,12 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:pair",
         "//arene/base/stdlib_choice:tuple",
+        "//arene/base/type_list:at",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_list:filter",
+        "//arene/base/type_list:flat_map",
+        "//arene/base/type_list:remove_duplicates",
+        "//arene/base/type_list:size",
     ],
 )
 

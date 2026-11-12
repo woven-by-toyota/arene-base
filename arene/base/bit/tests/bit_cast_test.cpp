@@ -8,9 +8,11 @@
 
 #include "arene/base/algorithm/all_of.hpp"
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/has_builtin.hpp"
+#include "arene/base/compiler_support/platform_queries/has_constexpr_bit_cast.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/is_trivially_copyable.hpp"

@@ -53,11 +53,13 @@ constexpr auto ltrim(inline_string<MaxLength> const& str) -> inline_string<MaxLe
 /// @return A copy of the input string with trailing whitespace removed. Whitespace is defined by
 ///          @c arene::base::whitespace_chars . An empty or all whitespace string will result in an empty return string.
 constexpr auto rtrim(string_view const str) -> string_view {
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifier 'end' does not hide anything"
   std::size_t const end{str.find_last_not_of(whitespace_chars())};
   if (end == string_view::npos) {
     return string_view{};
   }
   return str.substr(0U, end + 1U);
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 }
 
 /// @brief Create a copy of the string view with trailing whitespace removed

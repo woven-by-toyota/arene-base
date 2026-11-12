@@ -37,7 +37,7 @@ class plus {
   /// @tparam U Template parameter to enable constraints.
   /// @param lhs The first value to add
   /// @param rhs The second value to add
-  /// @return Returns the result of invoking @c operator+ on @c lhs and @c rhs
+  /// Produces the result of invoking @c operator+ on @c lhs and @c rhs.
   template <class U = T, arene::base::constraints<std::enable_if_t<!is_integral_v<U>>> = nullptr>
   constexpr auto operator()(T const& lhs, T const& rhs) const
       noexcept(noexcept(std::declval<T&>() + std::declval<T&>())) -> T {
@@ -48,7 +48,7 @@ class plus {
   /// @tparam U Template parameter to enable constraints.
   /// @param lhs The first value to add
   /// @param rhs The second value to add
-  /// @return Returns the result of invoking @c operator+ on @c lhs and @c rhs
+  /// Produces the result of invoking @c operator+ on @c lhs and @c rhs.
   ///
   /// @note This overload explicitly casts the result of the computation to the type @c T. This avoids any warning for
   /// implicit conversion (present on gcc8).

@@ -1,3 +1,9 @@
+<!--
+Copyright 2026, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
 # Lucidchart {#lucidchart}
 
 Lucidchart is used to generate some of the diagrams for the documentation. The

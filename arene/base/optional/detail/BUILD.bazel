@@ -4,25 +4,19 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "detail",
+    hdrs = [
         "optional_base.hpp",
         "optional_value_interface.hpp",
         "optional_value_interface_exceptions_disabled.hpp",
         "optional_value_interface_exceptions_enabled.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "detail",
-    hdrs = [":hdrs"],
     visibility = [
         "//arene/base/optional:__subpackages__",
     ],
     deps = [
         "//arene/base:constraints",
-        "//arene/base:type_traits",
         "//arene/base:utility",
         "//arene/base/compiler_support",
         "//arene/base/detail:exceptions",
@@ -38,6 +32,8 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:is_move_assignable",
         "//arene/base/stdlib_choice:is_move_constructible",
         "//arene/base/stdlib_choice:move",
+        "//arene/base/type_traits:is_instantiation_of",
+        "//arene/base/type_traits:remove_cvref",
     ] + select({
         "//configs:exceptions_enabled": [
             "//arene/base/stdlib_choice:stdexcept",
@@ -50,7 +46,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/optional:__pkg__"],
 )

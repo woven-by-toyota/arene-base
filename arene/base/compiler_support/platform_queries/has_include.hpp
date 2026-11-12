@@ -6,7 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_PLATFORM_QUERIES_HAS_INCLUDE_HPP_
 
 // IWYU pragma: private, include "arene/base/compiler_support/platform_queries.hpp"
-// IWYU pragma: friend "arene/base/compiler_support/platform_queries/.*"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) Explicitly providing compiler support macro functions
 // parasoft-begin-suppress AUTOSAR-A16_0_1-d-2 "Conditional defines permitted by A16-0-1 Permit #2"
@@ -17,7 +17,7 @@
 /// @param ... The include to test availability of, including the @c <> or @c "".
 /// @return if @c __has_include is defined, the result of @c __has_include(__VA_ARGS__), otherwise @c false .
 ///
-/// Example usage testing for @c <version> :
+/// Example usage testing for the @c version header:
 /// @code{c++}
 /// #if ARENE_HAS_INCLUDE(<version>)
 /// @endcode

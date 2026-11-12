@@ -8,7 +8,6 @@
 
 #include "arene/base/algorithm/transform.hpp"
 #include "arene/base/array/array.hpp"
-#include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/functional/bind_back.hpp"
 #include "arene/base/functional/bind_front.hpp"
@@ -22,8 +21,6 @@
 #include "arene/base/mdspan/tests/throwing_slice_conversions.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
-#include "arene/base/stdlib_choice/enable_if.hpp"
-#include "arene/base/stdlib_choice/forward.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
@@ -35,42 +32,21 @@
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/tuple/apply.hpp"
 #include "arene/base/tuple/detail/tuple_transform.hpp"
-#include "arene/base/tuple/tuple_cat.hpp"
 #include "arene/base/type_list/cartesian_product.hpp"
 #include "arene/base/type_list/concat.hpp"
 #include "arene/base/type_list/flat_map.hpp"
 #include "arene/base/type_list/type_list.hpp"
 #include "arene/base/type_manipulation/repeat_type.hpp"
 #include "arene/base/type_traits/is_invocable.hpp"
-#include "arene/base/type_traits/is_tuple_like.hpp"
 // IWYU pragma: no_include "arene/base/mdspan/layout.hpp"
 
 namespace {
 
-/// @brief Compute the required span size for a layout mapping type with expanded test extents
-/// @tparam Mapping The layout mapping type
-template <class Mapping>
-constexpr auto required_test_buffer_size() noexcept -> std::size_t {
-  return static_cast<std::size_t>(arene::base::testing::make_mapping_with_extents<Mapping>(
-                                      test::make_expanded_extents<typename Mapping::extents_type>()
-  )
-                                      .required_span_size());
-}
-
-/// @brief Zero-initialized data buffer sized to the required span size for a given mapping type
-/// @tparam N buffer size
-template <std::size_t N>
-constexpr auto test_buffer = arene::base::array<int, N>{};
-
-/// @brief Construct a source mdspan for the given layout mapping type from a correctly-sized test buffer
-/// @tparam Mapping The layout mapping type
-template <class Mapping>
-constexpr auto make_test_src() noexcept
-    -> arene::base::mdspan<int const, typename Mapping::extents_type, typename Mapping::layout_type> {
-  auto const exts = test::make_expanded_extents<typename Mapping::extents_type>();
-  auto const map = arene::base::testing::make_mapping_with_extents<Mapping>(exts);
-  return {test_buffer<required_test_buffer_size<Mapping>()>.data(), map};
-}
+using arene::base::testing::concat_slices;
+using arene::base::testing::make_full_range_range_slice;
+using arene::base::testing::make_test_src;
+using arene::base::testing::required_test_buffer_size;
+using arene::base::testing::test_buffer;
 
 /// @brief Return a copy of an array with the first @c Count elements removed
 /// @tparam Count the number of leading elements to drop
@@ -90,27 +66,6 @@ constexpr auto drop_front_impl(arene::base::array<T, N> const& arr, std::index_s
 template <std::size_t Count, class T, std::size_t N>
 constexpr auto drop_front(arene::base::array<T, N> const& arr) noexcept -> arene::base::array<T, N - Count> {
   return drop_front_impl<Count>(arr, std::make_index_sequence<N - Count>{});
-}
-
-/// @brief Wrap a non-tuple-like argument in @c std::make_tuple; forward a tuple-like one unchanged
-/// @{
-template <class T, arene::base::constraints<std::enable_if_t<arene::base::is_tuple_like_v<T>>> = nullptr>
-constexpr auto as_tuple(T&& arg) noexcept {
-  return std::forward<T>(arg);
-}
-
-template <class T, arene::base::constraints<std::enable_if_t<!arene::base::is_tuple_like_v<T>>> = nullptr>
-constexpr auto as_tuple(T&& arg) noexcept {
-  return std::make_tuple(std::forward<T>(arg));
-}
-/// @}
-
-/// @brief Concatenate slice arguments into a single tuple, auto-wrapping non-tuple-like scalars
-/// @tparam Args mix of tuple-like slice packs and scalar slices
-/// @param args slice packs and/or individual slices, in the order they appear in the submdspan call
-template <class... Args>
-constexpr auto concat_slices(Args&&... args) noexcept {
-  return arene::base::tuple_cat(as_tuple(std::forward<Args>(args))...);
 }
 
 /// @brief Trait that is @c true when @p Result 's accessor type matches @p Src 's accessor's @c offset_policy
@@ -154,15 +109,6 @@ struct slice_to_offset {
   constexpr auto operator()(arene::base::range_slice<First, Last, Stride> slice) const noexcept -> IndexType {
     return static_cast<IndexType>(slice.first);
   }
-};
-
-/// @brief Functor that transforms an extent value into a full-range @c range_slice
-/// @tparam IndexType the index type of the extents
-template <class IndexType>
-struct make_full_range_range_slice {
-  using range_slice_type = arene::base::range_slice<IndexType, IndexType, std::integral_constant<IndexType, 1>>;
-
-  constexpr auto operator()(IndexType ext) const noexcept -> range_slice_type { return {IndexType{}, ext}; }
 };
 
 /// @brief Functor that transforms an extent value into an empty @c range_slice at the end of the dimension
@@ -672,9 +618,53 @@ TYPED_TEST(SubmdspanTypedTest, NotInvocableWithWrongNumberOfSlices) {
 
 // Constraint tests for non-sliceable mappings
 
+/// @brief A layout that satisfies @c is_layout_mapping_v but has no @c submdspan_mapping overload, and so is not
+/// sliceable
+/// @tparam Strided value reported by @c is_always_strided() / @c is_strided()
+/// @tparam Exhaustive value reported by @c is_always_exhaustive() / @c is_exhaustive()
+/// @tparam Unique value reported by @c is_always_unique() / @c is_unique()
+///
+/// This mirrors the shared @c test::user_defined_layout except that it intentionally provides no @c submdspan_mapping,
+/// so it remains non-sliceable. @c test::user_defined_layout gained a forwarding @c submdspan_mapping (needed by the
+/// @c layout_transpose tests) which would make it sliceable under the structural @c is_sliceable_mapping_v trait,
+/// defeating the purpose of these constraint tests.
+template <bool Strided, bool Exhaustive, bool Unique>
+class non_sliceable_layout {
+ public:
+  /// @brief A user-defined type with the basic interface of a layout mapping but no @c submdspan_mapping overload
+  /// @tparam Extents the extents type
+  template <typename Extents>
+  class mapping : private arene::base::layout_right::mapping<Extents> {
+    using base_type = arene::base::layout_right::mapping<Extents>;
+
+   public:
+    using extents_type = Extents;
+    using typename base_type::index_type;
+    using typename base_type::rank_type;
+    using layout_type = non_sliceable_layout;
+
+    static constexpr auto is_always_strided() noexcept -> bool { return Strided; }
+    static constexpr auto is_always_exhaustive() noexcept -> bool { return Exhaustive; }
+    static constexpr auto is_always_unique() noexcept -> bool { return Unique; }
+
+    static constexpr auto is_strided() noexcept -> bool { return Strided; }
+    static constexpr auto is_exhaustive() noexcept -> bool { return Exhaustive; }
+    static constexpr auto is_unique() noexcept -> bool { return Unique; }
+
+    // These extra members are not part of the test, but are needed so that this class satisfies is_layout_mapping_v.
+    using base_type::extents;
+    using base_type::required_span_size;
+    using base_type::stride;
+    using base_type::operator();
+
+    // Equality operator is needed so that this mapping will satisfy is_layout_mapping_v; it's not used in these tests
+    friend constexpr auto operator==(mapping const&, mapping const&) noexcept -> bool { return true; }
+  };
+};
+
 /// @test @c submdspan should not be invocable with a layout whose mapping lacks a @c submdspan_mapping overload
 TEST(SubmdspanConstraintTest, NotInvocableWithMappingLackingSubmdspanMapping) {
-  using layout_type = test::user_defined_layout<true, true, true>;
+  using layout_type = non_sliceable_layout<true, true, true>;
 
   using rank1 = arene::base::mdspan<int const, arene::base::extents<std::size_t, 3>, layout_type>;
   CONSTEXPR_ASSERT_FALSE(
@@ -689,7 +679,7 @@ TEST(SubmdspanConstraintTest, NotInvocableWithMappingLackingSubmdspanMapping) {
 
 /// @test @c submdspan should not be invocable with a non-unique mapping
 TEST(SubmdspanConstraintTest, NotInvocableWithNonUniqueMapping) {
-  using layout_type = test::user_defined_layout<true, true, false>;
+  using layout_type = non_sliceable_layout<true, true, false>;
   using src_type = arene::base::mdspan<int const, arene::base::extents<std::size_t, 3>, layout_type>;
 
   CONSTEXPR_ASSERT_FALSE(
@@ -699,7 +689,7 @@ TEST(SubmdspanConstraintTest, NotInvocableWithNonUniqueMapping) {
 
 /// @test @c submdspan should not be invocable with a non-strided mapping
 TEST(SubmdspanConstraintTest, NotInvocableWithNonStridedMapping) {
-  using layout_type = test::user_defined_layout<false, true, true>;
+  using layout_type = non_sliceable_layout<false, true, true>;
   using src_type = arene::base::mdspan<int const, arene::base::extents<std::size_t, 3>, layout_type>;
 
   CONSTEXPR_ASSERT_FALSE(

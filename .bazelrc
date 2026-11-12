@@ -12,6 +12,12 @@ build --incompatible_disallow_empty_glob=True
 # is externally set to paths in the Nix store.
 build --incompatible_strict_action_env=True
 build --action_env=PATH
+build --host_action_env=PATH
+
+# https://github.com/bazelbuild/bazel/issues/23312#issuecomment-2368896101
+build:macos --features=-macos_default_link_flags
+build:macos --linkopt=-no-canonical-prefixes
+build:macos --features=-macos_minimum_os
 
 ######
 # Configuration for C++ compiler options that are used across all compilers.

@@ -31,7 +31,6 @@ enum class input_category { lvalue_ref, const_lvalue_ref, rvalue_ref, const_rval
 struct value_category_probe {};
 
 /// @brief Return value for an lvalue probe.
-/// @param probe the probe (ignored)
 /// @return @c input_category::lvalue_ref
 template <std::size_t Idx>
 inline auto get(value_category_probe& /*probe*/) noexcept -> input_category {
@@ -40,7 +39,6 @@ inline auto get(value_category_probe& /*probe*/) noexcept -> input_category {
 }
 
 /// @brief Return value for a const-lvalue probe.
-/// @param probe the probe (ignored)
 /// @return @c input_category::const_lvalue_ref
 template <std::size_t Idx>
 inline auto get(value_category_probe const& /*probe*/) noexcept -> input_category {
@@ -49,7 +47,6 @@ inline auto get(value_category_probe const& /*probe*/) noexcept -> input_categor
 }
 
 /// @brief Return value for an rvalue probe.
-/// @param probe the probe (ignored)
 /// @return @c input_category::rvalue_ref
 template <std::size_t Idx>
 inline auto get(value_category_probe&& /*probe*/) noexcept -> input_category {
@@ -58,7 +55,6 @@ inline auto get(value_category_probe&& /*probe*/) noexcept -> input_category {
 }
 
 /// @brief Return value for a const-rvalue probe.
-/// @param probe the probe (ignored)
 /// @return @c input_category::const_rvalue_ref
 template <std::size_t Idx>
 inline auto get(value_category_probe const&& /*probe*/) noexcept -> input_category {

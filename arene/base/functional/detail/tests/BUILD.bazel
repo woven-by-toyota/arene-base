@@ -1,0 +1,31 @@
+# Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+cc_test_with_variants(
+    name = "max_fn_test",
+    srcs = ["max_fn_test.cpp"],
+    deps = [
+        "//arene/base/compiler_support:diagnostics",
+        "//arene/base/functional/detail:max_fn",
+        "//arene/base/functional/detail:operator_less",
+        "//arene/base/math:float_properties",
+        "//arene/base/math/detail:less_nan_highest",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:less",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:bitwise_uniform_distribution",
+        "//arene/base/testing:gtest",
+        "//arene/base/testing:nan_rejecting_distribution",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/utility:as_const",
+        "//testlibs:test_main",
+        "//testlibs/utilities:configurable_value",
+    ],
+)

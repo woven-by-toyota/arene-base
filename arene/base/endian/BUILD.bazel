@@ -4,17 +4,12 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "internal",
+    hdrs = [
         "byte_swap.hpp",
         "endian.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "internal",
-    hdrs = [":hdrs"],
     visibility = [
         ":__subpackages__",
         "//arene/base:__pkg__",
@@ -25,7 +20,6 @@ cc_library_with_variants(
         "//arene/base:constraints",
         "//arene/base:contracts",
         "//arene/base:span",
-        "//arene/base:type_traits",
         "//arene/base/compiler_support",
         "//arene/base/endian/detail",
         "//arene/base/stdlib_choice:cstddef",
@@ -37,6 +31,7 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:is_floating_point",
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:underlying_type",
+        "//arene/base/type_traits:type_identity",
     ],
 )
 
@@ -44,8 +39,7 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
         "//arene/base/endian/detail:package",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

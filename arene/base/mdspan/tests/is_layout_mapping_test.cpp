@@ -6,46 +6,16 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
 #include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/tests/test_layout_types.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 
 namespace {
 
-template <template <typename> class LayoutMapping>
-class basic_mapping_policy {
- public:
-  template <typename E>
-  using mapping = LayoutMapping<E>;
-};
-
-template <typename Extents>
-class basic_layout_mapping {
- public:
-  using rank_type = std::size_t;
-  using extents_type = Extents;
-  using index_type = typename Extents::index_type;
-
-  using layout_type = basic_mapping_policy<basic_layout_mapping>;
-
-  auto operator==(basic_layout_mapping const&) const -> bool;
-
-  auto extents() const -> extents_type const&;
-  template <typename... Indices>
-  auto operator()(Indices...) const -> index_type;
-
-  auto required_span_size() const -> index_type;
-  auto is_unique() const -> bool;
-  auto is_exhaustive() const -> bool;
-  auto is_strided() const -> bool;
-
-  auto stride(rank_type rank) const -> index_type;
-
-  static constexpr auto is_always_unique() -> bool { return false; }
-  static constexpr auto is_always_exhaustive() -> bool { return false; }
-  static constexpr auto is_always_strided() -> bool { return false; }
-};
+using test::basic_layout_mapping;
+using test::basic_mapping_policy;
 
 /// @test The basic layout mapping is a valid layout mapping
 TEST(IsLayoutMapping, BasicLayoutMappingIsALayoutMapping) {
@@ -479,15 +449,74 @@ TEST(IsLayoutMappingPolicy, EmptyClassIsNotAPolicy) {
   ASSERT_FALSE(arene::base::is_layout_mapping_policy_v<empty>);
 }
 
-class bad_mapping {
+class mapping_template_only {
  public:
   template <typename T>
   struct mapping {};
 };
 
-/// @test A class with a mapping template that does not yield a layout mapping is not a policy
-TEST(IsLayoutMappingPolicy, WrongMappingIsNotAPolicy) {
-  ASSERT_FALSE(arene::base::is_layout_mapping_policy_v<bad_mapping>);
+/// @test A class with a one-parameter @c mapping member template is structurally a policy, regardless of whether the
+/// instantiated mapping is a valid layout mapping. Use @c is_layout_mapping_policy_for_extents_v for the deep check.
+TEST(IsLayoutMappingPolicy, MappingMemberTemplateIsStructurallyAPolicy) {
+  ASSERT_TRUE(arene::base::is_layout_mapping_policy_v<mapping_template_only>);
+}
+
+// Reproduces OSC-15066 / LWG 4582: a layout policy whose mapping body imposes a rank mandate via @c static_assert .
+// Probing this with synthetic sample extents would fire the static_assert and break compilation. The structural trait
+// must not instantiate @c mapping<E> for any @c E ; the per-extents trait must only instantiate for the caller's @c E .
+template <typename Extents>
+class rank_two_only_mapping : public basic_layout_mapping<Extents> {
+  static_assert(Extents::rank() == 2U, "rank_two_only_mapping requires rank-2 extents");
+
+ public:
+  using layout_type = basic_mapping_policy<rank_two_only_mapping>;
+};
+
+using rank_two_only_layout = basic_mapping_policy<rank_two_only_mapping>;
+
+/// @test A rank-mandated layout policy is still structurally a policy. Without this guarantee, the prior
+/// implementation hit a hard @c static_assert during sample-extents probing (OSC-15066).
+TEST(IsLayoutMappingPolicy, RankMandatedPolicyIsStructurallyAPolicy) {
+  ASSERT_TRUE(arene::base::is_layout_mapping_policy_v<rank_two_only_layout>);
+}
+
+/// @test Check that a basic layout policy is a valid policy for the extents its mapping accepts
+TEST(IsLayoutMappingPolicyForExtents, BasicLayoutPolicyAcceptsItsExtents) {
+  using extents_type = arene::base::extents<std::size_t>;
+  ASSERT_TRUE((arene::base::is_layout_mapping_policy_for_extents_v<
+               basic_layout_mapping<extents_type>::layout_type,
+               extents_type>));
+}
+
+/// @test Integers are not a policy for any extents
+TEST(IsLayoutMappingPolicyForExtents, IntIsNotAPolicyForAnyExtents) {
+  ASSERT_FALSE((arene::base::is_layout_mapping_policy_for_extents_v<int, arene::base::extents<std::size_t>>));
+}
+
+/// @test Empty classes are not a policy for any extents
+TEST(IsLayoutMappingPolicyForExtents, EmptyClassIsNotAPolicyForAnyExtents) {
+  struct empty {};
+  ASSERT_FALSE((arene::base::is_layout_mapping_policy_for_extents_v<empty, arene::base::extents<std::size_t>>));
+}
+
+/// @test A structurally-shaped policy whose @c mapping<E> is not a valid layout mapping is rejected
+TEST(IsLayoutMappingPolicyForExtents, MappingTemplateOnlyIsNotAPolicyForExtents) {
+  ASSERT_FALSE(
+      (arene::base::is_layout_mapping_policy_for_extents_v<mapping_template_only, arene::base::extents<std::size_t>>)
+  );
+}
+
+/// @test A rank-mandated layout policy is a valid policy for extents that satisfy the mandate
+TEST(IsLayoutMappingPolicyForExtents, RankMandatedPolicyAcceptsRankTwoExtents) {
+  ASSERT_TRUE((arene::base::is_layout_mapping_policy_for_extents_v<
+               rank_two_only_layout,
+               arene::base::extents<std::size_t, 2, 2>>));
+}
+
+/// @test A type that is not a specialization of @c extents is not a valid second template argument
+TEST(IsLayoutMappingPolicyForExtents, NonExtentsSecondArgumentIsRejected) {
+  using policy = basic_layout_mapping<arene::base::extents<std::size_t>>::layout_type;
+  ASSERT_FALSE((arene::base::is_layout_mapping_policy_for_extents_v<policy, int>));
 }
 
 }  // namespace

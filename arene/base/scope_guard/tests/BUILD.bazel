@@ -4,7 +4,7 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test_with_variants(
     name = "scope_guard_test",
@@ -13,7 +13,7 @@ cc_test_with_variants(
         "//arene/base:scope_guard",
         "//arene/base/detail:exceptions",
         "//arene/base/stdlib_choice:move",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

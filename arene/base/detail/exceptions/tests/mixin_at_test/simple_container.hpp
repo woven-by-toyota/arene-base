@@ -9,14 +9,15 @@
 
 #include "arene/base/constraints.hpp"
 #include "arene/base/detail/exceptions/mixin_at.hpp"
-#include "arene/base/type_traits/conditional.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_reference.hpp"
 #include "arene/base/stdlib_choice/remove_reference.hpp"
-#include "arene/base/type_list.hpp"
+#include "arene/base/type_list/at.hpp"
+#include "arene/base/type_list/type_list.hpp"
+#include "arene/base/type_traits/conditional.hpp"
 #include "testlibs/utilities/configurable_value.hpp"
 
 namespace mixin_at_test {

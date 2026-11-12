@@ -6,12 +6,12 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_PLATFORM_QUERIES_HAS_CONSTEXPR_BIT_CAST_HPP_
 
 // IWYU pragma: private, include "arene/base/compiler_support/platform_queries.hpp"
-// IWYU pragma: friend "arene/base/compiler_support/platform_queries/.*"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/compiler_support/platform_queries/compiler_info.hpp"  // IWYU pragma: keep
 #include "arene/base/compiler_support/platform_queries/has_builtin.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) Explicitly providing compiler support macro functions

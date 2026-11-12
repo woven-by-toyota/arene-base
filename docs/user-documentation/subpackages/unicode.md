@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -20,13 +24,13 @@ The Bazel target is
 //:unicode
 ```
 
-# Introduction {#introduction}
+# Introduction {#subpackages-unicode-introduction}
 
 The `unicode` sub-package provides facilities to support the use of UTF-8
 strings. Currently this is just `arene::base::is_valid_utf8`, which checks if a
 string is a valid sequence of characters encoded in UTF-8.
 
-## `arene::base::is_valid_utf8` {#arene-base-is_valid_utf8}
+## `arene::base::is_valid_utf8` {#subpackages-unicode-arene-base-is_valid_utf8}
 
 This function checks if a string is a valid sequence of characters encoded in
 UTF-8. It accepts an `arene::base::string_view`, so just about any string value

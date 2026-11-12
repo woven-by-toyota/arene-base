@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ The Bazel target is
 //:memory
 ```
 
-## Introduction {#introduction}
+# Introduction {#subpackages-memory-introduction}
 
 The `memory` subpackage provides backports of
 [`std::construct_at`](https://en.cppreference.com/w/cpp/memory/construct_at) and

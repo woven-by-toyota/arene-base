@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ///
-/// @file last.cpp
+/// @file last_in_bounds.cpp
 /// @brief Unit tests for @c span<T,Extent>::last
 ///
 

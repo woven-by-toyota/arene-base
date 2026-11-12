@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ error handling for behavior that would otherwise be prevented by non-default
 compiler diagnostics. They should **never** be suppressed in order to land code
 without resolving the warning to meet deadlines.
 
-## Suppressing Compiler Diagnostics {#suppressing-compiler-diagnostics}
+# Suppressing Compiler Diagnostics {#subpackages-compiler-support-diagnostics-suppressing-compiler-diagnostics}
 
 The process for suppressing one or more diagnostics is as follows:
 
@@ -55,7 +59,7 @@ constexpr Number abs(Number value) noexcept {
 ARENE_IGNORE_END();
 ```
 
-## Supported Suppression Macros {#supported-suppression-macros}
+## Supported Suppression Macros {#subpackages-compiler-support-diagnostics-supported-suppression-macros}
 
 |              Macro               |                                     Description                                      |
 | :------------------------------: | :----------------------------------------------------------------------------------: |

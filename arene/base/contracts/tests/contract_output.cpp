@@ -2,10 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <exception>
-
-#include "arene/base/compiler_support/expect.hpp"
 #include "arene/base/contracts/contract.hpp"
+#include "arene/base/stdlib_choice/terminate.hpp"
 
 [[noreturn]] auto foo() -> int {
   ARENE_PRECONDITION(false);

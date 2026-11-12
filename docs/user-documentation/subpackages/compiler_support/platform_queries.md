@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 MD013-->
 <!-- prettier-ignore -->
@@ -16,7 +20,7 @@ is provided via the following header:
 
 ```
 
-## Querying For The Current Compiler {#querying-for-the-current-compiler}
+# Querying For The Current Compiler {#subpackages-compiler-support-platform-queries-querying-for-the-current-compiler}
 
 When writing portable code, occasionally conditional action is needed depending
 on the compiler being used to compile the code. The following queries can be
@@ -39,7 +43,7 @@ Example usage:
 #endif
 ```
 
-## Querying For The Standard Library Implementation In Use {#querying-for-the-standard-library-implementation-in-use}
+## Querying For The Standard Library Implementation In Use {#subpackages-compiler-support-platform-queries-querying-for-the-standard-library-implementation-in-use}
 
 When writing portable code, occasionally conditional action is needed depending
 on the standard library implementation being used. The following queries can be
@@ -64,7 +68,7 @@ Example usage:
 #endif
 ```
 
-## Querying For A Header's Existence {#querying-for-a-headers-existence}
+## Querying For A Header's Existence {#subpackages-compiler-support-platform-queries-querying-for-a-headers-existence}
 
 When writing platform specific code, it is sometimes needed to test if a given
 system header is available. The `ARENE_HAS_INCLUDE` macro can be used for this
@@ -87,13 +91,13 @@ versions. For other compilers, generally if the compiler could support C++17,
 then it should support `__has_include`. If `__has_include` is not supported,
 this macro always returns `0`
 
-## Querying For Compiler Builtins, Features and Sanitizers {#querying-for-compiler-builtins-features-and-sanitizers}
+## Querying For Compiler Builtins, Features and Sanitizers {#subpackages-compiler-support-platform-queries-querying-for-compiler-builtins-features-and-sanitizers}
 
 There are a number of facilities provided for testing for compiler builtins,
 including predefined queries for specific builtins. They are intended to be used
 with `ARENE_IS_ON` and friends.
 
-### `ARENE_HAS_BUILTIN` {#arene_has_builtin}
+### `ARENE_HAS_BUILTIN` {#subpackages-compiler-support-platform-queries-arene_has_builtin}
 
 This macro queries if a particular compiler builtin is supported. It should be
 used when building wrapper macros for additional queries, to avoid boilerplate.
@@ -127,14 +131,14 @@ in all `clang` versions. This intrinsic is not standardized, so for other
 compilers you must consult the appropriate compiler documentation. If the
 intrinsic is not supported, this macro always returns `0`.
 
-### `ARENE_HAS_FEATURE` {#arene_has_feature}
+### `ARENE_HAS_FEATURE` {#subpackages-compiler-support-platform-queries-arene_has_feature}
 
 This macro queries if a particular compiler "feature" is enabled. This is a
 clang-specific facility, though newer versions of GCC also support it for
 compatibility with clang, and generally should only be used when writing macros
 for additional platform feature queries.
 
-### Predefined Queries For Compiler Builtins/Features {#predefined-queries-for-compiler-builtinsfeatures}
+### Predefined Queries For Compiler Builtins/Features {#subpackages-compiler-support-platform-queries-predefined-queries-for-compiler-builtinsfeatures}
 
 The following queries for builtins are supported.
 
@@ -145,7 +149,7 @@ The following queries for builtins are supported.
 | `ARENE_HAS_BUILTIN_IS_CONSTANT_EVALUATED` |                                Tests if `__builtin_is_constant_evaluated` is supported.                                |
 |    `ARENE_HAS_THREAD_SAFETY_ANALYSIS`     | Tests if the current compiler supports [Thread Safety Analysis](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html) |
 
-### Predefined Queries for Standard Library Facility Support {#predefined-queries-for-standard-library-facility-support}
+### Predefined Queries for Standard Library Facility Support {#subpackages-compiler-support-platform-queries-predefined-queries-for-standard-library-facility-support}
 
 The following queries for standard library features are supported.
 
@@ -158,7 +162,7 @@ The following queries for standard library features are supported.
 | `ARENE_STD_LIBRARY_UNCAUGHT_EXCEPTIONS` | Tests if `__cpp_lib_uncaught_exceptions` is supported. |
 |   `ARENE_STD_NOEXCEPT_FUNCTION_TYPE`    | Tests if `__cpp_noexcept_function_type` is supported.  |
 
-### Predefined Queries for Active Sanitizers {#predefined-queries-for-active-sanitizers}
+### Predefined Queries for Active Sanitizers {#subpackages-compiler-support-platform-queries-predefined-queries-for-active-sanitizers}
 
 The following queries for determining if one of the
 [sanitizers](https://github.com/google/sanitizers) are active are supported:
@@ -167,7 +171,7 @@ The following queries for determining if one of the
 | :------------------: | :----------------------------------------------------------------------------------------------------------------------------: |
 | `ARENE_ASAN_ENABLED` | Tests if [AddressSanitizer](https://github.com/google/sanitizers/wiki/AddressSanitizer) is enabled in the current compilation. |
 
-### Predefined Queries For Coverage Tooling Detection {#predefined-queries-for-coverage-tooling-detection}
+### Predefined Queries For Coverage Tooling Detection {#subpackages-compiler-support-platform-queries-predefined-queries-for-coverage-tooling-detection}
 
 The following queries for detecting the presense of coverage tooling are
 supported:

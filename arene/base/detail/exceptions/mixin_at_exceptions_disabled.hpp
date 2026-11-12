@@ -7,7 +7,7 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_DETAIL_EXCEPTIONS_MIXIN_AT_EXCEPTIONS_DISABLED_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_DETAIL_EXCEPTIONS_MIXIN_AT_EXCEPTIONS_DISABLED_HPP_
 
-// IWYU pragma: private, include "arene/base/exceptions.hpp"
+// IWYU pragma: private
 // IWYU pragma: friend "arene/base/detail/exceptions/.*"
 
 #include "arene/base/detail/exceptions/are_exceptions_enabled.hpp"  // IWYU pragma: keep
@@ -28,6 +28,22 @@ class mixin_at_impl {
       "non-throwing mixin_at is only available when exceptions are disabled, this suggests a misconfiguration in build "
       "settings."
   );
+
+ protected:
+  /// @brief Do-nothing default constructor
+  constexpr mixin_at_impl() = default;
+  /// @brief Do-nothing destructor
+  ~mixin_at_impl() = default;
+  // parasoft-begin-suppress CERT_C-EXP37-a "False positive: The rule does not mention naming all parameters"
+  /// @brief Do-nothing copy constructor
+  constexpr mixin_at_impl(mixin_at_impl const&) = default;
+  /// @brief Do-nothing move constructor
+  constexpr mixin_at_impl(mixin_at_impl&&) = default;
+  /// @brief Do-nothing copy assignment operator
+  constexpr auto operator=(mixin_at_impl const&) -> mixin_at_impl& = default;
+  /// @brief Do-nothing move assignment operator
+  constexpr auto operator=(mixin_at_impl&&) -> mixin_at_impl& = default;
+  // parasoft-end-suppress CERT_C-EXP37-a
 };
 
 }  // namespace detail

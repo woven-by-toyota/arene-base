@@ -8,7 +8,7 @@
 #include "arene/base/algorithm/equal.hpp"
 #include "arene/base/array/array.hpp"
 #include "arene/base/detail/dynamic_extent.hpp"
-#include "arene/base/mdspan/detail/rank_scan.hpp"
+#include "arene/base/mdspan/detail/masked_array.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
 
@@ -25,9 +25,10 @@ extern constexpr auto extent_sequence_values = array<std::size_t, sizeof...(Exte
 /// @brief index mapping into an array holding only dynamic extents
 /// @tparam Extents static extent values
 template <std::size_t... Extents>
-extern constexpr auto dynamic_index_map = rank_scan(  //
-    array<bool, sizeof...(Extents)>{(Extents == dynamic_extent)...}
-);
+extern constexpr auto dynamic_index_map =
+    masked_array<sizeof...(Extents)>{//
+                                     array<bool, sizeof...(Extents)>{(Extents == dynamic_extent)...}
+    };
 
 /// @brief number of static extents equal to @c dynamic_extent
 /// @tparam Extents static extent values
@@ -114,11 +115,13 @@ constexpr std::integral_constant<
 template <std::size_t... Is, std::size_t... Js, class Compare>
 constexpr auto extent_sequence_equal(extent_sequence<Is...> lhs, extent_sequence<Js...> rhs, Compare cmp)  //
     -> bool {
+  // Unwrap iterators to avoid the constexpr pointer checks in wrapped_iterator subtraction.
+  // CppTest fails to parse the subtraction of wrapped_iterator in a constant expression.
   return equal(  //
-      lhs.as_array.cbegin(),
-      lhs.as_array.cend(),
-      rhs.as_array.cbegin(),
-      rhs.as_array.cend(),
+      lhs.as_array.cbegin().base(),
+      lhs.as_array.cend().base(),
+      rhs.as_array.cbegin().base(),
+      rhs.as_array.cend().base(),
       cmp
   );
 }

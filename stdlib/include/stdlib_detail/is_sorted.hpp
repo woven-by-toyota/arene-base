@@ -10,9 +10,9 @@
 // IWYU pragma: private, include <algorithm>
 // IWYU pragma: friend "stdlib_detail/.*"
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
 #include "arene/base/iterator/advance.hpp"
 #include "arene/base/type_traits/is_compare.hpp"
 #include "arene/base/type_traits/iterator_category_traits.hpp"
@@ -85,12 +85,12 @@ template <
     arene::base::constraints<
         enable_if_t<arene::base::is_forward_iterator_v<ForwardIterator>>,
         enable_if_t<arene::base::is_compare_v<
-            decltype(arene::base::algorithm_detail::operator_less)&,
+            decltype(arene::base::functional_detail::operator_less)&,
             typename std::iterator_traits<ForwardIterator>::reference>>> = nullptr>
 auto is_sorted(ForwardIterator first, ForwardIterator last) noexcept(
-    noexcept(is_sorted(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less))
+    noexcept(is_sorted(std::move(first), std::move(last), arene::base::functional_detail::operator_less))
 ) -> bool {
-  return is_sorted(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less);
+  return is_sorted(std::move(first), std::move(last), arene::base::functional_detail::operator_less);
 }
 
 }  // namespace std

@@ -16,7 +16,8 @@
 #include <gtest/gtest.h>
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/preprocessor/concatenate.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/testing/gtest/static_assertions_config.hpp"
 
 #if ARENE_IS_ON(ARENE_GTEST_STATIC_ASSERTIONS)
@@ -32,8 +33,8 @@
 // parasoft-begin-suppress AUTOSAR-M16_0_6-a "Some args can not be parenthesized to preserve decltype(auto)"
 
 /// @brief Call a Google Test unary assertion macro at runtime, and statically if @c TypeParam is compatible
-/// @param condition The condition to assert; should not contain reference to non-constexpr variables
 /// @param assertion_type The @c ::arene::base::testing::gtest_operation value specifying the assertion to use
+/// @param ... The condition to assert; should not contain references to non-constexpr variables.
 #define COND_STATIC_ASSERT_UNARY(assertion_type, ...)                      \
   struct ARENE_CONCATENATE(condition_impl_, __LINE__) {                    \
     constexpr static auto body() -> decltype(auto) { return __VA_ARGS__; } \
@@ -41,12 +42,12 @@
   static_cast<void>((ARENE_CONDITIONAL_ASSERTER((assertion_type))::do_assert()))
 
 /// @brief Call Google Test @c ASSERT_TRUE at runtime, and also statically if @c TypeParam is compatible
-/// @param condition The condition to assert as true; should not contain references to non-constexpr variables
+/// @param ... The condition to assert as true; should not contain references to non-constexpr variables.
 #define COND_STATIC_ASSERT_TRUE(...) \
   COND_STATIC_ASSERT_UNARY(::arene::base::testing::gtest_operation::assert_true, __VA_ARGS__)
 
 /// @brief Call Google Test @c ASSERT_FALSE at runtime, and also statically if @c TypeParam is compatible
-/// @param condition The condition to assert as false; should not contain references to non-constexpr variables
+/// @param ... The condition to assert as false; should not contain references to non-constexpr variables.
 #define COND_STATIC_ASSERT_FALSE(...) \
   COND_STATIC_ASSERT_UNARY(::arene::base::testing::gtest_operation::assert_false, __VA_ARGS__)
 

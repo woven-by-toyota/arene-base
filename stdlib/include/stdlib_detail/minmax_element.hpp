@@ -5,9 +5,9 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_MINMAX_ELEMENT_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_MINMAX_ELEMENT_HPP_
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
 #include "arene/base/type_traits/is_compare.hpp"
 #include "arene/base/type_traits/iterator_category_traits.hpp"
 #include "arene/base/utility/swap.hpp"
@@ -165,13 +165,13 @@ template <
     arene::base::constraints<
         std::enable_if_t<arene::base::is_forward_iterator_v<ForwardIterator>>,
         std::enable_if_t<arene::base::is_compare_v<
-            decltype(arene::base::algorithm_detail::operator_less)&,
+            decltype(arene::base::functional_detail::operator_less)&,
             arene::base::algorithm_detail::iter_reference_t<ForwardIterator>>>> = nullptr>
 constexpr auto minmax_element(ForwardIterator first, ForwardIterator last) noexcept(
-    noexcept(std::minmax_element(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less))
+    noexcept(std::minmax_element(std::move(first), std::move(last), arene::base::functional_detail::operator_less))
 ) -> std::pair<ForwardIterator, ForwardIterator> {
   std::detail::disable_constexpr_in_cpp14();
-  return std::minmax_element(std::move(first), std::move(last), arene::base::algorithm_detail::operator_less);
+  return std::minmax_element(std::move(first), std::move(last), arene::base::functional_detail::operator_less);
 }
 
 // parasoft-end-suppress AUTOSAR-M3_3_2-a

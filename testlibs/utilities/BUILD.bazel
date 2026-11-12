@@ -41,14 +41,9 @@ _REMAPPED_STDLIB_HEADERS = [
 # The use of these headers by system include results in a compilation
 # failure.
 #
-filegroup(
-    name = "dummystdlib_hdrs",
-    srcs = glob(["dummystdlib/*"]),
-)
-
 cc_library(
     name = "dummy_stdlib",
-    hdrs = [":dummystdlib_hdrs"],
+    hdrs = glob(["dummystdlib/*"]),
     include_prefix = "",
     strip_include_prefix = "dummystdlib/",
     tags = ["manual"],
@@ -95,15 +90,10 @@ cc_library(
     deps = select(_STDLIB_CONFIG),
 )
 
-filegroup(
-    name = "throws_on_hdrs",
-    srcs = ["throws_on.hpp"],
-)
-
-cc_library(
+cc_library_with_variants(
     name = "throws_on",
     testonly = True,
-    hdrs = [":throws_on_hdrs"],
+    hdrs = ["throws_on.hpp"],
     visibility = ["//visibility:private"],
     deps = [
         "//arene/base/stdlib_choice:cstdint",
@@ -111,15 +101,10 @@ cc_library(
     ],
 )
 
-filegroup(
-    name = "iterator_types_hdrs",
-    srcs = ["iterator_types.hpp"],
-)
-
 cc_library_with_variants(
     name = "iterator_types",
     testonly = True,
-    hdrs = [":iterator_types_hdrs"],
+    hdrs = ["iterator_types.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -142,35 +127,26 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "common_test_types_hdrs",
-    srcs = ["common_test_types.hpp"],
-)
-
 cc_library_with_variants(
     name = "common_test_types",
     testonly = True,
-    hdrs = [":common_test_types_hdrs"],
+    hdrs = ["common_test_types.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
         "//testlibs/minitest/tests:__subpackages__",
     ],
     deps = [
-        ":select_stdlib",
-        "//arene/base:type_list",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/type_list:concat_unique",
+        "//testlibs:test_library",
     ],
-)
-
-filegroup(
-    name = "constexpr_traits_hdrs",
-    srcs = ["constexpr_traits.hpp"],
 )
 
 cc_library(
     name = "constexpr_traits",
     testonly = True,
-    hdrs = [":constexpr_traits_hdrs"],
+    hdrs = ["constexpr_traits.hpp"],
     visibility = [
         "__subpackages__",
         "//arene/base:__subpackages__",
@@ -182,57 +158,40 @@ cc_library(
     ],
 )
 
-filegroup(
-    name = "counter_mixin_hdrs",
-    srcs = ["counter_mixin.hpp"],
-)
-
 cc_library(
     name = "counter_mixin",
     testonly = True,
-    hdrs = [":counter_mixin_hdrs"],
+    hdrs = ["counter_mixin.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [":select_stdlib"],
 )
 
-filegroup(
-    name = "disable_mixin_hdrs",
-    srcs = ["disable_mixin.hpp"],
-)
-
-cc_library(
+cc_library_with_variants(
     name = "disable_mixin",
     testonly = True,
-    hdrs = [":disable_mixin_hdrs"],
-    visibility = ["//visibility:private"],
-    deps = [":select_stdlib"],
-)
-
-filegroup(
-    name = "noexcept_mixin_hdrs",
-    srcs = ["noexcept_mixin.hpp"],
-)
-
-cc_library(
-    name = "noexcept_mixin",
-    testonly = True,
-    hdrs = [":noexcept_mixin_hdrs"],
+    hdrs = ["disable_mixin.hpp"],
     visibility = ["//visibility:private"],
     deps = [
-        ":select_stdlib",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:enable_if",
+    ],
+)
+
+cc_library_with_variants(
+    name = "noexcept_mixin",
+    testonly = True,
+    hdrs = ["noexcept_mixin.hpp"],
+    visibility = ["//visibility:private"],
+    deps = [
         ":throws_on",
     ],
 )
 
-filegroup(
-    name = "configurable_value_hdrs",
-    srcs = ["configurable_value.hpp"],
-)
-
-cc_library(
+cc_library_with_variants(
     name = "configurable_value",
     testonly = True,
-    hdrs = [":configurable_value_hdrs"],
+    hdrs = ["configurable_value.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -240,6 +199,7 @@ cc_library(
     deps = [
         ":disable_mixin",
         ":noexcept_mixin",
+        "//arene/base/compiler_support",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/stdlib_choice:is_default_constructible",
@@ -248,15 +208,10 @@ cc_library(
     ],
 )
 
-filegroup(
-    name = "counting_wrapper_hdrs",
-    srcs = ["counting_wrapper.hpp"],
-)
-
 cc_library(
     name = "counting_wrapper",
     testonly = True,
-    hdrs = [":counting_wrapper_hdrs"],
+    hdrs = ["counting_wrapper.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -269,15 +224,10 @@ cc_library(
     ],
 )
 
-filegroup(
-    name = "counted_algorithm_hdrs",
-    srcs = ["counted_algorithm.hpp"],
-)
-
 cc_library(
     name = "counted_algorithm",
     testonly = True,
-    hdrs = [":counted_algorithm_hdrs"],
+    hdrs = ["counted_algorithm.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -285,48 +235,60 @@ cc_library(
     deps = [":select_stdlib"],
 )
 
-filegroup(
-    name = "mutate_hdrs",
-    srcs = ["mutate.hpp"],
+cc_library_with_variants(
+    name = "float32",
+    testonly = True,
+    hdrs = ["float32.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/math:abs",
+        "//arene/base/math:float_properties",
+        "//arene/base/math:float_sign",
+        "//arene/base/stdlib_choice:numeric_limits",
+    ],
+)
+
+cc_library_with_variants(
+    name = "functional",
+    testonly = True,
+    hdrs = ["functional.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
 )
 
 cc_library_with_variants(
     name = "mutate",
     testonly = True,
-    hdrs = [":mutate_hdrs"],
+    hdrs = ["mutate.hpp"],
     visibility = [
         "__subpackages__",
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
         "//testlibs/minitest/tests:__subpackages__",
     ],
-    deps = ["//arene/base:type_list"],
-)
-
-filegroup(
-    name = "has_broken_less_than_hdrs",
-    srcs = ["has_broken_less_than.hpp"],
+    deps = ["//arene/base/type_list:concat"],
 )
 
 cc_library(
     name = "has_broken_less_than",
     testonly = True,
-    hdrs = [":has_broken_less_than_hdrs"],
+    hdrs = ["has_broken_less_than.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
 )
 
-filegroup(
-    name = "tuplet_hdrs",
-    srcs = ["tuplet.hpp"],
-)
-
 cc_library_with_variants(
     name = "tuplet",
     testonly = True,
-    hdrs = [":tuplet_hdrs"],
+    hdrs = ["tuplet.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -345,21 +307,12 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":configurable_value_hdrs",
-        ":constexpr_traits_hdrs",
-        ":counted_algorithm_hdrs",
-        ":counter_mixin_hdrs",
-        ":disable_mixin_hdrs",
-        ":dummystdlib_hdrs",
-        ":has_broken_less_than_hdrs",
-        ":iterator_types_hdrs",
-        ":mutate_hdrs",
-        ":noexcept_mixin_hdrs",
-        ":throws_on_hdrs",
-        ":tuplet_hdrs",
     ] + [
         "{}.to_angle".format(component)
         for component in _REMAPPED_STDLIB_HEADERS
-    ],
+    ] + glob([
+        "*.hpp",
+        "dummystdlib/*",
+    ]),
     visibility = ["//testlibs:__pkg__"],
 )

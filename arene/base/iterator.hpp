@@ -6,11 +6,22 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ITERATOR_HPP_
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/iterator/advance.hpp"           // IWYU pragma: export
-#include "arene/base/iterator/distance.hpp"          // IWYU pragma: export
-#include "arene/base/iterator/next.hpp"              // IWYU pragma: export
-#include "arene/base/iterator/prev.hpp"              // IWYU pragma: export
-#include "arene/base/iterator/reverse_iterator.hpp"  // IWYU pragma: export
+#include "arene/base/iterator/advance.hpp"                     // IWYU pragma: export
+#include "arene/base/iterator/distance.hpp"                    // IWYU pragma: export
+#include "arene/base/iterator/incrementable_traits.hpp"        // IWYU pragma: export
+#include "arene/base/iterator/indirect_result_t.hpp"           // IWYU pragma: export
+#include "arene/base/iterator/indirectly_readable_traits.hpp"  // IWYU pragma: export
+#include "arene/base/iterator/is_indirectly_readable.hpp"      // IWYU pragma: export
+#include "arene/base/iterator/is_weakly_incrementable.hpp"     // IWYU pragma: export
+#include "arene/base/iterator/iter_const_reference_t.hpp"      // IWYU pragma: export
+#include "arene/base/iterator/iter_difference_t.hpp"           // IWYU pragma: export
+#include "arene/base/iterator/iter_move.hpp"                   // IWYU pragma: export
+#include "arene/base/iterator/iter_reference_t.hpp"            // IWYU pragma: export
+#include "arene/base/iterator/iter_rvalue_reference_t.hpp"     // IWYU pragma: export
+#include "arene/base/iterator/iter_value_t.hpp"                // IWYU pragma: export
+#include "arene/base/iterator/next.hpp"                        // IWYU pragma: export
+#include "arene/base/iterator/prev.hpp"                        // IWYU pragma: export
+#include "arene/base/iterator/reverse_iterator.hpp"            // IWYU pragma: export
 // parasoft-end-suppress AUTOSAR-A16_2_2-a-2
 
 #endif  // INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ITERATOR_HPP_

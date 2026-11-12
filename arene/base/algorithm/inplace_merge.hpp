@@ -139,8 +139,7 @@ class inplace_merge_impl_fn {
 }  // namespace inplace_merge_detail
 }  // namespace algorithm_detail
 
-/// @def arene::base::inplace_merge
-/// @copydoc arene::base::algorithm_detail::inplace_merge_detail::inplace_merge_impl_fn::operator()
+/// @brief Merge adjacent sorted ranges in place.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ The Bazel target is
 //:result
 ```
 
-## Introduction {#introduction}
+# Introduction {#subpackages-result-introduction}
 
 A C++ function can only return a single return value. When designing APIs which
 might fail to perform the desired task, this leads developers to generally use
@@ -81,7 +85,7 @@ straightforward composition and `const`-correctness. It is similar in concept to
 Rust's [`Result`](https://doc.rust-lang.org/std/result/) or C++23's
 [std::expected](https://en.cppreference.com/w/cpp/utility/expected).
 
-## Basic Usage {#basic-usage}
+## Basic Usage {#subpackages-result-basic-usage}
 
 The `arene::base::result<V,E>` type is always in one of two states:
 
@@ -174,22 +178,22 @@ EXPECT_FALSE(some_result.has_error(10));
 
 For full API details, please see the API reference.
 
-## Access Safety {#access-safety}
+## Access Safety {#subpackages-result-access-safety}
 
 `arene::base::result` is a _checked type_. This means that `ARENE_PRECONDITION`
 is used on any access method which returns a reference, such as `result::value`
 or `result::error`, to validate that the channel being accessed is actually
 populated.
 
-## Advanced Usage {#advanced-usage}
+## Advanced Usage {#subpackages-result-advanced-usage}
 
 Beyond simple procedural access of the `error` and `value` channels, there are
 advanced techniques which can be used in some cases to further reduce
 boilerplate and write more declarative code.
 
-### Monadic/Functional APIs {#monadicfunctional-apis}
+### Monadic/Functional APIs {#subpackages-result-monadicfunctional-apis}
 
-#### and_then {#and_then}
+#### and_then {#subpackages-result-and_then}
 
 `arene::base::result::and_then(F&& value_handler)` is a _monadic_ API which
 consumes an _invocable_ with the signature `result<U, error_type>(value_type)`,
@@ -221,7 +225,7 @@ the failure to open the directory.
 This is needed because `value_result` is not a `result`, it is _convertible_ to
 a `result`. `and_then` requires the handler to return a `result`.
 
-#### or_else {#or_else}
+#### or_else {#subpackages-result-or_else}
 
 `arene::base::result::or_else(F&& error_handler)` is a _monadic_ API which
 consumes an _invocable_ with the signature `result<value_type, U>(error_type)`,
@@ -262,7 +266,7 @@ either file.
 This is needed because `error_result` is not a `result`, it is _convertible_ to
 a `result`. `or_else` requires the handler to return a `result`.
 
-#### transform {#transform}
+#### transform {#subpackages-result-transform}
 
 `arene::base::result::transform(F&& value_handler)` is a _functional_ API which
 consumes an _invocable_ with the signature `U(value_type)`, where `value_type`
@@ -289,7 +293,7 @@ value channel populated, `print_entry` is called and `maybe_processed_entry`
 will have its value channel populated. Otherwise `maybe_processed_entry` will
 contain the `error_code` from `next_entry()`.
 
-#### transform_error {#transform_error}
+#### transform_error {#subpackages-result-transform_error}
 
 `arene::base::result::transform_error(F&& value_handler)` is a _functional_ API
 which consumes a _invocable_ with the signature `U(error_type)`, where
@@ -315,12 +319,12 @@ auto maybe_file = dir_handle.open_file(file_name).transform_error(
 );
 ```
 
-### `expand_result` {#expand_result}
+### `expand_result` {#subpackages-result-expand_result}
 
 The `arene::base::expand_result` API can be used to access the content of an
 `arene::base::result` in a similar manner to accessing a `std::variant` using a
-visitor. The example from [basic usage](#basic-usage) rewritten to use
-`expand_result` would be implemented as follows:
+visitor. The example from [basic usage](#subpackages-result-basic-usage)
+rewritten to use `expand_result` would be implemented as follows:
 
 ```cpp
 expand_result(open(path, options),

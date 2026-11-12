@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -20,7 +24,7 @@ The Bazel target is
 //:contracts
 ```
 
-## Introduction {#introduction}
+# Introduction {#subpackages-contracts-introduction}
 
 _Preconditions_, _Postconditions_ and _Invariants_ are common terms in software
 engineering. They are often associated with the term _Design by Contract_, and
@@ -61,7 +65,7 @@ If we can write an `if`, then we can check it programmatically, but then we have
 to manually implement the behaviour in the case that the check fails separately
 for every check. This is where the Arene contract check macros come in.
 
-## Arene precondition checks {#arene-precondition-checks}
+## Arene precondition checks {#subpackages-contracts-arene-precondition-checks}
 
 The `ARENE_PRECONDITION()` macro can be used to document that the supplied
 condition is a _precondition_ of the function, and verify that it is true. The
@@ -72,7 +76,8 @@ ARENE_PRECONDITION( /* boolean condition */);
 ```
 
 If the boolean condition evaluates to `false`, then the
-[violation handler](#violation-handlers-and-contract-violations) is invoked.
+[violation handler](#subpackages-contracts-violation-handlers-and-contract-violations)
+is invoked.
 
 Since this is a _precondition_ check, the expectation is that this macro will be
 used immediately upon function entry. For example:
@@ -88,14 +93,15 @@ void foo(int i) {
 These precondition checks are always present, independent of build mode or
 definitions of other macros.
 
-## Arene invariant checks {#arene-invariant-checks}
+## Arene invariant checks {#subpackages-contracts-arene-invariant-checks}
 
 A developer may want to express that a condition _must_ be true, at a place in
 the code other than the start of a function. This can be expressed with the
 `ARENE_INVARIANT()` macro. Functionally, this is identical to
 `ARENE_PRECONDITION()`, except that the error message says "invariant" rather
 than "precondition": if the condition is `false`, then the
-[violation handler](#violation-handlers-and-contract-violations) is invoked.
+[violation handler](#subpackages-contracts-violation-handlers-and-contract-violations)
+is invoked.
 
 For example:
 
@@ -129,7 +135,7 @@ In this case, the result of the `initial_processing` must be valid for `foo`,
 but we have no good way of checking prior to doing this initial processing, so
 can't use `ARENE_PRECONDITION()`, and have to instead check mid-function.
 
-### Use of `ARENE_INVARIANT()` for postconditions {#use-of-arene_invariant-for-postconditions}
+### Use of `ARENE_INVARIANT()` for postconditions {#subpackages-contracts-use-of-arene_invariant-for-postconditions}
 
 Postconditions are not usually easy to check. They often depend on the return
 value of the function, or rely on RAII cleanup having been completed, or are
@@ -139,13 +145,13 @@ Arene postcondition check macro.
 However, for those cases where the condition _can_ be easily checked, you can
 use `ARENE_INVARIANT()` to perform the check.
 
-## Unreachable code {#unreachable-code}
+## Unreachable code {#subpackages-contracts-unreachable-code}
 
 Sometimes it is necessary to document that a particular line of code should be
 unreachable. The `ARENE_INVARIANT_UNREACHABLE()` macro can be used to identify
 this scenario; the
-[violation handler](#violation-handlers-and-contract-violations) is invoked to
-output the specified message and terminate the process.
+[violation handler](#subpackages-contracts-violation-handlers-and-contract-violations)
+is invoked to output the specified message and terminate the process.
 
 The macro is marked as "will not return" internally, so that the compiler will
 not give a warning about a missing return statement following the
@@ -192,7 +198,7 @@ replaced with `ARENE_PRECONDITION` to communicate to the user that it's _the
 user's_ responsibility to call this function with a valid argument, rather than
 the implementation's responsibility to block off the code path.
 
-## Violation handlers and contract violations {#violation-handlers-and-contract-violations}
+## Violation handlers and contract violations {#subpackages-contracts-violation-handlers-and-contract-violations}
 
 If the condition for `ARENE_PRECONDITION()` or `ARENE_INVARIANT()` evaluates to
 `false`, then we say that _the contract has been violated_, and a _violation
@@ -202,7 +208,7 @@ The violation handler writes the source file name and line number to the
 standard error stream, along with the text of the condition or error message,
 and then terminates the process by calling `std::abort`.
 
-### Stacktrace Capture {#stacktrace-capture}
+### Stacktrace Capture {#subpackages-contracts-stacktrace-capture}
 
 On supported platforms, a stacktrace is also included in the information printed
 in the violation handler. The exact content is platform dependent, and the stack
@@ -223,7 +229,7 @@ The platforms for which stacktrace is currently supported are:
 - Linux: stacktrace capture and symbolization are handled by the backtrace
   utilities in `<execinfo.h>`
 
-## Differences between contract check macros and the `assert` macro {#differences-between-contract-check-macros-and-the-assert-macro}
+## Differences between contract check macros and the `assert` macro {#subpackages-contracts-differences-between-contract-check-macros-and-the-assert-macro}
 
 It is common for developers to use the `assert` macro to check preconditions and
 invariants, where there isn't explicit support for them.
@@ -246,7 +252,7 @@ The Arene contract macros address these shortcomings: the name of the macro
 documents the purpose of the check, and there is defined behaviour in all build
 modes.
 
-## Coverage reports and Death Tests {#coverage-reports-and-death-tests}
+## Coverage reports and Death Tests {#subpackages-contracts-coverage-reports-and-death-tests}
 
 As `ARENE_PRECONDITION` is part of the contract of an API, the behavior of that
 API in presence of a precondition violation will need to be covered by unit

@@ -66,28 +66,28 @@ class pair {
   /// @tparam Arg1 The type of the initializer for first argument
   /// @tparam Arg2 The type of the initializer for second argument
   template <typename Arg1, typename Arg2>
-  static constexpr auto
+  static constexpr bool
       memberwise_copy_constructor_is_explicit{!is_convertible_v<Arg1 const&, Arg1> || !is_convertible_v<Arg2 const&, Arg2>};
 
   /// @brief Check if the memberwise forward constructor should be explicit
   /// @tparam Arg1 The type of the initializer for first argument
   /// @tparam Arg2 The type of the initializer for second argument
   template <typename Arg1, typename Arg2>
-  static constexpr auto
+  static constexpr bool
       memberwise_forward_constructor_is_explicit{!is_convertible_v<Arg1&&, first_type> || !is_convertible_v<Arg2&&, second_type>};
 
   /// @brief Check if the copy constructor should be explicit
   /// @tparam Arg1 The type of the initializer for first argument
   /// @tparam Arg2 The type of the initializer for second argument
   template <typename Arg1, typename Arg2>
-  static constexpr auto
+  static constexpr bool
       copy_constructor_is_explicit{!is_convertible_v<Arg1 const&, first_type> || !is_convertible_v<Arg2 const&, second_type>};
 
   /// @brief Check if the move constructor should be explicit
   /// @tparam Arg1 The type of the initializer for first argument
   /// @tparam Arg2 The type of the initializer for second argument
   template <typename Arg1, typename Arg2>
-  static constexpr auto
+  static constexpr bool
       move_constructor_is_explicit{!is_convertible_v<Arg1&&, first_type> || !is_convertible_v<Arg2&&, second_type>};
 
  public:
@@ -354,6 +354,8 @@ class pair {
       : pair{first_args, index_sequence_for<Args1...>{}, second_args, index_sequence_for<Args2...>{}} {}
   // parasoft-end-suppress CERT_C-EXP37-a
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "The assignment operator should
+  // *not* be protected as 'pair' is not guaranteed to be a base class"
   /// @brief Copy-assign a @c pair from another pair with different value types
   ///
   /// This is disabled if either @c T1 or @c T2 is not assignable from the corresponding initializer.
@@ -374,7 +376,10 @@ class pair {
     second = other.second;
     return *this;
   }
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
+  // parasoft-begin-suppress AUTOSAR-A12_8_6-a "The assignment operator should
+  // *not* be protected as 'pair' is not guaranteed to be a base class"
   // parasoft-begin-suppress AUTOSAR-A8_4_6-a "False positive: Fields are forwarded"
   // parasoft-begin-suppress AUTOSAR-A8_4_5-a "False positive: Fields are forwarded"
   // parasoft-begin-suppress AUTOSAR-A12_8_4-a "False positive: Fields are forwarded"
@@ -403,6 +408,7 @@ class pair {
   // parasoft-end-suppress AUTOSAR-A8_4_6-a
   // parasoft-end-suppress AUTOSAR-A8_4_5-a
   // parasoft-end-suppress AUTOSAR-A12_8_4-a
+  // parasoft-end-suppress AUTOSAR-A12_8_6-a
 
   // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'swap' does not hide anything"
   /// @brief Swap a @c pair with another instance of the same type. Swaps @c first with @c other.first and swaps @c
@@ -752,7 +758,10 @@ constexpr auto get(pair<T1, T2> const&& values) noexcept -> T1 const&& {
 /// @brief access an element of a @c pair
 /// @tparam T1 second pair type
 /// @tparam T2 second pair type
-/// @param values reference to a @c pair
+/// The pair to access is passed as @c values.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param values The pair to access
+/// @endcond
 /// @return reference to a value in @c values
 /// @note ill-formed if <tt> std::is_same<T1, T2>::value </tt> is <tt> true </tt>
 template <class T2, class T1>
@@ -766,7 +775,10 @@ constexpr auto get(pair<T1, T2>& values) noexcept -> T2& {
 /// @brief access an element of a @c pair
 /// @tparam T1 second pair type
 /// @tparam T2 second pair type
-/// @param values reference to a @c pair
+/// The pair to access is passed as @c values.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param values The pair to access
+/// @endcond
 /// @return reference to a value in @c values
 /// @note ill-formed if <tt> std::is_same<T1, T2>::value </tt> is <tt> true </tt>
 template <class T2, class T1>
@@ -779,7 +791,10 @@ constexpr auto get(pair<T1, T2> const& values) noexcept -> T2 const& {
 /// @brief access an element of a @c pair
 /// @tparam T1 second pair type
 /// @tparam T2 second pair type
-/// @param values reference to a @c pair
+/// The pair to access is passed as @c values.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param values The pair to access
+/// @endcond
 /// @return reference to a value in @c values
 /// @note ill-formed if <tt> std::is_same<T1, T2>::value </tt> is <tt> true </tt>
 template <class T2, class T1>
@@ -791,7 +806,10 @@ constexpr auto get(pair<T1, T2>&& values) noexcept -> T2&& {
 /// @brief access an element of a @c pair
 /// @tparam T1 second pair type
 /// @tparam T2 second pair type
-/// @param values reference to a @c pair
+/// The pair to access is passed as @c values.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param values The pair to access
+/// @endcond
 /// @return reference to a value in @c values
 /// @note ill-formed if <tt> std::is_same<T1, T2>::value </tt> is <tt> true </tt>
 template <class T2, class T1>

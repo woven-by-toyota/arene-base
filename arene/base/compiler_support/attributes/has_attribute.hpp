@@ -5,8 +5,8 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_ATTRIBUTES_HAS_ATTRIBUTE_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_ATTRIBUTES_HAS_ATTRIBUTE_HPP_
 
-// IWYU pragma: private
-// IWYU pragma: friend "arene/base/compiler_support/attributes/.*"
+// IWYU pragma: private, include "arene/base/compiler_support/attributes.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) Explicitly providing compiler support macro functions
 // parasoft-begin-suppress AUTOSAR-A16_0_1-d-2 "Conditional defines permitted by A16-0-1 Permit #2"

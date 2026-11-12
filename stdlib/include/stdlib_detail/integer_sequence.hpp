@@ -34,11 +34,15 @@ class integer_sequence {
   static_assert(is_integral_v<Type>, "'Type' must be an integer.");
 
   /// @brief The sequence integer type
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: standard type aliases do not hide anything"
   using value_type = Type;
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Returns the number of elements in the sequence
   /// @return @c sizeof...(Ints)
   static constexpr auto size() noexcept -> size_t { return sizeof...(Ints); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 };
 
 namespace integer_sequence_detail {
@@ -190,8 +194,6 @@ class make_integer_sequence<Type, Size, true> {
   ///
   using type = integer_sequence<Type, 0>;
 };
-
-/// @}
 
 }  // namespace integer_sequence_detail
 

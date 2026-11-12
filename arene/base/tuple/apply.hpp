@@ -1,4 +1,4 @@
-// parasoft-begin-suppress AUTOSAR-A2_8_1-a-2 "False positive: also defines arene::base::apply"
+// parasoft-begin-suppress AUTOSAR-A2_8_1-a CERT_C-EXP37-a "False positive: defines arene::base::apply, name not needed"
 
 // Copyright 2024, Toyota Motor Corporation
 //
@@ -78,12 +78,10 @@ class do_apply {
 
 }  // namespace apply_detail
 
-/// @def arene::base::apply
 /// @brief Calls provided invocable with arguments from provided tuple.
 /// @tparam F Provided callable type (with arguments of @c Tuple)
 /// @tparam Tuple type implementing the tuple protocol.
-/// @param callable A callable object.
-/// @param tuple reference to a tuple-ish
+/// Pass a callable object as @c callable and a tuple-ish value as @c tuple.
 /// @return Result of applying the callable with arguments specified by @c tuple
 ///
 /// @note A type implements the tuple protocol if it

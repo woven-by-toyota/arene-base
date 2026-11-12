@@ -6,19 +6,29 @@
 
 #include "arene/base/constraints.hpp"
 #include "arene/base/type_list/concat_unique.hpp"
-#include "arene/base/type_traits.hpp"
+#include "arene/base/type_list/filter.hpp"
+#include "arene/base/type_traits/is_invocable.hpp"
+#include "arene/base/type_traits/is_swappable.hpp"
+#include "stdlib/include/stdlib_detail/integral_constant.hpp"
 #include "stdlib/include/stdlib_detail/is_copy_constructible.hpp"
 #include "stdlib/include/stdlib_detail/is_default_constructible.hpp"
 #include "stdlib/include/stdlib_detail/is_destructible.hpp"
+#include "stdlib/include/stdlib_detail/is_same.hpp"
 #include "testlibs/minitest/minitest.hpp"
 #include "testlibs/utilities/common_test_types.hpp"
 
 namespace {
 
-using types_with_specializations = arene::base::type_lists::concat_unique_t<
+// These are the built-in types that we could theoretically hash; we support all of them except long double.
+using hashable_types = arene::base::type_lists::concat_unique_t<
     testing::arithmetic_types,
     testing::Types<int*, float*, int const*, float const*>,
     testing::enum_types>;
+
+template <typename T>
+struct not_long_double : std::integral_constant<bool, !std::is_same_v<T, long double>> {};
+
+using supported_types = arene::base::type_lists::filter_t<hashable_types, not_long_double>;
 
 template <typename T>
 struct MakeValues {
@@ -43,7 +53,7 @@ struct MakeValues<void*> {
 template <typename T>
 class HashTest : public testing::Test {};
 
-TYPED_TEST_SUITE(HashTest, types_with_specializations, );
+TYPED_TEST_SUITE(HashTest, supported_types, );
 
 /// @test Given a type `T` which is an arithmetic type, enum type, or pointer type, then `std::hash<T>` is defined.
 CONSTEXPR_TYPED_TEST(HashTest, HashSpecializationExists) {
@@ -90,6 +100,12 @@ TYPED_TEST(HashTest, IsNothrowInvocable) {
   ASSERT_TRUE(arene::base::is_nothrow_invocable_r_v<std::size_t, std::hash<TypeParam>, TypeParam>);
   ASSERT_TRUE(arene::base::is_nothrow_invocable_r_v<std::size_t, std::hash<TypeParam>, TypeParam&>);
   ASSERT_TRUE(arene::base::is_nothrow_invocable_r_v<std::size_t, std::hash<TypeParam>, TypeParam const&>);
+}
+
+/// @test The hash of +0.0 and -0.0 must be the same
+TEST(HashUntypedTest, FloatingPointZerosHaveSameHash) {
+  EXPECT_EQ(std::hash<float>{}(0.0F), std::hash<float>{}(-0.0F));
+  EXPECT_EQ(std::hash<double>{}(0.0), std::hash<double>{}(-0.0));
 }
 
 }  // namespace

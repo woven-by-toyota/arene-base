@@ -48,6 +48,9 @@ class do_construct_at {
   // parasoft-begin-suppress AUTOSAR-A15_3_2-a-2 "False positive: Exception specification is conditional"
   // parasoft-begin-suppress AUTOSAR-M15_3_4-b-2 "False positive: Exception specification is conditional"
   // parasoft-begin-suppress AUTOSAR-A15_2_1-b-2 "False positive: Not invoked during initialization"
+  // parasoft-begin-suppress CERT_CPP-MEM57-a "False positive: This placement new selects the non-allocating form of
+  // operator 'new', which allocates nothing. Providing storage that is suitably aligned for T is the caller's
+  // responsibility"
   /// @brief Do the construction
   /// @tparam T The type to construct
   /// @tparam Args The types of the arguments
@@ -68,6 +71,7 @@ class do_construct_at {
     // parasoft-end-suppress AUTOSAR-A5_2_3-a-2
     // parasoft-end-suppress CERT_CPP-EXP55-a-2
   }
+  // parasoft-end-suppress CERT_CPP-MEM57-a
   // parasoft-end-suppress CERT_CPP-ERR55-a-2
   // parasoft-end-suppress CERT_CPP-ERR50-g-3
   // parasoft-end-suppress CERT_CPP-ERR50-h-3
@@ -81,12 +85,10 @@ class do_construct_at {
 
 }  // namespace construct_at_detail
 
-/// @def arene::base::construct_at
 /// @brief @c std::construct_at back ported from C++20
 /// @tparam T the type to construct
 /// @tparam Args type of arguments used for initialization
-/// @param ptr pointer to the uninitialized storage on which a T object will be constructed
-/// @param args arguments used for initialization
+/// Pass uninitialized storage as @c ptr and construction arguments as @c args.
 /// @return a pointer to the initialized object
 /// @pre Only participates in overload resolution if <c>new (std::declval<void*>()) T(std::declval<Args>()...)</c>
 ///      is well formed in an unevaluated context.

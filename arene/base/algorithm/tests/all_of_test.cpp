@@ -8,6 +8,9 @@
 
 #include "arene/base/algorithm/tests/any_all_test_utilities.hpp"
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
+#include "arene/base/functional/construct.hpp"
+#include "arene/base/functional/not_fn.hpp"
 #include "arene/base/testing/gtest.hpp"
 
 namespace {
@@ -47,16 +50,26 @@ TEST(AllOf, ASeriesOfElementsIsFalseIfAnyFalse) {
   STATIC_ASSERT_TRUE(!arene::base::all_of(true, true, true, false, true));
   STATIC_ASSERT_TRUE(!arene::base::all_of(true, true, true, true, false));
   constexpr auto count = 6;
+
   constexpr arene::base::array<bool, count> values1{false, true, true, true, true, true};
   STATIC_ASSERT_TRUE(!arene::base::all_of(values1.begin(), values1.end()));
+  STATIC_ASSERT_TRUE(!arene::base::all_of(values1));
+
   constexpr arene::base::array<bool, count> values2{true, false, true, true, true, true};
   STATIC_ASSERT_TRUE(!arene::base::all_of(values2.begin(), values2.end()));
+  STATIC_ASSERT_TRUE(!arene::base::all_of(values2));
+
   constexpr arene::base::array<bool, count> values3{true, true, false, true, true, true};
   STATIC_ASSERT_TRUE(!arene::base::all_of(values3.begin(), values3.end()));
+  STATIC_ASSERT_TRUE(!arene::base::all_of(values3));
+
   constexpr arene::base::array<bool, count> values4{true, true, true, false, true, true};
   STATIC_ASSERT_TRUE(!arene::base::all_of(values4.begin(), values4.end()));
+  STATIC_ASSERT_TRUE(!arene::base::all_of(values4));
+
   constexpr arene::base::array<bool, count> values5{true, true, true, true, false, true};
   STATIC_ASSERT_TRUE(!arene::base::all_of(values5.begin(), values5.end()));
+  STATIC_ASSERT_TRUE(!arene::base::all_of(values5));
 }
 
 /// @test Test `all_of` with custom predicate is true if predicate returns true for all elements
@@ -71,35 +84,35 @@ TEST(AllOf, WithCustomPredicate) {
   test::assert_result_is(  //
       true,
       arene::base::all_of,
-      arene::base::to_array<int>({2, 4, 6, 8, 10}),
+      arene::base::to_array({2, 4, 6, 8, 10}),
       test::is_even{}
   );
 
   test::assert_result_is(  //
       false,
       arene::base::all_of,
-      arene::base::to_array<int>({1, 4, 6, 8, 10}),
+      arene::base::to_array({1, 4, 6, 8, 10}),
       test::is_even{}
   );
 
   test::assert_result_is(  //
       false,
       arene::base::all_of,
-      arene::base::to_array<int>({2, 4, 5, 8, 10}),
+      arene::base::to_array({2, 4, 5, 8, 10}),
       test::is_even{}
   );
 
   test::assert_result_is(  //
       false,
       arene::base::all_of,
-      arene::base::to_array<int>({2, 4, 5, 8, 11}),
+      arene::base::to_array({2, 4, 5, 8, 11}),
       test::is_even{}
   );
 
   test::assert_result_is(  //
       false,
       arene::base::all_of,
-      arene::base::to_array<int>({1, 3, 5, 7, 9}),
+      arene::base::to_array({1, 3, 5, 7, 9}),
       test::is_even{}
   );
 }
@@ -117,7 +130,7 @@ CONSTEXPR_TEST(AllOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       true,
       arene::base::all_of,
-      test::to_array_of<test::wrapped_int>({2, 4, 6, 8, 10}),
+      arene::base::to_array_of<test::wrapped_int>({2, 4, 6, 8, 10}),
       test::is_even{},
       test::value_of{}
   );
@@ -125,7 +138,7 @@ CONSTEXPR_TEST(AllOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       false,
       arene::base::all_of,
-      test::to_array_of<test::wrapped_int>({1, 4, 6, 8, 10}),
+      arene::base::to_array_of<test::wrapped_int>({1, 4, 6, 8, 10}),
       test::is_even{},
       test::value_of{}
   );
@@ -133,7 +146,7 @@ CONSTEXPR_TEST(AllOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       false,
       arene::base::all_of,
-      test::to_array_of<test::wrapped_int>({2, 4, 5, 8, 10}),
+      arene::base::to_array_of<test::wrapped_int>({2, 4, 5, 8, 10}),
       test::is_even{},
       test::value_of{}
   );
@@ -141,7 +154,7 @@ CONSTEXPR_TEST(AllOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       false,
       arene::base::all_of,
-      test::to_array_of<test::wrapped_int>({2, 4, 6, 8, 11}),
+      arene::base::to_array_of<test::wrapped_int>({2, 4, 6, 8, 11}),
       test::is_even{},
       test::value_of{}
   );
@@ -149,7 +162,7 @@ CONSTEXPR_TEST(AllOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       false,
       arene::base::all_of,
-      test::to_array_of<test::wrapped_int>({1, 3, 5, 7, 9}),
+      arene::base::to_array_of<test::wrapped_int>({1, 3, 5, 7, 9}),
       test::is_even{},
       test::value_of{}
   );
@@ -172,5 +185,15 @@ TEST(AllOf, NotInvocableWithInvalidIterator) {
 
 /// @test Test `all_of` has correct noexcept specfication
 TEST(AllOf, NoexceptIsCorrect) { test::static_assert_has_correct_noexcept_specification(arene::base::all_of); }
+
+/// @test @c all_of uses @c not_fn with @c construct<bool>. We exercise it here
+/// at run-time to avoid missing line coverage due to unexecuted instantiations.
+TEST(AllOf, NotFnWithConvertTo) {
+  // this intentionally uses a non-const lvalue reference to coverage
+  auto not_truthy = arene::base::not_fn(arene::base::construct<bool>);
+
+  bool const true_value = true;
+  ASSERT_FALSE(not_truthy(true_value));
+}
 
 }  // namespace

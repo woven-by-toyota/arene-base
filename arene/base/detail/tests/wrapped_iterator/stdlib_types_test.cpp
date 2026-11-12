@@ -32,7 +32,9 @@ using stdlib_iterator_types = ::testing::Types<
 INSTANTIATE_TYPED_TEST_SUITE_P(StdlibTypes, WrappedIteratorMemberTypesTest, stdlib_iterator_types, );
 INSTANTIATE_TYPED_TEST_SUITE_P(StdlibTypes, WrappedIteratorReturnTypeEquivalenceTest, stdlib_iterator_types, );
 
+/// @cond
 using stdlib_container_types = ::testing::Types<std::string, std::vector<int>, std::array<int, 10>>;
+/// @endcond
 
 INSTANTIATE_TYPED_TEST_SUITE_P(StdlibTypes, WrappedIteratorOperationEquivalenceTest, stdlib_container_types, );
 

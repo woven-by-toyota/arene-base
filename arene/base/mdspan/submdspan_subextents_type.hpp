@@ -7,7 +7,7 @@
 
 #include "arene/base/mdspan/detail/canonical_slice.hpp"
 #include "arene/base/mdspan/detail/deduced_static_extent.hpp"
-#include "arene/base/mdspan/detail/is_valid_submdspan_slice_type_for.hpp"
+#include "arene/base/mdspan/detail/mandate_each_argtype_is_valid_submdspan_slice_type_for.hpp"
 #include "arene/base/mdspan/detail/map_rank.hpp"
 #include "arene/base/mdspan/extents.hpp"
 #include "arene/base/mdspan/full_extent.hpp"
@@ -16,7 +16,6 @@
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/type_list/at.hpp"
 #include "arene/base/type_list/type_list.hpp"
-#include "arene/base/type_traits/all_of.hpp"
 
 // parasoft-begin-suppress AUTOSAR-A7_1_5-a "Trailing return syntax permitted by A7-1-5 Permit #1 v1.0.0"
 // parasoft-begin-suppress CERT_C-EXP37-a "False positive: The rule does not mention naming all parameters"
@@ -65,9 +64,13 @@ class submdspan_subextents_type_impl;
 ///
 template <class IndexType, std::size_t... Extents, class... CanonicalSliceSpecifiers>
 class submdspan_subextents_type_impl<extents<IndexType, Extents...>, CanonicalSliceSpecifiers...> {
+  // Placing this call inside of a static assertion is one of the only ways to get GCC8 to instantiate the function.
   static_assert(
-      all_of_v<mdspan_detail::is_valid_submdspan_slice_type_for_v<CanonicalSliceSpecifiers, Extents>...>,
-      "each type in 'SliceSpecifiers' must be a valid 'submdspan' slice type for the associated extent"
+      (mdspan_detail::mandate_each_argtype_is_valid_submdspan_slice_type_for<IndexType, Extents...>(
+           type_list<CanonicalSliceSpecifiers...>{}
+       ),
+       true),
+      "This assertion always succeeds, but writing it causes other assertions to happen in the called function"
   );
 
   // parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variables are initialized"

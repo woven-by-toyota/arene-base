@@ -31,7 +31,8 @@
 #include "arene/base/stdlib_choice/reverse.hpp"
 #include "arene/base/stdlib_choice/sort.hpp"
 #include "arene/base/type_list/remove_duplicates.hpp"
-#include "arene/base/type_traits.hpp"
+#include "arene/base/type_traits/comparison_traits.hpp"
+#include "arene/base/type_traits/iterator_category_traits.hpp"
 #include "testlibs/utilities/configurable_value.hpp"
 #include "testlibs/utilities/has_broken_less_than.hpp"
 
@@ -681,8 +682,8 @@ TEST(InlineMap, LowerBound) {
   }
 
   for (imap::key_type idx = 0; idx < count; ++idx) {
-    ASSERT_EQ(map.lower_bound(idx * 2), next(map.begin(), idx));
-    ASSERT_EQ(map.lower_bound(idx * 2 + 1), next(map.begin(), idx + 1));
+    ASSERT_EQ(map.lower_bound(idx * 2), next(map.begin(), static_cast<std::ptrdiff_t>(idx)));
+    ASSERT_EQ(map.lower_bound(idx * 2 + 1), next(map.begin(), static_cast<std::ptrdiff_t>(idx) + 1));
   }
 
   ASSERT_EQ(map.lower_bound(count * 2), map.end());
@@ -2408,8 +2409,8 @@ TEST(InlineMap, UpperBound) {
   }
 
   for (imap::key_type idx = 0; idx < count; ++idx) {
-    ASSERT_EQ(map.upper_bound(idx * 2), next(map.begin(), idx + 1));
-    ASSERT_EQ(map.upper_bound(idx * 2 + 1), next(map.begin(), idx + 1));
+    ASSERT_EQ(map.upper_bound(idx * 2), next(map.begin(), static_cast<std::ptrdiff_t>(idx) + 1));
+    ASSERT_EQ(map.upper_bound(idx * 2 + 1), next(map.begin(), static_cast<std::ptrdiff_t>(idx) + 1));
   }
 
   ASSERT_EQ(map.upper_bound(count * 2), map.end());
@@ -2433,8 +2434,8 @@ TEST(InlineMap, UpperBoundForConstMap) {
   }
 
   for (imap::key_type idx = 0; idx < count; ++idx) {
-    ASSERT_EQ(const_map.upper_bound(idx * 2), next(const_map.begin(), idx + 1));
-    ASSERT_EQ(const_map.upper_bound(idx * 2 + 1), next(const_map.begin(), idx + 1));
+    ASSERT_EQ(const_map.upper_bound(idx * 2), next(const_map.begin(), static_cast<std::ptrdiff_t>(idx) + 1));
+    ASSERT_EQ(const_map.upper_bound(idx * 2 + 1), next(const_map.begin(), static_cast<std::ptrdiff_t>(idx) + 1));
   }
 
   ASSERT_EQ(const_map.upper_bound(count * 2), const_map.end());
@@ -2482,8 +2483,8 @@ TEST(InlineMap, EqualRange) {
     auto present_range = map.equal_range(idx * 2);
     ::testing::StaticAssertTypeEq<decltype(present_range), std::pair<imap::iterator, imap::iterator>>();
 
-    ASSERT_EQ(present_range.first, next(map.begin(), idx));
-    ASSERT_EQ(present_range.second, next(map.begin(), idx + 1));
+    ASSERT_EQ(present_range.first, next(map.begin(), static_cast<std::ptrdiff_t>(idx)));
+    ASSERT_EQ(present_range.second, next(map.begin(), static_cast<std::ptrdiff_t>(idx) + 1));
     auto missing_range = map.equal_range(idx * 2 + 1);
     ASSERT_EQ(missing_range.first, map.end());
     ASSERT_EQ(missing_range.second, map.end());
@@ -2517,8 +2518,8 @@ TEST(InlineMap, EqualRangeForConstMap) {
     ::testing::StaticAssertTypeEq<decltype(present_range), std::pair<imap::const_iterator, imap::const_iterator> const>(
     );
 
-    ASSERT_EQ(present_range.first, next(const_map.begin(), idx));
-    ASSERT_EQ(present_range.second, next(const_map.begin(), idx + 1));
+    ASSERT_EQ(present_range.first, next(const_map.begin(), static_cast<std::ptrdiff_t>(idx)));
+    ASSERT_EQ(present_range.second, next(const_map.begin(), static_cast<std::ptrdiff_t>(idx) + 1));
     auto const missing_range = const_map.equal_range(idx * 2 + 1);
     ASSERT_EQ(missing_range.first, const_map.end());
     ASSERT_EQ(missing_range.second, const_map.end());
@@ -3785,6 +3786,49 @@ TYPED_TEST(InlineMapRelationalComparisonTest, RelationalComparisonsAreLexicograp
   ASSERT_GE(s_more_elements, l_values);
   ASSERT_GE(s_values, s_fewer_elements);
   ASSERT_GE(s_values, l_values);
+}
+
+/// @test An `inline_map` can be constructed from a braced initializer list
+TEST(InlineMap, CanConstructFromBracedInitList) {
+  enum class local_enum : std::uint8_t { value_a, value_b, value_c };
+
+  arene::base::inline_map<local_enum, std::uint16_t, 3U> my_map{
+      {{local_enum::value_a, static_cast<std::uint16_t>(1U)},
+       {local_enum::value_b, static_cast<std::uint16_t>(2U)},
+       {local_enum::value_c, static_cast<std::uint16_t>(3U)}}
+  };
+
+  ASSERT_EQ(my_map.size(), 3);
+  ASSERT_NE(my_map.find(local_enum::value_a), my_map.end());
+  ASSERT_NE(my_map.find(local_enum::value_b), my_map.end());
+  ASSERT_NE(my_map.find(local_enum::value_c), my_map.end());
+
+  ASSERT_EQ(my_map[local_enum::value_a], 1U);
+  ASSERT_EQ(my_map[local_enum::value_b], 2U);
+  ASSERT_EQ(my_map[local_enum::value_c], 3U);
+}
+
+template <typename T>
+class InlineMapLargeCapacityTest : public ::testing::Test {};
+
+using large_capacity_imaps = ::testing::Types<
+    inline_map<std::int64_t, std::int32_t, 50'000>,
+    inline_map<std::int32_t, std::int32_t, 100'000>,
+    inline_map<std::int32_t, std::int32_t, 1'000'000>>;
+
+TYPED_TEST_SUITE(InlineMapLargeCapacityTest, large_capacity_imaps, );
+
+/// @test `inline_map` can be constructed and used even with very large capacities
+TYPED_TEST(InlineMapLargeCapacityTest, WorksWithVeryLargeCapacity) {
+  static TypeParam map{};
+  map.clear();
+  map.emplace(0, 5);
+  map.emplace(100, -3);
+
+  EXPECT_EQ(map.find(1), map.end());
+  ASSERT_NE(map.find(0), map.end());
+  EXPECT_EQ(map.find(0)->first, 0);
+  EXPECT_EQ(map.find(0)->second, 5);
 }
 
 }  // namespace

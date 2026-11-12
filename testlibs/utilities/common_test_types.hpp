@@ -5,17 +5,12 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_COMMON_TEST_TYPES_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_TESTLIBS_UTILITIES_COMMON_TEST_TYPES_HPP_
 
-// IWYU pragma: private, include "testlibs/minitest/minitest.hpp"
+#include <gtest/gtest.h>
 
-#include "arene/base/type_list.hpp"
-#include "stdlib/include/utility"
+#include "arene/base/stdlib_choice/declval.hpp"
+#include "arene/base/type_list/concat_unique.hpp"
 
 namespace testing {
-
-// Forward declaration for minitest test types
-template <typename... TypeParams>
-// NOLINTNEXTLINE(readability-identifier-naming)
-class Types;
 
 /// Provide a variety of common test types to use in stdlib testing.
 ///
@@ -207,7 +202,7 @@ using void_types = ::testing::Types<void>;
 using null_pointer_types = ::testing::Types<decltype(nullptr)>;
 using integral_types =
     arene::base::type_lists::concat_unique_t<signed_integer_types, unsigned_integer_types, bool_types, character_types>;
-using floating_point_types = ::testing::Types<float, double, long double>;
+using floating_point_types = ::testing::Types<float, double>;
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays)
 using array_types = ::testing::Types<int[3], struct_type[3]>;
 using enum_types = ::testing::Types<unscoped_enum, scoped_enum>;

@@ -12,14 +12,15 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/array/array.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
 #include "arene/base/stdlib_choice/begin.hpp"
 #include "arene/base/stdlib_choice/copy_n.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/end.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
@@ -247,6 +248,18 @@ using only_incrementable_iterator_containers =
 using all_iterator_category_containers =
     type_lists::concat_unique_t<at_least_forward_iterator_containers, only_incrementable_iterator_containers>;
 
+/// @brief A helper metafunction to extract the iterator type from a container type.
+/// @tparam Container The type of the container whose iterator type is to be extracted.
+template <typename Container>
+struct iterator_type {
+  using type = decltype(std::begin(std::declval<Container&>()));
+};
+
+/// @brief A helper alias to extract the iterator type from a container type.
+/// @tparam Container The type of the container whose iterator type is to be extracted.
+template <typename Container>
+using iterator_t = typename iterator_type<Container>::type;
+
 ///
 /// @brief A helper for initializing backing data in a container to produce iterators from.
 ///
@@ -260,6 +273,8 @@ class backing_data {
  public:
   constexpr backing_data()
       : container_{1, 2, 3, 4, 5} {}
+  constexpr auto begin() { return container_.begin(); }
+  constexpr auto end() { return container_.end(); }
   constexpr auto begin() const { return container_.begin(); }
   constexpr auto end() const { return container_.end(); }
   static auto ssize() -> int { return static_cast<int>(data_size); }
@@ -289,11 +304,28 @@ class backing_data<int[data_size]> {
   int container_[data_size]{1, 2, 3, 4, 5};
 
  public:
+  constexpr auto begin() { return std::begin(container_); }
+  constexpr auto end() { return std::end(container_); }
   constexpr auto begin() const { return std::begin(container_); }
   constexpr auto end() const { return std::end(container_); }
   static auto ssize() -> int { return static_cast<int>(data_size); }
 };
 // NOLINTEND(hicpp-avoid-c-arrays) explicitly need to test c-array compatibility.
+
+/// @brief A type that is not dereferenceable.
+struct non_dereferenceable_t {};
+
+/// @brief A type that is dereferenceable, but its return type is not referenceable.
+struct dereferenceable_but_non_referenceable_t {
+  auto operator*() & -> void;
+  auto operator*() const& -> void;
+  auto operator*() && -> void;
+  auto operator*() const&& -> void;
+};
+
+/// @brief A set of types which do not satisfy the exposition-only trait @c is_dereferenceable_v .
+using types_which_do_not_satisfy_is_dereferenceable =
+    ::testing::Types<void, non_dereferenceable_t, dereferenceable_but_non_referenceable_t>;
 
 }  // namespace iterator_tests
 }  // namespace base

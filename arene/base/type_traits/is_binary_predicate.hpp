@@ -8,6 +8,7 @@
 // IWYU pragma: private, include "arene/base/type_traits.hpp"
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
+#include "arene/base/stdlib_choice/add_lvalue_reference.hpp"
 #include "arene/base/stdlib_choice/is_copy_constructible.hpp"
 #include "arene/base/stdlib_choice/is_move_constructible.hpp"
 #include "arene/base/type_traits/is_predicate.hpp"
@@ -47,8 +48,8 @@ extern constexpr bool is_binary_predicate_v =  //
     is_predicate_v<F, T1, T2> &&
     is_predicate_v<
         F,
-        remove_cvref_t<T1> const&,
-        remove_cvref_t<T2> const&> &&
+        std::add_lvalue_reference_t<remove_cvref_t<T1> const>,
+        std::add_lvalue_reference_t<remove_cvref_t<T2> const>> &&
     std::is_move_constructible<remove_cvref_t<F>>::value &&  //
     std::is_copy_constructible<remove_cvref_t<F>>::value;
 /// @}

@@ -9,14 +9,15 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 ## What is `arene_base`?
 
 `arene_base` provides low level C++ facilities to help development of safety
-critical software in compliance with Woven by Toyota's C++ development best practices.
+critical software in compliance with Woven by Toyota's C++ development best
+practices.
 
 ## Feedback
 
 We would love to hear from you if you have a question, concern, feature request,
 or bug report.
 
-For general inquiries, you can contact us at: arene-base-public@woven.toyota
+For general inquiries, you can contact us at: <arene-base-public@woven.toyota>
 
 ### Feature Requests and Bug Reports
 

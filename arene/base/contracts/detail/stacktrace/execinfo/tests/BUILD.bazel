@@ -4,20 +4,19 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test(
     name = "impl_test",
     srcs = ["impl_test.cpp"],
     target_compatible_with = [
         "@platforms//os:linux",
     ],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base/contracts/detail/stacktrace/execinfo",
         "//arene/base/testing:gtest",
         "//arene/base/testing/filesystem:create_temporary_directory",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

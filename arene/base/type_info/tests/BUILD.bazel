@@ -4,7 +4,7 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_test_with_variants(
     name = "type_name_string_test",
@@ -14,7 +14,7 @@ cc_test_with_variants(
         "//arene/base:string_algorithms",
         "//arene/base/testing:gtest",
         "//arene/base/type_info:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

@@ -4,24 +4,14 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "execinfo_hdrs",
-    srcs = [
-        "impl.hpp",
-    ],
-)
-
-filegroup(
-    name = "execinfo_srcs",
+cc_library_with_variants(
+    name = "execinfo",
     srcs = [
         "impl.cpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "execinfo",
-    srcs = [":execinfo_srcs"],
-    hdrs = [":execinfo_hdrs"],
+    hdrs = [
+        "impl.hpp",
+    ],
     include_prefix = "arene/base/contracts/detail/stacktrace",
     target_compatible_with = select({
         "//configs:contract_stacktraces_enabled": [],
@@ -44,8 +34,9 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":execinfo_hdrs",
-        ":execinfo_srcs",
-    ],
+    ] + glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
     visibility = ["//arene/base/contracts/detail/stacktrace:__pkg__"],
 )

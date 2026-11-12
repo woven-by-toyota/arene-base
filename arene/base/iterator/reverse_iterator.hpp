@@ -18,21 +18,24 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/constraints/constraints.hpp"
+#include "arene/base/iterator/detail/iter_concept.hpp"
 #include "arene/base/iterator/distance.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/iterator/prev.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/forward.hpp"
+#include "arene/base/stdlib_choice/is_base_of.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_convertible.hpp"
 #include "arene/base/stdlib_choice/is_copy_constructible.hpp"
 #include "arene/base/stdlib_choice/is_pointer.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
+#include "arene/base/stdlib_choice/iterator_tags.hpp"
 #include "arene/base/stdlib_choice/iterator_traits.hpp"
 #include "arene/base/type_traits/arithmetic_traits.hpp"
 #include "arene/base/type_traits/comparison_traits.hpp"
@@ -61,7 +64,11 @@ namespace reverse_iterator_detail {
 template <typename Itr>
 class reverse_iterator_base {
  public:
-  static_assert(is_bidirectional_iterator_v<Itr>, "Must be at least a bidirectional iterator to be reversed.");
+  static_assert(
+      is_bidirectional_iterator_v<Itr> ||
+          std::is_base_of<std::bidirectional_iterator_tag, iterator_detail::iter_concept_t<Itr>>::value,
+      "Iterator category or concept must be at least bidirectional_iterator to be reversed."
+  );
 
   /// @brief Equivalent to @c value_type for the underlying iterator.
   using value_type = typename std::iterator_traits<Itr>::value_type;

@@ -4,27 +4,23 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test(
     name = "latch_test",
     srcs = ["latch_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base/synchronization:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test(
     name = "barrier_test",
     srcs = ["barrier_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base/synchronization:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

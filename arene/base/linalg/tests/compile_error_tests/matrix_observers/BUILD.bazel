@@ -1,0 +1,105 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+
+# Check for compile errors when using matrix observers on non-matrix types.
+test_suite(
+    name = "matrix_observers_compile_error_test",
+    tests = [
+        name
+        for rank in [
+            0,
+            1,
+            3,
+        ]
+        for observer, expression in [
+            ("static_row_count_v", "static_row_count_v<non_matrix>"),
+            ("static_column_count_v", "static_column_count_v<non_matrix>"),
+            ("static_row_count", "static_row_count<non_matrix>::value"),
+            ("static_column_count", "static_column_count<non_matrix>::value"),
+        ]
+        for name in ["matrix_observers_{}_rank{}_test".format(observer, rank)]
+        for _ in [cc_build_error_test(
+            name = name,
+            src = inline_src.cpp("""\
+#include "arene/base/linalg/matrix_observers.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+using arene::base::dextents;
+using arene::base::mdspan;
+using arene::base::linalg::{observer};
+
+using non_matrix = mdspan<int, dextents<std::size_t, {rank}>>;
+
+auto value = {expression};
+""".format(
+                expression = expression,
+                observer = observer,
+                rank = rank,
+            )),
+            compile_stderr = matcher.has_substr("static_row_count/static_column_count: Mat must be an in-matrix"),
+            deps = [
+                "//arene/base/linalg:matrix_observers",
+                "//arene/base/mdspan",
+                "//arene/base/mdspan:extents",
+                "//arene/base/stdlib_choice:cstddef",
+            ],
+        )]
+    ],
+)
+
+# Check for compile errors when using is_square on types which are not in-matrices.
+test_suite(
+    name = "matrix_observers_is_square_compile_error_test",
+    tests = [
+        name
+        for case, non_matrix in [
+            ("rank0", "mdspan<int, dextents<std::size_t, 0>>"),
+            ("rank1", "mdspan<int, dextents<std::size_t, 1>>"),
+            ("rank3", "mdspan<int, dextents<std::size_t, 3>>"),
+            ("non_scalar_element", "mdspan<not_scalar, dextents<std::size_t, 2>>"),
+            ("not_an_mdspan", "int"),
+        ]
+        for name in ["matrix_observers_is_square_{}_test".format(case)]
+        for _ in [cc_build_error_test(
+            name = name,
+            src = inline_src.cpp("""\
+#include "arene/base/linalg/matrix_observers.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+using arene::base::dextents;
+using arene::base::mdspan;
+using arene::base::linalg::is_square;
+
+/// A type which is not a linalg scalar, so an mdspan of it is not an in-matrix
+class not_scalar {{
+ public:
+  not_scalar() = delete;
+}};
+
+using non_matrix = {non_matrix};
+
+auto check(non_matrix arg) -> bool {{ return is_square(arg); }}
+""".format(non_matrix = non_matrix)),
+            compile_stderr = matcher.contains_basic_regex(
+                select({
+                    "//conditions:default": "error: no matching function for call to object of type " +
+                                            "'const .*is_square_fn'",
+                    "//configs/compiler:gcc_or_qcc": "error: no match for call to '(const .*is_square_fn)",
+                }),
+            ),
+            deps = [
+                "//arene/base/linalg:matrix_observers",
+                "//arene/base/mdspan",
+                "//arene/base/mdspan:extents",
+                "//arene/base/stdlib_choice:cstddef",
+            ],
+        )]
+    ],
+)

@@ -81,9 +81,9 @@ TEST(AtomicCounter, WrapAroundBehavior) {
   EXPECT_EQ(counter.load(), std::numeric_limits<atomic_monotonic_counter::value_type>::min());
 }
 
-/// @brief Run function @c func across @c num_threads different threads
+/// @brief Run function @c func across @c N different threads
+/// @tparam N The number of threads to run
 /// @tparam F The function type
-/// @param num_threads The number of threads to run
 /// @param func The function to run
 template <std::size_t N, class F>
 auto run_in_threads(F const& func) {

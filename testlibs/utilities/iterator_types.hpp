@@ -18,7 +18,7 @@
 #include "arene/base/stdlib_choice/move.hpp"
 #include "arene/base/stdlib_choice/remove_reference.hpp"
 #include "arene/base/utility/make_subrange.hpp"
-#include "testlibs/utilities/throws_on.hpp"
+#include "testlibs/utilities/throws_on.hpp"  // IWYU pragma: export
 
 namespace testing {
 

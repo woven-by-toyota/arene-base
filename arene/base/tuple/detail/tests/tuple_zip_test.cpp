@@ -13,6 +13,7 @@
 
 #include "arene/base/array/array.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
+#include "arene/base/stdlib_choice/initializer_list.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/make_tuple.hpp"
@@ -124,6 +125,19 @@ TEST(TupleZip, ConstructorCanThrow) {  //
       tuple_constructor_is_noexcept == noexcept(tuple_zip(std::declval<tuple<copy_can_throw>&&>())),
       "noexcept must match"
   );
+}
+
+/// @test @c tuple_zip_detail::all_are_equal_to primariy for coverage, it is only ever invoked at compile-time
+TEST(TupleZipDetail, AllAreEqualTo) {
+  using arene::base::tuple_detail::tuple_zip_detail::all_are_equal_to;
+
+  ASSERT_TRUE(all_are_equal_to({}, 0U));
+  ASSERT_TRUE(all_are_equal_to({1}, 1U));
+  ASSERT_TRUE(all_are_equal_to({2, 2}, 2U));
+
+  ASSERT_FALSE(all_are_equal_to({1, 2}, 0U));
+  ASSERT_FALSE(all_are_equal_to({1, 2}, 1U));
+  ASSERT_FALSE(all_are_equal_to({1, 2}, 2U));
 }
 
 }  // namespace

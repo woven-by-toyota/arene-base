@@ -5,12 +5,12 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_FUNCTIONAL_IS_NOEXCEPT_PART_OF_FUNCTION_TYPE_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_FUNCTIONAL_IS_NOEXCEPT_PART_OF_FUNCTION_TYPE_HPP_
 
+#include "arene/base/compiler_support/platform_queries/has_noexcept_function_type.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 // IWYU pragma: private, include "arene/base/functional.hpp"
 // IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 
 // parasoft-begin-suppress AUTOSAR-A16_0_1-a-2 "Conditional defines permitted by A16-0-1 Permit #2"
 // parasoft-begin-suppress AUTOSAR-A16_0_1-d "Conditional defines permitted by A16-0-1 Permit #2"

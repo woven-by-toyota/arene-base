@@ -4,12 +4,11 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test_with_variants(
     name = "result_test",
     srcs = ["result_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:constraints",
         "//arene/base:monostate",
@@ -34,32 +33,26 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:reference_wrapper",
         "//arene/base/stdlib_choice:remove_reference",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "result_exceptions_enabled_test",
     srcs = ["result_exceptions_enabled_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:result",
         "//arene/base/stdlib_choice:move",
         "//arene/base/stdlib_choice:stdexcept",
         "//arene/base/testing:gtest",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "result_death_test",
     srcs = ["result_death_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:result",
         "//arene/base/stdlib_choice:ignore",
@@ -67,7 +60,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:stdexcept",
         "//arene/base/testing:gtest",
         "//testlibs:death_test_support",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

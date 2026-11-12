@@ -10,6 +10,7 @@
 #include "testlibs/minitest/minitest.hpp"
 #include "testlibs/utilities/common_test_types.hpp"
 #include "testlibs/utilities/counted_algorithm.hpp"
+#include "testlibs/utilities/functional.hpp"
 #include "testlibs/utilities/iterator_types.hpp"
 #include "testlibs/utilities/mutate.hpp"
 

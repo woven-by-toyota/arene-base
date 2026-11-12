@@ -18,7 +18,6 @@
 #include "arene/base/mdspan/detail/layout_common.hpp"         // IWYU pragma: keep
 #include "arene/base/mdspan/detail/strided_mapping_base.hpp"  // IWYU pragma: keep
 #include "arene/base/mdspan/detail/submdspan_mapping_impl.hpp"
-#include "arene/base/mdspan/is_sliceable_mapping.hpp"  // IWYU pragma: keep
 #include "arene/base/mdspan/submdspan_subextents_type.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
@@ -249,6 +248,11 @@ class layout_right::mapping : private layout_detail::strided_mapping_base<Extent
  public:
   // parasoft-begin-suppress AUTOSAR-A11_3_1-a "Hidden friends permitted by A11-3-1 Permit #2 v1.0.0"
 
+  // parasoft-begin-suppress AUTOSAR-A0_1_4-a "False positive: parameters 'src' and 'slices' are used"
+
+  // parasoft-begin-suppress AUTOSAR-A8_4_2-a "False positive: function does have a return"
+  // parasoft-begin-suppress CERT_C-MSC37-a "False positive: function does have a return"
+  // parasoft-begin-suppress CERT_CPP-MSC52-a "False positive: function does have a return"
   /// @brief Compute the sub-mapping for a @c layout_right::mapping
   /// @tparam CanonicalSliceSpecifiers types of the slice specifiers, one per dimension
   /// @param src the source mapping to slice
@@ -283,6 +287,10 @@ class layout_right::mapping : private layout_detail::strided_mapping_base<Extent
           std::enable_if_t<
               mdspan_detail::all_valid_submdspan_slice_types_for_v<extents_type, CanonicalSliceSpecifiers...>>> =
           nullptr>
+// parasoft-begin-suppress AUTOSAR-A16_0_1-a "Doxygen needs a declaration for this parser-hostile friend definition"
+#ifdef ARENE_DOC_GENERATION_RUNNING
+  friend constexpr auto submdspan_mapping(mapping const& src, CanonicalSliceSpecifiers... slices) noexcept;
+#else
   friend constexpr auto submdspan_mapping(mapping const& src, CanonicalSliceSpecifiers... slices) noexcept
       -> decltype(mdspan_detail::submdspan_mapping_impl<
                   submdspan_subextents_type_t<extents_type, CanonicalSliceSpecifiers...>>(
@@ -307,6 +315,12 @@ class layout_right::mapping : private layout_detail::strided_mapping_base<Extent
         std::move(slices)...
     );
   }
+#endif
+  // parasoft-end-suppress AUTOSAR-A16_0_1-a
+  // parasoft-end-suppress CERT_CPP-MSC52-a
+  // parasoft-end-suppress CERT_C-MSC37-a
+  // parasoft-end-suppress AUTOSAR-A8_4_2-a
+  // parasoft-end-suppress AUTOSAR-A0_1_4-a
 
   // parasoft-end-suppress AUTOSAR-A11_3_1-a
 };
@@ -314,11 +328,6 @@ class layout_right::mapping : private layout_detail::strided_mapping_base<Extent
 // parasoft-end-suppress AUTOSAR-A7_3_1-a
 // parasoft-end-suppress AUTOSAR-A10_2_1-b
 // parasoft-end-suppress AUTOSAR-A10_2_1-a
-
-/// @brief Specialization of @c is_sliceable_mapping_v indicating @c layout_right::mapping supports @c submdspan
-/// @tparam Extents Any specialization of @c arene::base::extents
-template <typename Extents>
-extern constexpr bool submdspan_detail::is_sliceable_mapping_v<layout_right::mapping<Extents>> = true;
 
 }  // namespace base
 }  // namespace arene

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -20,7 +24,7 @@ The Bazel target is
 //:tuple
 ```
 
-## Working With Tuples {#working-with-tuples}
+# Working With Tuples {#subpackages-tuple-working-with-tuples}
 
 The `tuple` package provides facilities for applying
 [invocables](https://en.cppreference.com/w/cpp/utility/functional) to the

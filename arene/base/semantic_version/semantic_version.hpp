@@ -12,7 +12,7 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/utility/to_underlying.hpp"
 // parasoft-end-suppress AUTOSAR-A16_2_2-a

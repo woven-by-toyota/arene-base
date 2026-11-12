@@ -4,6 +4,13 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_test(
     name = "encode_counter_test",
     srcs = [
@@ -14,11 +21,6 @@ cc_test(
         "//arene/base:span",
         "//arene/base:string_view",
         "//arene/base/filesystem/detail",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

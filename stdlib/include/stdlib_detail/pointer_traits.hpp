@@ -106,7 +106,7 @@ struct pointer_traits_rebind {};
 
 /// @brief Determine the @c rebind  to expose in the @c pointer_traits
 ///
-/// Use <c> template<class U>PointerLike::rebind<U> </c> if defined
+/// Use the @c rebind member alias template of @c T instantiated with @c U if defined
 template <class T, class U>
 struct pointer_traits_rebind<T, U, arene::base::constraints<enable_if_t<has_rebind_v<T, U>>>> {
   /// @brief The resulting type
@@ -115,7 +115,7 @@ struct pointer_traits_rebind<T, U, arene::base::constraints<enable_if_t<has_rebi
 
 /// @brief Determine the @c rebind  to expose in the @c pointer_traits
 ///
-/// Otherwise, use <c> template<class U>PointerLike<U, Args...> </c> if @c PointerLike is a class template
+/// Otherwise, instantiate @c PointerLike with @c U followed by @c Args... if @c PointerLike is a class template
 template <template <class, class...> class PointerLike, class T, class U, class... Args>
 struct pointer_traits_rebind<
     PointerLike<T, Args...>,

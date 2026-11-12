@@ -9,7 +9,7 @@ cc_test(
     srcs = ["constexpr_traits_test.cpp"],
     deps = [
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
         "//testlibs/utilities:constexpr_traits",
     ],
 )

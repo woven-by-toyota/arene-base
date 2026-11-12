@@ -14,9 +14,9 @@
 // IWYU pragma: friend "arene/base/detail/exceptions/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/attributes.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/attributes/maybe_unused.hpp"
+#include "arene/base/compiler_support/platform_queries/exceptions_enabled.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #if ARENE_IS_ON(ARENE_EXCEPTIONS_ENABLED)
 #include "arene/base/detail/exceptions/are_exceptions_enabled_enabled.hpp"  // IWYU pragma: export

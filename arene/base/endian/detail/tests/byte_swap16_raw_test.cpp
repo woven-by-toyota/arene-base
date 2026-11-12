@@ -14,6 +14,7 @@ using ::arene::base::byte_swap_detail::byte_swap_raw;
 
 using uint_t = std::uint16_t;
 
+/// @test `byte_swap_raw` reverses the bytes of a 16-bit integer in a `constexpr` context
 TEST(ByteSwapRaw, Uint16Constexpr) {
   STATIC_ASSERT_EQ(byte_swap_raw(static_cast<uint_t>(0x0102)), static_cast<uint_t>(0x0201));
   STATIC_ASSERT_EQ(byte_swap_raw(static_cast<uint_t>(0x5678)), static_cast<uint_t>(0x7856));

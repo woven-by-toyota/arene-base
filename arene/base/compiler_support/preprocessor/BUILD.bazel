@@ -2,22 +2,47 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "concatenate.hpp",
-        "define_configuration.hpp",
-        "require_semicolon.hpp",
-        "stringize.hpp",
-    ],
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "concatenate",
+    hdrs = ["concatenate.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+)
+
+cc_library_with_variants(
+    name = "define_configuration",
+    hdrs = ["define_configuration.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+)
+
+cc_library_with_variants(
+    name = "require_semicolon",
+    hdrs = ["require_semicolon.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+)
+
+cc_library_with_variants(
+    name = "stringize",
+    hdrs = ["stringize.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+)
+
+cc_library_with_variants(
+    name = "internal",
     visibility = ["//arene/base/compiler_support:__pkg__"],
+    deps = [
+        ":concatenate",
+        ":define_configuration",
+        ":require_semicolon",
+        ":stringize",
+    ],
 )
 
 filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/compiler_support:__pkg__"],
 )

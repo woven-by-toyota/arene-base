@@ -9,7 +9,7 @@ cc_library(
     hdrs = ["gmock.h"],
     include_prefix = "gmock",
     visibility = ["//:__subpackages__"],
-    deps = ["//testlibs/minitest"],
+    deps = ["//testlibs/minitest:minitest_library"],
 )
 
 filegroup(

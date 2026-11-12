@@ -1,0 +1,141 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+
+test_suite(
+    name = "vector_abs_sum_compile_error_test",
+    tests = [
+        name
+        for i, (code_snippet, match) in enumerate([
+            (
+                "auto _ = vector_abs_sum(0, 0);",
+                matcher.has_substr("requirement 'is_in_vector_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_copy
+{
+  no_copy(no_copy const&) = delete;
+};
+
+auto _ = vector_abs_sum(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  no_copy{}
+);
+                    """,
+                matcher.has_substr("requirement 'is_scalar_v<no_copy>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_abs
+{
+  friend auto abs(no_abs) = delete;
+};
+
+auto _ = vector_abs_sum(
+  mdspan<no_abs, dextents<std::size_t, 1>>{},
+  0
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_invocable_v<.*complex_l1_norm.*, no_abs &>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_add {};
+
+auto _ = vector_abs_sum(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  no_add{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_invocable_v<std::plus<void> &, no_add &&, int>' was not satisfied"),
+            ),
+            (
+                """\
+struct convertible_to_int
+{
+  operator int() const { return 0; }
+};
+
+auto _ = vector_abs_sum(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  convertible_to_int{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'std::is_assignable<convertible_to_int &, int>::value' was not satisfied"),
+            ),
+            (
+                "auto _ = vector_abs_sum(0);",
+                matcher.has_substr("requirement 'is_in_vector_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_abs
+{
+  friend auto abs(no_abs) = delete;
+};
+
+auto _ = vector_abs_sum(
+  mdspan<no_abs, dextents<std::size_t, 1>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_invocable_v<.*complex_l1_norm.*, no_abs &>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_add {
+  friend auto abs(no_add) -> no_add { return {}; }
+};
+
+auto _ = vector_abs_sum(
+  mdspan<no_add, dextents<std::size_t, 1>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_invocable_v<std::plus<void> &, no_add &&, no_add>' was not satisfied"),
+            ),
+            (
+                """\
+struct convertible_to_int
+{
+  operator int() const { return 0; }
+};
+
+auto _ = vector_abs_sum(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  convertible_to_int{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'std::is_assignable<convertible_to_int &, int>::value' was not satisfied"),
+            ),
+        ])
+        for name in ["vector_abs_sum_error_{}_test".format(i)]
+        for _ in [cc_build_error_test(
+            name = name,
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/linalg/vector_abs_sum.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+using arene::base::linalg::vector_abs_sum;
+using arene::base::dextents;
+using arene::base::mdspan;
+
+{snippet}
+                """.format(snippet = code_snippet)),
+            compile_stderr = match,
+            target_compatible_with = select({
+                "//configs/compiler:clang": [],
+                "//conditions:default": ["@platforms//:incompatible"],
+            }),
+            deps = [
+                "//arene/base/linalg:vector_abs_sum",
+                "//arene/base/mdspan",
+                "//arene/base/mdspan:extents",
+                "//arene/base/stdlib_choice:cstddef",
+            ],
+        )]
+    ],
+)

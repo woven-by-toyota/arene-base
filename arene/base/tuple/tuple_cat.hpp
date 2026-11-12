@@ -11,7 +11,8 @@
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
-#include "arene/base/integer_sequences.hpp"
+#include "arene/base/integer_sequences/integer_sequence_ops.hpp"
+#include "arene/base/integer_sequences/make_index_sequence_repeat_n.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
@@ -192,8 +193,7 @@ class tuple_cat_fn {
 
 }  // namespace tuple_cat_detail
 
-/// @def arene::base::tuple_cat
-/// @copydoc arene::base::tuple_cat_detail::tuple_cat_fn::operator()
+/// @brief Concatenate tuple-like values into a single tuple.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

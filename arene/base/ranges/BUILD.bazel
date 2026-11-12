@@ -1,0 +1,173 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "begin_end",
+    hdrs = ["begin_end.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":enable_borrowed_range",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:attributes",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/ranges/detail:is_input_or_output_iterator",
+        "//arene/base/ranges/detail:is_sentinel_for",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:extent",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_array",
+        "//arene/base/stdlib_choice:is_constructible",
+        "//arene/base/stdlib_choice:is_lvalue_reference",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_extent",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:tuple_size",
+        "//arene/base/type_traits:priority_tag",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+cc_library_with_variants(
+    name = "borrowed_iterator",
+    hdrs = ["borrowed_iterator.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":begin_end",
+        ":dangling",
+        ":is_borrowed_range",
+        "//arene/base/type_traits:conditional",
+    ],
+)
+
+cc_library_with_variants(
+    name = "dangling",
+    hdrs = ["dangling.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:cstddef",
+    ],
+)
+
+cc_library_with_variants(
+    name = "disable_sized_range",
+    hdrs = ["disable_sized_range.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_library_with_variants(
+    name = "enable_borrowed_range",
+    hdrs = ["enable_borrowed_range.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_borrowed_range",
+    hdrs = ["is_borrowed_range.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":enable_borrowed_range",
+        ":is_range",
+        "//arene/base/stdlib_choice:integral_constant",
+        "//arene/base/stdlib_choice:is_lvalue_reference",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_range",
+    hdrs = ["is_range.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":begin_end",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:integral_constant",
+    ],
+)
+
+cc_library_with_variants(
+    name = "size",
+    hdrs = ["size.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":begin_end",
+        ":disable_sized_range",
+        "//arene/base:constraints",
+        "//arene/base/compiler_support:attributes",
+        "//arene/base/compiler_support:cpp14_inline",
+        "//arene/base/iterator:iter_difference_t",
+        "//arene/base/ranges/detail:is_sized_sentinel_for",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:forward",
+        "//arene/base/stdlib_choice:is_integral",
+        "//arene/base/stdlib_choice:make_unsigned",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/type_traits:priority_tag",
+        "//arene/base/type_traits:remove_cvref",
+    ],
+)
+
+cc_library_with_variants(
+    name = "internal",
+    visibility = [
+        "//arene/base:__pkg__",
+    ],
+    deps = [
+        ":begin_end",
+        ":borrowed_iterator",
+        ":dangling",
+        ":disable_sized_range",
+        ":enable_borrowed_range",
+        ":is_borrowed_range",
+        ":is_range",
+        ":size",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+        "//arene/base/ranges/detail:package",
+    ] + glob(["*.hpp"]),
+    visibility = ["//arene/base:__pkg__"],
+)

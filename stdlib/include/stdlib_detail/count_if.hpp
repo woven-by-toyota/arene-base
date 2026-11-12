@@ -5,7 +5,6 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_COUNT_IF_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_STDLIB_INCLUDE_STDLIB_DETAIL_COUNT_IF_HPP_
 
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/constraints.hpp"
 #include "arene/base/type_traits/is_predicate.hpp"
@@ -33,6 +32,7 @@ namespace std {
 /// @pre @c [begin,end) must be a valid range.
 /// @pre The expression @c predicate(v) must be convertible to bool for every argument v of type (possibly const) VT,
 /// where VT is the value type of InputIterator, regardless of value category, and must not modify v.
+// parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifiers 'begin' and 'end' do not hide anything"
 template <
     class InputIterator,
     class UnaryPredicate,
@@ -54,6 +54,7 @@ constexpr auto count_if(InputIterator begin, InputIterator end, UnaryPredicate p
   }
   return count;
 }
+// parasoft-end-suppress AUTOSAR-A2_10_1-a
 // parasoft-end-suppress AUTOSAR-M3_3_2-a
 
 }  // namespace std

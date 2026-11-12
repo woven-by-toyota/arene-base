@@ -73,7 +73,7 @@ REGISTER_TYPED_TEST_SUITE_P(
 INSTANTIATE_TYPED_TEST_SUITE_P(AllSpans, AsBytesTest, span_test::all_spans, );
 
 template <typename T>
-using AsWriteableBytesTest = AsBytesTest<T>;
+class AsWriteableBytesTest : public AsBytesTest<T> {};
 
 TYPED_TEST_SUITE_P(AsWriteableBytesTest);
 /// @test Validates that @c as_writeable_bytes<T,Extent>(span<T,Extent>) 's return type is either:

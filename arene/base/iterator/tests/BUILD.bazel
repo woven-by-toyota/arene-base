@@ -2,8 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
 
 cc_library_with_variants(
     name = "helpers",
@@ -13,7 +16,6 @@ cc_library_with_variants(
         "//arene/base:array",
         "//arene/base:constraints",
         "//arene/base:contracts",
-        "//arene/base:type_list",
         "//arene/base/compiler_support",
         "//arene/base/stdlib_choice:begin",
         "//arene/base/stdlib_choice:copy_n",
@@ -23,7 +25,11 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:initializer_list",
         "//arene/base/stdlib_choice:is_convertible",
         "//arene/base/stdlib_choice:iterator_tags",
-        "//testlibs:gtest",
+        "//arene/base/type_list",
+        "//arene/base/type_list:apply_all",
+        "//arene/base/type_list:concat_unique",
+        "//arene/base/type_list:contains",
+        "//testlibs:test_main",
         "//testlibs/utilities:iterator_types",
     ],
 )
@@ -31,9 +37,6 @@ cc_library_with_variants(
 cc_test_with_variants(
     name = "advance_test",
     srcs = ["advance_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":helpers",
         "//arene/base:array",
@@ -44,32 +47,27 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:initializer_list",
         "//arene/base/stdlib_choice:iterator_traits",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test(
     name = "advance_death_test",
     srcs = ["advance_death_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":helpers",
         "//arene/base/iterator:internal",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "distance_test",
     srcs = ["distance_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":helpers",
         "//:array",
+        "//arene/base:span",
         "//arene/base/compiler_support",
         "//arene/base/iterator:internal",
         "//arene/base/stdlib_choice:begin",
@@ -79,16 +77,197 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:is_base_of",
         "//arene/base/stdlib_choice:iterator_tags",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "incrementable_traits_test",
+    srcs = ["incrementable_traits_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/iterator:incrementable_traits",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:concat",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "indirect_result_t_test",
+    srcs = ["indirect_result_t_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base:constraints",
+        "//arene/base/iterator:indirect_result_t",
+        "//arene/base/iterator:iter_reference_t",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_build_error_test(
+    name = "indirect_result_t_non_indirectly_readable_compile_error_test",
+    src = "indirect_result_t_non_indirectly_readable_compile_error_test.cpp",
+    compile_stderr = matcher.has_substr("is_indirectly_readable_v"),
+    target_compatible_with = select({
+        "//configs/compiler:clang": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = ["//arene/base/iterator:indirect_result_t"],
+)
+
+cc_build_error_test(
+    name = "indirect_result_t_non_invocable_compile_error_test",
+    src = "indirect_result_t_non_invocable_compile_error_test.cpp",
+    compile_stderr = matcher.has_substr("is_invocable_v"),
+    target_compatible_with = select({
+        "//configs/compiler:clang": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = ["//arene/base/iterator:indirect_result_t"],
+)
+
+cc_test_with_variants(
+    name = "indirectly_readable_traits_test",
+    srcs = ["indirectly_readable_traits_test.cpp"],
+    deps = [
+        "//arene/base/iterator:indirectly_readable_traits",
+        "//arene/base/iterator/detail:cond_value_type",
+        "//arene/base/iterator/detail:has_member_value_type",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_extent",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:concat",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_indirectly_readable_test",
+    srcs = ["is_indirectly_readable_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/iterator:is_indirectly_readable",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:add_lvalue_reference",
+        "//arene/base/stdlib_choice:add_rvalue_reference",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:concat_unique",
+        "//testlibs:test_main",
+        "//testlibs/utilities:iterator_types",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iter_const_reference_t_test",
+    srcs = ["iter_const_reference_t_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base:constraints",
+        "//arene/base/iterator:indirectly_readable_traits",
+        "//arene/base/iterator:iter_const_reference_t",
+        "//arene/base/iterator:iter_reference_t",
+        "//arene/base/iterator:iter_value_t",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:add_lvalue_reference",
+        "//arene/base/stdlib_choice:add_rvalue_reference",
+        "//arene/base/stdlib_choice:remove_cv",
+        "//arene/base/stdlib_choice:remove_reference",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:concat_unique",
+        "//arene/base/type_traits:common_reference",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iter_difference_t_test",
+    srcs = ["iter_difference_t.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/iterator:incrementable_traits",
+        "//arene/base/iterator:iter_difference_t",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:iterator_traits",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iter_reference_t_test",
+    srcs = ["iter_reference_t_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base:constraints",
+        "//arene/base/iterator:iter_reference_t",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iter_move_test",
+    srcs = ["iter_move_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/iterator:iter_move",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:move",
+        "//arene/base/testing:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iter_rvalue_reference_t_test",
+    srcs = ["iter_rvalue_reference_t_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base:constraints",
+        "//arene/base/iterator:iter_move",
+        "//arene/base/iterator:iter_rvalue_reference_t",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "iter_value_t_test",
+    srcs = ["iter_value_t_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base:constraints",
+        "//arene/base/iterator:indirectly_readable_traits",
+        "//arene/base/iterator:iter_value_t",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "next_test",
     srcs = ["next_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":helpers",
         "//arene/base/iterator:internal",
@@ -97,31 +276,25 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:end",
         "//arene/base/stdlib_choice:initializer_list",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test(
     name = "next_death_test",
     srcs = ["next_death_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":helpers",
         "//arene/base/iterator:internal",
         "//arene/base/stdlib_choice:ignore",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "prev_test",
     srcs = ["prev_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":helpers",
         "//arene/base/iterator:internal",
@@ -130,16 +303,13 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:end",
         "//arene/base/stdlib_choice:initializer_list",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test(
     name = "reverse_iterator_test",
     srcs = ["reverse_iterator_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         ":helpers",
         "//arene/base:array",
@@ -149,7 +319,27 @@ cc_test(
         "//arene/base/stdlib_choice:begin",
         "//arene/base/stdlib_choice:end",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//arene/base/type_list",
+        "//arene/base/type_list:apply_all",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_list:flat_map",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_weakly_incrementable_test",
+    srcs = ["is_weakly_incrementable_test.cpp"],
+    deps = [
+        ":helpers",
+        "//arene/base/iterator:incrementable_traits",
+        "//arene/base/iterator:is_weakly_incrementable",
+        "//arene/base/stdlib_choice:add_const",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_list:apply_each",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_list:remove_duplicates",
+        "//testlibs:test_main",
     ],
 )
 

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,12 +25,12 @@ The Bazel target is
 //:units
 ```
 
-# Introduction {#introduction}
+# Introduction {#subpackages-units-introduction}
 
 The `units` sub-package provides facilities for working with values that
 represent quantities with units.
 
-## Quantities {#quantities}
+## Quantities {#subpackages-units-quantities}
 
 At the basic level, the `arene::base::quantity` class template is intended to
 represent an amount of a physical quantity, such as the distance in millimetres
@@ -53,7 +57,7 @@ to use `arene::base::quantity` as a direct replacement for any variable that
 would otherwise have stored a physical quantity value, maintaining the same
 storage type.
 
-# Avoiding errors {#avoiding-errors}
+# Avoiding errors {#subpackages-units-avoiding-errors}
 
 The primary purpose of the `units` sub-package is to avoid errors when writing
 code. The use of distinct tag types for distinct measurements, or for your
@@ -62,7 +66,7 @@ _longitude_ are different types, then it is impossible to get them confused,
 whereas if they are merely `double` values, then it is easy to pass them in the
 wrong order to a function.
 
-## Type aliases are error-prone {#type-aliases-are-error-prone}
+## Type aliases are error-prone {#subpackages-units-type-aliases-are-error-prone}
 
 Suppose we have a `geographic_position` which is made up of a _latitude_ and a
 _longitude_, and a `make_position` function to construct one. Since the fields
@@ -78,7 +82,7 @@ checked the values, and used the correct type aliases.
 
 \snippet docs/examples/subpackages/units_examples.cpp eiffel_tower_alias
 
-## Quantity types prevent errors {#quantity-types-prevent-errors}
+## Quantity types prevent errors {#subpackages-units-quantity-types-prevent-errors}
 
 Using `arene::base::quantity` prevents these errors:
 
@@ -94,7 +98,7 @@ compilation would fail.
 
 \snippet docs/examples/subpackages/units_examples.cpp eiffel_tower
 
-# Conversions {#conversions}
+# Conversions {#subpackages-units-conversions}
 
 By default, `arene::base::quantity` types with different _physical quantity
 types_ are treated as entirely independent things. This is important: we don't
@@ -120,11 +124,11 @@ Implicit conversions then work as expected:
 
 \snippet docs/examples/subpackages/units_examples.cpp time_conversions_code
 
-The upcoming [Units Framework](#units-framework) will simplify the specification
-of relationships between _physical quantity types_ so manual specialization of
-`arene::base::units_conversion_traits` is not required.
+The upcoming [Units Framework](#subpackages-units-units-framework) will simplify
+the specification of relationships between _physical quantity types_ so manual
+specialization of `arene::base::units_conversion_traits` is not required.
 
-# Comparisons {#comparisons}
+# Comparisons {#subpackages-units-comparisons}
 
 Any two `arene::base::quantity` types can be compared for equality, ordering,
 and three-way-comparison if they have the _same_ _physical quantity types_, or
@@ -138,7 +142,7 @@ are not interconvertible:
 <!-- prettier-ignore -->
 \snippet docs/examples/subpackages/units_examples.cpp conversion_comparison_error
 
-# Arithmetic {#arithmetic}
+# Arithmetic {#subpackages-units-arithmetic}
 
 By default, you can add and subtract two `arene::base::quantity` instances with
 the same _physical quantity type_, yielding another quantity of the same type,
@@ -154,8 +158,8 @@ a scalar value, yielding a new `arene::base::quantity` holding the resulting
 value, but `arene::base::quantity` values cannot be multiplied by other
 `arene::base::quantity` values, even if they have the same _physical quantity
 type_. This is because multiplying two **lengths** should yield an **area**, but
-until the [Units Framework](#units-framework) is ready, the library cannot
-determine the _physical quantity type_ of the result.
+until the [Units Framework](#subpackages-units-units-framework) is ready, the
+library cannot determine the _physical quantity type_ of the result.
 
 You can manually control the result of adding, subtracting, multiplying and
 dividing quantities by specializing `arene::base::units_combination_traits`.
@@ -164,11 +168,11 @@ dividing quantities by specializing `arene::base::units_combination_traits`.
 \snippet docs/examples/subpackages/units_examples.cpp multiplication_and_division_tags
 \snippet docs/examples/subpackages/units_examples.cpp multiplication_and_division
 
-The upcoming [Units Framework](#units-framework) will simplify the specification
-of relationships between _physical quantity types_ so manual specialization of
-`arene::base::units_combination_traits` is not required.
+The upcoming [Units Framework](#subpackages-units-units-framework) will simplify
+the specification of relationships between _physical quantity types_ so manual
+specialization of `arene::base::units_combination_traits` is not required.
 
-# Units Framework {#units-framework}
+# Units Framework {#subpackages-units-units-framework}
 
 A **Units Framework** is under development, which will provide better ways of
 declaring the relationship between _physical quantity types_, so that manual

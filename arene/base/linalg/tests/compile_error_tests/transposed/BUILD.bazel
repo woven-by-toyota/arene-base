@@ -1,0 +1,82 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load(
+    "//rules:cc_build_error.bzl",
+    "cc_build_error_test",
+    "inline_src",
+    "mandate_error_matcher",
+)
+
+[
+    cc_build_error_test(
+        name = "transposed_requires_rank_2_mdspan_{}_test".format(rank),
+        src = inline_src.cpp("""\
+#include "arene/base/linalg/transposed.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/layout.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+
+auto main() -> int
+{{
+  using extents_type = arene::base::extents<std::uint32_t{extents}>;
+  using mdspan_type = arene::base::mdspan<int, extents_type, arene::base::layout_right>;
+  arene::base::linalg::transposed(mdspan_type{{static_cast<int*>(nullptr), extents_type{{}}}});
+}}
+""".format(extents = extents)),
+        compile_stderr = mandate_error_matcher(
+            diagnostic = "transposed requires a rank-2 mdspan",
+            requirement = "extents<.+>::rank\\(\\) == 2.+",
+        ),
+        deps = [
+            "//arene/base/linalg:transposed",
+            "//arene/base/mdspan",
+            "//arene/base/mdspan:extents",
+            "//arene/base/mdspan:layout",
+            "//arene/base/stdlib_choice:cstdint",
+        ],
+    )
+    for rank, extents in [
+        # rank 0 (no extents), rank 1, and rank 3 all fail the rank-2 mandate.
+        (0, ""),
+        (1, ", 5"),
+        (3, ", 3, 5, 7"),
+    ]
+]
+
+[
+    cc_build_error_test(
+        name = "layout_transpose_requires_rank_2_extents_{}_test".format(rank),
+        src = inline_src.cpp("""\
+#include "arene/base/linalg/layout_transpose.hpp"
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/layout.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
+
+auto main() -> int
+{{
+  arene::base::linalg::layout_transpose<arene::base::layout_right>::mapping<
+    arene::base::extents<std::uint32_t{extents}>
+  >{{}};
+}}
+""".format(extents = extents)),
+        compile_stderr = mandate_error_matcher(
+            diagnostic = "Extents must be rank 2",
+            requirement = "extents<.+>::rank\\(\\) == 2.+",
+        ),
+        deps = [
+            "//arene/base/linalg:layout_transpose",
+            "//arene/base/mdspan:extents",
+            "//arene/base/mdspan:layout",
+            "//arene/base/stdlib_choice:cstdint",
+        ],
+    )
+    for rank, extents in [
+        # rank 0 (no extents), rank 1, and rank 3 all fail the rank-2 mandate.
+        (0, ""),
+        (1, ", 5"),
+        (3, ", 3, 5, 7"),
+    ]
+]

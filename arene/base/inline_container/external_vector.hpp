@@ -17,6 +17,7 @@
 #include "arene/base/iterator/advance.hpp"
 #include "arene/base/memory/construct_at.hpp"
 #include "arene/base/memory/destroy_at.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/span/span.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
@@ -24,6 +25,7 @@
 #include "arene/base/stdlib_choice/forward.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
 #include "arene/base/stdlib_choice/is_assignable.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
 #include "arene/base/stdlib_choice/is_copy_assignable.hpp"
@@ -797,6 +799,13 @@ class external_vector
 // parasoft-end-suppress AUTOSAR-A7_3_1-a
 // parasoft-end-suppress AUTOSAR-A10_2_1-b
 // parasoft-end-suppress AUTOSAR-A12_1_6-a
+
+namespace ranges {
+/// @brief Indicate that @c external_vector is a borrowed range
+/// @tparam T The type of the elements in the external vector
+template <typename T>
+class enable_borrowed_range<external_vector<T>> : public std::true_type {};
+}  // namespace ranges
 
 }  // namespace base
 }  // namespace arene

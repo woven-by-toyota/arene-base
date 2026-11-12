@@ -15,6 +15,7 @@ namespace {
 
 using ::arene::base::mutex;
 
+/// @test Without thread safety analysis support, `arene::base::mutex` is `std::mutex`
 TEST(LockGuard, IsStdLockGuardIfTsaIsNotSupported) {
 #if ARENE_IS_OFF(ARENE_HAS_THREAD_SAFETY_ANALYSIS)
   ::testing::StaticAssertTypeEq<mutex, std::mutex>();
@@ -23,6 +24,7 @@ TEST(LockGuard, IsStdLockGuardIfTsaIsNotSupported) {
 #endif
 }
 
+/// @test On libc++, `arene::base::mutex` is `std::mutex`, whose annotations libc++ already provides
 TEST(LockGuard, IsStdLockGuardIfOnLibcxx) {
 #if ARENE_IS_ON(ARENE_STDLIB_LIBCXX)
   ::testing::StaticAssertTypeEq<mutex, std::mutex>();
@@ -31,6 +33,8 @@ TEST(LockGuard, IsStdLockGuardIfOnLibcxx) {
 #endif
 }
 
+/// @test With thread safety analysis support and not on libc++, `arene::base::mutex` is an annotated wrapper
+/// over `std::mutex`
 TEST(LockGuard, IsWrapperIfTsaIsSupportedAndNotOnLibcxx) {
 #if ARENE_IS_ON(ARENE_HAS_THREAD_SAFETY_ANALYSIS) && ARENE_IS_OFF(ARENE_STDLIB_LIBCXX)
   ::testing::StaticAssertTypeEq<mutex, ::arene::base::mutex_detail::mutex<std::mutex>>();

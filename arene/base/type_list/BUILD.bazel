@@ -4,48 +4,33 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "apply_all_hdrs",
-    srcs = [
-        "apply_all.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "apply_all",
-    hdrs = [":apply_all_hdrs"],
+    hdrs = [
+        "apply_all.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
-    ],
-)
-
-filegroup(
-    name = "apply_each_hdrs",
-    srcs = [
-        "apply_each.hpp",
     ],
 )
 
 cc_library_with_variants(
     name = "apply_each",
-    hdrs = [":apply_each_hdrs"],
+    hdrs = [
+        "apply_each.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
 )
 
-filegroup(
-    name = "at_hdrs",
-    srcs = [
-        "at.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "at",
-    hdrs = [":at_hdrs"],
+    hdrs = [
+        "at.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -59,16 +44,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "cartesian_product_hdrs",
-    srcs = [
-        "cartesian_product.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "cartesian_product",
-    hdrs = [":cartesian_product_hdrs"],
+    hdrs = [
+        "cartesian_product.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -78,44 +58,42 @@ cc_library_with_variants(
         ":size",
         ":type_list",
         "//arene/base:array",
-        "//arene/base/iterator:next",
+        "//arene/base/algorithm:copy",
+        "//arene/base/algorithm:iter_swap",
+        "//arene/base/algorithm:reduce",
+        "//arene/base/detail:index_permutation_range",
         "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:initializer_list",
         "//arene/base/stdlib_choice:integer_sequence",
-    ],
-)
-
-filegroup(
-    name = "concat_hdrs",
-    srcs = [
-        "concat.hpp",
+        "//arene/base/stdlib_choice:multiplies",
     ],
 )
 
 cc_library_with_variants(
     name = "concat",
-    hdrs = [":concat_hdrs"],
+    hdrs = [
+        "concat.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
+        "//testlibs:__subpackages__",
     ],
     deps = [
         ":type_list",
     ],
 )
 
-filegroup(
-    name = "concat_unique_hdrs",
-    srcs = [
-        "concat_unique.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "concat_unique",
-    hdrs = [":concat_unique_hdrs"],
+    hdrs = [
+        "concat_unique.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
+        "//testlibs:__subpackages__",
     ],
     deps = [
         ":concat",
@@ -124,37 +102,27 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "contains_hdrs",
-    srcs = [
-        "contains.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "contains",
-    hdrs = [":contains_hdrs"],
+    hdrs = [
+        "contains.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
     ],
     deps = [
-        "//arene/base:type_traits",
         "//arene/base/compiler_support",
         "//arene/base/stdlib_choice:integral_constant",
-    ],
-)
-
-filegroup(
-    name = "drop_hdrs",
-    srcs = [
-        "drop.hpp",
+        "//arene/base/type_traits:is_one_of",
     ],
 )
 
 cc_library_with_variants(
     name = "drop",
-    hdrs = [":drop_hdrs"],
+    hdrs = [
+        "drop.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -169,16 +137,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "filter_hdrs",
-    srcs = [
-        "filter.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "filter",
-    hdrs = [":filter_hdrs"],
+    hdrs = [
+        "filter.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -190,16 +153,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "flat_map_hdrs",
-    srcs = [
-        "flat_map.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "flat_map",
-    hdrs = [":flat_map_hdrs"],
+    hdrs = [
+        "flat_map.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -212,16 +170,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "index_of_hdrs",
-    srcs = [
-        "index_of.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "index_of",
-    hdrs = [":index_of_hdrs"],
+    hdrs = [
+        "index_of.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -233,16 +186,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "reverse_hdrs",
-    srcs = [
-        "reverse.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "reverse",
-    hdrs = [":reverse_hdrs"],
+    hdrs = [
+        "reverse.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -255,16 +203,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "remove_duplicates_hdrs",
-    srcs = [
-        "remove_duplicates.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "remove_duplicates",
-    hdrs = [":remove_duplicates_hdrs"],
+    hdrs = [
+        "remove_duplicates.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -284,16 +227,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "remove_nth_hdrs",
-    srcs = [
-        "remove_nth.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "remove_nth",
-    hdrs = [":remove_nth_hdrs"],
+    hdrs = [
+        "remove_nth.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -306,16 +244,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "size_hdrs",
-    srcs = [
-        "size.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "size",
-    hdrs = [":size_hdrs"],
+    hdrs = [
+        "size.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -331,16 +264,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "sort_hdrs",
-    srcs = [
-        "sort.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "sort",
-    hdrs = [":sort_hdrs"],
+    hdrs = [
+        "sort.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -354,16 +282,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "take_hdrs",
-    srcs = [
-        "take.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "take",
-    hdrs = [":take_hdrs"],
+    hdrs = [
+        "take.hpp",
+    ],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -378,16 +301,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "type_list_hdrs",
-    srcs = [
-        "type_list.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "type_list",
-    hdrs = [":type_list_hdrs"],
+    hdrs = [
+        "type_list.hpp",
+    ],
     visibility = [
         "//:__subpackages__",
     ],
@@ -396,7 +314,6 @@ cc_library_with_variants(
 cc_library_with_variants(
     name = "internal",
     visibility = [
-        ":__subpackages__",
         "//arene/base:__pkg__",
     ],
     deps = [
@@ -425,24 +342,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":apply_all_hdrs",
-        ":apply_each_hdrs",
-        ":at_hdrs",
-        ":cartesian_product_hdrs",
-        ":concat_hdrs",
-        ":concat_unique_hdrs",
-        ":contains_hdrs",
-        ":drop_hdrs",
-        ":filter_hdrs",
-        ":flat_map_hdrs",
-        ":index_of_hdrs",
-        ":remove_duplicates_hdrs",
-        ":remove_nth_hdrs",
-        ":reverse_hdrs",
-        ":size_hdrs",
-        ":sort_hdrs",
-        ":take_hdrs",
-        ":type_list_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

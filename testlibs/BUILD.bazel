@@ -13,8 +13,23 @@ selects.config_setting_group(
     visibility = ["//:__subpackages__"],
 )
 
+# test library target without main
 cc_library(
-    name = "gtest",
+    name = "test_library",
+    visibility = ["//:__subpackages__"],
+    deps = select({
+        "//configs:toolchain_stdlib_enabled": [
+            "@com_google_googletest//:gtest",
+        ],
+        "//configs:toolchain_stdlib_disabled": [
+            "//testlibs/dummy_gmock",
+            "//testlibs/dummy_gtest",
+        ],
+    }),
+)
+
+cc_library(
+    name = "test_main",
     visibility = ["//:__subpackages__"],
     deps = select({
         "//configs:toolchain_stdlib_enabled": [
@@ -23,6 +38,7 @@ cc_library(
         "//configs:toolchain_stdlib_disabled": [
             "//testlibs/dummy_gmock",
             "//testlibs/dummy_gtest",
+            "//testlibs/minitest:minitest_main",
         ],
     }),
 )

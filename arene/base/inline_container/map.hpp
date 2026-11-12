@@ -17,22 +17,22 @@
 #include "arene/base/compare/compare_three_way.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/compare/strong_ordering.hpp"
-#include "arene/base/compiler_support/attributes.hpp"
+#include "arene/base/compiler_support/attributes/nodiscard.hpp"
+#include "arene/base/compiler_support/attributes/noreturn.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
 #include "arene/base/detail/exceptions.hpp"
+#include "arene/base/detail/iterator_interface.hpp"
 #include "arene/base/inline_container/detail/compare.hpp"
 #include "arene/base/inline_container/detail/container_base_type.hpp"
-#include "arene/base/inline_container/detail/iterator_interface.hpp"
+#include "arene/base/inline_container/detail/index_array.hpp"
 #include "arene/base/inline_container/detail/lower_bound_index.hpp"
-#include "arene/base/integer_sequences/sequential_values.hpp"
 #include "arene/base/iterator/distance.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/iterator/reverse_iterator.hpp"
 #include "arene/base/optional/optional.hpp"
 #include "arene/base/optional/optional_resetter.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
-#include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
 #include "arene/base/stdlib_choice/forward.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
@@ -210,10 +210,10 @@ class inline_map
   /// @tparam IsConst Is this a const iterator?
   template <bool IsConst>
   class iterator_impl
-      : public inline_container_detail::iterator_interface<iterator_impl<IsConst>>
+      : public detail::iterator_interface<iterator_impl<IsConst>>
       , inline_map_detail::inline_map_passkey_base<map_base_type> {
     /// @brief Alias for interface base
-    using iterator_interface = inline_container_detail::iterator_interface<iterator_impl>;
+    using iterator_interface = detail::iterator_interface<iterator_impl>;
 
     /// @brief alias to the passkey type
     using inline_map_passkey = typename inline_map_detail::inline_map_passkey_base<map_base_type>::inline_map_passkey;
@@ -246,16 +246,12 @@ class inline_map
     /// @brief basis function for increment
     /// @param iter iterator to increment
     ///
-    friend auto step_forward(inline_container_detail::iterator_interface_tag, iterator_impl& iter) noexcept -> void {
-      ++iter.pos_;
-    }
+    friend auto step_forward(detail::iterator_interface_tag, iterator_impl& iter) noexcept -> void { ++iter.pos_; }
 
     /// @brief basis function for decrement
     /// @param iter iterator to increment
     ///
-    friend auto step_backward(inline_container_detail::iterator_interface_tag, iterator_impl& iter) noexcept -> void {
-      --iter.pos_;
-    }
+    friend auto step_backward(detail::iterator_interface_tag, iterator_impl& iter) noexcept -> void { --iter.pos_; }
 
     // parasoft-end-suppress AUTOSAR-A11_3_1-a
     // parasoft-end-suppress AUTOSAR-A0_1_3-a
@@ -1807,7 +1803,7 @@ class inline_map
   /// @note this is primarily used to provide minimal access to @c inline_map_reference_iterator
   ///
   template <typename Self, constraints<std::enable_if_t<decays_to_v<Self, inline_map>>> = nullptr>
-  friend auto value_at_index(inline_map_passkey, Self& self, std::uint16_t index)
+  friend auto value_at_index(inline_map_passkey, Self& self, std::size_t index)
       -> conditional_t<std::is_const<std::remove_reference_t<Self>>::value, value_type const&, value_type&> {
     return *self.entry_at_index(static_cast<index_type>(index));
   }
@@ -2076,9 +2072,9 @@ class inline_map
   /// @param mapped_value The value with which to construct or assign the mapped value
   /// @return A pair of an iterator to the element with a key equivalent to @c key, and a boolean with a value of
   ///         @c true if the element was inserted, or @c false otherwise.
+  /// @pre If insertion is required, @c size()<Capacity else @c ARENE_PRECONDITION violation.
   /// @throws Any exception thrown by the comparisons, the move constructor of @c Key or the constructor or assignment
   /// operator of @c Value .
-  /// @throws std::length_error if there is insufficient space to insert a new element.
   template <typename OtherKey, typename OtherMapped>
   auto do_insert_or_assign(OtherKey&& key, OtherMapped&& mapped_value) -> std::pair<iterator, bool> {
     auto res = do_try_emplace(std::forward<OtherKey>(key), std::forward<OtherMapped>(mapped_value));
@@ -2099,7 +2095,7 @@ class inline_map
   /// @return std::pair<iterator, bool> A pair whose second element will be @c true if the emplace happened. The first
   ///         element will be an iterator pointing to the element corresponding to @c key : the existing element if
   ///         the insert did not happen, or the new element if it did.
-  /// @throws std::length_error if there is insufficient space to insert a new element.
+  /// @pre If emplacement is required, @c size()<Capacity else @c ARENE_PRECONDITION violation.
   /// @throws Any exception thrown by the comparisons or constructors of @c Key and @c Value .
   template <typename OtherKey, typename... Args>
   auto do_try_emplace(OtherKey&& key, Args&&... args) -> std::pair<iterator, bool> {
@@ -2292,7 +2288,7 @@ class inline_map
   /// @brief The current number of elements in the map
   index_type size_{0};
   /// @brief The indices of the elements in sorted order
-  array<index_type, Capacity> indices_{sequential_values<index_type, Capacity>};
+  array<index_type, Capacity> indices_{inline_container_detail::make_index_array<index_type, Capacity>()};
   // parasoft-begin-suppress AUTOSAR-M8_5_2-b-2 "False Positive: all elements default-initialized"
   /// @brief The storage of the actual elements themselves
   array<entry_type, Capacity> values_{};

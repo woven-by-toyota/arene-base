@@ -16,6 +16,12 @@ namespace {
 /// @test `extents` is declared
 TEST(Mdspan, Extents) { using arene::base::extents; }
 
+/// @test `constant_accessor` is declared
+TEST(Mdspan, ConstantAccessor) { using arene::base::constant_accessor; }
+
+/// @test `constant_sequence_accessor` is declared
+TEST(Mdspan, ConstantSequenceAccessor) { using arene::base::constant_sequence_accessor; }
+
 /// @test `default_accessor` is declared
 TEST(Mdspan, DefaultAccessor) { using arene::base::default_accessor; }
 
@@ -36,6 +42,12 @@ TEST(Mdspan, IsLayoutMappingPolicyV) { using arene::base::is_layout_mapping_poli
 
 /// @test `is_accessor_policy` is declared
 TEST(Mdspan, IsAccessorPolicyV) { using arene::base::is_accessor_policy_v; }
+
+/// @test `is_submdspan_slice_v` is declared
+TEST(Mdspan, IsSubmdspanSliceVIsDeclared) { using arene::base::is_submdspan_slice_v; }
+
+/// @test `is_sliceable_mapping_v` is declared
+TEST(Mdspan, IsSliceableMappingVIsDeclared) { using arene::base::is_sliceable_mapping_v; }
 
 /// @test `mdspan` is declared
 TEST(Mdspan, MdspanIsDeclared) { using arene::base::mdspan; }
@@ -60,5 +72,8 @@ TEST(Mdspan, SubmdspanSubextentTypeT) { using arene::base::submdspan_subextents_
 
 /// @test `submdspan` is declared
 TEST(Mdspan, Submdspan) { using arene::base::submdspan; }
+
+/// @test `axis_view` is declared
+TEST(Mdspan, AxisViewIsDeclared) { using arene::base::axis_view; }
 
 }  // namespace

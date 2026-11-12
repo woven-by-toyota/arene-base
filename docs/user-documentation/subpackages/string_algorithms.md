@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -21,7 +25,7 @@ The Bazel target is
 //:string_algorithms
 ```
 
-# Introduction {#introduction}
+# Introduction {#subpackages-string-algorithms-introduction}
 
 The `string_algorithms` package provides functions for working with strings:
 
@@ -33,7 +37,7 @@ The `string_algorithms` package provides functions for working with strings:
   two strings, and is used internally in the comparison functions of
   `string_view` and `inline_string`.
 
-## String trimming functions {#string-trimming-functions}
+## String trimming functions {#subpackages-string-algorithms-string-trimming-functions}
 
 Arene Base provides three sets of string trimming functions:
 
@@ -55,13 +59,13 @@ auto s2 = arene::base::rtrim(s); // copy of "     hello world"
 auto s3 = arene::base::trim(arene::base::string_view{s}); // string_view for "hello world" in s
 ```
 
-## `arene::base::string_length` {#arene-base-string_length}
+## `arene::base::string_length` {#subpackages-string-algorithms-arene-base-string_length}
 
 This function is purely a `constexpr`-compatible version of `strlen`, and is
 therefore used in the implementation of the string types, to enable them to work
 in `constexpr` code.
 
-## `arene::base::lexicographic_string_compare` {#arene-base-lexicographic_string_compare}
+## `arene::base::lexicographic_string_compare` {#subpackages-string-algorithms-arene-base-lexicographic_string_compare}
 
 This function does a \ref compare "three-way comparison" of two strings,
 represented either as a C-style `const char*` string or a

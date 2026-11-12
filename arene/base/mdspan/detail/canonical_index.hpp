@@ -6,7 +6,7 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MDSPAN_DETAIL_CANONICAL_INDEX_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MDSPAN_DETAIL_CANONICAL_INDEX_HPP_
 
-#include "arene/base/mdspan/detail/is_representable_as.hpp"
+#include "arene/base/detail/is_representable_as.hpp"
 #include "arene/base/mdspan/detail/representable_cast.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
@@ -34,7 +34,7 @@ class canonical_index_fn {
   static constexpr auto impl(std::true_type, Slice const&) noexcept
       -> std::integral_constant<IndexType, IndexType(Slice::value)> {
     static_assert(
-        mdspan_detail::is_representable_as<IndexType>(Slice::value),
+        detail::is_representable_as<IndexType>(Slice::value),
         "value of integral-constant-like must be representable as the extents' index type"
     );
     return {};

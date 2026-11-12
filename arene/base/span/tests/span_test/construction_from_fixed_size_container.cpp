@@ -12,11 +12,11 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/iterator.hpp"
+#include "arene/base/iterator/next.hpp"
 #include "arene/base/span/tests/span_test/helpers.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/min_value_overload.hpp"
-#include "arene/base/type_traits.hpp"
+#include "arene/base/type_traits/remove_cvref.hpp"
 
 namespace {
 

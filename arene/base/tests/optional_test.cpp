@@ -15,18 +15,18 @@
 
 namespace {
 /// @test Ensure @c optional is exported
-TEST(Optional, Optional) { using ::arene::base::optional; }
+TEST(OptionalExport, Optional) { using ::arene::base::optional; }
 /// @test Ensure @c nullopt_t is exported
-TEST(Optional, NullOptT) { using ::arene::base::nullopt_t; }
+TEST(OptionalExport, NullOptT) { using ::arene::base::nullopt_t; }
 /// @test Ensure @c nullopt is exported
-TEST(Optional, NullOpt) { using ::arene::base::nullopt; }
+TEST(OptionalExport, NullOpt) { using ::arene::base::nullopt; }
 /// @test Ensure @c null_opt_t is exported
-TEST(Optional, NullOptTOld) { using ::arene::base::null_opt_t; }
+TEST(OptionalExport, NullOptTOld) { using ::arene::base::null_opt_t; }
 /// @test Ensure @c null_opt is exported
-TEST(Optional, NullOptOld) { using ::arene::base::null_opt; }
+TEST(OptionalExport, NullOptOld) { using ::arene::base::null_opt; }
 
 /// @test Ensure @c bad_optional_access is exported
-TEST(Optional, BadOptionalAccess) {
+TEST(OptionalExport, BadOptionalAccess) {
 #if ARENE_IS_ON(ARENE_EXCEPTIONS_ENABLED)
   using ::arene::base::bad_optional_access;
 #else
@@ -35,5 +35,5 @@ TEST(Optional, BadOptionalAccess) {
 }
 
 /// @test Ensure @c optional_resetter is exported
-TEST(Optional, OptionalResetter) { using ::arene::base::optional_resetter; }
+TEST(OptionalExport, OptionalResetter) { using ::arene::base::optional_resetter; }
 }  // namespace

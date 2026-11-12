@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/compiler_support/diagnostics.hpp"
 #include "arene/base/inline_container/testing/deque.hpp"  // IWYU pragma: keep
 #include "arene/base/inline_container/vector.hpp"
@@ -469,8 +470,10 @@ constexpr auto arene::base::testing::test_value_array<arene::base::string_view> 
 // NOLINTNEXTLINE(fuchsia-statically-constructed-objects) This test-only customization point must be (const) static.
 template <>
 auto const arene::base::testing::test_value_array<arene::base::inline_vector<arene::base::string_view, 3>> =
-    arene::base::to_array<arene::base::inline_vector<arene::base::string_view, 3>>(
-        {{"1"_asv}, {"1"_asv, "2"_asv}, {"1"_asv, "2"_asv, "3"_asv}}
+    arene::base::to_array(
+        {arene::base::inline_vector<arene::base::string_view, 3>{"1"_asv},
+         {"1"_asv, "2"_asv},
+         {"1"_asv, "2"_asv, "3"_asv}}
     );
 
 using TestTypes = ::testing::Types<

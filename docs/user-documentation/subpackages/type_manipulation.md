@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -19,7 +23,7 @@ The Bazel target is
 //:type_manipulation
 ```
 
-## Introduction {#introduction}
+# Introduction {#subpackages-type-manipulation-introduction}
 
 The `type_manipulation` subpackage provides facilities that mostly produce a new
 type based on one or more existing types and properties. These vary from an
@@ -30,7 +34,7 @@ to a class template for passing a specified number of identical template
 arguments to another class template (`arene::base::repeat_type`), amongst
 others.
 
-## A Non-constructible Dummy Type {#a-non-constructible-dummy-type}
+## A Non-constructible Dummy Type {#subpackages-type-manipulation-a-non-constructible-dummy-type}
 
 `arene::base::non_constructible_dummy` can never be constructed: all its
 constructors, and its destructor are defined as deleted. This means that there
@@ -67,7 +71,7 @@ Header:
 #include <arene/base/type_manipulation/non_constructible_dummy.hpp>
 ```
 
-## Types For Copying Properties {#types-for-copying-properties}
+## Types For Copying Properties {#subpackages-type-manipulation-types-for-copying-properties}
 
 When writing C++ templates, it is relatively common to want a type that has the
 same properties as another type, and the `type_manipulation` subpackage provides
@@ -130,7 +134,7 @@ Header:
 #include <arene/base/type_manipulation/implicit_constructor_base.hpp>
 ```
 
-## The Smallest Integer Type That Can Hold A Value Or Range Of Values {#the-smallest-integer-type-that-can-hold-a-value-or-range-of-values}
+## The Smallest Integer Type That Can Hold A Value Or Range Of Values {#subpackages-type-manipulation-the-smallest-integer-type-that-can-hold-a-value-or-range-of-values}
 
 If you are trying to save space, and you wish to store an integer value with a
 range determined from template parameters, then it can be helpful to identify
@@ -167,7 +171,7 @@ Header:
 #include <arene/base/type_manipulation/smallest_integer_for.hpp>
 ```
 
-## Empty Base Optimization {#empty-base-optimization}
+## Empty Base Optimization {#subpackages-type-manipulation-empty-base-optimization}
 
 The Empty Base Optimization (EBO) is a space saving technique based on the
 feature that a base class with no members can have the same address as a class
@@ -244,7 +248,7 @@ Header:
 #include <arene/base/type_manipulation/ebo_holder.hpp>
 ```
 
-## Static If {#static-if}
+## Static If {#subpackages-type-manipulation-static-if}
 
 `arene::base::static_if` is a variation on `std::conditional`, designed to
 minimize template instantiations for the non-selected cases. If this isn't a
@@ -275,7 +279,7 @@ Header:
 #include <arene/base/type_manipulation/static_if.hpp>
 ```
 
-## Ignoring Values and Forcing Evaluation Order {#ignoring-values-and-forcing-evaluation-order}
+## Ignoring Values and Forcing Evaluation Order {#subpackages-type-manipulation-ignoring-values-and-forcing-evaluation-order}
 
 The Woven Coding Standards require that every object and function return value
 is used. In some cases, this is not desired, so we need an explicit way to
@@ -362,7 +366,7 @@ Header:
 #include <arene/base/type_manipulation/consume_values.hpp>
 ```
 
-## Passing Repeated Types To Templates {#passing-repeated-types-to-templates}
+## Passing Repeated Types To Templates {#subpackages-type-manipulation-passing-repeated-types-to-templates}
 
 If you need to pass multiple copies of the same template argument to a class
 template, then `arene::base::repeat_type` is your friend. For example,

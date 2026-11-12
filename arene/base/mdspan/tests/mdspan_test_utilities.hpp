@@ -16,17 +16,22 @@
 #include "arene/base/mdspan/layout.hpp"
 #include "arene/base/mdspan/mdspan.hpp"
 #include "arene/base/mdspan/slice.hpp"
+#include "arene/base/mdspan/tests/test_layout_types.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
+#include "arene/base/stdlib_choice/forward.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/is_convertible.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/is_signed.hpp"
 #include "arene/base/stdlib_choice/make_signed.hpp"
+#include "arene/base/stdlib_choice/make_tuple.hpp"
 #include "arene/base/stdlib_choice/make_unsigned.hpp"
+#include "arene/base/tuple/tuple_cat.hpp"
 #include "arene/base/type_traits/all_of.hpp"
 #include "arene/base/type_traits/conditional.hpp"
+#include "arene/base/type_traits/is_tuple_like.hpp"
 #include "testlibs/utilities/configurable_value.hpp"
 
 namespace arene {
@@ -355,6 +360,36 @@ constexpr auto make_full_extents() noexcept -> arene::base::array<FullExtentType
 }
 /// @}
 
+namespace detail {
+
+/// @brief Wrap a non-tuple-like argument in @c std::make_tuple; forward a tuple-like one unchanged
+/// @{
+template <class T, arene::base::constraints<std::enable_if_t<arene::base::is_tuple_like_v<T>>> = nullptr>
+constexpr auto as_tuple(T&& arg) noexcept {
+  return std::forward<T>(arg);
+}
+
+template <class T, arene::base::constraints<std::enable_if_t<!arene::base::is_tuple_like_v<T>>> = nullptr>
+constexpr auto as_tuple(T&& arg) noexcept {
+  return std::make_tuple(std::forward<T>(arg));
+}
+/// @}
+
+}  // namespace detail
+
+/// @brief Concatenate slice arguments into a single tuple, auto-wrapping non-tuple-like scalars
+///
+/// Tuple-like packs (e.g. the @c array from @c make_full_extents) are spliced in place while scalar slices (an index,
+/// a @c full_extent, a single @c extent_slice) are wrapped, so the result can be handed to
+/// @c arene::base::apply(bind_front(submdspan, src), ...) to form a @c submdspan call.
+/// @tparam Args mix of tuple-like slice packs and scalar slices
+/// @param args slice packs and/or individual slices, in the order they appear in the submdspan call
+/// @return a tuple of all the slices, in order
+template <class... Args>
+constexpr auto concat_slices(Args&&... args) noexcept {
+  return arene::base::tuple_cat(detail::as_tuple(std::forward<Args>(args))...);
+}
+
 /// @brief Functor that transforms an extent value into a full-range @c extent_slice
 /// @tparam IndexType the index type of the extents
 template <class IndexType>
@@ -362,6 +397,66 @@ struct make_full_range_extent_slice {
   using extent_slice_type = extent_slice<IndexType, IndexType, std::integral_constant<IndexType, 1>>;
 
   constexpr auto operator()(IndexType ext) const noexcept -> extent_slice_type { return {IndexType{}, ext}; }
+};
+
+/// @brief Functor that transforms an extent value into a full-range @c range_slice
+/// @tparam IndexType the index type of the extents
+template <class IndexType>
+struct make_full_range_range_slice {
+  using range_slice_type = arene::base::range_slice<IndexType, IndexType, std::integral_constant<IndexType, 1>>;
+
+  constexpr auto operator()(IndexType ext) const noexcept -> range_slice_type { return {IndexType{}, ext}; }
+};
+
+/// @brief Compute the required span size for a layout mapping type with expanded test extents
+/// @tparam Mapping The layout mapping type
+template <class Mapping>
+constexpr auto required_test_buffer_size() noexcept -> std::size_t {
+  return static_cast<std::size_t>(
+      make_mapping_with_extents<Mapping>(test::make_expanded_extents<typename Mapping::extents_type>())
+          .required_span_size()
+  );
+}
+
+/// @brief Zero-initialized data buffer sized to the required span size for a given mapping type
+/// @tparam N buffer size
+/// @tparam Element the buffer element type (defaults to @c int)
+template <std::size_t N, class Element = int>
+constexpr auto test_buffer = arene::base::array<Element, N>{};
+
+/// @brief Construct a source mdspan for the given layout mapping type from a correctly-sized test buffer
+/// @tparam Mapping The layout mapping type
+/// @tparam Element the source element type (defaults to @c int); the source has element type @c Element @c const
+template <class Mapping, class Element = int>
+constexpr auto make_test_src() noexcept
+    -> arene::base::mdspan<Element const, typename Mapping::extents_type, typename Mapping::layout_type> {
+  auto const exts = test::make_expanded_extents<typename Mapping::extents_type>();
+  auto const map = make_mapping_with_extents<Mapping>(exts);
+  return {test_buffer<required_test_buffer_size<Mapping>(), Element>.data(), map};
+}
+
+/// @brief Build a source mdspan of type @c Mdspan over the shared test buffer, expanding dynamic extents
+///
+/// A type-friendly wrapper over @c make_test_src that takes the whole mdspan type rather than its mapping and element
+/// type separately.
+/// @tparam Mdspan The source mdspan type; its element type must be @c const so it can point into the test buffer
+/// @return An @c Mdspan whose dynamic extents take the default test size
+template <class Mdspan>
+constexpr auto make_test_mdspan() noexcept -> Mdspan {
+  return make_test_src<typename Mdspan::mapping_type, typename Mdspan::value_type>();
+}
+
+/// @brief Binary predicate that treats two elements as equal when they are the same object
+struct equal_address {
+  /// @brief Compare two elements by address
+  /// @tparam Element The element type
+  /// @param lhs The first element
+  /// @param rhs The second element
+  /// @return @c true if @c lhs and @c rhs are the same object
+  template <class Element>
+  constexpr auto operator()(Element const& lhs, Element const& rhs) const noexcept -> bool {
+    return &lhs == &rhs;
+  }
 };
 
 }  // namespace testing

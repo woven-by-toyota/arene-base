@@ -13,6 +13,7 @@
 /// @brief Provides backports of @c std::in_place_t, @c std::in_place_type_t, and @c std::in_place_index_t from C++17.
 ///
 
+#include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 
 namespace arene {
@@ -25,10 +26,16 @@ class in_place_t {
   explicit in_place_t() = default;
 };
 
+// parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global"
+// parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global"
 // parasoft-begin-suppress AUTOSAR-M3_4_1-b "This is a per-TU reference to a global used in multiple TUs"
+// parasoft-begin-suppress CERT_CPP-DCL56-a-3 "False positive: variable is initialized"
 /// @brief backport of @c std::in_place from C++17, a tag variable for in-place construction
-constexpr in_place_t in_place{};  // NOLINT(clang-diagnostic-unused-const-variable) clang seems to false positive here
+ARENE_CPP14_INLINE_VARIABLE(in_place_t, in_place);
+// parasoft-end-suppress CERT_CPP-DCL56-a-3
 // parasoft-end-suppress AUTOSAR-M3_4_1-b
+// parasoft-end-suppress AUTOSAR-M7_3_3-a
+// parasoft-end-suppress CERT_CPP-DCL59-a
 
 /// @brief backport of @c std::in_place_type_t<T> from C++17
 template <typename T>

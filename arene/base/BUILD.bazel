@@ -6,29 +6,26 @@ load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "atomic_hdr",
-    srcs = ["atomic.hpp"],
+package(
+    default_visibility = [
+        "//:__pkg__",
+        "//arene/base/tests:__pkg__",
+    ],
 )
 
 cc_library(
     name = "atomic",
-    hdrs = [":atomic_hdr"],
+    hdrs = ["atomic.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/atomic:internal",
     ],
 )
 
-filegroup(
-    name = "array_hdr",
-    srcs = ["array.hpp"],
-)
-
 cc_library_with_variants(
     name = "array",
     hdrs = [
-        ":array_hdr",
+        "array.hpp",
     ],
     visibility = [
         "//:__subpackages__",
@@ -38,15 +35,10 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "algorithm_hdr",
-    srcs = ["algorithm.hpp"],
-)
-
 cc_library_with_variants(
     name = "algorithm",
     hdrs = [
-        ":algorithm_hdr",
+        "algorithm.hpp",
     ],
     visibility = [
         "//:__subpackages__",
@@ -56,84 +48,53 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "bit_hdr",
-    srcs = ["bit.hpp"],
-)
-
 cc_library_with_variants(
     name = "bit",
-    hdrs = [":bit_hdr"],
-    visibility = ["//:__subpackages__"],
+    hdrs = ["bit.hpp"],
     deps = [
         "//arene/base/bit:internal",
     ],
 )
 
-filegroup(
-    name = "byte_hdr",
-    srcs = ["byte.hpp"],
-)
-
 cc_library_with_variants(
     name = "byte",
-    hdrs = [":byte_hdr"],
+    hdrs = ["byte.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/byte:internal",
     ],
 )
 
-filegroup(
-    name = "compare_hdr",
-    srcs = ["compare.hpp"],
-)
-
 cc_library_with_variants(
     name = "compare",
-    hdrs = [":compare_hdr"],
+    hdrs = ["compare.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/compare:internal",
     ],
 )
 
-filegroup(
-    name = "contracts_hdr",
-    srcs = ["contracts.hpp"],
-)
-
 cc_library_with_variants(
     name = "contracts",
-    hdrs = [":contracts_hdr"],
+    hdrs = ["contracts.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/contracts:internal",
     ],
 )
 
-filegroup(
-    name = "constraints_hdr",
-    srcs = ["constraints.hpp"],
-)
-
 cc_library_with_variants(
     name = "constraints",
-    hdrs = [":constraints_hdr"],
+    hdrs = ["constraints.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/constraints:internal",
     ],
 )
 
-filegroup(
-    name = "functional_hdr",
-    srcs = ["functional.hpp"],
-)
-
 cc_library_with_variants(
     name = "functional",
-    hdrs = [":functional_hdr"],
+    hdrs = ["functional.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/functional:internal",
@@ -141,14 +102,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "endian_hdr",
-    srcs = ["endian.hpp"],
-)
-
 cc_library_with_variants(
     name = "endian",
-    hdrs = [":endian_hdr"],
+    hdrs = ["endian.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/endian:internal",
@@ -169,14 +125,9 @@ cc_library(
     ],
 )
 
-filegroup(
-    name = "inline_string_hdr",
-    srcs = ["inline_string.hpp"],
-)
-
 cc_library_with_variants(
     name = "inline_string",
-    hdrs = [":inline_string_hdr"],
+    hdrs = ["inline_string.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/strings:inline_string",
@@ -184,14 +135,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "integer_sequences_hdr",
-    srcs = ["integer_sequences.hpp"],
-)
-
 cc_library_with_variants(
     name = "integer_sequences",
-    hdrs = [":integer_sequences_hdr"],
+    hdrs = ["integer_sequences.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/integer_sequences:internal",
@@ -200,349 +146,224 @@ cc_library_with_variants(
 
 cc_library_with_variants(
     name = "intrusive",
-    visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/intrusive",
     ],
 )
 
-filegroup(
-    name = "linalg_hdr",
-    srcs = ["linalg.hpp"],
-)
-
 cc_library(
     name = "linalg",
-    hdrs = [":linalg_hdr"],
-    visibility = [
-        "//:__pkg__",
-        "//arene/base/tests:__pkg__",
-    ],
+    hdrs = ["linalg.hpp"],
     deps = [
         "//arene/base/linalg:internal",
     ],
 )
 
-filegroup(
-    name = "math_hdr",
-    srcs = ["math.hpp"],
-)
-
 cc_library_with_variants(
     name = "math",
-    hdrs = [":math_hdr"],
+    hdrs = ["math.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/math:internal",
     ],
 )
 
-filegroup(
-    name = "mdspan_hdr",
-    srcs = ["mdspan.hpp"],
-)
-
 cc_library(
     name = "mdspan",
-    hdrs = [":mdspan_hdr"],
-    visibility = [
-        "//:__pkg__",
-        "//arene/base/tests:__pkg__",
-    ],
+    hdrs = ["mdspan.hpp"],
     deps = [
         "//arene/base/mdspan:internal",
     ],
 )
 
-filegroup(
-    name = "memory_hdr",
-    srcs = ["memory.hpp"],
-)
-
 cc_library_with_variants(
     name = "memory",
-    hdrs = [":memory_hdr"],
+    hdrs = ["memory.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/memory:internal",
     ],
 )
 
-filegroup(
-    name = "monostate_hdr",
-    srcs = ["monostate.hpp"],
-)
-
 cc_library_with_variants(
     name = "monostate",
-    hdrs = [":monostate_hdr"],
+    hdrs = ["monostate.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/monostate:internal",
     ],
 )
 
-filegroup(
-    name = "mutex_hdr",
-    srcs = ["mutex.hpp"],
-)
-
 cc_library(
     name = "mutex",
-    hdrs = [":mutex_hdr"],
+    hdrs = ["mutex.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/mutex:internal",
     ],
 )
 
-filegroup(
-    name = "optional_hdr",
-    srcs = ["optional.hpp"],
-)
-
 cc_library_with_variants(
     name = "optional",
-    hdrs = [":optional_hdr"],
+    hdrs = ["optional.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/optional:internal",
     ],
 )
 
-filegroup(
-    name = "pointer_hdr",
-    srcs = ["pointer.hpp"],
-)
-
 cc_library_with_variants(
     name = "pointer",
-    hdrs = [":pointer_hdr"],
+    hdrs = ["pointer.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/pointer:internal",
     ],
 )
 
-filegroup(
-    name = "result_hdr",
-    srcs = ["result.hpp"],
+cc_library_with_variants(
+    name = "ranges",
+    hdrs = ["ranges.hpp"],
+    deps = [
+        "//arene/base/ranges:internal",
+    ],
 )
 
 cc_library_with_variants(
     name = "result",
-    hdrs = [":result_hdr"],
+    hdrs = ["result.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/result:internal",
     ],
 )
 
-filegroup(
-    name = "scope_guard_hdr",
-    srcs = ["scope_guard.hpp"],
-)
-
 cc_library_with_variants(
     name = "scope_guard",
-    hdrs = [":scope_guard_hdr"],
+    hdrs = ["scope_guard.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/scope_guard:internal",
     ],
 )
 
-filegroup(
-    name = "semantic_version_hdr",
-    srcs = ["semantic_version.hpp"],
-)
-
 cc_library_with_variants(
     name = "semantic_version",
-    hdrs = [":semantic_version_hdr"],
+    hdrs = ["semantic_version.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/semantic_version:internal",
     ],
 )
 
-filegroup(
-    name = "source_location_hdr",
-    srcs = ["source_location.hpp"],
-)
-
 cc_library_with_variants(
     name = "source_location",
-    hdrs = [":source_location_hdr"],
-    visibility = ["//:__subpackages__"],
+    hdrs = ["source_location.hpp"],
     deps = [
         "//arene/base/source_location:internal",
     ],
 )
 
-filegroup(
-    name = "span_hdr",
-    srcs = ["span.hpp"],
-)
-
 cc_library_with_variants(
     name = "span",
-    hdrs = [":span_hdr"],
+    hdrs = ["span.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/span:internal",
     ],
 )
 
-filegroup(
-    name = "string_algorithms_hdr",
-    srcs = ["string_algorithms.hpp"],
-)
-
 cc_library_with_variants(
     name = "string_algorithms",
-    hdrs = [":string_algorithms_hdr"],
+    hdrs = ["string_algorithms.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/strings/algorithm",
     ],
 )
 
-filegroup(
-    name = "string_view_hdr",
-    srcs = ["string_view.hpp"],
-)
-
 cc_library_with_variants(
     name = "string_view",
-    hdrs = [":string_view_hdr"],
+    hdrs = ["string_view.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/strings:string_view",
     ],
 )
 
-filegroup(
-    name = "tuple_hdr",
-    srcs = ["tuple.hpp"],
-)
-
 cc_library_with_variants(
     name = "tuple",
-    hdrs = [":tuple_hdr"],
+    hdrs = ["tuple.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/tuple:internal",
     ],
 )
 
-filegroup(
-    name = "type_info_hdr",
-    srcs = ["type_info.hpp"],
-)
-
 cc_library_with_variants(
     name = "type_info",
-    hdrs = [":type_info_hdr"],
+    hdrs = ["type_info.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/type_info:internal",
     ],
 )
 
-filegroup(
-    name = "type_list_hdr",
-    srcs = ["type_list.hpp"],
-)
-
 cc_library_with_variants(
     name = "type_list",
-    hdrs = [":type_list_hdr"],
-    visibility = ["//:__subpackages__"],
+    hdrs = ["type_list.hpp"],
     deps = [
         "//arene/base/type_list:internal",
     ],
 )
 
-filegroup(
-    name = "type_traits_hdr",
-    srcs = ["type_traits.hpp"],
-)
-
 cc_library_with_variants(
     name = "type_traits",
-    hdrs = [":type_traits_hdr"],
-    visibility = ["//:__subpackages__"],
+    hdrs = ["type_traits.hpp"],
     deps = [
         "//arene/base/type_traits:internal",
     ],
 )
 
-filegroup(
-    name = "iterator_hdr",
-    srcs = ["iterator.hpp"],
-)
-
 cc_library_with_variants(
     name = "iterator",
-    hdrs = [":iterator_hdr"],
+    hdrs = ["iterator.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/iterator:internal",
     ],
 )
 
-filegroup(
-    name = "unicode_hdr",
-    srcs = ["unicode.hpp"],
-)
-
 cc_library_with_variants(
     name = "unicode",
-    hdrs = [":unicode_hdr"],
+    hdrs = ["unicode.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/strings/utf",
     ],
 )
 
-filegroup(
-    name = "units_hdr",
-    srcs = ["units.hpp"],
-)
-
 cc_library_with_variants(
     name = "units",
-    hdrs = [":units_hdr"],
+    hdrs = ["units.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/units:internal",
     ],
 )
 
-filegroup(
-    name = "utility_hdr",
-    srcs = ["utility.hpp"],
-)
-
 cc_library_with_variants(
     name = "utility",
-    hdrs = [":utility_hdr"],
+    hdrs = ["utility.hpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//arene/base/utility:internal",
     ],
 )
 
-filegroup(
-    name = "variant_hdr",
-    srcs = ["variant.hpp"],
-)
-
 cc_library(
     name = "variant",
-    hdrs = [":variant_hdr"],
-    visibility = ["//:__subpackages__"],
+    hdrs = ["variant.hpp"],
     deps = [
         "//arene/base/variant:internal",
     ],
@@ -565,6 +386,7 @@ cc_library(
         ":integer_sequences",
         ":intrusive",
         ":iterator",
+        ":linalg",
         ":math",
         ":mdspan",
         ":memory",
@@ -572,6 +394,7 @@ cc_library(
         ":mutex",
         ":optional",
         ":pointer",
+        ":ranges",
         ":result",
         ":scope_guard",
         ":semantic_version",
@@ -609,42 +432,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":algorithm_hdr",
-        ":array_hdr",
-        ":atomic_hdr",
-        ":bit_hdr",
-        ":byte_hdr",
-        ":compare_hdr",
-        ":constraints_hdr",
-        ":contracts_hdr",
-        ":endian_hdr",
-        ":functional_hdr",
-        ":inline_string_hdr",
-        ":integer_sequences_hdr",
-        ":iterator_hdr",
-        ":linalg_hdr",
-        ":math_hdr",
-        ":mdspan_hdr",
-        ":memory_hdr",
-        ":monostate_hdr",
-        ":mutex_hdr",
-        ":optional_hdr",
-        ":pointer_hdr",
-        ":result_hdr",
-        ":scope_guard_hdr",
-        ":semantic_version_hdr",
-        ":source_location_hdr",
-        ":span_hdr",
-        ":string_algorithms_hdr",
-        ":string_view_hdr",
-        ":tuple_hdr",
-        ":type_info_hdr",
-        ":type_list_hdr",
-        ":type_traits_hdr",
-        ":unicode_hdr",
-        ":units_hdr",
-        ":utility_hdr",
-        ":variant_hdr",
         "//arene/base/algorithm:package",
         "//arene/base/array:package",
         "//arene/base/atomic:package",
@@ -670,6 +457,7 @@ filegroup(
         "//arene/base/mutex:package",
         "//arene/base/optional:package",
         "//arene/base/pointer:package",
+        "//arene/base/ranges:package",
         "//arene/base/result:package",
         "//arene/base/scope_guard:package",
         "//arene/base/semantic_version:package",
@@ -687,6 +475,6 @@ filegroup(
         "//arene/base/units:package",
         "//arene/base/utility:package",
         "//arene/base/variant:package",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//pkg:__pkg__"],
 )

@@ -6,6 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_PREPROCESSOR_CONCATENATE_HPP_
 
 // IWYU pragma: private, include "arene/base/compiler_support/preprocessor.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 // AUTOSAR exceptions:
 // A16-0-1 The pre-processor shall only be used for unconditional and

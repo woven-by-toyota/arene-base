@@ -14,10 +14,12 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/byte.hpp"
 #include "arene/base/compare.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/span.hpp"
-#include "arene/base/type_traits.hpp"
+#include "arene/base/type_traits/is_invocable.hpp"
 #include "arene/base/utility.hpp"
 #include "testlibs/utilities/counting_wrapper.hpp"
 #include "testlibs/utilities/has_broken_less_than.hpp"
@@ -1374,6 +1376,11 @@ TYPED_TEST(ExternalVectorEqualityOnly, CanCompareForEqualityAndInequality) {
   ASSERT_TRUE((vec != vector_t{buf2, {4, 5, 6}}));
   ASSERT_TRUE((vec != vector_t{buf2, {1, 2}}));
   ASSERT_TRUE((vec != vector_t{buf2, {1, 2, 3, 4}}));
+}
+
+/// @test Given an @c external_vector, when @c enable_borrowed_range is queried, then its value is @c true .
+TEST(ExternalVector, IsBorrowedRange) {
+  static_assert(::arene::base::ranges::enable_borrowed_range_v<external_vector<int>>, "");
 }
 
 }  // namespace

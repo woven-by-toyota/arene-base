@@ -4,13 +4,20 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
 cc_test_with_variants(
     name = "static_assertions_enabled_test",
     srcs = ["static_assertions_enabled_test.cpp"],
     deps = [
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/testing/gtest/detail",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -20,7 +27,7 @@ cc_test_with_variants(
     deps = [
         "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/testing/gtest/detail",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -29,11 +36,6 @@ cc_test_with_variants(
     srcs = ["static_assertions_helpers_test.cpp"],
     deps = [
         "//arene/base/testing/gtest/detail",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

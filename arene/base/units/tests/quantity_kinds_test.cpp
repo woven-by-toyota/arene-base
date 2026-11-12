@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/compiler_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/units.hpp"
@@ -181,6 +181,7 @@ TEST(QuantityKinds, UnitsForUnitIsIdentity) {
 /// @test The "units for" a kind with a default unit are that unit
 TEST(QuantityKinds, UnitsForKindWithDefaultUnit) {
   class my_kind_with_default_unit;  // IWYU pragma: keep
+
   class default_unit : public arene::base::quantity_unit<default_unit, my_kind_with_default_unit> {};
   class my_kind_with_default_unit : public arene::base::quantity_kind<my_kind_with_default_unit, default_unit> {};
 
@@ -194,6 +195,7 @@ TEST(QuantityKinds, UnitsForKindWithDefaultUnit) {
 TEST(QuantityKinds, UnitsForKindWithDefaultUnitAndParent) {
   class base_kind : public arene::base::quantity_kind<base_kind> {};
   class my_kind_with_default_unit;  // IWYU pragma: keep
+
   class default_unit : public arene::base::quantity_unit<default_unit, my_kind_with_default_unit> {};
   class my_kind_with_default_unit
       : public arene::base::quantity_kind<my_kind_with_default_unit, base_kind, default_unit> {};
@@ -208,6 +210,7 @@ TEST(QuantityKinds, UnitsForKindWithDefaultUnitAndParent) {
 /// @test The "units for" a derived kind from a parent with a default unit are that unit
 TEST(QuantityKinds, UnitsForDerivedKindWithParentHavingDefaultUnit) {
   class my_kind_with_default_unit;  // IWYU pragma: keep
+
   class default_unit : public arene::base::quantity_unit<default_unit, my_kind_with_default_unit> {};
   class my_kind_with_default_unit : public arene::base::quantity_kind<my_kind_with_default_unit, default_unit> {};
 
@@ -251,10 +254,12 @@ TEST(QuantityKinds, WrongTagMeansNotAQuantityKind) {
 /// different default unit
 TEST(QuantityKinds, UnitsForDerivedKindWithParentHavingDifferentDefaultUnit) {
   class my_kind_with_default_unit;  // IWYU pragma: keep
+
   class default_unit : public arene::base::quantity_unit<default_unit, my_kind_with_default_unit> {};
   class my_kind_with_default_unit : public arene::base::quantity_kind<my_kind_with_default_unit, default_unit> {};
 
   class derived_kind;  // IWYU pragma: keep
+
   class other_unit : public arene::base::quantity_unit<other_unit, derived_kind> {};
   class derived_kind : public arene::base::quantity_kind<derived_kind, my_kind_with_default_unit, other_unit> {};
 
@@ -288,6 +293,7 @@ TEST(QuantityKinds, ADerivedKindCanHaveADefaultUnitIntendedForParent) {
 /// @test The "units for" a kind is the same regardless of CV qualifiers
 TEST(QuantityKinds, UnitsForIgnoresCvQualifiers) {
   class my_kind_with_default_unit;  // IWYU pragma: keep
+
   class default_unit : public arene::base::quantity_unit<default_unit, my_kind_with_default_unit> {};
   class my_kind_with_default_unit : public arene::base::quantity_kind<my_kind_with_default_unit, default_unit> {};
 
@@ -350,6 +356,7 @@ TEST(QuantityKinds, CanManuallyAddOriginToQuantityKind) {
 /// @test It's possible to declare a quantity kind that has an origin and a default unit
 TEST(QuantityKinds, CanDeclareQuantityKindWithAnOriginAndDefaultUnit) {
   class my_kind;  // IWYU pragma: keep
+
   class my_unit : public arene::base::quantity_unit<my_unit, my_kind> {};
   class my_origin : public arene::base::quantity_origin<my_origin> {};
   class my_kind : public arene::base::quantity_kind<my_kind, my_origin, my_unit> {};
@@ -364,6 +371,7 @@ TEST(QuantityKinds, CanDeclareQuantityKindWithAnOriginAndDefaultUnit) {
 TEST(QuantityKinds, CanDeclareQuantityKindWithAParentAndOriginAndDefaultUnit) {
   class parent_kind : public arene::base::quantity_kind<parent_kind> {};
   class my_kind;  // IWYU pragma: keep
+
   class my_unit : public arene::base::quantity_unit<my_unit, my_kind> {};
   class my_origin : public arene::base::quantity_origin<my_origin> {};
   class my_kind : public arene::base::quantity_kind<my_kind, parent_kind, my_origin, my_unit> {};

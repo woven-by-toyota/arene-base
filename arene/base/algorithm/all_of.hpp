@@ -12,10 +12,11 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/algorithm/any_of.hpp"
-#include "arene/base/algorithm/detail/convert_to.hpp"
+#include "arene/base/algorithm/detail/synthesize_range1_overload.hpp"  // IWYU pragma: export
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
+#include "arene/base/functional/construct.hpp"
 #include "arene/base/functional/identity.hpp"
 #include "arene/base/functional/not_fn.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
@@ -49,6 +50,7 @@ class all_of_fn  //
   /// @param proj Projection to apply to elements before checking the predicate
   /// @return bool @c true if @c pred returns true for all of the projected
   ///   elements in the range, @c false otherwise.
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifiers 'begin' and 'end' do not hide anything"
   template <
       typename Iterator,
       typename UnaryPredicate,
@@ -75,6 +77,7 @@ class all_of_fn  //
         std::move(proj)
     );
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
   /// @brief Check if all the elements in the supplied range are true when cast to
   /// @c bool .
@@ -83,6 +86,7 @@ class all_of_fn  //
   /// @param end The end of the range
   /// @return bool @c true if all of the elements in the range are @c true, @c false
   /// otherwise.
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifiers 'begin' and 'end' do not hide anything"
   template <
       typename Iterator,
       constraints<
@@ -93,15 +97,16 @@ class all_of_fn  //
           all_of_fn,                                                       //
           Iterator&&,                                                      //
           Iterator&&,                                                      //
-          algorithm_detail::convert_to<bool>>                              //
+          decltype(construct<bool>)>                                       //
   )                                                                        //
       -> bool {                                                            // CODEQLFP(DCL51-CPP)
     return (*this)(                                                        //
         std::move(begin),
         std::move(end),
-        algorithm_detail::convert_to<bool>{}
+        construct<bool>
     );
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
   /// @brief Check if all the values in the supplied list are true.
   /// @param values A list of values
@@ -124,14 +129,18 @@ class all_of_fn  //
 };
 }  // namespace all_of_detail
 
-/// @def arene::base::all_of
 /// @brief checks if a predicate is true for all of the elements in a range
-/// @copydoc arene::base::all_of_detail::all_of_fn::operator()
+/// Accepts an iterator pair or a range, with an optional predicate and projection.
+/// Returns @c true if the predicate holds for every element; without a predicate, checks each element as a boolean.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
-ARENE_CPP14_INLINE_VARIABLE(all_of_detail::all_of_fn, all_of);
+// parasoft-begin-suppress AUTOSAR-M3_4_1-b "This is a per-TU reference to a global used in multiple TUs"
+// parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variable is initialized"
+ARENE_CPP14_INLINE_VARIABLE(algorithm_detail::synthesize_range1_overload_t<all_of_detail::all_of_fn>, all_of);
+// parasoft-end-suppress CERT_CPP-DCL56-a
+// parasoft-end-suppress AUTOSAR-M3_4_1-b
 // parasoft-end-suppress AUTOSAR-M7_3_3-a
 // parasoft-end-suppress CERT_CPP-DCL59-a
 

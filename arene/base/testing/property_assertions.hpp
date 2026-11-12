@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TESTING_PROPERTY_ASSERTIONS_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TESTING_PROPERTY_ASSERTIONS_HPP_
 
@@ -7,8 +11,7 @@
 // IWYU pragma: end_keep
 
 /// @brief Macro to assert that a property is @c true
-/// @param expr property to check
-/// If the property encoded in @c expr is @c false, returns a @c property_outcome with <c>status == failure</c>.
+/// If the supplied property is @c false, returns a @c property_outcome with <c>status == failure</c>.
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define ARENE_PROP_ASSERT(...)                                                                                \
   do { /* NOLINT(cppcoreguidelines-avoid-do-while) */                                                         \
@@ -23,20 +26,17 @@
   } while (false)
 
 /// @brief Macro to assert that a property is @c true
-/// @param expr property to check
-/// If the property encoded in @c expr is @c false, returns a @c property_outcome with <c>status == failure</c>.
+/// If the supplied property is @c false, returns a @c property_outcome with <c>status == failure</c>.
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define ARENE_PROP_ASSERT_TRUE(...) ARENE_PROP_ASSERT(__VA_ARGS__)
 
 /// @brief Macro to assert that a property is @c false
-/// @param expr property to check
-/// If the property encoded in @c expr is @c true, returns a @c property_outcome with <c>status == failure</c>.
+/// If the supplied property is @c true, returns a @c property_outcome with <c>status == failure</c>.
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define ARENE_PROP_ASSERT_FALSE(...) ARENE_PROP_ASSERT(!(__VA_ARGS__))
 
 /// @brief Macro to discard a specific run
-/// @param expr property to check
-/// If @c expr is @c false, returns a @c property_outcome with <c>status == discard</c>.
+/// If the supplied property is @c false, returns a @c property_outcome with <c>status == discard</c>.
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define ARENE_PROP_PRE(...)                                                                                   \
   do { /* NOLINT(cppcoreguidelines-avoid-do-while) */                                                         \

@@ -1,0 +1,118 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+
+test_suite(
+    name = "matrix_one_norm_compile_error_test",
+    tests = [
+        name
+        for i, (code_snippet, match) in enumerate([
+            (
+                "auto _ = matrix_one_norm(0);",
+                matcher.has_substr("requirement 'is_in_matrix_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_abs
+{
+  friend auto abs(no_abs) = delete;
+};
+
+auto _ = matrix_one_norm(
+  mdspan<no_abs, dextents<std::size_t, 2>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_invocable_v<.*math::abs_detail::abs_impl.*, no_abs &>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_ordering {
+  friend auto abs(no_ordering) -> no_ordering { return {}; }
+
+  friend auto operator+(no_ordering, no_ordering) -> no_ordering { return {}; }
+
+  friend auto operator==(no_ordering, no_ordering) -> bool { return true; }
+  friend auto operator!=(no_ordering, no_ordering) -> bool { return false; }
+};
+
+auto _ = matrix_one_norm(
+  mdspan<no_ordering, dextents<std::size_t, 2>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_less_than_comparable_v<no_ordering>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_plus {
+  friend auto abs(no_plus) -> no_plus { return {}; }
+
+  friend auto operator==(no_plus, no_plus) -> bool { return true; }
+  friend auto operator!=(no_plus, no_plus) -> bool { return false; }
+  friend auto operator<(no_plus, no_plus) -> bool { return false; }
+  friend auto operator>(no_plus, no_plus) -> bool { return false; }
+  friend auto operator<=(no_plus, no_plus) -> bool { return false; }
+  friend auto operator>=(no_plus, no_plus) -> bool { return false; }
+};
+
+auto _ = matrix_one_norm(
+  mdspan<no_plus, dextents<std::size_t, 2>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_invocable_v<std::plus<void> &, no_plus &&, no_plus>' was not satisfied"),
+            ),
+            (
+                """\
+struct not_convertible_to_scalar {
+  friend auto abs(not_convertible_to_scalar) -> not_convertible_to_scalar { return {}; }
+
+  friend auto operator==(not_convertible_to_scalar, not_convertible_to_scalar) -> bool { return true; }
+  friend auto operator!=(not_convertible_to_scalar, not_convertible_to_scalar) -> bool { return false; }
+  friend auto operator<(not_convertible_to_scalar, not_convertible_to_scalar) -> bool { return false; }
+  friend auto operator>(not_convertible_to_scalar, not_convertible_to_scalar) -> bool { return false; }
+  friend auto operator<=(not_convertible_to_scalar, not_convertible_to_scalar) -> bool { return false; }
+  friend auto operator>=(not_convertible_to_scalar, not_convertible_to_scalar) -> bool { return false; }
+
+  friend auto operator+(not_convertible_to_scalar, not_convertible_to_scalar) -> int { return {}; }
+  friend auto operator+(int, not_convertible_to_scalar) -> int { return {}; }
+  friend auto operator+(not_convertible_to_scalar, int) -> int { return {}; }
+};
+
+auto _ = matrix_one_norm(
+  mdspan<not_convertible_to_scalar, dextents<std::size_t, 2>>{},
+  int{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'std::is_convertible<not_convertible_to_scalar, int>::value' was not satisfied"),
+            ),
+        ])
+        for name in ["matrix_one_norm_error_{}_test".format(i)]
+        for _ in [cc_build_error_test(
+            name = name,
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/linalg/matrix_one_norm.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+using arene::base::linalg::matrix_one_norm;
+using arene::base::dextents;
+using arene::base::mdspan;
+
+{snippet}
+                """.format(snippet = code_snippet)),
+            compile_stderr = match,
+            target_compatible_with = select({
+                "//configs/compiler:clang": [],
+                "//conditions:default": ["@platforms//:incompatible"],
+            }),
+            deps = [
+                "//arene/base/linalg:matrix_one_norm",
+                "//arene/base/mdspan",
+                "//arene/base/mdspan:extents",
+                "//arene/base/stdlib_choice:cstddef",
+            ],
+        )]
+    ],
+)

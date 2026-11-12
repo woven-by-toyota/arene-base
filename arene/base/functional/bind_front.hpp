@@ -157,8 +157,7 @@ class bind_front_fn {
 
 }  // namespace bind_front_detail
 
-/// @def arene::base::bind_front
-/// @copydoc arene::base::bind_front_detail::bind_front_fn::operator()
+/// @brief Bind arguments to the beginning of an invocable's argument list.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

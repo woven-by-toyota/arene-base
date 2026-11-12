@@ -4,16 +4,11 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "utf8_validation.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "internal",
-    hdrs = [":hdrs"],
+    hdrs = [
+        "utf8_validation.hpp",
+    ],
     visibility = [
         ":__subpackages__",
     ],
@@ -39,7 +34,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/strings:__pkg__"],
 )

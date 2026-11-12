@@ -4,12 +4,11 @@
 
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
+package(default_visibility = ["//tools:__subpackages__"])
+
 cc_test_with_variants(
     name = "optional_test",
     srcs = ["optional_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:array",
         "//arene/base:string_view",
@@ -25,17 +24,26 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:pair",
         "//arene/base/stdlib_choice:swap",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
         "//testlibs/utilities:has_broken_less_than",
+    ],
+)
+
+cc_test_with_variants(
+    name = "optional_death_test",
+    srcs = ["optional_death_test.cpp"],
+    deps = [
+        "//arene/base/optional:internal",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/stdlib_choice:move",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "optional_exceptions_enabled_test",
     srcs = ["optional_exceptions_enabled_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base/optional:internal",
         "//arene/base/stdlib_choice:declval",
@@ -44,16 +52,13 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:stdexcept",
         "//arene/base/testing:gtest",
         "//configs:incompatible_with_exceptions_disabled",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
 cc_test_with_variants(
     name = "optional_resetter_test",
     srcs = ["optional_resetter_test.cpp"],
-    visibility = [
-        "//tools/compdb:__subpackages__",
-    ],
     deps = [
         "//arene/base:string_view",
         "//arene/base/optional:internal",
@@ -63,7 +68,7 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:is_move_assignable",
         "//arene/base/stdlib_choice:is_move_constructible",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

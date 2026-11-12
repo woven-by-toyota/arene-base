@@ -10,7 +10,9 @@
 
 #include "arene/base/compiler_support/attributes.hpp"
 #include "arene/base/testing/gtest.hpp"
-#include "arene/base/type_list.hpp"
+#include "arene/base/type_list/apply_all.hpp"
+#include "arene/base/type_list/concat.hpp"
+#include "arene/base/type_list/type_list.hpp"
 
 namespace {
 

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -19,7 +23,7 @@ The public header for these facilities is:
 #include "arene/base/compiler_support/preprocessor.hpp"
 ```
 
-## Define-Based Configuration Support {#define-based-configuration-support}
+# Define-Based Configuration Support {#subpackages-compiler-support-preprocessor-define-based-configuration-support}
 
 In order to facilitate build-system independent library configuration, a number
 of facilities are provided to standardize a mechanism for testing `#define`
@@ -72,11 +76,12 @@ The logic tree of this operation is as follows:
    2. Otherwise, define `ARENE_COMPILER_GCC_I_` as `ARENE_OFF_BY_DEFAULT`
 
 See below for further explanation on
-[how to test](#testing-for-configuration-settings) if a setting is on/off, and
-the definition of the various [states](#configuration-setting-states) a setting
-can be in.
+[how to test](#subpackages-compiler-support-preprocessor-testing-for-configuration-settings)
+if a setting is on/off, and the definition of the various
+[states](#subpackages-compiler-support-preprocessor-configuration-setting-states)
+a setting can be in.
 
-### Testing For Configuration Settings {#testing-for-configuration-settings}
+## Testing For Configuration Settings {#subpackages-compiler-support-preprocessor-testing-for-configuration-settings}
 
 The following table defines the queries for testing if a define-based
 configuration setting is "on" or "off":
@@ -93,13 +98,14 @@ configuration setting is "on" or "off":
 | `ARENE_IS_OFF_BY_DEFAULT_RAW(OP_SYMBOL)` | Same meaning as `ARENE_IS_ON_BY_DEFAULT`, but without appending `_I_` to `OP_SYMBOL`. Should generally not be used in user code |
 
 \warning These macros will only work correctly with the supporting
-[configuration setting states](#configuration-setting-states). Attempting to
-pass a symbol which evaluates to something other than one of those states is
-undefined behavior. The `ARENE_GUARANTEE_INTERNAL_DEFINITION` macro can be used
-to [test](#ensuring-a-configuration-symbol-is-properly-specified) that a
-configuration setting is validly specified.
+[configuration setting states](#subpackages-compiler-support-preprocessor-configuration-setting-states).
+Attempting to pass a symbol which evaluates to something other than one of those
+states is undefined behavior. The `ARENE_GUARANTEE_INTERNAL_DEFINITION` macro
+can be used to
+[test](#subpackages-compiler-support-preprocessor-ensuring-a-configuration-symbol-is-properly-specified)
+that a configuration setting is validly specified.
 
-### Configuration Setting States {#configuration-setting-states}
+## Configuration Setting States {#subpackages-compiler-support-preprocessor-configuration-setting-states}
 
 The following table defines the states a configuration define can be in:
 
@@ -110,7 +116,7 @@ The following table defines the states a configuration define can be in:
 | `ARENE_ON_BY_DEFAULT`  | The setting should be considered implicitly enabled  |
 | `ARENE_OFF_BY_DEFAULT` | The setting should be considered implicitly disabled |
 
-### Ensuring A Configuration Symbol Is Properly Specified {#ensuring-a-configuration-symbol-is-properly-specified}
+## Ensuring A Configuration Symbol Is Properly Specified {#subpackages-compiler-support-preprocessor-ensuring-a-configuration-symbol-is-properly-specified}
 
 The `ARENE_GUARANTEE_INTERNAL_DEFINITION` macro can be used to write unit tests
 that ensure a configuration parameter is validly defined:
@@ -124,7 +130,7 @@ TEST(AreneCompilerGcc, IsProperlyDefined) {
 }
 ```
 
-## Stringizing A Macro Argument's Value {#stringizing-a-macro-arguments-value}
+## Stringizing A Macro Argument's Value {#subpackages-compiler-support-preprocessor-stringizing-a-macro-arguments-value}
 
 `ARENE_STRINGIZE(x)` provides the necessary indirection to result in the
 stringification of the _value_ of a macro argument, rather than its name, when

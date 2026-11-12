@@ -8,6 +8,7 @@ load("//rules:cc_build_error.bzl", "cc_build_error_test", "matcher")
 load("//rules:grep.bzl", "grep_test")
 load(":minitest_output_test.bzl", "minitest_output_test", "replace")
 
+
 minitest_output_test(
     name = "minitest_basic_111_output_test",
     srcs = ["minitest_basic_test.cpp"],
@@ -302,11 +303,11 @@ minitest_output_test(
     ],
     linkopts = select({
         # 'std::terminate' is defined in libc++abi in Clang toolchains from @arene-toolchains
-        "//configs/compiler:clang": ["-Wl,--allow-multiple-definition"],
+        "//configs:clang_on_linux": ["-Wl,--allow-multiple-definition"],
         "//conditions:default": [],
     }),
     deps = [
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -374,13 +375,13 @@ minitest_output_test(
     ],
     linkopts = select({
         # 'std::terminate' is defined in libc++abi in Clang toolchains from @arene-toolchains
-        "//configs/compiler:clang": ["-Wl,--allow-multiple-definition"],
+        "//configs:clang_on_linux": ["-Wl,--allow-multiple-definition"],
         "//conditions:default": [],
     }),
     test_xml_output = True,
     deps = [
         "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -435,7 +436,7 @@ cc_build_error_test(
             "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function .*void non_constexpr_function()",
         }),
     ),
-    deps = ["//testlibs/minitest"],
+    deps = ["//testlibs/minitest:minitest_main"],
 )
 
 cc_build_error_test(
@@ -448,7 +449,7 @@ cc_build_error_test(
             "//configs/compiler:gcc_or_qcc": "error:.*call to non-.*constexpr.* function .*void non_constexpr_function()",
         }),
     ),
-    deps = ["//testlibs/minitest"],
+    deps = ["//testlibs/minitest:minitest_main"],
 )
 
 minitest_output_test(
@@ -471,7 +472,7 @@ cc_build_error_test(
         }),
     ),
     local_defines = ["MINITEST_RUN_IN_CONSTEXPR=1"],
-    deps = ["//testlibs/minitest"],
+    deps = ["//testlibs/minitest:minitest_main"],
 )
 
 minitest_output_test(
@@ -494,14 +495,14 @@ cc_build_error_test(
         }),
     ),
     local_defines = ["MINITEST_RUN_IN_CONSTEXPR=1"],
-    deps = ["//testlibs/minitest"],
+    deps = ["//testlibs/minitest:minitest_main"],
 )
 
 cc_build_error_test(
     name = "minitest_constexpr_assertion_compile_fail_test",
     src = "minitest_constexpr_assertion_compile_fail_test.cpp",
     compile_stderr = matcher.has_substr("ASSERT_EQ(1, 2);"),
-    deps = ["//testlibs/minitest"],
+    deps = ["//testlibs/minitest:minitest_main"],
 )
 
 [
@@ -518,7 +519,7 @@ cc_build_error_test(
         local_defines = [
             "REPLACED_ASSERT_MACRO={}".format(assert_macro),
         ],
-        deps = ["//testlibs/minitest"],
+        deps = ["//testlibs/minitest:minitest_main"],
     )
     for index, assert_macro in enumerate([
         "ASSERT_TRUE(true)",
@@ -611,7 +612,7 @@ cc_binary(
         "//configs/compiler:gcc_or_qcc": ["-Wno-suggest-attribute=noreturn"],
         "//conditions:default": [],
     }),
-    deps = ["//testlibs/minitest"],
+    deps = ["//testlibs/minitest:minitest_main"],
 )
 
 binary_log(
@@ -866,7 +867,7 @@ minitest_output_test(
     expected_return_code = 1,
     deps = [
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main",
     ],
 )
 
@@ -908,7 +909,7 @@ minitest_output_test(
     name = "assert_throw_output_test",
     srcs = ["assert_throw_test.cpp"],
     expected_content = [
-        "testlibs/minitest/minitest.cpp:74: Error: Assertion failed Uncaught exception thrown from test body for AssertNothrow::ThrowingExceptionOutsideAssert",
+        "testlibs/minitest/minitest_library.cpp:75: Error: Assertion failed Uncaught exception thrown from test body for AssertNothrow::ThrowingExceptionOutsideAssert",
         "testlibs/minitest/tests/assert_throw_test.cpp:33: Error: Assertion failed throw_some_exception(true) threw an exception when none was expected for AssertNothrow::ThrowingExceptionWhenNotExpected",
         "testlibs/minitest/tests/assert_throw_test.cpp:28: Error: Assertion failed does_not_throw() did not throw an exception when it was expected to throw other_exception for AssertThrow::NotThrowingExceptionWhenExpected",
         "testlibs/minitest/tests/assert_throw_test.cpp:26: Error: Assertion failed throw_some_exception(true) threw a different type of exception, when it was expected to throw other_exception for AssertThrow::ThrowingWrongException",
@@ -922,7 +923,7 @@ minitest_output_test(
     }),
     deps = [
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main",
     ],
 )
 
@@ -939,7 +940,7 @@ minitest_output_test(
     }),
     deps = [
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main",
     ],
 )
 
@@ -1041,7 +1042,7 @@ minitest_output_test(
             "TEST_MACRO=" + test_macro,
         ],
         deps = [
-            "//testlibs/minitest",
+            "//testlibs/minitest:minitest_main",
         ],
     )
     for test_macro in [
@@ -1070,7 +1071,7 @@ minitest_output_test(
             "TEST_MACRO=" + test_macro,
         ],
         deps = [
-            "//testlibs/minitest",
+            "//testlibs/minitest:minitest_main",
         ],
     )
     for test_macro in [
@@ -1087,7 +1088,17 @@ cc_build_error_test(
         "//testlibs/minitest:death_tests_supported": ["@platforms//:incompatible"],
         "//conditions:default": [],
     }),
-    deps = ["//testlibs/minitest"],
+    deps = ["//testlibs/minitest:minitest_main"],
+)
+
+cc_test(
+    name = "minitest_with_user_provided_main_test",
+    srcs = [
+        "user_provided_main.cpp",
+    ],
+    deps = [
+        "//testlibs/minitest:minitest_library",
+    ],
 )
 
 test_suite(
@@ -1126,7 +1137,7 @@ test_suite(
                 name = name,
                 srcs = ["minitest_handles_else_without_braces_test.cpp"],
                 local_defines = ["ASSERTION_UNDER_TEST='{}'".format(assertion)],
-                deps = ["//testlibs/minitest"] + (
+                deps = ["//testlibs/minitest:minitest_main"] + (
                     ["//configs:incompatible_with_exceptions_disabled"] if assertion.startswith("ASSERT_THROW") else []
                 ),
             ),

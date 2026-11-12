@@ -9,6 +9,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TUPLE_DETAIL_TUPLE_TRANSFORM_HPP_
 
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/functional/bind_front.hpp"

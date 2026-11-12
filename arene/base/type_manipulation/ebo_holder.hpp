@@ -80,13 +80,17 @@ class ebo_holder {
       : value_{std::forward<Args>(args)...} {}
   ARENE_IGNORE_END();
 
+  // parasoft-begin-suppress AUTOSAR-A9_3_1-a "False positive: returns const handle"
+  // parasoft-begin-suppress AUTOSAR-M5_0_4-a "False positive: returns const handle"
   // parasoft-begin-suppress AUTOSAR-M9_3_1-a-2 "False positive: returns const handle"
   // parasoft-begin-suppress AUTOSAR-A9_3_1-b-2 "False positive: returns const handle"
   /// @brief Get the value
   /// @return const value_type& A reference to the held value
   constexpr auto get_value(Tag) const& noexcept -> value_type const& { return value_; }
+  // parasoft-end-suppress AUTOSAR-M5_0_4-a
   // parasoft-end-suppress AUTOSAR-A9_3_1-b-2
   // parasoft-end-suppress AUTOSAR-M9_3_1-a-2
+  // parasoft-end-suppress AUTOSAR-A9_3_1-a
 
   /// @brief Get the value
   /// @return value_type& A reference to the held value

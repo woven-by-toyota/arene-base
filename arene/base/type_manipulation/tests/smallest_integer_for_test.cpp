@@ -10,6 +10,7 @@ namespace {
 
 using ::arene::base::smallest_signed_integer_for;
 using ::arene::base::smallest_unsigned_integer_for;
+using ::arene::base::smallest_unsigned_integer_for_type;
 
 /// @test `smallest_unsigned_integer_for` is the smallest unsigned integral type that can hold the specified value.
 TEST(SmallestUnsignedIntegerFor, ReturnsSmallestBitwidthUnsignedIntegerTypeForValue) {
@@ -36,6 +37,22 @@ TEST(SmallestUnsignedIntegerFor, ReturnsSmallestBitwidthUnsignedIntegerTypeForVa
       std::uint64_t>();
   ::testing::
       StaticAssertTypeEq<smallest_unsigned_integer_for<std::numeric_limits<std::uint64_t>::max()>, std::uint64_t>();
+}
+
+/// @test `smallest_unsigned_integer_for` is the smallest unsigned integral type that can hold the specified type.
+TEST(SmallestUnsignedIntegerFor, ReturnsSmallestBitwidthUnsignedIntegerTypeForType) {
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<std::uint8_t>, std::uint8_t>();
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<std::uint16_t>, std::uint16_t>();
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<std::uint32_t>, std::uint32_t>();
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<std::uint64_t>, std::uint64_t>();
+
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<std::int8_t>, std::uint8_t>();
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<std::int16_t>, std::uint16_t>();
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<std::int32_t>, std::uint32_t>();
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<std::int64_t>, std::uint64_t>();
+
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<float>, std::uint32_t>();
+  ::testing::StaticAssertTypeEq<smallest_unsigned_integer_for_type<double>, std::uint64_t>();
 }
 
 /// @test `smallest_signed_integer_for` is the smallest signed integral type that can hold the specified range of

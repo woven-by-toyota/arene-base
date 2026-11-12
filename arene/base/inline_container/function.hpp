@@ -37,37 +37,60 @@ namespace base {
 static constexpr std::size_t default_inline_function_size{4U * sizeof(void*)};
 // parasoft-end-suppress AUTOSAR-A5_1_1-a
 
+/// @brief The default alignment of the buffer used for @c inline_function .
+/// @note Storing an over-aligned invocable requires requesting a larger alignment explicitly.
+static constexpr std::size_t default_inline_function_alignment{alignof(std::max_align_t)};
+
 /// @brief A function wrapper akin to @c std::function that always stores the wrapped invocable internally.
 /// @tparam Signature The signature of the function call operator.
 /// @tparam BufferSize The size of the internal buffer. It defaults to 4 times the size of a pointer.
 /// @tparam IsNoexcept If @c true , the function will have a @c noexcept qualified call operator. Otherwise, it will
 ///         not.
+/// @tparam Alignment The alignment of the internal buffer. It defaults to @c alignof(std::max_align_t) .
 /// @note If the signature is const-qualified (e.g. <c> int (int,double) const</c> ) then the function call operator for
 /// this class will also be const-qualified. If the signature is *not* const-qualified, then only non-const objects will
 /// be invocable.
-template <typename Signature, std::size_t BufferSize = default_inline_function_size, bool IsNoexcept = false>
+/// @note An invocable whose alignment requirement exceeds @c Alignment cannot be stored, because doing so would place
+/// it at an under-aligned address. Such an invocable is rejected by a @c static_assert. Note that
+/// @c std::is_constructible and @c std::is_assignable still report @c true for such an invocable.
+template <
+    typename Signature,
+    std::size_t BufferSize = default_inline_function_size,
+    bool IsNoexcept = false,
+    std::size_t Alignment = default_inline_function_alignment>
 class inline_function;
 
 /// @brief A function wrapper to a noexcept-qualified invocable akin to @c std::function that always stores the wrapped
 /// invocable internally.
 /// @tparam Signature The signature of the function call operator.
 /// @tparam BufferSize The size of the internal buffer. It defaults to 4 times the size of a pointer.
+/// @tparam Alignment The alignment of the internal buffer. It defaults to @c alignof(std::max_align_t) .
 /// @note If the signature is const-qualified (e.g. <c> int (int,double) const</c> ) then the function call operator for
 /// this class will also be const-qualified. If the signature is *not* const-qualified, then only non-const objects will
 /// be invocable.
-template <typename Signature, std::size_t BufferSize = default_inline_function_size>
-using noexcept_inline_function = inline_function<Signature, BufferSize, true>;
+template <
+    typename Signature,
+    std::size_t BufferSize = default_inline_function_size,
+    std::size_t Alignment = default_inline_function_alignment>
+using noexcept_inline_function = inline_function<Signature, BufferSize, true, Alignment>;
 
 namespace inline_function_detail {
 
 // parasoft-begin-suppress AUTOSAR-A12_1_5-a-2 "False positive: delegating constructors are used"
 /// @brief Base class for @c inline_function that provides the implementation details
 /// @tparam BufferSize The size of the internal buffer.
+/// @tparam Alignment The alignment of the internal buffer.
 /// @tparam IsConst Should this function have a const-qualified function call operator?
 /// @tparam IsNoexcept Should this function require a noexcept-qualified callable?
 /// @tparam ReturnType The return type of the function call operator
 /// @tparam Args The argument types of the function call operator
-template <std::size_t BufferSize, bool IsConst, bool IsNoexcept, typename ReturnType, typename... Args>
+template <
+    std::size_t BufferSize,
+    std::size_t Alignment,
+    bool IsConst,
+    bool IsNoexcept,
+    typename ReturnType,
+    typename... Args>
 class inline_function_base {
   /// @brief The type of the @c self argument for the @c invoke function
   using invoke_self_type = conditional_t<IsConst, inline_function_base const&, inline_function_base&>;
@@ -160,8 +183,8 @@ class inline_function_base {
   /// @param invocable The invocable to wrap
   /// @pre The supplied invocable must be invocable with @c Args, with a return
   /// type that can be converted to @c ReturnType, both as a const and non-const
-  /// object. The invocable must also be nothrow-move-constructible, and must
-  /// fit in the buffer.
+  /// object. The invocable must also be nothrow-move-constructible, must fit in
+  /// the buffer, and must not require stricter alignment than the buffer has.
   template <
       typename T,
       constraints<
@@ -195,8 +218,8 @@ class inline_function_base {
   /// @param invocable The invocable to wrap
   /// @pre The supplied invocable must be invocable with @c Args, with a return
   /// type that can be converted to @c ReturnType, both as a const and non-const
-  /// object. The invocable must also be nothrow-move-constructible, and must
-  /// fit in the buffer.
+  /// object. The invocable must also be nothrow-move-constructible, must fit in
+  /// the buffer, and must not require stricter alignment than the buffer has.
   template <
       typename T,
       constraints<
@@ -215,8 +238,8 @@ class inline_function_base {
   /// @param invocable The invocable to wrap
   /// @pre The supplied invocable must be invocable with @c Args, with a return
   /// type that can be converted to @c ReturnType, both as a const and non-const
-  /// object. The invocable must also be nothrow-move-constructible, and must
-  /// fit in the buffer.
+  /// object. The invocable must also be nothrow-move-constructible, must fit in
+  /// the buffer, and must not require stricter alignment than the buffer has.
   template <
       typename T,
       constraints<
@@ -225,6 +248,15 @@ class inline_function_base {
           std::enable_if_t<is_invocable_n_r_v<conditional_t<IsConst, std::decay_t<T> const, std::decay_t<T>>>>> =
           nullptr>
   void construct_from(T&& invocable) noexcept {
+    // parasoft-begin-suppress CERT_C-PRE31-c "False positive: static_assert is a compile-time assert and can have no
+    // side-effects, and alignof is an operator rather than a function"
+    static_assert(
+        alignof(std::decay_t<T>) <= Alignment,
+        "This invocable requires stricter alignment than the inline_function it "
+        "is stored in: increase the Alignment "
+        "template argument of inline_function to at least alignof(the invocable)."
+    );
+    // parasoft-end-suppress CERT_C-PRE31-c
     construct_at(get_ptr<std::decay_t<T>>(), std::forward<T>(invocable));
   }
 
@@ -314,7 +346,7 @@ class inline_function_base {
   }
 
   /// @brief The storage for the wrapped invocable
-  alignas(std::max_align_t) array<byte, BufferSize> buffer_;
+  alignas(Alignment) array<byte, BufferSize> buffer_;
 
   /// @brief The pointer to the operation table
   operation_functions const* operations_;
@@ -325,11 +357,19 @@ class inline_function_base {
 /// @tparam ReturnType The return type of the function call operator
 /// @tparam Args The argument types of the function call operator
 /// @tparam BufferSize The size of the internal buffer.
+/// @tparam Alignment The alignment of the internal buffer.
 /// @tparam T The type of the wrapped invocable
-template <std::size_t BufferSize, bool IsConst, bool IsNoexcept, typename ReturnType, typename... Args>
+template <
+    std::size_t BufferSize,
+    std::size_t Alignment,
+    bool IsConst,
+    bool IsNoexcept,
+    typename ReturnType,
+    typename... Args>
 template <typename T>
-constexpr typename inline_function_base<BufferSize, IsConst, IsNoexcept, ReturnType, Args...>::operation_functions
-    inline_function_base<BufferSize, IsConst, IsNoexcept, ReturnType, Args...>::call_table;
+constexpr
+    typename inline_function_base<BufferSize, Alignment, IsConst, IsNoexcept, ReturnType, Args...>::operation_functions
+        inline_function_base<BufferSize, Alignment, IsConst, IsNoexcept, ReturnType, Args...>::call_table;
 
 }  // namespace inline_function_detail
 
@@ -341,11 +381,13 @@ constexpr typename inline_function_base<BufferSize, IsConst, IsNoexcept, ReturnT
 /// @tparam BufferSize The size of the internal buffer.
 /// @tparam IsNoexcept If @c true , the function will have a @c noexcept qualified call operator. Otherwise, it will
 ///         not.
-template <typename ReturnType, typename... Args, std::size_t BufferSize, bool IsNoexcept>
-class inline_function<ReturnType(Args...), BufferSize, IsNoexcept>
-    : inline_function_detail::inline_function_base<BufferSize, false, IsNoexcept, ReturnType, Args...> {
+/// @tparam Alignment The alignment of the internal buffer.
+template <typename ReturnType, typename... Args, std::size_t BufferSize, bool IsNoexcept, std::size_t Alignment>
+class inline_function<ReturnType(Args...), BufferSize, IsNoexcept, Alignment>
+    : inline_function_detail::inline_function_base<BufferSize, Alignment, false, IsNoexcept, ReturnType, Args...> {
   /// @brief The type of the base class
-  using base_class = inline_function_detail::inline_function_base<BufferSize, false, IsNoexcept, ReturnType, Args...>;
+  using base_class =
+      inline_function_detail::inline_function_base<BufferSize, Alignment, false, IsNoexcept, ReturnType, Args...>;
 
  public:
   /// @brief Inherit the base class converting constructors
@@ -371,8 +413,8 @@ class inline_function<ReturnType(Args...), BufferSize, IsNoexcept>
   /// @return A reference to @c *this
   /// @pre The supplied invocable must be invocable with @c Args, with a return
   /// type that can be converted to @c ReturnType, both as a const and non-const
-  /// object. The invocable must also be nothrow-move-constructible, and must
-  /// fit in the buffer.
+  /// object. The invocable must also be nothrow-move-constructible, must fit in
+  /// the buffer, and must not require stricter alignment than the buffer has.
   template <
       typename T,
       constraints<
@@ -427,11 +469,13 @@ class inline_function<ReturnType(Args...), BufferSize, IsNoexcept>
 /// @tparam BufferSize The size of the internal buffer.
 /// @tparam IsNoexcept If @c true , the function will have a @c noexcept qualified call operator. Otherwise, it will
 ///         not.
-template <typename ReturnType, typename... Args, std::size_t BufferSize, bool IsNoexcept>
-class inline_function<ReturnType(Args...) const, BufferSize, IsNoexcept>
-    : inline_function_detail::inline_function_base<BufferSize, true, IsNoexcept, ReturnType, Args...> {
+/// @tparam Alignment The alignment of the internal buffer.
+template <typename ReturnType, typename... Args, std::size_t BufferSize, bool IsNoexcept, std::size_t Alignment>
+class inline_function<ReturnType(Args...) const, BufferSize, IsNoexcept, Alignment>
+    : inline_function_detail::inline_function_base<BufferSize, Alignment, true, IsNoexcept, ReturnType, Args...> {
   /// @brief Internal type alias for the base class
-  using base_class = inline_function_detail::inline_function_base<BufferSize, true, IsNoexcept, ReturnType, Args...>;
+  using base_class =
+      inline_function_detail::inline_function_base<BufferSize, Alignment, true, IsNoexcept, ReturnType, Args...>;
 
  public:
   /// @brief Inherit the base class converting constructors
@@ -457,8 +501,8 @@ class inline_function<ReturnType(Args...) const, BufferSize, IsNoexcept>
   /// @return A reference to @c *this
   /// @pre The supplied invocable must be invocable with @c Args, with a return
   /// type that can be converted to @c ReturnType, both as a const and non-const
-  /// object. The invocable must also be nothrow-move-constructible, and must
-  /// fit in the buffer.
+  /// object. The invocable must also be nothrow-move-constructible, must fit in
+  /// the buffer, and must not require stricter alignment than the buffer has.
   template <
       typename T,
       constraints<

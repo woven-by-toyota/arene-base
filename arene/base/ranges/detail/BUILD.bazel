@@ -1,0 +1,81 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "is_input_or_output_iterator",
+    hdrs = ["is_input_or_output_iterator.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/iterator:is_weakly_incrementable",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_void",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_sentinel_for",
+    hdrs = ["is_sentinel_for.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base/ranges/detail:is_input_or_output_iterator",
+        "//arene/base/stdlib_choice:is_copy_constructible",
+        "//arene/base/stdlib_choice:is_default_constructible",
+        "//arene/base/type_traits:comparison_traits",
+    ],
+)
+
+cc_library_with_variants(
+    name = "is_sized_sentinel_for",
+    hdrs = ["is_sized_sentinel_for.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        ":is_sentinel_for",
+        "//arene/base:constraints",
+        "//arene/base/iterator:iter_difference_t",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_same",
+    ],
+)
+
+cc_library_with_variants(
+    name = "range_interface",
+    hdrs = ["range_interface.hpp"],
+    visibility = [
+        "//arene/base:__subpackages__",
+        "//stdlib:__subpackages__",
+    ],
+    deps = [
+        "//arene/base:constraints",
+        "//arene/base:contracts",
+        "//arene/base/iterator:reverse_iterator",
+        "//arene/base/iterator/detail:iter_concept",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:iterator_traits",
+    ],
+)
+
+filegroup(
+    name = "package",
+    srcs = [
+        "BUILD.bazel",
+    ] + glob(["*.hpp"]),
+    visibility = ["//arene/base/ranges:__pkg__"],
+)

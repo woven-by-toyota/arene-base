@@ -10,19 +10,23 @@
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/contracts/contract.hpp"
+#include "arene/base/functional/bind_front.hpp"
 #include "arene/base/mdspan/detail/canonical_slice.hpp"
 #include "arene/base/mdspan/detail/is_valid_submdspan_slice_for.hpp"
-#include "arene/base/mdspan/detail/is_valid_submdspan_slice_type_for.hpp"
 #include "arene/base/mdspan/detail/mandate_each_argtype_is_submdspan_slice.hpp"
+#include "arene/base/mdspan/detail/mandate_each_argtype_is_valid_submdspan_slice_type_for.hpp"
 #include "arene/base/mdspan/detail/to_array.hpp"
 #include "arene/base/mdspan/extents.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
-#include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
+#include "arene/base/stdlib_choice/ignore.hpp"
 #include "arene/base/stdlib_choice/logical_and.hpp"
-#include "arene/base/stdlib_choice/make_tuple.hpp"  // IWYU pragma: export
 #include "arene/base/stdlib_choice/move.hpp"
+#include "arene/base/stdlib_choice/tuple.hpp"
+#include "arene/base/tuple/apply.hpp"
 #include "arene/base/tuple/detail/tuple_transform_reduce.hpp"
+#include "arene/base/tuple/detail/tuple_zip.hpp"
+#include "arene/base/type_list/type_list.hpp"
 #include "arene/base/type_traits/all_of.hpp"
 #include "arene/base/type_traits/is_invocable.hpp"
 
@@ -75,24 +79,30 @@ class submdspan_canonicalize_slices_fn {
       std::nullptr_t = mdspan_detail::mandate_each_argtype_is_submdspan_slice<IndexType, SliceSpecifiers...>()>
   constexpr auto operator()(extents<IndexType, Extents...> const& src, SliceSpecifiers... slices) const noexcept( //
       all_of_v<is_nothrow_invocable_v<mdspan_detail::canonical_slice_fn<IndexType>, SliceSpecifiers&&>...>
-  ) -> decltype(std::make_tuple(std::declval<mdspan_detail::canonical_slice_t<IndexType, SliceSpecifiers>>()...)) {
-    using mdspan_detail::is_valid_submdspan_slice_type_for_v;
-    static_assert(
-        all_of_v<is_valid_submdspan_slice_type_for_v<
-            mdspan_detail::canonical_slice_t<IndexType, SliceSpecifiers>,
-            Extents>...>,
-        "each type in 'SliceSpecifiers' must be a valid 'submdspan' slice type for the associated extent"
+  ) ->
+  std::tuple<mdspan_detail::canonical_slice_t<IndexType, SliceSpecifiers>...>
+  {
+    // GCC8 doesn't like having this in the template parameter list so we'll make it an ignored variable in the body.
+    std::ignore = mdspan_detail::mandate_each_argtype_is_valid_submdspan_slice_type_for<IndexType, Extents...>(
+        type_list<SliceSpecifiers...>{}
     );
 
-    auto const canonicalized = std::make_tuple(mdspan_detail::canonical_slice<IndexType>(std::move(slices))...);
+    auto const canonicalized = std::tuple<mdspan_detail::canonical_slice_t<IndexType, SliceSpecifiers>...>{
+        mdspan_detail::canonical_slice<IndexType>(std::move(slices))...
+    };
 
-    ARENE_PRECONDITION(tuple_detail::tuple_transform_reduce(
-        canonicalized,
-        mdspan_detail::to_array(src),
-        true,
-        std::logical_and<>{},
-        mdspan_detail::is_valid_submdspan_slice_for
-    ));
+    // Reference elements prevent tuple_transform_reduce from copying slices through tuple_zip,
+    // avoiding the Clang 20 x86-64 miscompilation in https://github.com/llvm/llvm-project/issues/205291.
+    using slice_refs = std::tuple<mdspan_detail::canonical_slice_t<IndexType, SliceSpecifiers> const&...>;
+    // parasoft-begin-suppress AUTOSAR-M0_1_3-a "False positive: 'refs' is passed to tuple_zip and 'validate_slice' is
+    // moved into tuple_transform_reduce"
+    slice_refs refs{canonicalized};
+    auto zipped = tuple_detail::tuple_zip(refs, mdspan_detail::to_array(src));
+    auto validate_slice = arene::base::bind_front(apply, mdspan_detail::is_valid_submdspan_slice_for);
+    // parasoft-end-suppress AUTOSAR-M0_1_3-a
+    ARENE_PRECONDITION(
+        tuple_detail::tuple_transform_reduce(std::move(zipped), true, std::logical_and<>{}, std::move(validate_slice))
+    );
 
     return canonicalized;
   }
@@ -107,7 +117,6 @@ class submdspan_canonicalize_slices_fn {
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
-/// @def arene::base::submdspan_canonicalize_slices
 /// @brief transforms @c submdspan slice arguments to canonical form
 ///
 /// @see submdspan_canonicalize_slices_detail::submdspan_canonicalize_slices_fn

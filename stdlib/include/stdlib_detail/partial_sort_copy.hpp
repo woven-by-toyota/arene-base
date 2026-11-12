@@ -12,13 +12,15 @@
 // IWYU pragma: friend "stdlib_detail/.*"
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/algorithm/detail/functional.hpp"
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/algorithm/rotate.hpp"
 #include "arene/base/constraints.hpp"
-#include "arene/base/type_traits.hpp"
+#include "arene/base/functional/detail/operator_less.hpp"
+#include "arene/base/type_traits/comparison_traits.hpp"
+#include "arene/base/type_traits/denotes_range.hpp"
 #include "arene/base/type_traits/is_compare.hpp"
-#include "arene/base/utility.hpp"
+#include "arene/base/type_traits/iterator_category_traits.hpp"
+#include "arene/base/utility/make_subrange.hpp"
 #include "stdlib/include/stdlib_detail/enable_if.hpp"
 #include "stdlib/include/stdlib_detail/ignore.hpp"
 #include "stdlib/include/stdlib_detail/is_assignable.hpp"
@@ -151,7 +153,7 @@ auto partial_sort_copy(
       std::move(source_end),
       std::move(target_begin),
       std::move(target_end),
-      arene::base::algorithm_detail::operator_less
+      arene::base::functional_detail::operator_less
   );
 }
 

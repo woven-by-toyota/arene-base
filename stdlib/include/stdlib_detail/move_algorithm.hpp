@@ -40,6 +40,7 @@ namespace std {
 /// @pre The value types of the input and output range must be compatible such that @c *result=std::move(*begin) is
 /// well-formed.
 /// @throws Any exception thrown by the iteration or move-assignment operations
+// parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifiers 'begin' and 'end' do not hide anything"
 template <
     typename InputIterator,
     typename OutputIterator,
@@ -66,6 +67,7 @@ constexpr auto move(
   }
   return result;
 }
+// parasoft-end-suppress AUTOSAR-A2_10_1-a
 
 /// @brief Move elements from a source range to a destination range. Implements @c std::move
 ///
@@ -96,6 +98,7 @@ template <
         enable_if_t<internal::has_basic_input_iterator_operations_v<InputIterator>>,
         enable_if_t<internal::has_basic_output_iterator_operations_v<OutputIterator>>,
         enable_if_t<!internal::is_indirectly_move_assignable_v<InputIterator, OutputIterator>>> = nullptr>
+// parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: identifiers 'begin' and 'end' do not hide anything"
 auto move(InputIterator begin, InputIterator end, OutputIterator result) -> OutputIterator {
   ignore = begin;
   ignore = end;
@@ -104,6 +107,7 @@ auto move(InputIterator begin, InputIterator end, OutputIterator result) -> Outp
   static_assert(can_move_assign_via_iterators, "Must be able to move-assign to output from input");
   return result;
 }
+// parasoft-end-suppress AUTOSAR-A2_10_1-a
 
 // parasoft-end-suppress AUTOSAR-M3_3_2-a-2
 

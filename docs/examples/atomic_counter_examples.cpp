@@ -1,3 +1,7 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 // Example usage of arene::base::atomic_monotonic_counter
 #include <cstdio>
 #include <iostream>
@@ -55,7 +59,9 @@ auto concurrent_updates() -> void {
 
   // The final value should be num_threads * iterations
   uint64_t final_value = shared_counter;
-  printf("Final counter value: %lu (expected: %d)\n", final_value, num_threads * iterations);
+  std::cout                                         //
+      << "Final counter value: " << final_value <<  //
+      " (expected: " << num_threads * iterations << ")\n";
 }
 // [concurrent_updates]
 
@@ -86,8 +92,9 @@ auto counter_as_event_tracker() -> void {
   }
 
   // Report statistics
-  printf("Requests: %lu\n", requests.load());
-  printf("Completed: %lu\n", completed.load());
-  printf("Errors: %lu\n", errors.load());
+  std::cout  //
+      << "Requests: " << requests.load() << "\n"
+      << "Completed : " << completed.load() << "\n"
+      << "Errors: " << errors.load() << "\n";
 }
 // [counter_as_event_tracker]

@@ -1,5 +1,9 @@
+// Copyright 2026, Toyota Motor Corporation
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 ///
-/// @example examples/subpackages/variant.cpp
+/// @example examples/subpackages/variant_examples.cpp
 /// @brief Examples for the variant subpackage documentation
 ///
 
@@ -165,6 +169,31 @@ void use_bind_overloads() {
 }
 //! [bind_overloads_usage]
 
+//! [variant_cast_usage]
+void use_variant_cast() {
+  // A variant can be cast to another variant type if all its types are constructible in the target variant.
+  using source_variant = arene::base::variant<int, float>;
+  using target_variant = arene::base::variant<int, float, double>;
+
+  source_variant src{42};
+  // The value is moved to the target variant at the correct type position.
+  target_variant result = arene::base::variant_cast<target_variant>(src);
+
+  // The result now holds the int value at its position in the target variant.
+  if (arene::base::holds_alternative<int>(result)) {
+    std::cout << "Cast result holds int: " << arene::base::get<int>(result) << '\n';
+  }
+
+  // variant_cast also works with rvalue references, using move semantics.
+  source_variant src_rvalue{3.14F};
+  target_variant result_move = arene::base::variant_cast<target_variant>(std::move(src_rvalue));
+
+  if (arene::base::holds_alternative<float>(result_move)) {
+    std::cout << "Cast result holds float: " << arene::base::get<float>(result_move) << '\n';
+  }
+}
+//! [variant_cast_usage]
+
 }  // namespace
 
 int main() {
@@ -176,5 +205,7 @@ int main() {
   print(my_variant{42});
   std::cout << "Using bound overloads for variant access:\n";
   use_bind_overloads();
+  std::cout << "Using variant_cast:\n";
+  use_variant_cast();
   return 0;
 }

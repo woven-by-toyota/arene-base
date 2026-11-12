@@ -14,6 +14,7 @@ using ::arene::base::byte_swap_detail::byte_swap;
 
 using uint_t = std::uint32_t;
 
+/// @test `byte_swap` reverses the bytes of a 32-bit integer in a `constexpr` context
 TEST(ByteSwap, Uint32Constexpr) {
   STATIC_ASSERT_EQ(byte_swap(static_cast<uint_t>(0x01020304U)), static_cast<uint_t>(0x04030201U));
   STATIC_ASSERT_EQ(byte_swap(static_cast<uint_t>(0x23456789U)), static_cast<uint_t>(0x89674523U));

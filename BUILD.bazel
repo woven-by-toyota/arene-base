@@ -173,6 +173,12 @@ alias(
 )
 
 alias(
+    name = "ranges",
+    actual = "//arene/base:ranges",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "result",
     actual = "//arene/base:result",
     visibility = ["//visibility:public"],
@@ -235,7 +241,7 @@ alias(
 
 alias(
     name = "testing/gtest",
-    actual = "//arene/base/testing:gtest",
+    actual = "//arene/base/testing:gtest_main_public",
     visibility = ["//visibility:public"],
 )
 

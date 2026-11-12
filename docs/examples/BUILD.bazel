@@ -1,11 +1,23 @@
 # Copyright 2024, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+filegroup(
+    name = "snippets",
+    srcs = glob(["*.cpp"]) + [
+        "BUILD.bazel",
+        "//docs/examples/subpackages:snippets",
+    ],
+    visibility = ["//docs:__pkg__"],
+)
 
 filegroup(
     name = "srcs",
     srcs = [
         "atomic_counter_examples.cpp",
+        "axis_view_examples.cpp",
         "compiler_support_examples.cpp",
         "constraints_examples.cpp",
         "expect_examples.cpp",
@@ -18,6 +30,7 @@ filegroup(
         "use_span_examples.cpp",
         "utility_examples.cpp",
     ],
+    visibility = ["//docs:__pkg__"],
 )
 
 cc_library(
@@ -54,6 +67,17 @@ cc_binary(
     ],
 )
 
+cc_library(
+    name = "property_examples",
+    testonly = True,
+    srcs = ["property_examples.cpp"],
+    deps = [
+        "//arene/base/compiler_support",
+        "//arene/base/testing:property_assertions",
+        "//arene/base/testing:property_macros",
+    ],
+)
+
 filegroup(
     name = "test_srcs",
     srcs = [
@@ -71,7 +95,7 @@ cc_test(
     deps = [
         "//:everything",
         "//:inline_container_testing",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

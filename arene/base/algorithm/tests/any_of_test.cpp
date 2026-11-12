@@ -8,6 +8,7 @@
 
 #include "arene/base/algorithm/tests/any_all_test_utilities.hpp"
 #include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/stdlib_choice/initializer_list.hpp"
 #include "arene/base/testing/gtest.hpp"
 
@@ -56,14 +57,23 @@ CONSTEXPR_TEST(AnyOf, ASeriesOfElementsIsTrueIfAnyTrue) {
 
   std::initializer_list<bool> const values1{true, false, false, false, false, false};
   CONSTEXPR_ASSERT(arene::base::any_of(values1.begin(), values1.end()));
+  CONSTEXPR_ASSERT(arene::base::any_of(values1));
+
   std::initializer_list<bool> const values2{false, true, false, false, false, false};
   CONSTEXPR_ASSERT(arene::base::any_of(values2.begin(), values2.end()));
+  CONSTEXPR_ASSERT(arene::base::any_of(values2));
+
   std::initializer_list<bool> const values3{false, false, true, false, false, false};
   CONSTEXPR_ASSERT(arene::base::any_of(values3.begin(), values3.end()));
+  CONSTEXPR_ASSERT(arene::base::any_of(values3));
+
   std::initializer_list<bool> const values4{false, false, false, true, false, false};
   CONSTEXPR_ASSERT(arene::base::any_of(values4.begin(), values4.end()));
+  CONSTEXPR_ASSERT(arene::base::any_of(values4));
+
   std::initializer_list<bool> const values5{false, false, false, false, true, false};
   CONSTEXPR_ASSERT(arene::base::any_of(values5.begin(), values5.end()));
+  CONSTEXPR_ASSERT(arene::base::any_of(values5));
 }
 
 /// @test Test `any_of` with custom predicate is true if predicate returns true for any element
@@ -78,35 +88,35 @@ CONSTEXPR_TEST(AnyOf, WithCustomPredicate) {
   test::assert_result_is(  //
       false,
       arene::base::any_of,
-      arene::base::to_array<int>({2, 4, 6, 8, 10}),
+      arene::base::to_array({2, 4, 6, 8, 10}),
       test::is_odd{}
   );
 
   test::assert_result_is(  //
       true,
       arene::base::any_of,
-      arene::base::to_array<int>({1, 4, 6, 8, 10}),
+      arene::base::to_array({1, 4, 6, 8, 10}),
       test::is_odd{}
   );
 
   test::assert_result_is(  //
       true,
       arene::base::any_of,
-      arene::base::to_array<int>({2, 4, 5, 8, 10}),
+      arene::base::to_array({2, 4, 5, 8, 10}),
       test::is_odd{}
   );
 
   test::assert_result_is(  //
       true,
       arene::base::any_of,
-      arene::base::to_array<int>({2, 4, 5, 8, 11}),
+      arene::base::to_array({2, 4, 5, 8, 11}),
       test::is_odd{}
   );
 
   test::assert_result_is(  //
       true,
       arene::base::any_of,
-      arene::base::to_array<int>({1, 3, 5, 7, 9}),
+      arene::base::to_array({1, 3, 5, 7, 9}),
       test::is_odd{}
   );
 }
@@ -124,7 +134,7 @@ CONSTEXPR_TEST(AnyOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       false,
       arene::base::any_of,
-      test::to_array_of<test::wrapped_int>({2, 4, 6, 8, 10}),
+      arene::base::to_array_of<test::wrapped_int>({2, 4, 6, 8, 10}),
       test::is_odd{},
       test::value_of{}
   );
@@ -132,7 +142,7 @@ CONSTEXPR_TEST(AnyOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       true,
       arene::base::any_of,
-      test::to_array_of<test::wrapped_int>({1, 4, 6, 8, 10}),
+      arene::base::to_array_of<test::wrapped_int>({1, 4, 6, 8, 10}),
       test::is_odd{},
       test::value_of{}
   );
@@ -140,7 +150,7 @@ CONSTEXPR_TEST(AnyOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       true,
       arene::base::any_of,
-      test::to_array_of<test::wrapped_int>({2, 4, 5, 8, 10}),
+      arene::base::to_array_of<test::wrapped_int>({2, 4, 5, 8, 10}),
       test::is_odd{},
       test::value_of{}
   );
@@ -148,7 +158,7 @@ CONSTEXPR_TEST(AnyOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       true,
       arene::base::any_of,
-      test::to_array_of<test::wrapped_int>({2, 4, 6, 8, 11}),
+      arene::base::to_array_of<test::wrapped_int>({2, 4, 6, 8, 11}),
       test::is_odd{},
       test::value_of{}
   );
@@ -156,7 +166,7 @@ CONSTEXPR_TEST(AnyOf, WithCustomPredicateAndProjection) {
   test::assert_result_is(
       true,
       arene::base::any_of,
-      test::to_array_of<test::wrapped_int>({1, 3, 5, 7, 9}),
+      arene::base::to_array_of<test::wrapped_int>({1, 3, 5, 7, 9}),
       test::is_odd{},
       test::value_of{}
   );

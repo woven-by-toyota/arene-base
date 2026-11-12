@@ -8,7 +8,7 @@ load(
     "transition_use_toolchain_stdlib",
 )
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
 # All tests in this package should use this target. It will cause a compilation
 # failure if system includes are used.
@@ -25,13 +25,14 @@ cc_test(
     srcs = ["adjacent_find_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
         "//arene/base/algorithm/tests:test_helpers.without_toolchain_stdlib",
+        "//arene/base/functional/detail:operator_equal.without_toolchain_stdlib",
         "//arene/base/iterator:next.without_toolchain_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -46,7 +47,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -62,7 +63,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -71,14 +72,15 @@ cc_test(
     srcs = ["accumulate_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/type_traits:iterator_category_traits.without_toolchain_stdlib",
-        "//testlibs/minitest",
-        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:reduce.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:reduce_fwd.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
 cc_library(
     name = "iterator_types",
+    testonly = True,
     hdrs = ["iterator_types.hpp"],
     deps = [
         ":testing_stdlib",
@@ -91,7 +93,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -101,7 +103,7 @@ cc_test(
     srcs = ["add_const_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -110,7 +112,7 @@ cc_test(
     srcs = ["add_cv_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -121,7 +123,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -132,7 +134,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -143,7 +145,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -153,7 +155,7 @@ cc_test(
     srcs = ["add_volatile_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -163,7 +165,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_traits:iterator_category_traits.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -173,7 +175,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_traits:iterator_category_traits.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -182,7 +184,7 @@ cc_test(
     srcs = ["basic_iterator_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -192,7 +194,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -202,7 +204,7 @@ cc_test(
     srcs = ["cfloat_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -211,7 +213,7 @@ cc_test(
     srcs = ["climits_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -224,7 +226,7 @@ cc_test(
         "//arene/base/type_list:apply_all.without_toolchain_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
         "//arene/base/type_list:type_list.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -236,7 +238,7 @@ cc_test(
     deps = [
         ":iterator_types",
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
@@ -247,7 +249,7 @@ cc_test(
     srcs = ["cstddef_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -256,7 +258,7 @@ cc_test(
     srcs = ["cstdint_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -265,7 +267,7 @@ cc_test(
     srcs = ["comparison_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -275,7 +277,7 @@ cc_test(
     srcs = ["conditional_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -285,9 +287,10 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -299,8 +302,8 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//arene/base/type_list:remove_duplicates",
-        "//testlibs/minitest",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -311,7 +314,7 @@ cc_test(
     srcs = ["declval_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -320,7 +323,7 @@ cc_test(
     srcs = ["divides_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -332,9 +335,9 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/compiler_support",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
-        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:configurable_value.without_toolchain_stdlib",
     ],
 )
 
@@ -343,7 +346,7 @@ cc_test(
     srcs = ["enable_if_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -353,7 +356,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -363,7 +366,7 @@ cc_test(
     srcs = ["equal_to_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -373,7 +376,7 @@ cc_test(
     srcs = ["exchange_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -383,7 +386,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -394,7 +397,7 @@ cc_test(
     deps = [
         ":iterator_types",
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -404,8 +407,8 @@ cc_test(
     srcs = ["forward_as_tuple_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
-        "//testlibs/utilities:configurable_value",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
+        "//testlibs/utilities:configurable_value.without_toolchain_stdlib",
     ],
 )
 
@@ -415,7 +418,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -425,7 +428,7 @@ cc_test(
     srcs = ["greater_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -435,7 +438,7 @@ cc_test(
     srcs = ["greater_equal_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -446,9 +449,11 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base:constraints",
-        "//arene/base:type_traits",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//arene/base/type_list:filter.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_invocable.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_swappable.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -458,7 +463,7 @@ cc_test(
     srcs = ["ignore_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -469,7 +474,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/compiler_support",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -481,7 +486,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/compiler_support",
         "//arene/base/type_traits:iterator_category_traits.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -490,7 +495,7 @@ cc_test(
     srcs = ["integral_constant_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -501,7 +506,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/compiler_support",
         "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -512,7 +517,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/algorithm/tests:transform_reduce.without_toolchain_stdlib",
         "//arene/base/algorithm/tests:transform_reduce_fwd.without_toolchain_stdlib",
-        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -523,7 +528,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/algorithm/tests:iota.without_toolchain_stdlib",
         "//arene/base/algorithm/tests:iota_fwd.without_toolchain_stdlib",
-        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -533,7 +538,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -543,7 +548,7 @@ cc_test(
     srcs = ["is_arithmetic_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -553,7 +558,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -563,7 +568,7 @@ cc_test(
     srcs = ["is_assignable_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -573,7 +578,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -584,7 +589,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -594,7 +599,7 @@ cc_test(
     srcs = ["is_const_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -604,7 +609,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -614,7 +619,7 @@ cc_test(
     srcs = ["is_convertible_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -624,7 +629,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -635,7 +640,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -646,7 +651,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -658,7 +663,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/compiler_support",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -670,7 +675,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/compiler_support",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -680,7 +685,7 @@ cc_test(
     srcs = ["is_enum_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -690,7 +695,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -700,7 +705,7 @@ cc_test(
     srcs = ["is_floating_point_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -710,7 +715,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -720,7 +725,7 @@ cc_test(
     srcs = ["is_fundamental_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -730,7 +735,7 @@ cc_test(
     srcs = ["is_integral_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -739,7 +744,7 @@ cc_test(
     srcs = ["is_lvalue_reference_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -749,8 +754,8 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//arene/base/type_list:remove_duplicates",
-        "//testlibs/minitest",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -762,8 +767,8 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//arene/base/type_list:remove_duplicates",
-        "//testlibs/minitest",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -775,8 +780,8 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//arene/base/type_list:remove_duplicates",
-        "//testlibs/minitest",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -788,7 +793,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -799,7 +804,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -809,7 +814,7 @@ cc_test(
     srcs = ["is_object_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -819,8 +824,8 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//arene/base/type_list:remove_duplicates",
-        "//testlibs/minitest",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -832,7 +837,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -842,7 +847,7 @@ cc_test(
     srcs = ["is_rvalue_reference_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -851,7 +856,7 @@ cc_test(
     srcs = ["is_same_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -860,7 +865,7 @@ cc_test(
     srcs = ["is_signed_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -870,7 +875,7 @@ cc_test(
     deps = [
         ":iterator_types",
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -881,7 +886,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -891,7 +896,7 @@ cc_test(
     srcs = ["is_unsigned_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -900,7 +905,7 @@ cc_test(
     srcs = ["is_void_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -909,7 +914,7 @@ cc_test(
     srcs = ["is_volatile_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -918,7 +923,7 @@ cc_test(
     srcs = ["iterator_tags_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -929,7 +934,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base:constraints",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -939,7 +944,7 @@ cc_test(
     srcs = ["iter_swap_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
@@ -950,7 +955,7 @@ cc_test(
     srcs = ["less_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -960,7 +965,7 @@ cc_test(
     srcs = ["less_equal_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -971,7 +976,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_traits:is_transparent_comparator_for",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -981,7 +986,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_traits:is_transparent_comparator_for",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -990,11 +995,12 @@ cc_test(
     srcs = ["lower_bound_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/functional/detail:operator_less.without_toolchain_stdlib",
         "//arene/base/iterator:next.without_toolchain_stdlib",
         "//arene/base/math:log2.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -1007,8 +1013,8 @@ cc_test(
         "//arene/base/algorithm:all_of.without_toolchain_stdlib",
         "//arene/base/type_list:size.without_toolchain_stdlib",
         "//arene/base/type_list:type_list.without_toolchain_stdlib",
-        "//testlibs/minitest",
-        "//testlibs/utilities:configurable_value",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
+        "//testlibs/utilities:configurable_value.without_toolchain_stdlib",
     ],
 )
 
@@ -1017,7 +1023,7 @@ cc_test(
     srcs = ["make_signed_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1027,7 +1033,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_traits:priority_tag.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1036,10 +1042,9 @@ cc_test(
     srcs = ["max_element_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
-        "//testlibs/minitest",
-        "//testlibs/utilities:counted_algorithm",
-        "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:max_element.without_toolchain_stdlib",
+        "//arene/base/algorithm/tests:max_element_fwd.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1048,11 +1053,13 @@ cc_test(
     srcs = ["max_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/algorithm:max_element.without_toolchain_stdlib",
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//arene/base/functional/detail:operator_less.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
     ],
 )
 
@@ -1063,7 +1070,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/compiler_support",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1073,9 +1080,10 @@ cc_test(
     srcs = ["min_element_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//arene/base/functional/detail:operator_less.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -1085,11 +1093,12 @@ cc_test(
     srcs = ["minmax_element_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/functional/detail:operator_less.without_toolchain_stdlib",
         "//arene/base/iterator:next.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:constexpr_traits",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -1099,11 +1108,13 @@ cc_test(
     srcs = ["min_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/algorithm:max_element.without_toolchain_stdlib",
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//arene/base/functional/detail:operator_less.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
     ],
 )
 
@@ -1117,7 +1128,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1127,7 +1138,7 @@ cc_test(
     srcs = ["minus_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1138,7 +1149,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1149,7 +1160,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/compiler_support",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1159,7 +1170,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base:array.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -1170,7 +1181,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1180,7 +1191,7 @@ cc_test(
     srcs = ["multiplies_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1191,7 +1202,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1201,7 +1212,7 @@ cc_test(
     srcs = ["new_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1211,7 +1222,7 @@ cc_test(
     deps = [
         ":iterator_types",
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -1221,7 +1232,7 @@ cc_test(
     srcs = ["not_equal_to_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1231,7 +1242,7 @@ cc_test(
     srcs = ["nothrow_t_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1241,17 +1252,26 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
 )
 
+cc_library(
+    name = "pair_utilities",
+    testonly = True,
+    hdrs = ["pair_utilities.hpp"],
+    deps = [
+        ":testing_stdlib",
+    ],
+)
+
 cc_test(
     name = "pair_test",
-    size = "medium",
     srcs = ["pair_test.cpp"],
     deps = [
+        ":pair_utilities",
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
         "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
@@ -1259,7 +1279,25 @@ cc_test(
         "//arene/base/type_traits:is_implicitly_constructible.without_toolchain_stdlib",
         "//arene/base/type_traits:is_swappable.without_toolchain_stdlib",
         "//arene/base/utility:as_const.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
+        "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
+        "//testlibs/utilities:mutate.without_toolchain_stdlib",
+    ],
+)
+
+cc_test(
+    name = "make_pair_test",
+    srcs = ["make_pair_test.cpp"],
+    deps = [
+        ":pair_utilities",
+        ":testing_stdlib",
+        "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
+        "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
+        "//arene/base/type_traits:comparison_traits.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_implicitly_constructible.without_toolchain_stdlib",
+        "//arene/base/type_traits:is_swappable.without_toolchain_stdlib",
+        "//arene/base/utility:as_const.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -1267,16 +1305,48 @@ cc_test(
 
 cc_test(
     name = "partial_sort_copy_test",
-    timeout = "eternal",
     srcs = ["partial_sort_copy_test.cpp"],
     deps = [
         ":testing_stdlib",
         "//arene/base:array.without_toolchain_stdlib",
-        "//arene/base:math.without_toolchain_stdlib",
         "//arene/base:optional.without_toolchain_stdlib",
-        "//arene/base:utility.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
+    ],
+)
+
+test_suite(
+    name = "partial_sort_copy_complexity_test",
+    tests = [
+        name
+        for source_size, target_size in [
+            (1024, 128),
+            (1024, 10),
+            (1024, 3),
+            (1024, 900),
+            (1024, 2000),
+            (12345, 128),
+            (12345, 10),
+            (12345, 9999),
+            (12345, 12345),
+            (12345, 20000),
+        ]
+        for name in ["partial_sort_copy_complexity_source_size_{}_target_size_{}_test".format(source_size, target_size)]
+        for _ in [cc_test(
+            name = name,
+            srcs = ["partial_sort_copy_complexity_test.cpp"],
+            local_defines = [
+                "SOURCE_SIZE={}".format(source_size),
+                "TARGET_SIZE={}".format(target_size),
+            ],
+            deps = [
+                ":testing_stdlib",
+                "//arene/base:array.without_toolchain_stdlib",
+                "//arene/base/math:log2.without_toolchain_stdlib",
+                "//arene/base/utility:make_subrange.without_toolchain_stdlib",
+                "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
+            ],
+        )]
     ],
 )
 
@@ -1285,7 +1355,7 @@ cc_test(
     srcs = ["plus_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1295,7 +1365,7 @@ cc_test(
     srcs = ["pointer_traits_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1308,7 +1378,7 @@ cc_test(
         "//arene/base:contracts.without_toolchain_stdlib",
         "//arene/base/math:abs.without_toolchain_stdlib",
         "//arene/base/math:gcd.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1317,7 +1387,7 @@ cc_test(
     srcs = ["reference_wrapper_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1328,7 +1398,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
     ],
@@ -1340,7 +1410,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1350,7 +1420,7 @@ cc_test(
     srcs = ["remove_const_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1359,7 +1429,7 @@ cc_test(
     srcs = ["remove_cv_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1369,7 +1439,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1380,7 +1450,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1390,7 +1460,7 @@ cc_test(
     srcs = ["remove_reference_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1399,7 +1469,7 @@ cc_test(
     srcs = ["remove_volatile_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1409,7 +1479,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/iterator:reverse_iterator.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1420,7 +1490,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/algorithm/tests:test_helpers.without_toolchain_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
@@ -1431,9 +1501,10 @@ cc_test(
     srcs = ["remove_if_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -1445,7 +1516,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/algorithm/tests:sort.without_toolchain_stdlib",
         "//arene/base/algorithm/tests:sort_fwd.without_toolchain_stdlib",
-        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1456,7 +1527,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/algorithm/tests:sort.without_toolchain_stdlib",
         "//arene/base/algorithm/tests:sort_fwd.without_toolchain_stdlib",
-        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1469,7 +1540,7 @@ cc_test(
         "//arene/base/type_list:concat.without_toolchain_stdlib",
         "//configs:incompatible_with_exceptions_disabled",
         "//configs:incompatible_with_macos",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1479,7 +1550,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:concat_unique.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
@@ -1493,7 +1564,7 @@ cc_test(
     }),
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1504,8 +1575,8 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/compiler_support:compiler_support.without_toolchain_stdlib",
         "//arene/base/type_traits:is_invocable.without_toolchain_stdlib",
-        "//testlibs/minitest",
-        "//testlibs/utilities:configurable_value",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
+        "//testlibs/utilities:configurable_value.without_toolchain_stdlib",
     ],
 )
 
@@ -1524,9 +1595,9 @@ cc_test(
         "//arene/base/type_traits:is_invocable.without_toolchain_stdlib",
         "//arene/base/type_traits:is_only_explicitly_constructible.without_toolchain_stdlib",
         "//arene/base/utility:forward_like.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
-        "//testlibs/utilities:configurable_value",
+        "//testlibs/utilities:configurable_value.without_toolchain_stdlib",
         "//testlibs/utilities:constexpr_traits",
         "//testlibs/utilities:counting_wrapper",
         "//testlibs/utilities:mutate.without_toolchain_stdlib",
@@ -1540,7 +1611,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/tuple/tests:tuple_cat.without_toolchain_stdlib",
         "//arene/base/tuple/tests:tuple_cat_fwd.without_toolchain_stdlib",
-        "//testlibs/minitest:minitest.without_toolchain_stdlib",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1551,7 +1622,7 @@ cc_test(
         ":testing_stdlib",
         "//arene/base/type_list:at.without_toolchain_stdlib",
         "//arene/base/type_manipulation:consume_values.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1563,7 +1634,7 @@ cc_test(
         "//arene/base/tuple:for_each.without_toolchain_stdlib",
         "//arene/base/type_list:at.without_toolchain_stdlib",
         "//arene/base/type_manipulation:consume_values.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1572,11 +1643,12 @@ cc_test(
     srcs = ["upper_bound_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//arene/base/algorithm/detail:functional.without_toolchain_stdlib",
+        "//arene/base/functional/detail:operator_less.without_toolchain_stdlib",
         "//arene/base/iterator:next.without_toolchain_stdlib",
         "//arene/base/math:log2.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -1587,7 +1659,7 @@ cc_test(
     deps = [
         ":testing_stdlib",
         "//arene/base/type_list:remove_duplicates.without_toolchain_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
     ],
 )
 
@@ -1596,9 +1668,10 @@ cc_test(
     srcs = ["unique_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
         "//testlibs/utilities:counted_algorithm",
+        "//testlibs/utilities:functional.without_toolchain_stdlib",
         "//testlibs/utilities:iterator_types.without_toolchain_stdlib",
     ],
 )
@@ -1608,12 +1681,15 @@ cc_test(
     srcs = ["void_t_test.cpp"],
     deps = [
         ":testing_stdlib",
-        "//testlibs/minitest",
+        "//testlibs/minitest:minitest_main.without_toolchain_stdlib",
         "//testlibs/utilities:common_test_types.without_toolchain_stdlib",
     ],
 )
 
 exports_files(
-    glob(["*.cpp"]),
+    glob([
+        "*.hpp",
+        "*.cpp",
+    ]),
     visibility = ["//:__subpackages__"],
 )

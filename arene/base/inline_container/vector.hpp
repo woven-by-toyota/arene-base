@@ -10,6 +10,7 @@
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/algorithm/equal.hpp"
 #include "arene/base/algorithm/lexicographical_compare.hpp"
+#include "arene/base/algorithm/rotate.hpp"
 #include "arene/base/array/array.hpp"
 #include "arene/base/compare/operators.hpp"
 #include "arene/base/constraints/constraints.hpp"
@@ -72,9 +73,9 @@
 namespace arene {
 namespace base {
 
-/// @brief A container similar to @c std::vector<T> that has a fixed capacity. The
-/// storage for the elements is held directly within the class. Any attempt to
-/// store more than @c Capacity elements will throw @c std::length_error
+/// @brief A container similar to @c std::vector<T> that has a fixed capacity. The storage for the elements is held
+/// directly within the class. Any attempt to store more than @c Capacity elements will cause an @c ARENE_PRECONDITION
+/// violation
 /// @tparam T The type of each element
 /// @tparam Capacity The maximum number of elements that can be stored.
 template <typename T, std::size_t Capacity>
@@ -163,6 +164,7 @@ class inline_vector_internal_non_constexpr_storage {
   constexpr inline_vector_internal_non_constexpr_storage() = default;
 
   /// @brief Destroy all constructed elements.
+  // parasoft-begin-suppress AUTOSAR-A12_7_1-a "False positive: this is not the default implementation"
   ~inline_vector_internal_non_constexpr_storage() {
     // parasoft-begin-suppress AUTOSAR-M0_1_3-b-2 "False positive: necessary for invoking the destructors"
     for (auto& value : values()) {
@@ -170,6 +172,7 @@ class inline_vector_internal_non_constexpr_storage {
     }
     // parasoft-end-suppress AUTOSAR-M0_1_3-b-2
   }
+  // parasoft-end-suppress AUTOSAR-A12_7_1-a "False positive: this is not the default implementation"
 
   /// @brief Get a span over the current elements
   /// @return The span
@@ -902,9 +905,12 @@ class vector_interface
   /// @brief Check if the vector is empty.
   /// @return @c true if the vector is empty, @c false otherwise
   constexpr auto empty() const noexcept -> bool { return size() == 0U; }
+
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Get the current number of live elements in the vector
   /// @return the size
   constexpr auto size() const noexcept -> size_type { return this->values().size(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Get a reference to the last element.
   /// @return A reference to the element
@@ -1107,6 +1113,7 @@ class vector_interface
   constexpr auto operator[](size_type index) const noexcept -> const_reference { return this->values()[index]; }
   // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False Positive: 'begin' and 'end' do not hide anything"
   /// @brief Obtain an iterator to the start of the vector.
   /// @return The iterator
   constexpr auto begin() noexcept -> iterator {
@@ -1117,13 +1124,19 @@ class vector_interface
   constexpr auto end() noexcept -> iterator {
     return {typename vector_base_type::iterator_passkey{}, this->values().end().base()};
   }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'begin' does not hide anything"
   /// @brief Obtain an iterator to the start of the vector.
   /// @return The iterator
   constexpr auto begin() const noexcept -> const_iterator { return cbegin(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
+
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: identifier 'end' does not hide anything"
   /// @brief Obtain an iterator to the end of the vector.
   /// @return The iterator
   constexpr auto end() const noexcept -> const_iterator { return cend(); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   /// @brief Obtain an iterator to the start of the vector.
   /// @return The iterator
@@ -1156,6 +1169,7 @@ class vector_interface
   /// @brief Obtain an iterator to the start of the vector for iterating in reverse
   /// @return The iterator
   constexpr auto crend() const noexcept -> const_reverse_iterator { return const_reverse_iterator(cbegin()); }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d "False Positive: 'begin' and 'end' do not hide anything"
 
   /// @brief Insert a new element at the specified position in the vector by
   /// move-constructing or move-assigning from the supplied value. Any existing
@@ -1287,47 +1301,24 @@ class vector_interface
   /// @param count The number of elements to insert
   /// @param source A class representing the source of the elements
   /// @return An iterator to the insert position
-  /// @pre @c (Capacity-size())<=count, else @c ARENE_PRECONDITION violation
+  /// @pre <c>count <= (Capacity - size())</c>, else @c ARENE_PRECONDITION violation
   template <typename Source>
   constexpr auto internal_do_insert(const_iterator pos, size_type count, Source source) -> iterator {
-    ARENE_PRECONDITION(free_space() >= count);
-    auto const insert_offset = pos - begin();
-    auto ncpos = begin() + insert_offset;
-    auto const move_count = end() - pos;
-    auto const insert_count = static_cast<difference_type>(count);
-    auto const move_construct_count = std::min<>(move_count, insert_count);
-    auto const insert_construct_count = (insert_count > move_count) ? insert_count - move_count : 0;
-    // parasoft-begin-suppress AUTOSAR-M3_4_1-a-2 "False positive: Moving this later may affect the value"
-    // NOLINTNEXTLINE(hicpp-use-auto)
-    difference_type const original_end_offset{static_cast<difference_type>(size())};
-    // parasoft-end-suppress AUTOSAR-M3_4_1-a-2
+    ARENE_PRECONDITION(count <= free_space());
 
-    source.reset_index(move_construct_count);
-    for (vector_interface::difference_type i{0}; i < insert_construct_count; ++i) {
+    vector_interface::iterator mutable_pos{arene::base::next(begin(), arene::base::distance(cbegin(), pos))};
+    vector_interface::iterator original_end{end()};
+
+    // In many cases, shifting existing elements and then inserting into the target position would be more efficient,
+    // but doing it that way can invalidate arguments that refer to elements after the target position, and there is no
+    // reliable way to detect if this is the case. Emplace at the end + rotate is always safe.
+
+    for (vector_interface::size_type i{0U}; i < count; ++i) {
       this->internal_emplace_back(source.next());
     }
-    if (move_count != 0) {
-      auto const move_assign_count = (insert_count > move_count) ? 0 : move_count - insert_count;
-      auto old_elem = original_end_offset - move_construct_count;
-      for (vector_interface::difference_type i{0}; i < move_construct_count; ++i) {
-        this->internal_emplace_back(std::move((*this)[static_cast<size_type>(old_elem)]));
-        ++old_elem;
-      }
-      old_elem = original_end_offset - move_construct_count - 1;
-      vector_interface::difference_type move_target{original_end_offset - 1};
+    arene::base::rotate(mutable_pos, original_end, end());
 
-      for (vector_interface::difference_type i{0}; i < move_assign_count; ++i) {
-        (*this)[static_cast<size_type>(move_target)] = std::move((*this)[static_cast<size_type>(old_elem)]);
-        --move_target;
-        --old_elem;
-      }
-      auto insert_pos = ncpos;
-      source.reset_index(0);
-      for (vector_interface::difference_type i{0}; i < move_construct_count; ++i) {
-        *insert_pos++ = source.next();
-      }
-    }
-    return ncpos;
+    return mutable_pos;
   }
 
   // parasoft-begin-suppress AUTOSAR-A8_4_6-a-2 "False positive: arg is moved"
@@ -1351,7 +1342,6 @@ class vector_interface
      public:
       constexpr explicit fixed_source(Arg& arg) noexcept
           : arg_(arg) {}
-      constexpr void reset_index(difference_type) noexcept {}
       constexpr auto next() const noexcept -> Arg&& { return std::forward<Arg>(arg_); }
     };
     return internal_do_insert(pos, count, fixed_source{arg});
@@ -1360,8 +1350,7 @@ class vector_interface
   // parasoft-end-suppress AUTOSAR-A8_4_5-a-2
   // parasoft-end-suppress AUTOSAR-A12_8_4-a-2
 
-  /// @brief Insert elements from a bidirectional iterator range at the specified
-  /// position.
+  /// @brief Insert elements from a bidirectional iterator range at the specified position.
   /// @tparam Iterator The type of the iterator
   /// @param pos The position at which to insert the elements
   /// @param first The start of the iterator range to insert
@@ -1372,18 +1361,14 @@ class vector_interface
       constraints<std::enable_if_t<arene::base::is_bidirectional_iterator_v<Iterator>>> = nullptr>
   constexpr auto internal_insert(const_iterator pos, Iterator first, Iterator last) -> iterator {
     auto const insert_count = static_cast<size_type>(arene::base::distance(first, last));
-    ARENE_PRECONDITION(free_space() >= insert_count);
 
     class iterator_source {
-      Iterator base_;
       Iterator current_;
 
      public:
       constexpr explicit iterator_source(Iterator base)
-          : base_(base),
-            current_(base) {}
+          : current_(base) {}
 
-      constexpr void reset_index(difference_type index) { current_ = ::arene::base::next(base_, index); }
       constexpr auto next() -> decltype(*current_) { return *current_++; }
     };
     return internal_do_insert(pos, insert_count, iterator_source{first});
@@ -1434,9 +1419,9 @@ constexpr bool is_inline_vector_of_t_v<T, inline_vector<T, Capacity>> = true;
 
 // parasoft-begin-suppress AUTOSAR-A10_1_1-a-2 "False positive: the vector_interface is the only non-empty base class"
 // parasoft-begin-suppress AUTOSAR-A12_1_5-a "False positive: No work done in constructors to delegate"
-/// @brief A container similar to @c std::vector<T> that has a fixed capacity. The
-/// storage for the elements is held directly within the class. Any attempt to
-/// store more than @c Capacity elements will throw @c std::length_error
+/// @brief A container similar to @c std::vector<T> that has a fixed capacity. The storage for the elements is held
+/// directly within the class. Any attempt to store more than @c Capacity elements will case an @c ARENE_PRECONDITION
+/// violation.
 /// @tparam T The type of each element
 /// @tparam Capacity The maximum number of elements that can be stored.
 template <typename T, std::size_t Capacity>

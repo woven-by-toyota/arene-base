@@ -6,6 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_INTEGER_SEQUENCES_MAKE_INDEX_SEQUENCE_REPEAT_N_HPP_
 
 // IWYU pragma: private, include "arene/base/integer_sequences.hpp"
+// IWYU pragma: friend "(arene/base(?!/tests)|stdlib/include/stdlib_detail)/.*"
 
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"

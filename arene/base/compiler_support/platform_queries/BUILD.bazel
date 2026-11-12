@@ -2,39 +2,218 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "arene_debug.hpp",
-        "asan_enabled.hpp",
-        "compiler_info.hpp",
-        "coverage_info.hpp",
-        "exceptions_enabled.hpp",
-        "has_builtin.hpp",
-        "has_builtin_abs.hpp",
-        "has_builtin_atomic.hpp",
-        "has_builtin_is_constant_evaluated.hpp",
-        "has_constexpr_bit_cast.hpp",
-        "has_feature.hpp",
-        "has_include.hpp",
-        "has_inline_variables.hpp",
-        "has_native_char8_t.hpp",
-        "has_native_string_view.hpp",
-        "has_noexcept_function_type.hpp",
-        "has_starts_ends_with.hpp",
-        "has_string_contains.hpp",
-        "has_thread_safety_analysis.hpp",
-        "has_uncaught_exceptions.hpp",
-        "stdlib_info.hpp",
+load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
+
+cc_library_with_variants(
+    name = "has_builtin",
+    hdrs = ["has_builtin.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+)
+
+cc_library_with_variants(
+    name = "has_feature",
+    hdrs = ["has_feature.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+)
+
+cc_library_with_variants(
+    name = "has_include",
+    hdrs = ["has_include.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+)
+
+cc_library_with_variants(
+    name = "compiler_info",
+    hdrs = ["compiler_info.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = ["//arene/base/compiler_support:preprocessor"],
+)
+
+cc_library_with_variants(
+    name = "stdlib_info",
+    hdrs = ["stdlib_info.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        "//arene/base/compiler_support:preprocessor",
+        "//arene/base/stdlib_choice:cstddef",
     ],
+)
+
+cc_library_with_variants(
+    name = "arene_debug",
+    hdrs = ["arene_debug.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":compiler_info",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "asan_enabled",
+    hdrs = ["asan_enabled.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":has_feature",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "coverage_info",
+    hdrs = ["coverage_info.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = ["//arene/base/compiler_support:preprocessor"],
+)
+
+cc_library_with_variants(
+    name = "exceptions_enabled",
+    hdrs = ["exceptions_enabled.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":has_feature",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_builtin_abs",
+    hdrs = ["has_builtin_abs.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":compiler_info",
+        ":has_builtin",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_builtin_atomic",
+    hdrs = ["has_builtin_atomic.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":compiler_info",
+        ":has_builtin",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_builtin_is_constant_evaluated",
+    hdrs = ["has_builtin_is_constant_evaluated.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":compiler_info",
+        ":has_builtin",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_constexpr_bit_cast",
+    hdrs = ["has_constexpr_bit_cast.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":compiler_info",
+        ":has_builtin",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_inline_variables",
+    hdrs = ["has_inline_variables.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = ["//arene/base/compiler_support:preprocessor"],
+)
+
+cc_library_with_variants(
+    name = "has_native_char8_t",
+    hdrs = ["has_native_char8_t.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = ["//arene/base/compiler_support:preprocessor"],
+)
+
+cc_library_with_variants(
+    name = "has_native_string_view",
+    hdrs = ["has_native_string_view.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":stdlib_info",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_noexcept_function_type",
+    hdrs = ["has_noexcept_function_type.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = ["//arene/base/compiler_support:preprocessor"],
+)
+
+cc_library_with_variants(
+    name = "has_starts_ends_with",
+    hdrs = ["has_starts_ends_with.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = ["//arene/base/compiler_support:preprocessor"],
+)
+
+cc_library_with_variants(
+    name = "has_string_contains",
+    hdrs = ["has_string_contains.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = ["//arene/base/compiler_support:preprocessor"],
+)
+
+cc_library_with_variants(
+    name = "has_thread_safety_analysis",
+    hdrs = ["has_thread_safety_analysis.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = [
+        ":compiler_info",
+        "//arene/base/compiler_support:preprocessor",
+    ],
+)
+
+cc_library_with_variants(
+    name = "has_uncaught_exceptions",
+    hdrs = ["has_uncaught_exceptions.hpp"],
+    visibility = ["//arene/base:__subpackages__"],
+    deps = ["//arene/base/compiler_support:preprocessor"],
+)
+
+cc_library_with_variants(
+    name = "internal",
     visibility = ["//arene/base/compiler_support:__pkg__"],
+    deps = [
+        ":arene_debug",
+        ":asan_enabled",
+        ":compiler_info",
+        ":coverage_info",
+        ":exceptions_enabled",
+        ":has_builtin",
+        ":has_builtin_abs",
+        ":has_builtin_atomic",
+        ":has_builtin_is_constant_evaluated",
+        ":has_constexpr_bit_cast",
+        ":has_feature",
+        ":has_include",
+        ":has_inline_variables",
+        ":has_native_char8_t",
+        ":has_native_string_view",
+        ":has_noexcept_function_type",
+        ":has_starts_ends_with",
+        ":has_string_contains",
+        ":has_thread_safety_analysis",
+        ":has_uncaught_exceptions",
+        ":stdlib_info",
+    ],
 )
 
 filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/compiler_support:__pkg__"],
 )

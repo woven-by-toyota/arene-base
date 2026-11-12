@@ -1,0 +1,85 @@
+Running main() from gmock_main.cc
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from LinalgAssertCompare
+[ RUN      ] LinalgAssertCompare.IntNotEqual
+comparison failed: std::int32_t{1} == std::int32_t{0}
+std::int32_t{1}: 1
+std::int32_t{0}: 0
+arene/base/linalg/tests/property_compare_binary.cpp:18: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/linalg/tests/property_compare_binary.cpp:19]
+ARENE_PROP_ASSERT(::arene::base::linalg_testing::assert_compare( ::arene::base::functional_detail::operator_equal, (std::int32_t{1}), (std::int32_t{0}), "std::int32_t{1}", "std::int32_t{0}", "std::int32_t{1}" " == " "std::int32_t{0}" ))
+
+[  FAILED  ] LinalgAssertCompare.IntNotEqual
+[ RUN      ] LinalgAssertCompare.FloatNotEqual
+comparison failed: bit_cast<float>(std::int32_t{1}) == bit_cast<float>(std::int32_t{0})
+bit_cast<float>(std::int32_t{1}): 1.40129846e-45 [sign=0 exp=0(-127) mant=0x1] (0x00000001)
+bit_cast<float>(std::int32_t{0}): 0 [sign=0 exp=0(-127) mant=0x0] (0x00000000)
+arene/base/linalg/tests/property_compare_binary.cpp:22: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/linalg/tests/property_compare_binary.cpp:23]
+ARENE_PROP_ASSERT(::arene::base::linalg_testing::assert_compare( ::arene::base::functional_detail::operator_equal, (bit_cast<float>(std::int32_t{1})), (bit_cast<float>(std::int32_t{0})), "bit_cast<float>(std::int32_t{1})", "bit_cast<float>(std::int32_t{0})", "bit_cast<float>(std::int32_t{1})" " == " "bit_cast<float>(std::int32_t{0})" ))
+
+[  FAILED  ] LinalgAssertCompare.FloatNotEqual
+[ RUN      ] LinalgAssertCompare.DoubleNotEqual
+comparison failed: bit_cast<double>(std::int64_t{1}) == bit_cast<double>(std::int64_t{0})
+bit_cast<double>(std::int64_t{1}): 4.9406564584124654e-324 [sign=0 exp=0(-1023) mant=0x1] (0x0000000000000001)
+bit_cast<double>(std::int64_t{0}): 0 [sign=0 exp=0(-1023) mant=0x0] (0x0000000000000000)
+arene/base/linalg/tests/property_compare_binary.cpp:26: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/linalg/tests/property_compare_binary.cpp:27]
+ARENE_PROP_ASSERT(::arene::base::linalg_testing::assert_compare( ::arene::base::functional_detail::operator_equal, (bit_cast<double>(std::int64_t{1})), (bit_cast<double>(std::int64_t{0})), "bit_cast<double>(std::int64_t{1})", "bit_cast<double>(std::int64_t{0})", "bit_cast<double>(std::int64_t{1})" " == " "bit_cast<double>(std::int64_t{0})" ))
+
+[  FAILED  ] LinalgAssertCompare.DoubleNotEqual
+[ RUN      ] LinalgAssertCompare.FloatNotWithinTolerance
+comparison failed: ulp_tolerance(1)(bit_cast<float>(std::int32_t{2}), bit_cast<float>(std::int32_t{0}))
+bit_cast<float>(std::int32_t{2}): 2.80259693e-45 [sign=0 exp=0(-127) mant=0x2] (0x00000002)
+bit_cast<float>(std::int32_t{0}): 0 [sign=0 exp=0(-127) mant=0x0] (0x00000000)
+arene/base/linalg/tests/property_compare_binary.cpp:30: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/linalg/tests/property_compare_binary.cpp:31]
+ARENE_PROP_ASSERT(::arene::base::linalg_testing::assert_compare(ulp_tolerance(1), (bit_cast<float>(std::int32_t{2})), (bit_cast<float>(std::int32_t{0})), "bit_cast<float>(std::int32_t{2})", "bit_cast<float>(std::int32_t{0})", "ulp_tolerance(1)" "(" "bit_cast<float>(std::int32_t{2})" ", " "bit_cast<float>(std::int32_t{0})" ")"))
+
+[  FAILED  ] LinalgAssertCompare.FloatNotWithinTolerance
+[ RUN      ] LinalgAssertCompare.DoubleNotWithinTolerance
+comparison failed: ulp_tolerance(1)(bit_cast<double>(std::int64_t{2}), bit_cast<double>(std::int64_t{0}))
+bit_cast<double>(std::int64_t{2}): 9.8813129168249309e-324 [sign=0 exp=0(-1023) mant=0x2] (0x0000000000000002)
+bit_cast<double>(std::int64_t{0}): 0 [sign=0 exp=0(-1023) mant=0x0] (0x0000000000000000)
+arene/base/linalg/tests/property_compare_binary.cpp:34: Failure
+Failed
+PROPERTY FAIL
+seed: 0
+successes: 0
+discards: 0
+property not satisfied [arene/base/linalg/tests/property_compare_binary.cpp:35]
+ARENE_PROP_ASSERT(::arene::base::linalg_testing::assert_compare(ulp_tolerance(1), (bit_cast<double>(std::int64_t{2})), (bit_cast<double>(std::int64_t{0})), "bit_cast<double>(std::int64_t{2})", "bit_cast<double>(std::int64_t{0})", "ulp_tolerance(1)" "(" "bit_cast<double>(std::int64_t{2})" ", " "bit_cast<double>(std::int64_t{0})" ")"))
+
+[  FAILED  ] LinalgAssertCompare.DoubleNotWithinTolerance
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran.
+[  PASSED  ] 0 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] LinalgAssertCompare.IntNotEqual
+[  FAILED  ] LinalgAssertCompare.FloatNotEqual
+[  FAILED  ] LinalgAssertCompare.DoubleNotEqual
+[  FAILED  ] LinalgAssertCompare.FloatNotWithinTolerance
+[  FAILED  ] LinalgAssertCompare.DoubleNotWithinTolerance
+
+ 5 FAILED TESTS

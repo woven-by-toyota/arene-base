@@ -2,10 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include "arene/base/integer_sequences/integer_sequence_ops.hpp"
+
 #include <gtest/gtest.h>
 
 #include "arene/base/constraints/constraints.hpp"
-#include "arene/base/integer_sequences.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/testing/gtest.hpp"

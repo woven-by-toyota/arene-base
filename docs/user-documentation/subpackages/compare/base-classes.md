@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -23,17 +27,18 @@ For the best experience, and ease of migration to the
 [C++20 three-way-comparison operator](https://eel.is/c++draft/expr.spaceship)
 `<=>` in future, user defined types should provide `three_way_compare` and then
 the remaining ordering operations can be provided
-["from just the three-way-comparison function"](#full-ordering-from-three-way-compare),
-or
-["from three-way-comparison and equality"](#full-ordering-from-three-way-compare-and-equality).
+["from just the three-way-comparison function"](#subpackages-compare-base-classes-full-ordering-from-three-way-compare),
+or from three-way-comparison and equality with
+`arene::base::generic_ordering_from_three_way_compare_and_equals`.
 
 Alternatively, if your type already has `operator<` or an equivalent operation,
 or such an operation is the easiest to write, then the remaining operators can
 be provided based on
-["just less-than"](#full-ordering-when-all-you-have-is-less-than), or
-["less-than and equality"](#full-ordering-from-less-than-and-equals).
+["just less-than"](#subpackages-compare-base-classes-full-ordering-when-all-you-have-is-less-than),
+or
+["less-than and equality"](#subpackages-compare-base-classes-full-ordering-from-less-than-and-equals).
 
-## Full ordering from three-way-compare {#full-ordering-from-three-way-compare}
+# Full ordering from three-way-compare {#subpackages-compare-base-classes-full-ordering-from-three-way-compare}
 
 If you've written a nice `three_way_compare` function for your class, it would
 be great to have the operators generated for you like C++20 does from the
@@ -62,7 +67,7 @@ lengths, but comparisons against `arene::base::null_terminated_string_view` do
 not do that, as the length is not available without traversing the string
 anyway.
 
-## Full ordering when all you have is "less than" {#full-ordering-when-all-you-have-is-less-than}
+## Full ordering when all you have is "less than" {#subpackages-compare-base-classes-full-ordering-when-all-you-have-is-less-than}
 
 If the only operation you want to write is `operator<`, to support STL
 algorithms like `std::sort`, then
@@ -122,7 +127,7 @@ The additional base class allows the comparisons with `arene::base::string_view`
 to work as expected, both ways round. Between them, the two base classes now
 provide 15 of the required 18 operators.
 
-## Full ordering from "less than" and "equals" {#full-ordering-from-less-than-and-equals}
+## Full ordering from "less than" and "equals" {#subpackages-compare-base-classes-full-ordering-from-less-than-and-equals}
 
 In some cases, checking for equality with `operator<` is slow. The poster child
 for this is string comparisons. `"hello"` and `"hello world"` are clearly

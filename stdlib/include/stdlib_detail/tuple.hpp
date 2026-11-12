@@ -165,7 +165,10 @@ constexpr auto get(tuple<Types...> const&& tup) noexcept -> tuple_element_t<I, t
 /// @brief access an element of an lvalue reference to a @c tuple
 /// @tparam T type of the element to access; must occur exactly once within @c tuple
 /// @tparam Types types of the @c tuple
-/// @param tup @c tuple to access an element from
+/// The tuple to access is passed as @c tup.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param tup The tuple to access
+/// @endcond
 /// @return reference to the only occurrence of @c T within @c tup
 template <class T, class... Types>
 constexpr auto get(tuple<Types...>& tup) noexcept -> T& {
@@ -183,7 +186,10 @@ constexpr auto get(tuple<Types...>& tup) noexcept -> T& {
 /// @brief access an element of a const lvalue reference to a @c tuple
 /// @tparam T type of the element to access; must occur exactly once within @c tuple
 /// @tparam Types types of the @c tuple
-/// @param tup @c tuple to access an element from
+/// The tuple to access is passed as @c tup.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param tup The tuple to access
+/// @endcond
 /// @return reference to the only occurrence of @c T within @c tup
 template <class T, class... Types>
 constexpr auto get(tuple<Types...> const& tup) noexcept -> T const& {
@@ -201,7 +207,10 @@ constexpr auto get(tuple<Types...> const& tup) noexcept -> T const& {
 /// @brief access an element of an rvalue reference to a @c tuple
 /// @tparam T type of the element to access; must occur exactly once within @c tuple
 /// @tparam Types types of the @c tuple
-/// @param tup @c tuple to access an element from
+/// The tuple to access is passed as @c tup.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param tup The tuple to access
+/// @endcond
 /// @return reference to the only occurrence of @c T within @c tup
 template <class T, class... Types>
 constexpr auto get(tuple<Types...>&& tup) noexcept -> T&& {
@@ -219,7 +228,10 @@ constexpr auto get(tuple<Types...>&& tup) noexcept -> T&& {
 /// @brief access an element of a const rvalue reference to a @c tuple
 /// @tparam T type of the element to access; must occur exactly once within @c tuple
 /// @tparam Types types of the @c tuple
-/// @param tup @c tuple to access an element from
+/// The tuple to access is passed as @c tup.
+/// @cond CPPTEST_PARAMETER_DOCUMENTATION
+/// @param tup The tuple to access
+/// @endcond
 /// @return reference to the only occurrence of @c T within @c tup
 template <class T, class... Types>
 constexpr auto get(tuple<Types...> const&& tup) noexcept -> T const&& {
@@ -347,7 +359,9 @@ void memberwise_forward_assign(Dest& dest, Source&& source, index_sequence<Indic
 /// @param rhs The second tupe to swap
 template <class Lhs, class Rhs, std::size_t... Indices>
 void memberwise_swap(Lhs& lhs, Rhs&& rhs, index_sequence<Indices...>) {
+  // parasoft-begin-suppress AUTOSAR-M5_18_1-a "Comma operator avoids an expensive recursive iteration"
   ::arene::base::consume_values({(swap(std::get<Indices>(lhs), std::get<Indices>(std::forward<Rhs>(rhs))), true)...});
+  // parasoft-end-suppress AUTOSAR-M5_18_1-a
 }
 
 // parasoft-end-suppress AUTOSAR-M2_10_1-a
@@ -830,6 +844,9 @@ class tuple : tuple_detail::tuple_impl<index_sequence_for<Types...>, arene::base
   // parasoft-end-suppress AUTOSAR-A12_8_6-a "False Positive: this is not a base class."
   // parasoft-end-suppress AUTOSAR-M2_10_1-a
 
+  // parasoft-begin-suppress CERT_CPP-ERR50-b-3 AUTOSAR-A15_5_1-a-2 AUTOSAR-A15_5_3-b-2 CERT_CPP-DCL57-a-2 "False
+  // positive: Generic generic swap functions may have noexcept specifications which depend on type properties of the
+  // template parameter"
   // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False Positive: 'swap' does not hide anything"
   /// @brief swap with another tuple
   /// @param rhs the other tuple to swap @c this with
@@ -844,6 +861,7 @@ class tuple : tuple_detail::tuple_impl<index_sequence_for<Types...>, arene::base
     tuple_detail::memberwise_swap(*this, rhs, type_index_sequence);
   }
   // parasoft-end-suppress AUTOSAR-A2_10_1-d
+  // parasoft-end-suppress CERT_CPP-ERR50-b-3 AUTOSAR-A15_5_1-a-2 AUTOSAR-A15_5_3-b-2 CERT_CPP-DCL57-a-2
 };
 // parasoft-begin-suppress AUTOSAR-A2_7_3-a
 
@@ -855,6 +873,7 @@ class tuple : tuple_detail::tuple_impl<index_sequence_for<Types...>, arene::base
 ///
 /// @note Requires:
 /// * <c> arene::base::all_of_v<arene::base::is_swappable_v<Types>...> </c> is @c true
+// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: This should not have the static keyword applied"
 template <
     class... Types,
     arene::base::constraints<enable_if_t<arene::base::all_of_v<arene::base::is_swappable_v<Types>...>>> = nullptr>
@@ -863,6 +882,7 @@ auto swap(tuple<Types...>& lhs, tuple<Types...>& rhs) noexcept(
 ) -> void {
   lhs.swap(rhs);
 }
+// parasoft-end-suppress AUTOSAR-M3_3_2-a
 
 // parasoft-begin-suppress AUTOSAR-A13_5_5-b "This is how the comparison operators are specified in C++14"
 /// @brief Compare two tuples by doing an equality comparison on their elements starting from 0

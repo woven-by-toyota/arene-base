@@ -20,7 +20,6 @@
 #include "arene/base/stdlib_choice/reference_wrapper.hpp"
 #include "arene/base/stdlib_choice/tuple.hpp"
 #include "arene/base/testing/gtest.hpp"
-#include "arene/base/type_traits.hpp"
 #include "arene/base/type_traits/is_invocable.hpp"
 
 namespace {

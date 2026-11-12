@@ -7,17 +7,19 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ALGORITHM_DETAIL_POP_HEAP_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_ALGORITHM_DETAIL_POP_HEAP_HPP_
 
+// parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
+
 // IWYU pragma: private
 // IWYU pragma: friend "arene/base/algorithm/.*"
 
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/algorithm/iter_swap.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
 #include "arene/base/iterator/distance.hpp"
 #include "arene/base/iterator/next.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
-#include "arene/base/stdlib_choice/initializer_list.hpp"  // IWYU pragma: keep
 #include "arene/base/stdlib_choice/is_copy_constructible.hpp"
 #include "arene/base/stdlib_choice/is_move_assignable.hpp"
 #include "arene/base/stdlib_choice/iterator_traits.hpp"
@@ -53,6 +55,7 @@ class pop_heap_impl_fn {
     C& comp_;  // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
 
    public:
+    // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: 'size' does not hide anything"
     /// @brief specify fixed parameters for determining the largest element
     /// @param first first element in the heap
     /// @param size number of elements in the heap
@@ -64,6 +67,7 @@ class pop_heap_impl_fn {
         : first_{first},
           size_{size},
           comp_{comp} {}
+    // parasoft-end-suppress AUTOSAR-A2_10_1-a
 
     /// @brief determine if the child elements are larger than the parent
     /// @param iter iterator to the parent element
@@ -90,7 +94,7 @@ class pop_heap_impl_fn {
       auto const child_offset = two * parent_position;
       auto position_of_largest = parent_position;
 
-      for (difference_type const index : {one, two}) {
+      for (difference_type const index : to_array({one, two})) {
         auto const position = child_offset + index;
         if (position >= size_) {
           break;

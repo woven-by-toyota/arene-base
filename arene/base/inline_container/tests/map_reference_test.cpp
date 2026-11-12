@@ -8,7 +8,9 @@
 
 #include "arene/base/inline_container/map.hpp"
 #include "arene/base/iterator/distance.hpp"
+#include "arene/base/ranges/enable_borrowed_range.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/forward.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
@@ -103,6 +105,11 @@ using const_map_ref = arene::base::const_inline_map_reference<custom_key, int, r
 
 template <bool IsNoexcept = true>
 using map_ref = arene::base::inline_map_reference<custom_key, int, reverse_less_than<IsNoexcept>>;
+
+/// @test Given an @c inline_map_reference, when @c enable_borrowed_range is queried, then its value is @c true .
+TYPED_TEST(MapReference, IsBorrowedRange) {
+  STATIC_ASSERT_TRUE(::arene::base::ranges::enable_borrowed_range_v<map_ref<>>);
+}
 
 /// @test A `const_inline_map_reference` cannot be created from an rvalue reference
 TYPED_TEST(ConstMapReference, NotConstructibleFromRvalueReferences) {
@@ -755,6 +762,52 @@ TYPED_TEST(MapReference, MemberFunctionsAreConstInvocable) {
   ASSERT_TRUE((is_invocable_v<decltype(&map_reference::clear), map_reference const&>));
   ASSERT_TRUE((is_invocable_v<decltype(&map_reference::begin), map_reference const&>));
   ASSERT_TRUE((is_invocable_v<decltype(&map_reference::end), map_reference const&>));
+}
+
+template <typename Map>
+class InlineMapReferenceLargeCapacityTest : public ::testing::Test {};
+
+using large_capacity_imaps = ::testing::Types<
+    arene::base::inline_map<std::int64_t, int, 50'000>,
+    arene::base::inline_map<std::int32_t, int, 100'000>,
+    arene::base::inline_map<std::int32_t, int, 1'000'000>>;
+
+TYPED_TEST_SUITE(InlineMapReferenceLargeCapacityTest, large_capacity_imaps, );
+
+/// @test inline_map_reference can be constructed from and used with maps of
+///   very large capacity
+TYPED_TEST(InlineMapReferenceLargeCapacityTest, WorksWithVeryLargeCapacity) {
+  static TypeParam map{};
+  map.clear();
+  map.emplace(0, 0);
+  map.emplace(100, 1);
+
+  arene::base::inline_map_reference<
+      typename TypeParam::key_type,
+      typename TypeParam::mapped_type,
+      typename TypeParam::compare_type> const ref{map};
+  EXPECT_EQ(ref.find(1), ref.end());
+  ASSERT_NE(ref.find(0), ref.end());
+  EXPECT_EQ(ref.find(0)->second, 0);
+  EXPECT_EQ(ref.find(100)->second, 1);
+}
+
+/// @test const_inline_map_reference can be constructed from and used with maps
+///   of very large capacity
+TYPED_TEST(InlineMapReferenceLargeCapacityTest, ConstWorksWithVeryLargeCapacity) {
+  static TypeParam map{};
+  map.clear();
+  map.emplace(0, 0);
+  map.emplace(100, 1);
+
+  arene::base::const_inline_map_reference<
+      typename TypeParam::key_type,
+      typename TypeParam::mapped_type,
+      typename TypeParam::compare_type> const ref{static_cast<TypeParam const&>(map)};
+  EXPECT_EQ(ref.find(1), ref.end());
+  ASSERT_NE(ref.find(0), ref.end());
+  EXPECT_EQ(ref.find(0)->second, 0);
+  EXPECT_EQ(ref.find(100)->second, 1);
 }
 
 }  // namespace

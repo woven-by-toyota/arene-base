@@ -6,7 +6,7 @@
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_MDSPAN_DETAIL_REVERSE_EXTENTS_HPP_
 
 // IWYU pragma: private
-// IWYU pragma: friend "arene/base/mdspan/.*"
+// IWYU pragma: friend "arene/base/(mdspan|linalg)/.*"
 
 #include "arene/base/mdspan/extents.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"

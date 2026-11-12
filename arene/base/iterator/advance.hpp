@@ -137,8 +137,7 @@ class advance {
 
 }  // namespace advance_detail
 
-/// @def arene::base::advance
-/// @copydoc arene::base::advance_detail::advance_fn::operator()
+/// @brief Advance an iterator by a distance, optionally bounded by a sentinel.
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global

@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -22,7 +26,7 @@ The Bazel target is
 //:span
 ```
 
-## Views Over Contiguous Data {#views-over-contiguous-data}
+# Views Over Contiguous Data {#subpackages-span-views-over-contiguous-data}
 
 `arene::base::span` provides a view over a contiguous sequence of objects. It
 takes 2 template parameters; the first is the type of the elements, and the

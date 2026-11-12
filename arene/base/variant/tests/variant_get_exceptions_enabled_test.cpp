@@ -10,8 +10,8 @@
 
 #include <gtest/gtest.h>
 
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/exceptions_enabled.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 #include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/max_value_overload.hpp"
 #include "arene/base/stdlib_choice/move.hpp"

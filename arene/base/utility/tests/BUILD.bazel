@@ -5,17 +5,24 @@
 load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
 load("//rules:cc_test.bzl", "cc_test", "cc_test_with_variants")
 
-package(default_visibility = ["//tools/compdb:__subpackages__"])
+package(default_visibility = ["//tools:__subpackages__"])
 
-cc_test(
+exports_files(
+    glob(["*.cpp"]),
+    visibility = ["//:__subpackages__"],
+)
+
+cc_test_with_variants(
     name = "alignment_death_test",
     srcs = ["alignment_death_test.cpp"],
     deps = [
         "//arene/base/stdlib_choice:climits",
         "//arene/base/stdlib_choice:cstdint",
-        "//arene/base/stdlib_choice:tuple",
+        "//arene/base/stdlib_choice:ignore",
+        "//arene/base/type_list:remove_duplicates",
         "//arene/base/utility:alignment",
-        "//testlibs:gtest",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
     ],
 )
 
@@ -36,7 +43,7 @@ cc_test_with_variants(
         "//arene/base/testing:gtest",
         "//arene/base/type_list:remove_duplicates",
         "//arene/base/utility:alignment",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -46,12 +53,14 @@ cc_test_with_variants(
         "as_const_test.cpp",
     ],
     deps = [
+        "//arene/base/stdlib_choice:add_const",
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:is_volatile",
         "//arene/base/stdlib_choice:remove_reference",
         "//arene/base/testing:gtest",
         "//arene/base/utility:as_const",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -59,7 +68,6 @@ cc_test_with_variants(
     name = "forward_like_test",
     srcs = ["forward_like_test.cpp"],
     deps = [
-        "//arene/base:type_list",
         "//arene/base/stdlib_choice:add_const",
         "//arene/base/stdlib_choice:add_lvalue_reference",
         "//arene/base/stdlib_choice:add_rvalue_reference",
@@ -71,8 +79,12 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:remove_reference",
         "//arene/base/testing:gtest",
+        "//arene/base/type_list",
+        "//arene/base/type_list:apply_all",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_list:flat_map",
         "//arene/base/utility:forward_like",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -85,18 +97,21 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:is_trivially_copyable",
         "//arene/base/testing:gtest",
         "//arene/base/utility:in_place",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
-# Cannot use cc_test_with_variants because it heavily relies on gmock features.
-cc_test(
+cc_test_with_variants(
     name = "make_subrange_test",
     srcs = ["make_subrange_test.cpp"],
     deps = [
+        "//arene/base/array",
+        "//arene/base/inline_container:vector",
+        "//arene/base/ranges:enable_borrowed_range",
+        "//arene/base/stdlib_choice:cstddef",
         "//arene/base/testing:gtest",
         "//arene/base/utility:make_subrange",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -104,26 +119,42 @@ cc_test_with_variants(
     name = "safe_comparisons_test",
     srcs = ["safe_comparisons_test.cpp"],
     deps = [
-        "//arene/base:type_list",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:make_unsigned",
         "//arene/base/stdlib_choice:numeric_limits",
         "//arene/base/testing:gtest",
+        "//arene/base/type_list",
         "//arene/base/utility:safe_comparisons",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
-# Cannot use cc_test_with_variants because it heavily relies on gmock features.
-cc_test(
+cc_test_with_variants(
     name = "swap_test",
     srcs = ["swap_test.cpp"],
     deps = [
-        "//arene/base:byte",
-        "//arene/base:type_list",
+        "//arene/base:constraints",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:move",
         "//arene/base/testing:gtest",
+        "//arene/base/type_list",
+        "//arene/base/type_list:apply_all",
+        "//arene/base/type_list:concat",
+        "//arene/base/type_traits:is_swappable",
         "//arene/base/utility:swap",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+# Tests specifically with some types that are not defined in the Arene Base Standard Library, so no _with_variants
+cc_test(
+    name = "swap_stdlib_test",
+    srcs = ["swap_stdlib_test.cpp"],
+    deps = [
+        "//arene/base:byte",
+        "//arene/base/utility:swap",
+        "//testlibs:test_main",
     ],
 )
 
@@ -133,13 +164,8 @@ cc_test_with_variants(
     deps = [
         "//arene/base/testing:gtest",
         "//arene/base/utility:to_underlying",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )
 
 cc_build_error_test(

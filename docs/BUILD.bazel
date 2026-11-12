@@ -1,7 +1,61 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:doxygen.bzl", "doxygen")
+
 exports_files(
     [
         "doxygen-awesome.css",
         "doxygen-awesome-sidebar-only.css",
     ],
     visibility = ["//:__subpackages__"],
+)
+
+# The output of this rule does not read feature parity with the AreneCLI task.
+# This HTML output is currently used for a PR doc preview and intended to be
+# more lightweight than the full documentation.
+doxygen(
+    name = "preview",
+    srcs = ["doxygen_layout"],
+    configurations = ["INPUT += arene/base/mdspan/detail/layout_common.hpp"],
+    disable_index = False,  # avoid JS
+    example_path = [
+        ".",
+        "docs/examples",
+        "docs",
+    ],
+    exclude_patterns = [
+        "*/tests/*",
+        "*/test/*",
+        "*/detail/*",
+        "*/docs/examples/*",
+    ],
+    extract_all = True,
+    extract_static = True,
+    generate_treeview = False,  # avoid JS
+    hide_undoc_namespaces = False,
+    html_dynamic_menus = False,  # avoid JS
+    html_dynamic_sections = False,  # avoid JS
+    image_path = ["docs/images"],
+    layout_file = "docs/doxygen_layout",
+    predefined = [
+        "__attribute__(x)=",
+        "decltype(x)=",
+        "ARENE_DEPRECATED_WITH(x)=",
+        "ARENE_DOC_ONLY(n)=n",
+        "ARENE_DOC_GENERATION_RUNNING=",
+        "ARENE_IGNORE_START()=",
+        "ARENE_IGNORE_END()=",
+    ],
+    project_name = "Arene Base Developer Preview Docs",
+    searchengine = False,  # avoid JS
+    sort_by_scope_name = True,
+    deps = [
+        "//arene/base:internal",
+        "//docs/examples:snippets",
+        "//docs/images:diagrams",
+        "//docs/user-documentation",
+        "//stdlib",
+    ],
 )

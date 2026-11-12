@@ -40,40 +40,46 @@ using testing::is_unambiguously_publicly_derived_from_v;
 
 }  // namespace
 
-// Specialize treat_as_floating_point for our custom type outside the anonymous namespace
-template <>
-struct std::chrono::treat_as_floating_point<wrapped_float> : std::true_type {};
+namespace std {
 
 template <class T>
-struct std::common_type<wrapped_float, T> {
+struct common_type<wrapped_float, T> {
   using type = double;
 };
 
 template <class T>
-struct std::common_type<testing::configurable_value<std::int32_t, testing::throws_on::everything>, T> {
+struct common_type<testing::configurable_value<std::int32_t, testing::throws_on::everything>, T> {
   using type = testing::configurable_value<std::int32_t, testing::throws_on::everything>;
 };
 
 template <class T>
-struct std::common_type<T, testing::configurable_value<std::int32_t, testing::throws_on::everything>> {
+struct common_type<T, testing::configurable_value<std::int32_t, testing::throws_on::everything>> {
   using type = testing::configurable_value<std::int32_t, testing::throws_on::everything>;
 };
 
 template <>
-struct std::common_type<
+struct common_type<
     testing::configurable_value<std::int32_t, testing::throws_on::everything>,
     testing::configurable_value<std::int32_t, testing::throws_on::everything>> {
   using type = testing::configurable_value<std::int32_t, testing::throws_on::everything>;
 };
 
+namespace chrono {
+
 template <>
-struct std::chrono::duration_values<testing::configurable_value<std::int32_t>> {
+struct treat_as_floating_point<wrapped_float> : true_type {};
+
+template <>
+struct duration_values<testing::configurable_value<std::int32_t>> {
   static constexpr auto zero() noexcept(false) -> testing::configurable_value<std::int32_t> { return {1}; }
 
   static constexpr auto min() noexcept(false) -> testing::configurable_value<std::int32_t> { return {2}; }
 
   static constexpr auto max() noexcept(false) -> testing::configurable_value<std::int32_t> { return {3}; }
 };
+
+}  // namespace chrono
+}  // namespace std
 
 namespace {
 

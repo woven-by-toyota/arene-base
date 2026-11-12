@@ -10,9 +10,9 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_THREAD_SAFETY_ANNOTATIONS_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_COMPILER_SUPPORT_THREAD_SAFETY_ANNOTATIONS_HPP_
 
+#include "arene/base/compiler_support/platform_queries/has_thread_safety_analysis.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) These are wrappers around existing macros that must be macros.
 

@@ -4,9 +4,9 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "detail",
+    hdrs = [
         "byte_swap16.hpp",
         "byte_swap16_bswap16.hpp",
         "byte_swap16_raw.hpp",
@@ -21,11 +21,6 @@ filegroup(
         "endian_specified_byte_order_impl.hpp",
         "endian_windows_impl.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "detail",
-    hdrs = [":hdrs"],
     visibility = [
         "//arene/base/endian:__subpackages__",
     ],
@@ -40,7 +35,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base/endian:__pkg__"],
 )

@@ -1,0 +1,100 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+
+test_suite(
+    name = "vector_idx_abs_max_compile_error_test",
+    tests = [
+        name
+        for i, (code_snippet, match) in enumerate([
+            (
+                "auto _ = vector_idx_abs_max(0);",
+                matcher.has_substr("requirement 'is_in_vector_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_abs
+{
+  friend auto abs(no_abs) = delete;
+};
+
+auto _ = vector_idx_abs_max(
+  mdspan<no_abs, dextents<std::size_t, 1>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_invocable_v<.*complex_l1_norm.*, no_abs &>' was not satisfied"),
+            ),
+            (
+                """\
+struct uncomparable {
+  friend auto abs(uncomparable) -> uncomparable { return {}; }
+};
+
+auto _ = vector_idx_abs_max(
+  mdspan<uncomparable, dextents<std::size_t, 1>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_equality_comparable_v<uncomparable>' was not satisfied"),
+            ),
+            (
+                """\
+struct no_ordering {
+  friend auto abs(no_ordering) -> no_ordering { return {}; }
+  friend auto operator==(no_ordering, no_ordering) -> bool { return true; }
+  friend auto operator!=(no_ordering, no_ordering) -> bool { return false; }
+};
+
+auto _ = vector_idx_abs_max(
+  mdspan<no_ordering, dextents<std::size_t, 1>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_less_than_comparable_v<no_ordering>' was not satisfied"),
+            ),
+            (
+                """\
+struct incomplete_ordering {
+  friend auto abs(incomplete_ordering) -> incomplete_ordering { return {}; }
+  friend auto operator==(incomplete_ordering, incomplete_ordering) -> bool { return true; }
+  friend auto operator!=(incomplete_ordering, incomplete_ordering) -> bool { return false; }
+  friend auto operator<(incomplete_ordering, incomplete_ordering) -> bool { return false; }
+};
+
+auto _ = vector_idx_abs_max(
+  mdspan<incomplete_ordering, dextents<std::size_t, 1>>{}
+);
+                    """,
+                matcher.contains_basic_regex("requirement 'is_greater_than_comparable_v<incomplete_ordering>' was not satisfied"),
+            ),
+        ])
+        for name in ["vector_idx_abs_max_error_{}_test".format(i)]
+        for _ in [cc_build_error_test(
+            name = name,
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/linalg/vector_idx_abs_max.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+
+using arene::base::linalg::vector_idx_abs_max;
+using arene::base::dextents;
+using arene::base::extents;
+using arene::base::mdspan;
+
+{snippet}
+                """.format(snippet = code_snippet)),
+            compile_stderr = match,
+            target_compatible_with = select({
+                "//configs/compiler:clang": [],
+                "//conditions:default": ["@platforms//:incompatible"],
+            }),
+            deps = [
+                "//arene/base/linalg:vector_idx_abs_max",
+                "//arene/base/mdspan",
+                "//arene/base/mdspan:extents",
+                "//arene/base/stdlib_choice:cstddef",
+            ],
+        )]
+    ],
+)

@@ -11,6 +11,8 @@
 #include "arene/base/mdspan/extents.hpp"
 #include "arene/base/mdspan/mdspan.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/integral_constant.hpp"
+#include "arene/base/stdlib_choice/is_same.hpp"
 #include "arene/base/stdlib_choice/remove_cv.hpp"
 #include "arene/base/testing/gtest.hpp"
 #include "arene/base/type_manipulation/static_if.hpp"
@@ -24,6 +26,11 @@ using arene::base::mdspan;
 using arene::base::linalg::possibly_addable_v;
 using arene::base::linalg::possibly_comparable_v;
 using arene::base::linalg::possibly_multipliable_v;
+using arene::base::linalg::possibly_square;
+using arene::base::linalg::possibly_square_v;
+
+template <std::size_t... StaticExtents>
+using mdspan_with_extents = mdspan<int, extents<std::size_t, StaticExtents...>>;
 
 /// @brief Replace the indicated rank of an mdspan with @c dynamic_extent while preserving everything else about it
 /// @{
@@ -196,22 +203,28 @@ TYPED_TEST(LinalgVectorMandatesTest, NotComparableToBiggerExtent) {
   STATIC_ASSERT_EQ((possibly_comparable_v<TypeParam, bigger_vector>), is_dynamic);
 }
 
+/// @test Linalg vectors are never possibly square, since they are not matrices
+TYPED_TEST(LinalgVectorMandatesTest, NotPossiblySquare) {
+  STATIC_ASSERT_FALSE(possibly_square_v<TypeParam>);
+  STATIC_ASSERT_FALSE((possibly_square<TypeParam>::value));
+}
+
 /// @test Linalg vectors are all possibly-left-multipliable with their own type as output via a matrix which is square
 /// or dynamically-sized
 TYPED_TEST(LinalgVectorMandatesTest, LeftMultipliable) {
   using square_matrix = mdspan<
       typename TypeParam::element_type,
-      extents<std::size_t, TypeParam::static_extent(0), TypeParam::static_extent(0)> >;
+      extents<std::size_t, TypeParam::static_extent(0), TypeParam::static_extent(0)>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<TypeParam, square_matrix, TypeParam>);
 
   using dynamic_width_matrix =
-      mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(0), dynamic_extent> >;
+      mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(0), dynamic_extent>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<TypeParam, dynamic_width_matrix, TypeParam>);
 
   using dynamic_height_matrix =
-      mdspan<typename TypeParam::element_type, extents<std::size_t, dynamic_extent, TypeParam::static_extent(0)> >;
+      mdspan<typename TypeParam::element_type, extents<std::size_t, dynamic_extent, TypeParam::static_extent(0)>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<TypeParam, dynamic_height_matrix, TypeParam>);
 }
@@ -221,17 +234,17 @@ TYPED_TEST(LinalgVectorMandatesTest, LeftMultipliable) {
 TYPED_TEST(LinalgVectorMandatesTest, RightMultipliable) {
   using square_matrix = mdspan<
       typename TypeParam::element_type,
-      extents<std::size_t, TypeParam::static_extent(0), TypeParam::static_extent(0)> >;
+      extents<std::size_t, TypeParam::static_extent(0), TypeParam::static_extent(0)>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<square_matrix, TypeParam, TypeParam>);
 
   using dynamic_width_matrix =
-      mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(0), dynamic_extent> >;
+      mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(0), dynamic_extent>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<dynamic_width_matrix, TypeParam, TypeParam>);
 
   using dynamic_height_matrix =
-      mdspan<typename TypeParam::element_type, extents<std::size_t, dynamic_extent, TypeParam::static_extent(0)> >;
+      mdspan<typename TypeParam::element_type, extents<std::size_t, dynamic_extent, TypeParam::static_extent(0)>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<dynamic_height_matrix, TypeParam, TypeParam>);
 }
@@ -411,11 +424,139 @@ TYPED_TEST(LinalgMatrixMandatesTest, NotComparableToBiggerExtent) {
   STATIC_ASSERT_EQ((possibly_comparable_v<TypeParam, generally_bigger_matrix>), fully_dynamic);
 }
 
+/// @test Linalg matrices are possibly square when their static extents are equal or either extent is dynamic
+TYPED_TEST(LinalgMatrixMandatesTest, PossiblySquare) {
+  constexpr bool dynamic_height{TypeParam::static_extent(0) == dynamic_extent};
+  constexpr bool dynamic_width{TypeParam::static_extent(1) == dynamic_extent};
+  constexpr bool statically_square{TypeParam::static_extent(0) == TypeParam::static_extent(1)};
+
+  STATIC_ASSERT_EQ(possibly_square_v<TypeParam>, statically_square || dynamic_height || dynamic_width);
+  STATIC_ASSERT_EQ(possibly_square<TypeParam>::value, possibly_square_v<TypeParam>);
+}
+
+/// @test Linalg rank-0 objects are statically compatible with ones with the same or dynamic extents
+TEST(LinalgObject0MandatesTest, CompatibleStaticExtents) {
+  using arene::base::linalg::compatible_static_extents;
+
+  STATIC_ASSERT_TRUE(compatible_static_extents<  //
+                     mdspan_with_extents<>,
+                     mdspan_with_extents<>>());
+}
+
+/// @test Linalg rank-0 objects are always possibly addable
+TEST(LinalgObject0MandatesTest, PossiblyAddable) {
+  using arene::base::linalg::possibly_addable_v;
+
+  STATIC_ASSERT_TRUE(possibly_addable_v<  //
+                     mdspan_with_extents<>,
+                     mdspan_with_extents<>,
+                     mdspan_with_extents<>>);
+}
+
+/// @test Linalg rank-3 objects are statically compatible with ones with the same or dynamic extents
+TEST(LinalgObject3MandatesTest, CompatibleStaticExtents) {
+  using arene::base::linalg::compatible_static_extents;
+
+  // NOLINTNEXTLINE(readability-identifier-length)
+  auto const _ = arene::base::dynamic_extent;
+
+  STATIC_ASSERT_TRUE(compatible_static_extents<  //
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<1, 2, 3>>());
+  STATIC_ASSERT_TRUE(compatible_static_extents<  //
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<1, _, 3>>());
+  STATIC_ASSERT_TRUE(compatible_static_extents<  //
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<_, 2, 3>>());
+  STATIC_ASSERT_TRUE(compatible_static_extents<  //
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<1, 2, _>>());
+  STATIC_ASSERT_TRUE(compatible_static_extents<  //
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<_, _, _>>());
+  STATIC_ASSERT_TRUE(compatible_static_extents<  //
+                     mdspan_with_extents<_, _, _>,
+                     mdspan_with_extents<_, _, _>>());
+
+  STATIC_ASSERT_FALSE(compatible_static_extents<  //
+                      mdspan_with_extents<1, 2, 1>,
+                      mdspan_with_extents<1, 2, 3>>());
+  STATIC_ASSERT_FALSE(compatible_static_extents<  //
+                      mdspan_with_extents<_, 2, 1>,
+                      mdspan_with_extents<1, _, 3>>());
+  STATIC_ASSERT_FALSE(compatible_static_extents<  //
+                      mdspan_with_extents<_, _, 1>,
+                      mdspan_with_extents<_, _, 3>>());
+}
+
+/// @test Linalg rank-3 objects are possibly addable with ones with the same or dynamic extents
+TEST(LinalgObject3MandatesTest, PossiblyAddable) {
+  using arene::base::linalg::compatible_static_extents;
+
+  // NOLINTNEXTLINE(readability-identifier-length)
+  auto const _ = arene::base::dynamic_extent;
+
+  STATIC_ASSERT_TRUE(possibly_addable_v<  //
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<1, 2, 3>>);
+  STATIC_ASSERT_TRUE(possibly_addable_v<  //
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<1, 2, _>>);
+  STATIC_ASSERT_TRUE(possibly_addable_v<  //
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<1, _, 3>,
+                     mdspan_with_extents<1, 2, _>>);
+  STATIC_ASSERT_TRUE(possibly_addable_v<  //
+                     mdspan_with_extents<_, 2, 3>,
+                     mdspan_with_extents<1, _, 3>,
+                     mdspan_with_extents<1, 2, _>>);
+  STATIC_ASSERT_TRUE(possibly_addable_v<  //
+                     mdspan_with_extents<_, 2, 3>,
+                     mdspan_with_extents<1, _, 3>,
+                     mdspan_with_extents<_, _, _>>);
+  STATIC_ASSERT_TRUE(possibly_addable_v<  //
+                     mdspan_with_extents<_, _, _>,
+                     mdspan_with_extents<1, 2, 3>,
+                     mdspan_with_extents<_, _, _>>);
+  STATIC_ASSERT_TRUE(possibly_addable_v<  //
+                     mdspan_with_extents<_, _, _>,
+                     mdspan_with_extents<_, _, _>,
+                     mdspan_with_extents<_, _, _>>);
+
+  STATIC_ASSERT_FALSE(possibly_addable_v<  //
+                      mdspan_with_extents<1, 2, 3>,
+                      mdspan_with_extents<1, 2, 3>,
+                      mdspan_with_extents<1, 2, 1>>);
+  STATIC_ASSERT_FALSE(possibly_addable_v<  //
+                      mdspan_with_extents<1, 2, 3>,
+                      mdspan_with_extents<1, 2, 1>,
+                      mdspan_with_extents<1, 2, _>>);
+  STATIC_ASSERT_FALSE(possibly_addable_v<  //
+                      mdspan_with_extents<1, 2, 3>,
+                      mdspan_with_extents<1, 1, 3>,
+                      mdspan_with_extents<1, _, 3>>);
+  STATIC_ASSERT_FALSE(possibly_addable_v<  //
+                      mdspan_with_extents<1, 2, 3>,
+                      mdspan_with_extents<2, 2, 3>,
+                      mdspan_with_extents<_, 2, 3>>);
+  STATIC_ASSERT_FALSE(possibly_addable_v<  //
+                      mdspan_with_extents<1, 2, 3>,
+                      mdspan_with_extents<2, 2, 3>,
+                      mdspan_with_extents<_, _, _>>);
+  STATIC_ASSERT_FALSE(possibly_addable_v<  //
+                      mdspan_with_extents<1, 2, 3>,
+                      mdspan_with_extents<_, _, _>,
+                      mdspan_with_extents<2, _, _>>);
+}
+
 /// @test For matrices, left-multiplication with vectors works as expected
 TYPED_TEST(LinalgMatrixMandatesTest, VectorLeftMultipliable) {
   using left_multipliable_vector =
-      mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(0)> >;
-  using output_vector = mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(1)> >;
+      mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(0)>>;
+  using output_vector = mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(1)>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<left_multipliable_vector, TypeParam, output_vector>);
 
@@ -445,8 +586,8 @@ TYPED_TEST(LinalgMatrixMandatesTest, VectorLeftMultipliable) {
 /// @test For matrices, right-multiplication with vectors works as expected
 TYPED_TEST(LinalgMatrixMandatesTest, VectorRightMultipliable) {
   using right_multipliable_vector =
-      mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(1)> >;
-  using output_vector = mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(0)> >;
+      mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(1)>>;
+  using output_vector = mdspan<typename TypeParam::element_type, extents<std::size_t, TypeParam::static_extent(0)>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<TypeParam, right_multipliable_vector, output_vector>);
 
@@ -477,13 +618,13 @@ TYPED_TEST(LinalgMatrixMandatesTest, VectorRightMultipliable) {
 TYPED_TEST(LinalgMatrixMandatesTest, MatrixMultipliable) {
   using transposed_matrix = mdspan<
       typename TypeParam::element_type,
-      extents<std::size_t, TypeParam::static_extent(1), TypeParam::static_extent(0)> >;
+      extents<std::size_t, TypeParam::static_extent(1), TypeParam::static_extent(0)>>;
   using height_height_matrix = mdspan<
       typename TypeParam::element_type,
-      extents<std::size_t, TypeParam::static_extent(0), TypeParam::static_extent(0)> >;
+      extents<std::size_t, TypeParam::static_extent(0), TypeParam::static_extent(0)>>;
   using width_width_matrix = mdspan<
       typename TypeParam::element_type,
-      extents<std::size_t, TypeParam::static_extent(1), TypeParam::static_extent(1)> >;
+      extents<std::size_t, TypeParam::static_extent(1), TypeParam::static_extent(1)>>;
 
   STATIC_ASSERT_TRUE(possibly_multipliable_v<TypeParam, transposed_matrix, height_height_matrix>);
   STATIC_ASSERT_TRUE(possibly_multipliable_v<transposed_matrix, TypeParam, width_width_matrix>);
@@ -500,6 +641,39 @@ TYPED_TEST(LinalgMatrixMandatesTest, MatrixMultipliable) {
 
   STATIC_ASSERT_EQ((possibly_multipliable_v<TypeParam, height_height_matrix, TypeParam>), square);
   STATIC_ASSERT_EQ((possibly_multipliable_v<width_width_matrix, TypeParam, TypeParam>), square);
+}
+
+/// @test Matrices are possibly square when their static extents are equal or either extent is dynamic
+TEST(LinalgSquareMandatesTest, MatricesArePossiblySquare) {
+  // NOLINTNEXTLINE(readability-identifier-length)
+  auto const _ = arene::base::dynamic_extent;
+
+  STATIC_ASSERT_TRUE(possibly_square_v<mdspan_with_extents<3, 3>>);
+  STATIC_ASSERT_TRUE(possibly_square_v<mdspan_with_extents<3, _>>);
+  STATIC_ASSERT_TRUE(possibly_square_v<mdspan_with_extents<_, 3>>);
+  STATIC_ASSERT_TRUE(possibly_square_v<mdspan_with_extents<_, _>>);
+
+  STATIC_ASSERT_FALSE(possibly_square_v<mdspan_with_extents<3, 4>>);
+  STATIC_ASSERT_FALSE(possibly_square_v<mdspan_with_extents<4, 3>>);
+}
+
+/// @test Objects which are not matrices, and types which are not linalg objects at all, are never possibly square
+TEST(LinalgSquareMandatesTest, NonMatricesAreNotPossiblySquare) {
+  // NOLINTNEXTLINE(readability-identifier-length)
+  auto const _ = arene::base::dynamic_extent;
+
+  STATIC_ASSERT_FALSE(possibly_square_v<mdspan_with_extents<>>);
+  STATIC_ASSERT_FALSE(possibly_square_v<mdspan_with_extents<3>>);
+  STATIC_ASSERT_FALSE(possibly_square_v<mdspan_with_extents<_>>);
+  STATIC_ASSERT_FALSE(possibly_square_v<mdspan_with_extents<3, 3, 3>>);
+  STATIC_ASSERT_FALSE(possibly_square_v<int>);
+  STATIC_ASSERT_FALSE(possibly_square_v<int*>);
+}
+
+/// @test @c possibly_square is a @c std::integral_constant specialization
+TEST(LinalgSquareMandatesTest, PossiblySquareIsAnIntegralConstant) {
+  STATIC_ASSERT_TRUE((std::is_same<possibly_square<mdspan_with_extents<3, 3>>::type, std::true_type>::value));
+  STATIC_ASSERT_TRUE((std::is_same<possibly_square<mdspan_with_extents<3, 4>>::type, std::false_type>::value));
 }
 
 }  // namespace

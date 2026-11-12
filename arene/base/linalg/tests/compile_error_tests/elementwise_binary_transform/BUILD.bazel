@@ -1,0 +1,143 @@
+# Copyright 2026, Toyota Motor Corporation
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
+
+test_suite(
+    name = "elementwise_binary_transform_compile_error_test",
+    tests = [
+        name
+        for i, (code_snippet, match) in enumerate([
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  int{},
+  mdspan<int, dextents<std::size_t, 1>>{},
+  mdspan<int, dextents<std::size_t, 1>>{},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.has_substr("requirement 'is_in_object_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  int{},
+  mdspan<int, dextents<std::size_t, 1>>{},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.has_substr("requirement 'is_in_object_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  mdspan<int, dextents<std::size_t, 1>>{},
+  int{},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.has_substr("requirement 'is_in_object_v<int>' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  mdspan<int, dextents<std::size_t, 2>>{},
+  mdspan<int, dextents<std::size_t, 1>>{},
+  mdspan<int, dextents<std::size_t, 1>>{},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.contains_extended_regex("requirement '(mdspan|extents)<.*>::rank\\(\\) == (mdspan|extents)<.*>::rank\\(\\)' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  mdspan<int, dextents<std::size_t, 2>>{},
+  mdspan<int, dextents<std::size_t, 1>>{},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.contains_extended_regex("requirement '(mdspan|extents)<.*>::rank\\(\\) == (mdspan|extents)<.*>::rank\\(\\)' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  mdspan<int, dextents<std::size_t, 1>>{},
+  mdspan<int, dextents<std::size_t, 1>>{},
+  mdspan<int, dextents<std::size_t, 2>>{},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.contains_extended_regex("requirement '(mdspan|extents)<.*>::rank\\(\\) == (mdspan|extents)<.*>::rank\\(\\)' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  mdspan<int, extents<std::size_t, 2>>{nullptr},
+  mdspan<int, extents<std::size_t, 1>>{nullptr},
+  mdspan<int, extents<std::size_t, 1>>{nullptr},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.contains_basic_regex("requirement 'compatible_static_extents<.*>()' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  mdspan<int, extents<std::size_t, 1>>{nullptr},
+  mdspan<int, extents<std::size_t, 2>>{nullptr},
+  mdspan<int, extents<std::size_t, 1>>{nullptr},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.contains_basic_regex("requirement 'compatible_static_extents<.*>()' was not satisfied"),
+            ),
+            (
+                """\
+auto _ = (elementwise_binary_transform(
+  mdspan<int, extents<std::size_t, 1>>{nullptr},
+  mdspan<int, extents<std::size_t, 1>>{nullptr},
+  mdspan<int, extents<std::size_t, 2>>{nullptr},
+  std::plus<>{}
+), true);
+                    """,
+                matcher.contains_basic_regex("requirement 'compatible_static_extents<.*>()' was not satisfied"),
+            ),
+        ])
+        for name in ["elementwise_binary_transform_error_{}_test".format(i)]
+        for _ in [cc_build_error_test(
+            name = name,
+            src = inline_src.cpp("""\
+#include "arene/base/mdspan/extents.hpp"
+#include "arene/base/mdspan/mdspan.hpp"
+#include "arene/base/linalg/elementwise_binary_transform.hpp"
+#include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/plus.hpp"
+
+using arene::base::linalg::elementwise_binary_transform;
+using arene::base::dextents;
+using arene::base::extents;
+using arene::base::mdspan;
+
+{snippet}
+                """.format(snippet = code_snippet)),
+            compile_stderr = match,
+            target_compatible_with = select({
+                "//configs/compiler:clang": [],
+                "//conditions:default": ["@platforms//:incompatible"],
+            }),
+            deps = [
+                "//arene/base/linalg:elementwise_binary_transform",
+                "//arene/base/mdspan",
+                "//arene/base/mdspan:extents",
+                "//arene/base/stdlib_choice:cstddef",
+                "//arene/base/stdlib_choice:plus",
+            ],
+        )]
+    ],
+)

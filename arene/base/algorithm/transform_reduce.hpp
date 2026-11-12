@@ -14,15 +14,14 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/algorithm/detail/generalized_transform_reduce.hpp"
+#include "arene/base/algorithm/detail/reduce_policy_movable_box.hpp"
+#include "arene/base/algorithm/detail/synthesize_range1_overload.hpp"  // IWYU pragma: export
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
-#include "arene/base/optional/optional.hpp"
+#include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/enable_if.hpp"
-#include "arene/base/stdlib_choice/forward.hpp"
 #include "arene/base/stdlib_choice/is_constructible.hpp"
-#include "arene/base/stdlib_choice/is_destructible.hpp"
-#include "arene/base/stdlib_choice/is_move_assignable.hpp"
 #include "arene/base/stdlib_choice/is_move_constructible.hpp"
 #include "arene/base/stdlib_choice/move.hpp"
 #include "arene/base/stdlib_choice/multiplies.hpp"
@@ -49,55 +48,6 @@ class transform_reduce_fn {
   ///
   template <class Invocable, class... Iterator>
   using iter_result_t = invoke_result_t<Invocable, iter_reference_t<Iterator>...>;
-
-  /// @brief policy for handling the accumulator
-  /// @tparam Value accumulator value type
-  ///
-  /// Primary template for types that are *not* move assignable. Uses an
-  /// @c optional to allow use of @c transform_reduce for types that are move
-  /// constructible but not move assignable.
-  ///
-  template <class Value, bool = std::is_move_assignable<Value>::value>
-  class reduce_value_policy {
-   public:
-    /// @brief value type to use in the underlying implementation function
-    using value_type = optional<Value>;
-
-    /// @brief generalized assignment
-    /// @tparam Result result type
-    /// @param acc reference to the accumulator
-    /// @param result value to assign
-    ///
-    /// Update @c acc with @c result. This is intended to provide functionality
-    /// similar to ranges exposition-only utility movable-box.
-    ///
-    template <class Result>
-    static auto assign(value_type& acc, Result&& result) noexcept(
-        std::is_nothrow_destructible<value_type>::value &&  //
-        std::is_nothrow_constructible<Value, Result&&>::value
-    ) -> void {
-      acc.emplace(std::forward<Result>(result));
-    }
-    /// @brief generalized access
-    /// @param acc lvalue reference to the accumulator
-    /// @return <c> move(acc) </c>
-    ///
-    static auto access(value_type& acc) noexcept -> Value&& { return *std::move(acc); }
-    /// @brief generalized access
-    /// @param acc rvalue reference to the accumulator
-    /// @return <c> move(acc) </c>
-    ///
-    static auto access(value_type&& acc) noexcept -> Value&& { return *std::move(acc); }
-  };
-
-  /// @brief policy for handling the accumulator
-  /// @tparam Value accumulator value type
-  ///
-  /// Specialization for types that *are* move assignable.
-  ///
-  template <class Value>
-  class reduce_value_policy<Value, true>  //
-      : public generalized_transform_reduce::default_reduce_value_policy<Value> {};
 
  public:
   /// @brief applies an invocable, then reduces out of order
@@ -184,29 +134,31 @@ class transform_reduce_fn {
       InputIt1 last1,
       InputIt2 first2,
       Value init,
+      // parasoft-begin-suppress AUTOSAR-A2_10_1-a "It does not matter if 'reduce' hides an identifier at global or namespace scope"
       Reduce reduce,
+      // parasoft-end-suppress AUTOSAR-A2_10_1-a
       // parasoft-begin-suppress AUTOSAR-A2_10_1-a "It does not matter if 'transform' hides an identifier at global or namespace scope"
       Transform transform
       // parasoft-end-suppress AUTOSAR-A2_10_1-a
   ) const noexcept( //
           std::is_nothrow_constructible<
-            typename reduce_value_policy<Value>::value_type,
+            typename reduce_policy_movable_box<Value>::value_type,
             Value&&
           >::value &&
           std::is_nothrow_move_constructible<Value>::value &&
           is_nothrow_invocable_v<
               generalized_transform_reduce,
-              reduce_value_policy<Value>,
+              reduce_policy_movable_box<Value>,
               InputIt1&,
               InputIt1&,
               InputIt2&,
-              typename reduce_value_policy<Value>::value_type,
+              typename reduce_policy_movable_box<Value>::value_type,
               Reduce&,
               Transform&>
       )
       -> Value
   {
-    using value_policy = reduce_value_policy<Value>;
+    using value_policy = reduce_policy_movable_box<Value>;
 
     return value_policy::access(         //
         generalized_transform_reduce{}(  //
@@ -318,18 +270,133 @@ class transform_reduce_fn {
         std::multiplies<>{}
     );
   }
+
+  /// @brief applies an invocable, then reduces out of order
+  /// @tparam InputIt type of the iterator for the range
+  /// @tparam Value type of the reduced value
+  /// @tparam Reduce type of the reduction operation
+  /// @tparam Transform type of the transform operation
+  /// @param first iterator to the beginning of the range
+  /// @param last iterator to one past the end of the range
+  /// @param init initial value to start with
+  /// @param reduce binary function object used to reduce transformed elements
+  ///   to a single value
+  /// @param transform unary function object applied to each element of the
+  ///   input range
+  ///
+  /// @return The generalized sum of @c init and @c values over @c reduce, where
+  ///   @c values are the values of the input range transformed by @c transform.
+  ///
+  /// @pre @c transform does not invalidate subranges, nor modify
+  ///   elements in the ranges <c> [first, last) </c>
+  /// @pre binary @c reduce does not invalidate subranges, nor modify
+  ///   elements in the ranges <c> [first, last) </c>
+  ///
+  /// @note Constraints <br>
+  ///   * @c InputIt must satisfy the input iterator requirements
+  ///   * @c Value is move constructible
+  ///   * <c> reduce(init, init) </c> is convertible to @c Value
+  ///   * <c> reduce(init, transform(*first)) </c>
+  ///     is convertible to @c Value
+  ///   * <c> reduce(transform(*first), init) </c>
+  ///     is convertible to @c Value
+  ///   * <c> reduce(transform(*first), transform(*first)) </c>
+  ///     is convertible to @c Value
+  ///
+  /// @note Complexity <br>
+  ///   O(N) applications of @c reduce and <c>transform</c>, where
+  ///   <c> N = distance(first, last) </c>.
+  ///
+  /// @note The order in which elements are transformed and reduced is
+  ///   unspecified.
+  ///
+  /// @note The result is non-deterministic if @c reduce is not associative or
+  ///   not commutative (e.g. floating-point addition).
+  ///
+  template <
+      class InputIt,
+      class Value,
+      class Reduce,
+      class Transform,
+      constraints<
+          std::enable_if_t<is_input_iterator_v<InputIt>>,
+          std::enable_if_t<std::is_move_constructible<Value>::value>,
+          std::enable_if_t<is_invocable_r_v<  //
+              Value,
+              Reduce&,
+              Value&,
+              Value&>>,
+          std::enable_if_t<is_invocable_r_v<  //
+              Value,
+              Reduce&,
+              Value&,
+              iter_result_t<Transform&, InputIt>>>,
+          std::enable_if_t<is_invocable_r_v<  //
+              Value,
+              Reduce&,
+              iter_result_t<Transform&, InputIt>,
+              Value&>>,
+          std::enable_if_t<is_invocable_r_v<  //
+              Value,
+              Reduce&,
+              iter_result_t<Transform&, InputIt>,
+              iter_result_t<Transform&, InputIt>>>> = nullptr>
+  constexpr auto operator()(
+      InputIt first,
+      InputIt last,
+      Value init,
+      // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: other
+      // 'reduce' identifiers are availble with fully qualified namespace"
+      Reduce reduce,
+      // parasoft-end-suppress AUTOSAR-A2_10_1-a
+      // parasoft-begin-suppress AUTOSAR-A2_10_1-a "False positive: other
+      // 'transform' identifiers are availble with fully qualified namespace"
+      Transform transform
+      // parasoft-end-suppress AUTOSAR-A2_10_1-a
+  ) const noexcept(                                                                       //
+      std::is_nothrow_move_constructible<Value>::value&&                                  //
+      noexcept(std::declval<InputIt&>() != std::declval<InputIt>()) &&                    //
+      noexcept(reduce_policy_movable_box<Value>::assign(                                  //
+          std::declval<typename reduce_policy_movable_box<Value>::value_type&>(),         //
+          std::declval<Reduce&>()(                                                        //
+              reduce_policy_movable_box<Value>::access(                                   //
+                  std::declval<typename reduce_policy_movable_box<Value>::value_type&>()  //
+              ),                                                                          //
+              std::declval<Transform&>()(*std::declval<InputIt&>())                       //
+          )                                                                               //
+      )) &&                                                                               //
+      noexcept(++std::declval<InputIt&>())                                                //
+  )                                                                                       //
+      -> Value                                                                            //
+  {
+    using reduce_policy = reduce_policy_movable_box<Value>;
+
+    auto acc = typename reduce_policy::value_type{std::move(init)};
+
+    for (; first != last; ++first) {
+      reduce_policy::assign(  //
+          acc,
+          reduce(reduce_policy::access(acc), transform(*first))
+      );
+    }
+
+    return reduce_policy::access(acc);
+  }
 };
 }  // namespace transform_reduce_detail
 }  // namespace algorithm_detail
 
-/// @def arene::base::transform_reduce
 /// @brief applies an invocable, then reduces out of order
-/// @copydoc arene::base::algorithm_detail::transform_reduce_detail::transform_reduce_fn::operator()
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
-ARENE_CPP14_INLINE_VARIABLE(algorithm_detail::transform_reduce_detail::transform_reduce_fn, transform_reduce);
+// parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variable is initialized"
+ARENE_CPP14_INLINE_VARIABLE(
+    algorithm_detail::synthesize_range1_overload_t<algorithm_detail::transform_reduce_detail::transform_reduce_fn>,
+    transform_reduce
+);
+// parasoft-end-suppress CERT_CPP-DCL56-a
 // parasoft-end-suppress AUTOSAR-M7_3_3-a
 // parasoft-end-suppress CERT_CPP-DCL59-a
 

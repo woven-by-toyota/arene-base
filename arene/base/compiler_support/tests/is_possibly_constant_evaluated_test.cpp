@@ -7,8 +7,8 @@
 #include <gtest/gtest.h>
 
 #include "arene/base/compiler_support/diagnostics.hpp"
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/compiler_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 
 namespace {
 /// @test `is_possibly_constant_evaluated` should yield `false` in a normal function if the compiler supports the check,

@@ -10,8 +10,8 @@
 // IWYU pragma: friend "arene/base/inline_container/tests/.*"
 
 #include "arene/base/compiler_support/diagnostics.hpp"  // IWYU pragma: keep
-#include "arene/base/compiler_support/platform_queries.hpp"
-#include "arene/base/compiler_support/preprocessor.hpp"
+#include "arene/base/compiler_support/platform_queries/stdlib_info.hpp"
+#include "arene/base/compiler_support/preprocessor/define_configuration.hpp"
 
 #if ARENE_IS_OFF(ARENE_STDLIB_LIBARENECXX)
 #include <istream>

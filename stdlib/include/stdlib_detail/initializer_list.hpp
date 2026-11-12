@@ -51,9 +51,11 @@ class initializer_list {
   constexpr auto end() const noexcept -> iterator { return element_ptr_ + element_count_; }
   // parasoft-end-suppress AUTOSAR-M5_0_15-a-2
 
+  // parasoft-begin-suppress AUTOSAR-A2_10_1-d "False positive: 'size' does not hide anything"
   /// @brief Get the number of elements in the list
   /// @return The number of elements
   constexpr auto size() const noexcept -> size_type { return element_count_; }
+  // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
  private:
   /// @brief A pointer to the elements

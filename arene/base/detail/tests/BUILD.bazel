@@ -2,7 +2,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
+
+package(default_visibility = ["//tools:__subpackages__"])
+
+exports_files(
+    glob([
+        "*.hpp",
+        "*.cpp",
+    ]),
+    visibility = ["//:__subpackages__"],
+)
 
 cc_test_with_variants(
     name = "dynamic_extent_test",
@@ -12,7 +23,74 @@ cc_test_with_variants(
         "//arene/base/stdlib_choice:cstdint",
         "//arene/base/stdlib_choice:numeric_limits",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_library(
+    name = "index_permutation_range_test_types",
+    testonly = True,
+    hdrs = ["index_permutation_range_test_types.hpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/stdlib_choice:cstddef",
+        "//testlibs:test_library",
+    ],
+)
+
+cc_test_with_variants(
+    name = "index_permutation_range_test",
+    srcs = ["index_permutation_range_test.cpp"],
+    deps = [
+        ":index_permutation_range_test_types",
+        "//arene/base/algorithm:reduce",
+        "//arene/base/detail:index_permutation_range",
+        "//arene/base/iterator:distance",
+        "//arene/base/stdlib_choice:multiplies",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/utility:safe_comparisons",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "index_permutation_range_death_test",
+    srcs = ["index_permutation_range_death_test.cpp"],
+    deps = [
+        ":index_permutation_range_test_types",
+        "//arene/base/detail:index_permutation_range",
+        "//testlibs:death_test_support",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "make_range_from_indexable_test",
+    srcs = ["make_range_from_indexable_test.cpp"],
+    deps = [
+        "//arene/base:array",
+        "//arene/base/detail:make_range_from_indexable",
+        "//arene/base/ranges:is_borrowed_range",
+        "//arene/base/stdlib_choice:cstddef",
+        "//arene/base/stdlib_choice:declval",
+        "//arene/base/stdlib_choice:iterator_tags",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:is_invocable",
+        "//testlibs:test_main",
+    ],
+)
+
+cc_test_with_variants(
+    name = "is_representable_as_test",
+    srcs = ["is_representable_as_test.cpp"],
+    deps = [
+        "//arene/base/detail:is_representable_as",
+        "//arene/base/stdlib_choice:cstdint",
+        "//arene/base/stdlib_choice:is_same",
+        "//arene/base/stdlib_choice:numeric_limits",
+        "//arene/base/testing:gtest",
+        "//arene/base/type_traits:type_identity",
+        "//testlibs:test_main",
     ],
 )
 
@@ -21,11 +99,6 @@ cc_test_with_variants(
     srcs = ["raw_c_string_test.cpp"],
     deps = [
         "//arene/base/detail:raw_c_string",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
-)
-
-exports_files(
-    glob(["*.cpp"]),
-    visibility = ["//:__subpackages__"],
 )

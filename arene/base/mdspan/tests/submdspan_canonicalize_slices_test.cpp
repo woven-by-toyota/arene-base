@@ -12,6 +12,7 @@
 #include "arene/base/mdspan/slice.hpp"
 #include "arene/base/mdspan/tests/submdspan_slices_handling_test_common.hpp"  // IWYU pragma: keep
 #include "arene/base/stdlib_choice/cstddef.hpp"
+#include "arene/base/stdlib_choice/cstdint.hpp"
 #include "arene/base/stdlib_choice/declval.hpp"
 #include "arene/base/stdlib_choice/ignore.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"
@@ -52,9 +53,9 @@ constexpr T zero_constant<T>::value;
 template <class T>
 struct SubmdspanCanonicalizeSlices : testing::Test {};
 
-using IndexTypes = ::testing::Types<int, std::size_t>;
+using IndexTypes = ::testing::Types<std::int8_t, std::uint8_t, std::int16_t, std::uint16_t, int, std::size_t>;
 
-constexpr struct {
+struct is_same_1_tuple_t {
   template <class T1, class T2>
   constexpr auto operator()(T1&& lhs, T2&& rhs) const -> bool {
     return std::is_same<decltype(lhs), decltype(rhs)>::value &&   //
@@ -62,7 +63,9 @@ constexpr struct {
            std::get<0>(lhs).extent == std::get<0>(rhs).extent &&  //
            std::get<0>(lhs).stride == std::get<0>(rhs).stride;
   }
-} is_same_1_tuple{};
+};
+
+constexpr is_same_1_tuple_t is_same_1_tuple{};
 
 TYPED_TEST_SUITE(SubmdspanCanonicalizeSlices, IndexTypes, );
 

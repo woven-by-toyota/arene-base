@@ -40,30 +40,51 @@ struct not_default_constructible {
 
 }  // namespace
 
+/// @cond
 template <>
-constexpr custom_type_with_specialization arene::base::numbers::zero_v<custom_type_with_specialization>{
-    custom_type_with_specialization{0}
+struct arene::base::numbers::zero<custom_type_with_specialization> {
+  static constexpr custom_type_with_specialization value{custom_type_with_specialization{0}};
 };
 
 template <>
-constexpr custom_type_with_specialization arene::base::numbers::one_v<custom_type_with_specialization>{
-    custom_type_with_specialization{1}
+struct arene::base::numbers::one<custom_type_with_specialization> {
+  static constexpr custom_type_with_specialization value{custom_type_with_specialization{1}};
+};
+
+// Separate definitions required for ODR use by the zero_v / one_v reference accessors.
+constexpr custom_type_with_specialization arene::base::numbers::zero<custom_type_with_specialization>::value;
+constexpr custom_type_with_specialization arene::base::numbers::one<custom_type_with_specialization>::value;
+
+// A type whose identity value is not usable in a constant expression specializes the struct with a non-constexpr value.
+template <>
+struct arene::base::numbers::zero<non_constexpr_type> {
+  static non_constexpr_type const value;
+};
+
+template <>
+struct arene::base::numbers::one<non_constexpr_type> {
+  static non_constexpr_type const value;
 };
 
 // NOLINTBEGIN(fuchsia-statically-constructed-objects)
-template <>
-non_constexpr_type const arene::base::numbers::zero_v<non_constexpr_type>{0};
-
-template <>
-non_constexpr_type const arene::base::numbers::one_v<non_constexpr_type>{1};
-
+non_constexpr_type const arene::base::numbers::zero<non_constexpr_type>::value{0};
+non_constexpr_type const arene::base::numbers::one<non_constexpr_type>::value{1};
 // NOLINTEND(fuchsia-statically-constructed-objects)
 
 template <>
-constexpr not_default_constructible arene::base::numbers::zero_v<not_default_constructible>{0, 0};
+struct arene::base::numbers::zero<not_default_constructible> {
+  static constexpr not_default_constructible value{0, 0};
+};
 
 template <>
-constexpr not_default_constructible arene::base::numbers::one_v<not_default_constructible>{1, 1};
+struct arene::base::numbers::one<not_default_constructible> {
+  static constexpr not_default_constructible value{1, 1};
+};
+
+// Separate definitions required for ODR use by the zero_v / one_v reference accessors.
+constexpr not_default_constructible arene::base::numbers::zero<not_default_constructible>::value;
+constexpr not_default_constructible arene::base::numbers::one<not_default_constructible>::value;
+/// @endcond
 
 namespace {
 
@@ -100,10 +121,16 @@ TEST(ArithmeticIdentities, CustomSpecialization) {
   STATIC_ASSERT_EQ(arene::base::numbers::one_v<custom_type_with_specialization>.val, int{1});
 }
 
-/// @test @c zero_v and @c one_v may be specialized for types whose value is not usable in a constant expression.
+/// @test @c zero and @c one may be specialized for types whose value is not usable in a constant expression. The
+/// @c zero_v / @c one_v accessors bind a reference to the struct's @c value member, so such values can be read through
+/// the accessors at run time even though they are not usable in a constant expression.
 TEST(ArithmeticIdentities, NonConstexprSpecialization) {
   EXPECT_EQ(arene::base::numbers::zero_v<non_constexpr_type>.val, 0);
   EXPECT_EQ(arene::base::numbers::one_v<non_constexpr_type>.val, 1);
+
+  // The accessor binds a reference to the struct's value member; it is not a copy.
+  EXPECT_EQ(&arene::base::numbers::zero_v<non_constexpr_type>, &arene::base::numbers::zero<non_constexpr_type>::value);
+  EXPECT_EQ(&arene::base::numbers::one_v<non_constexpr_type>, &arene::base::numbers::one<non_constexpr_type>::value);
 }
 
 /// @test @c zero_v and @c one_v may be specialized for types that are not default-constructible.

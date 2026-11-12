@@ -5,7 +5,7 @@
 #ifndef INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TYPE_TRAITS_TESTS_PREDICATE_TEST_UTILITIES_HPP_
 #define INCLUDE_GUARD_ARENE_BASE_ARENE_BASE_TYPE_TRAITS_TESTS_PREDICATE_TEST_UTILITIES_HPP_
 
-#include "arene/base/array/array.hpp"
+#include "arene/base/array/to_array.hpp"
 #include "arene/base/stdlib_choice/cstddef.hpp"
 #include "arene/base/stdlib_choice/integer_sequence.hpp"
 #include "arene/base/stdlib_choice/integral_constant.hpp"  // IWYU pragma: keep

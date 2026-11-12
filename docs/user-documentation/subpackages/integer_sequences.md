@@ -1,4 +1,8 @@
-<!-- Copyright 2024, Toyota Motor Corporation -->
+<!--
+Copyright 2024, Toyota Motor Corporation
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
 
 <!-- markdownlint-disable MD041 -->
 <!-- prettier-ignore -->
@@ -22,7 +26,7 @@ The Bazel target is
 //:integer_sequences
 ```
 
-## Introduction {#introduction}
+# Introduction {#subpackages-integer-sequences-introduction}
 
 [`std::integer_sequence`](https://en.cppreference.com/w/cpp/utility/integer_sequence)
 is great for holding a list of integers, but it can be difficult to manipulate.
@@ -50,7 +54,7 @@ Arene Base also provides `arene::base::sequential_values`, which is a variable
 template for an `arene::base::array` holding the specified number of objects,
 starting from 0.
 
-### Concatenating Sequences {#concatenating-sequences}
+## Concatenating Sequences {#subpackages-integer-sequences-concatenating-sequences}
 
 `arene::base::integer_sequence_cat` is a template alias for a sequence that is
 the concatenation of the supplied sequences. All sequences must have the same
@@ -67,7 +71,7 @@ using result = arene::base::integer_sequence_cat<sequence1, sequence2, sequence3
 Here, the resulting sequence is
 `std::integer_sequence<std::int32_t, 10, 20, 30, 40, 99, -123, -456, 0, 3, 42>`
 
-### Getting A Specific Element {#getting-a-specific-element}
+## Getting A Specific Element {#subpackages-integer-sequences-getting-a-specific-element}
 
 `arene::base::integer_sequence_element<Index, Sequence>` derives from
 `std::integral_constant<T, Value>`, where `T` is the element type of the
@@ -88,7 +92,7 @@ static_assert(arene::base::integer_sequence_element_v<6, values> == -456, "got t
 Both these templates are undefined (and will thus fail to compile) if the index
 is greater than or equal to the number of elements in the sequence.
 
-### Checking If An Element Is Present In A Sequence {#checking-if-an-element-is-present-in-a-sequence}
+## Checking If An Element Is Present In A Sequence {#subpackages-integer-sequences-checking-if-an-element-is-present-in-a-sequence}
 
 This falls to `arene::base::integer_sequence_contains_v`, which is a boolean
 variable template that is `true` if the element is in the sequence, and `false`
@@ -101,7 +105,7 @@ static_assert(arene::base::integer_sequence_contains_v<values, 3>,"Value is pres
 static_assert(!arene::base::integer_sequence_contains_v<values, 500>,"Value is not present");
 ```
 
-### Finding The Index Of An Element In A Sequence {#finding-the-index-of-an-element-in-a-sequence}
+## Finding The Index Of An Element In A Sequence {#subpackages-integer-sequences-finding-the-index-of-an-element-in-a-sequence}
 
 Knowing that an element is present in a sequence is not always enough: sometimes
 you need to know the exact index where it occurs.
@@ -123,7 +127,7 @@ static_assert(arene::base::integer_sequence_index_of_v<values, 40> == 3,"Value i
 // const auto val = arene::base::integer_sequence_index_of_v<values, 500>; // compilation error
 ```
 
-### Counting Copies Of An Element In A Sequence {#counting-copies-of-an-element-in-a-sequence}
+## Counting Copies Of An Element In A Sequence {#subpackages-integer-sequences-counting-copies-of-an-element-in-a-sequence}
 
 `arene::base::integer_sequence_count_of<Sequence, Value>` and
 `arene::base::integer_sequence_count_of_v<Sequence, Value>` answer the perennial
@@ -144,7 +148,7 @@ static_assert(arene::base::integer_sequence_count_of_v<values, 40> == 0,"40 appe
 static_assert(arene::base::integer_sequence_count_of_v<values, 5> == 1,"5 appears once");
 ```
 
-### Removing Duplicates {#removing-duplicates}
+## Removing Duplicates {#subpackages-integer-sequences-removing-duplicates}
 
 If you want to ensure that
 `arene::base::integer_sequence_count_of_v<Sequence, Value>` is either 0 or 1 for
@@ -164,7 +168,7 @@ static_assert(arene::base::integer_sequence_count_of<unique_values, 1>::value ==
 static_assert(arene::base::integer_sequence_count_of_v<unique_values, 40> == 0,"40 appears 0 times");
 ```
 
-### Repeating A Value {#repeating-a-value}
+## Repeating A Value {#subpackages-integer-sequences-repeating-a-value}
 
 `arene::base::make_index_sequence_repeat_n<Value, Count>` is a template alias
 for an `std::index_sequence` whose elements are `Count` copies of `Value`.
@@ -183,7 +187,7 @@ using empty = arene::base::make_index_sequence_repeat_n<7, 0>;
 static_assert(std::is_same<empty, std::index_sequence<>>::value, "no copies yields empty sequence");
 ```
 
-### Sequential Values {#sequential-values}
+## Sequential Values {#subpackages-integer-sequences-sequential-values}
 
 `arene::base::sequential_values<Type, Count>` is a variable template, which is
 an `arene::base::array<Type, Count>` holding the values 0 to `Count - 1`. Thus

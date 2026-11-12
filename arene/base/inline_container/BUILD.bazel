@@ -4,26 +4,20 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "inline_function_hdrs",
-    srcs = [
-        "function.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "inline_function",
-    hdrs = [":inline_function_hdrs"],
+    hdrs = [
+        "function.hpp",
+    ],
     visibility = [
         "//:__subpackages__",
-        "//arene/base:__pkg__",
     ],
     deps = [
         "//arene/base:array",
+        "//arene/base:byte",
         "//arene/base:constraints",
         "//arene/base:contracts",
         "//arene/base:memory",
-        "//arene/base:type_traits",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:decay",
         "//arene/base/stdlib_choice:enable_if",
@@ -33,29 +27,21 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/stdlib_choice:move",
         "//arene/base/type_traits:conditional",
-    ],
-)
-
-filegroup(
-    name = "vector_hdrs",
-    srcs = [
-        "external_vector.hpp",
-        "vector.hpp",
-        "vector_reference.hpp",
+        "//arene/base/type_traits:is_invocable",
     ],
 )
 
 cc_library_with_variants(
     name = "vector",
-    hdrs = [":vector_hdrs"],
+    hdrs = [
+        "external_vector.hpp",
+        "vector.hpp",
+        "vector_reference.hpp",
+    ],
     visibility = [
-        ":__subpackages__",
-        # Enable export tests to depend only on vector, as not all targets
-        # are usable as .without_toolchain_stdlib targets yet.
-        "//arene/base/tests:__pkg__",
+        "//:__subpackages__",
     ],
     deps = [
-        "//arene/base:algorithm",
         "//arene/base:array",
         "//arene/base:compare",
         "//arene/base:constraints",
@@ -63,19 +49,24 @@ cc_library_with_variants(
         "//arene/base:iterator",
         "//arene/base:memory",
         "//arene/base:optional",
-        "//arene/base:type_traits",
+        "//arene/base:span",
         "//arene/base:utility",
+        "//arene/base/algorithm:equal",
+        "//arene/base/algorithm:lexicographical_compare",
+        "//arene/base/algorithm:rotate",
         "//arene/base/compiler_support",
         "//arene/base/detail:exceptions",
         "//arene/base/detail:wrapped_iterator",
         "//arene/base/inline_container/detail:comparison_interface",
         "//arene/base/inline_container/detail:try_construct_interface",
         "//arene/base/inline_container/detail:unsafe_element_storage",
+        "//arene/base/ranges:enable_borrowed_range",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:enable_if",
         "//arene/base/stdlib_choice:forward",
         "//arene/base/stdlib_choice:ignore",
         "//arene/base/stdlib_choice:initializer_list",
+        "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/stdlib_choice:is_assignable",
         "//arene/base/stdlib_choice:is_constructible",
         "//arene/base/stdlib_choice:is_copy_assignable",
@@ -90,32 +81,21 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:move",
         "//arene/base/stdlib_choice:move_iterator",
         "//arene/base/type_manipulation",
+        "//arene/base/type_traits:comparison_traits",
         "//arene/base/type_traits:conditional",
+        "//arene/base/type_traits:denotes_range",
+        "//arene/base/type_traits:is_swappable",
+        "//arene/base/type_traits:iterator_category_traits",
     ],
-)
-
-filegroup(
-    name = "map_hdrs",
-    srcs = ["map.hpp"],
-)
-
-filegroup(
-    name = "map_exceptions_enabled_srcs",
-    srcs = ["map_exceptions_enabled.cpp"],
-)
-
-filegroup(
-    name = "map_exceptions_disabled_srcs",
-    srcs = ["map_exceptions_disabled.cpp"],
 )
 
 cc_library_with_variants(
     name = "map",
     srcs = select({
-        "//conditions:default": [":map_exceptions_enabled_srcs"],
-        "//configs:exceptions_disabled": [":map_exceptions_disabled_srcs"],
+        "//conditions:default": ["map_exceptions_enabled.cpp"],
+        "//configs:exceptions_disabled": ["map_exceptions_disabled.cpp"],
     }),
-    hdrs = [":map_hdrs"],
+    hdrs = ["map.hpp"],
     visibility = ["//arene/base/inline_container:__subpackages__"],
     deps = [
         "//arene/base:algorithm",
@@ -124,17 +104,16 @@ cc_library_with_variants(
         "//arene/base:constraints",
         "//arene/base:contracts",
         "//arene/base:functional",
-        "//arene/base:integer_sequences",
         "//arene/base:iterator",
         "//arene/base:optional",
         "//arene/base:scope_guard",
-        "//arene/base:type_traits",
         "//arene/base:utility",
         "//arene/base/compiler_support",
         "//arene/base/detail:exceptions",
+        "//arene/base/detail:iterator_interface",
         "//arene/base/inline_container/detail:compare",
         "//arene/base/inline_container/detail:container_base_type",
-        "//arene/base/inline_container/detail:iterator_interface",
+        "//arene/base/inline_container/detail:index_array",
         "//arene/base/inline_container/detail:lower_bound_index",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:cstdint",
@@ -160,24 +139,24 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:remove_reference",
         "//arene/base/stdlib_choice:tuple",
         "//arene/base/type_manipulation",
+        "//arene/base/type_traits:comparison_traits",
         "//arene/base/type_traits:conditional",
+        "//arene/base/type_traits:decays_to",
+        "//arene/base/type_traits:is_instantiation_of",
+        "//arene/base/type_traits:is_transparent_comparator_for",
+        "//arene/base/type_traits:remove_cvref",
     ] + select({
         "//conditions:default": ["//arene/base/stdlib_choice:stdexcept"],
         "//configs:exceptions_disabled": [],
     }),
 )
 
-filegroup(
-    name = "map_reference_hdrs",
-    srcs = [
+cc_library_with_variants(
+    name = "map_reference",
+    hdrs = [
         "map_reference.hpp",
         "map_reference_iterator.hpp",
     ],
-)
-
-cc_library_with_variants(
-    name = "map_reference",
-    hdrs = [":map_reference_hdrs"],
     visibility = ["//arene/base/inline_container:__subpackages__"],
     deps = [
         ":map",
@@ -186,21 +165,18 @@ cc_library_with_variants(
         "//arene/base/inline_container/detail:compare",
         "//arene/base/inline_container/detail:container_base_type",
         "//arene/base/inline_container/detail:erased_member_function",
-        "//arene/base/inline_container/detail:range_interface",
+        "//arene/base/ranges:enable_borrowed_range",
+        "//arene/base/ranges/detail:range_interface",
+        "//arene/base/stdlib_choice:integral_constant",
         "//arene/base/type_manipulation",
-    ],
-)
-
-filegroup(
-    name = "set_hdrs",
-    srcs = [
-        "set.hpp",
     ],
 )
 
 cc_library_with_variants(
     name = "set",
-    hdrs = [":set_hdrs"],
+    hdrs = [
+        "set.hpp",
+    ],
     visibility = [
         ":__subpackages__",
     ],
@@ -210,13 +186,12 @@ cc_library_with_variants(
         "//arene/base:compare",
         "//arene/base:constraints",
         "//arene/base:contracts",
-        "//arene/base:integer_sequences",
         "//arene/base:iterator",
         "//arene/base:optional",
-        "//arene/base:type_traits",
         "//arene/base:utility",
         "//arene/base/compiler_support",
         "//arene/base/inline_container/detail:compare",
+        "//arene/base/inline_container/detail:index_array",
         "//arene/base/inline_container/detail:lower_bound_index",
         "//arene/base/inline_container/detail:unsafe_element_storage",
         "//arene/base/stdlib_choice:cstddef",
@@ -237,19 +212,18 @@ cc_library_with_variants(
         "//arene/base/stdlib_choice:pair",
         "//arene/base/type_manipulation",
         "//arene/base/type_traits:conditional",
-    ],
-)
-
-filegroup(
-    name = "deque_hdrs",
-    srcs = [
-        "deque.hpp",
+        "//arene/base/type_traits:decays_to",
+        "//arene/base/type_traits:is_invocable",
+        "//arene/base/type_traits:is_transparent_comparator_for",
+        "//arene/base/type_traits:iterator_category_traits",
     ],
 )
 
 cc_library_with_variants(
     name = "deque",
-    hdrs = [":deque_hdrs"],
+    hdrs = [
+        "deque.hpp",
+    ],
     visibility = [":__subpackages__"],
     deps = [
         "//arene/base:array",
@@ -258,12 +232,12 @@ cc_library_with_variants(
         "//arene/base:memory",
         "//arene/base/algorithm:copy",
         "//arene/base/algorithm:rotate",
-        "//arene/base/inline_container/detail:iterator_interface",
-        "//arene/base/inline_container/detail:range_interface",
+        "//arene/base/detail:iterator_interface",
         "//arene/base/inline_container/detail:try_construct_interface",
         "//arene/base/inline_container/detail:unsafe_element_storage",
         "//arene/base/iterator:distance",
         "//arene/base/iterator:next",
+        "//arene/base/ranges/detail:range_interface",
         "//arene/base/stdlib_choice:cstddef",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:enable_if",
@@ -291,16 +265,11 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "circular_buffer_hdrs",
-    srcs = [
-        "circular_buffer.hpp",
-    ],
-)
-
 cc_library_with_variants(
     name = "circular_buffer",
-    hdrs = [":circular_buffer_hdrs"],
+    hdrs = [
+        "circular_buffer.hpp",
+    ],
     visibility = [":__subpackages__"],
     deps = [
         ":deque",
@@ -349,17 +318,11 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":circular_buffer_hdrs",
-        ":deque_hdrs",
-        ":inline_function_hdrs",
-        ":map_exceptions_disabled_srcs",
-        ":map_exceptions_enabled_srcs",
-        ":map_hdrs",
-        ":map_reference_hdrs",
-        ":set_hdrs",
-        ":vector_hdrs",
         "//arene/base/inline_container/detail:package",
         "//arene/base/inline_container/testing:package",
-    ],
+    ] + glob([
+        "*.cpp",
+        "*.hpp",
+    ]),
     visibility = ["//arene/base:__pkg__"],
 )

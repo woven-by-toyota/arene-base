@@ -4,14 +4,9 @@
 
 load("//rules:cc_library_with_variants.bzl", "cc_library_with_variants")
 
-filegroup(
-    name = "compare_three_way_hdrs",
-    srcs = ["compare_three_way.hpp"],
-)
-
 cc_library_with_variants(
     name = "compare_three_way",
-    hdrs = [":compare_three_way_hdrs"],
+    hdrs = ["compare_three_way.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -32,14 +27,9 @@ cc_library_with_variants(
     ],
 )
 
-filegroup(
-    name = "operators_hdrs",
-    srcs = ["operators.hpp"],
-)
-
 cc_library_with_variants(
     name = "operators",
-    hdrs = [":operators_hdrs"],
+    hdrs = ["operators.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -51,19 +41,16 @@ cc_library_with_variants(
         "//arene/base/compiler_support",
         "//arene/base/stdlib_choice:declval",
         "//arene/base/stdlib_choice:enable_if",
+        "//arene/base/stdlib_choice:is_base_of",
+        "//arene/base/stdlib_choice:is_class",
         "//arene/base/stdlib_choice:is_same",
         "//arene/base/type_traits:comparison_traits",
     ],
 )
 
-filegroup(
-    name = "strong_ordering_hdrs",
-    srcs = ["strong_ordering.hpp"],
-)
-
 cc_library_with_variants(
     name = "strong_ordering",
-    hdrs = [":strong_ordering_hdrs"],
+    hdrs = ["strong_ordering.hpp"],
     visibility = [
         "//arene/base:__subpackages__",
         "//stdlib:__subpackages__",
@@ -94,9 +81,6 @@ filegroup(
     name = "package",
     srcs = [
         "BUILD.bazel",
-        ":compare_three_way_hdrs",
-        ":operators_hdrs",
-        ":strong_ordering_hdrs",
-    ],
+    ] + glob(["*.hpp"]),
     visibility = ["//arene/base:__pkg__"],
 )

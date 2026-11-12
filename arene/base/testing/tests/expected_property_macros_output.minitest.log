@@ -1,0 +1,16 @@
+arene/base/testing/tests/property_macros_binary.cpp:62: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::DiscardsReached double
+arene/base/testing/tests/property_macros_binary.cpp:62: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::DiscardsReached unsigned int
+arene/base/testing/tests/property_macros_binary.cpp:53: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::FailureWithMultipleAssertions double
+arene/base/testing/tests/property_macros_binary.cpp:53: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::FailureWithMultipleAssertions unsigned int
+arene/base/testing/tests/property_macros_binary.cpp:51: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::FailureWithIntTypeParams double
+arene/base/testing/tests/property_macros_binary.cpp:51: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::FailureWithIntTypeParams unsigned int
+arene/base/testing/tests/property_macros_binary.cpp:49: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::FailureWithEmptyParams double
+arene/base/testing/tests/property_macros_binary.cpp:49: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::FailureWithEmptyParams unsigned int
+arene/base/testing/tests/property_macros_binary.cpp:47: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::FailureNoParams double
+arene/base/testing/tests/property_macros_binary.cpp:47: Error: Assertion failed Execution reached an invocation of FAIL() for AreneTypedProperty::FailureNoParams unsigned int
+arene/base/testing/tests/property_macros_binary.cpp:29: Error: Assertion failed Execution reached an invocation of FAIL() for AreneProperty::DiscardsReached
+arene/base/testing/tests/property_macros_binary.cpp:23: Error: Assertion failed Execution reached an invocation of FAIL() for AreneProperty::FailureWithMultipleAssertions
+arene/base/testing/tests/property_macros_binary.cpp:21: Error: Assertion failed Execution reached an invocation of FAIL() for AreneProperty::FailureWithIntIntParams
+arene/base/testing/tests/property_macros_binary.cpp:19: Error: Assertion failed Execution reached an invocation of FAIL() for AreneProperty::FailureWithEmptyParams
+arene/base/testing/tests/property_macros_binary.cpp:17: Error: Assertion failed Execution reached an invocation of FAIL() for AreneProperty::FailureNoParams
+24 tests run. 9 PASSED. 15 FAILED

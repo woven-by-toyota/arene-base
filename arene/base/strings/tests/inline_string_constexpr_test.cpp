@@ -657,7 +657,7 @@ CONSTEXPR_TEST(ConstexprInlineStringInsert, IteratorInsertionInConstexpr) {
 /// @brief Helper function to use @c erase in a @c constexpr context
 /// @tparam MaxLength the max length of the string
 /// @tparam Args the types of the arguments to erase
-/// @param inline_str The source string
+/// @param str The source string
 /// @param args The arguments to erase
 /// @return The result of invoking @c erase
 template <std::size_t MaxLength, typename... Args>
@@ -684,7 +684,7 @@ TEST(ConstexprInlineString, MaxSizeEqualsCapacity) {
 /// @brief Helper function to use @c erase in a @c constexpr context
 /// @tparam MaxLength the max length of the string
 /// @tparam Args the types of the arguments to erase
-/// @param inline_str The source string
+/// @param str The source string
 /// @param args The arguments to erase
 /// @return The result of invoking @c erase
 template <std::size_t MaxLength, typename... Args>
@@ -702,7 +702,7 @@ TEST(ConstexprInlineStringErase, EraseInConstexpr) {
 }
 
 /// @brief Helper function to use @c pop_back in a @c constexpr context
-/// @param inline_str The source string
+/// @param str The source string
 /// @return The resulting string after invoking @c pop_back
 template <std::size_t MaxLength>
 constexpr auto constexpr_pop_back(inline_string<MaxLength> str) -> inline_string<MaxLength> {

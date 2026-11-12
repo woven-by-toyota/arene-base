@@ -16,7 +16,7 @@ cc_test(
         "//arene/base:compare",
         "//arene/base/inline_container/detail:compare",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 
@@ -33,26 +33,7 @@ cc_test(
         "//arene/base/inline_container/detail:lower_bound_index",
         "//arene/base/math:log2",
         "//arene/base/testing:gtest",
-        "//testlibs:gtest",
-    ],
-)
-
-cc_test(
-    name = "range_interface_test",
-    srcs = [
-        "range_interface_test.cpp",
-    ],
-    visibility = [
-        "//:__subpackages__",
-    ],
-    deps = [
-        "//arene/base:array",
-        "//arene/base:type_traits",
-        "//arene/base:utility",
-        "//arene/base/inline_container/detail:range_interface",
-        "//arene/base/testing:gtest",
-        "//arene/base/type_traits:conditional",
-        "//testlibs:gtest",
+        "//testlibs:test_main",
     ],
 )
 

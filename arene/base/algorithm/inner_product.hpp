@@ -14,6 +14,8 @@
 
 // parasoft-begin-suppress AUTOSAR-A16_2_2-a-2 "Arene Base aggregate headers permitted by A16-2-2 Permit #1"
 #include "arene/base/algorithm/detail/generalized_transform_reduce.hpp"
+#include "arene/base/algorithm/detail/reduce_policy_move_assign.hpp"
+#include "arene/base/algorithm/detail/synthesize_range1_overload.hpp"  // IWYU pragma: export
 #include "arene/base/algorithm/detail/traits.hpp"
 #include "arene/base/compiler_support/cpp14_inline.hpp"
 #include "arene/base/constraints/constraints.hpp"
@@ -119,7 +121,7 @@ class inner_product_fn {
           std::is_nothrow_move_constructible<Value>::value &&
           is_nothrow_invocable_v<
               generalized_transform_reduce,
-              generalized_transform_reduce::default_reduce_value_policy<Value>,
+              reduce_policy_move_assign<Value>,
               InputIt1&,
               InputIt1&,
               InputIt2&,
@@ -129,7 +131,7 @@ class inner_product_fn {
       )
       -> Value
   {
-    using policy = generalized_transform_reduce::default_reduce_value_policy<Value>;
+    using policy = reduce_policy_move_assign<Value>;
 
     return policy::access(               //
         generalized_transform_reduce{}(  //
@@ -227,14 +229,17 @@ class inner_product_fn {
 }  // namespace inner_product_detail
 }  // namespace algorithm_detail
 
-/// @def arene::base::inner_product
 /// @brief computes the inner product of two ranges of elements
-/// @copydoc arene::base::algorithm_detail::inner_product_detail::inner_product_fn::operator()
 // parasoft-begin-suppress AUTOSAR-M7_3_3-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
 // parasoft-begin-suppress CERT_CPP-DCL59-a "An unnamed namespace is used to create a per-TU reference to a global
 // object used in multiple TUs."
-ARENE_CPP14_INLINE_VARIABLE(algorithm_detail::inner_product_detail::inner_product_fn, inner_product);
+// parasoft-begin-suppress CERT_CPP-DCL56-a "False positive: variable is initialized"
+ARENE_CPP14_INLINE_VARIABLE(
+    algorithm_detail::synthesize_range1_overload_t<algorithm_detail::inner_product_detail::inner_product_fn>,
+    inner_product
+);
+// parasoft-end-suppress CERT_CPP-DCL56-a
 // parasoft-end-suppress AUTOSAR-M7_3_3-a
 // parasoft-end-suppress CERT_CPP-DCL59-a
 
