@@ -1,15 +1,9 @@
-// Copyright 2024, Toyota Motor Corporation
+// Copyright 2023, Toyota Motor Corporation
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 ///
 /// @file non_owning_ptr.hpp
 /// @brief Defines non_owning_ptr, a checked nullable pointer type.
-///
-// Copyright 2023, Toyota Motor Corporation
-///
-/// This provides the implementation of the facility specified by <a
-/// href="https://stargate.jamacloud.com/perspective.req?docId=4277752&projectId=67">Arene_Eco_System-L5SW-1299</a>
-///
 ///
 
 // IWYU pragma: private, include "arene/base/pointer.hpp"
