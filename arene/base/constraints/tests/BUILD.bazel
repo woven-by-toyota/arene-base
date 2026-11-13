@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+load("//rules:cc_build_error.bzl", "cc_build_error_test", "inline_src", "matcher")
 load("//rules:cc_test.bzl", "cc_test_with_variants")
 
 package(default_visibility = ["//tools:__subpackages__"])
@@ -33,6 +34,69 @@ cc_test_with_variants(
         "//testlibs:test_main",
     ],
 )
+
+CONSTRAINT_DIAGNOSTIC_CASES = [
+    {
+        "name": "first_requirement",
+        "arguments": "int, second_argument",
+        "first_requirement_type": "first_requirement",
+        "second_requirement_type": "void",
+        "clang_diagnostic": "std::is_same<int, first_argument>::value",
+        "gcc_diagnostic": "first_requirement",
+    },
+    {
+        "name": "second_requirement",
+        "arguments": "first_argument, int",
+        "first_requirement_type": "void",
+        "second_requirement_type": "second_requirement",
+        "clang_diagnostic": "std::is_same<int, second_argument>::value",
+        "gcc_diagnostic": "second_requirement",
+    },
+]
+
+CONSTRAINT_DIAGNOSTIC_SOURCE = """\
+#include "arene/base/constraints/constraints.hpp"
+
+#include "arene/base/stdlib_choice/enable_if.hpp"
+#include "arene/base/stdlib_choice/is_same.hpp"
+
+struct first_argument;
+struct second_argument;
+struct first_requirement;
+struct second_requirement;
+
+template <typename T, typename U,
+          arene::base::constraints<std::enable_if_t<std::is_same<T, first_argument>::value, {first_requirement_type}>,
+                                   std::enable_if_t<std::is_same<U, second_argument>::value, {second_requirement_type}>> =
+              nullptr>
+void requires_both_requirements();
+
+using result = decltype(requires_both_requirements<{arguments}>());
+"""
+
+[
+    cc_build_error_test(
+        name = "{}_compile_error_test".format(test_case["name"]),
+        src = inline_src.cpp(
+            CONSTRAINT_DIAGNOSTIC_SOURCE.format(
+                arguments = test_case["arguments"],
+                first_requirement_type = test_case["first_requirement_type"],
+                second_requirement_type = test_case["second_requirement_type"],
+            ),
+        ),
+        compile_stderr = matcher.contains_extended_regex(select({
+            "//configs/compiler:arm_clang": test_case["clang_diagnostic"],
+            "//configs/compiler:clang": test_case["clang_diagnostic"],
+            "//configs/compiler:gcc_or_qcc": test_case["gcc_diagnostic"],
+        })),
+        deps = [
+            "//arene/base/constraints:internal",
+            "//arene/base/stdlib_choice:enable_if",
+            "//arene/base/stdlib_choice:is_same",
+        ],
+    )
+    for test_case in CONSTRAINT_DIAGNOSTIC_CASES
+]
 
 exports_files(
     glob(["*.cpp"]),

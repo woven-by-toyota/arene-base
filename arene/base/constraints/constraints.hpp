@@ -12,13 +12,16 @@ namespace arene {
 namespace base {
 namespace constraints_impl {
 
-/// @brief Implementation-detail to force arguments of @c Constraints to be a part of
-/// the mangling of function templates for which they are requirements.
+/// @brief Provides a call expression with a @c std::nullptr_t return type that carries constraint types into dependent
+/// template signatures.
+///
+/// This declaration has no definition because the call is only formed in an unevaluated context. It avoids
+/// instantiating a helper class for each constraint pack.
+/// @return The call expression has type @c std::nullptr_t and is used only in an unevaluated context.
+// parasoft-begin-suppress AUTOSAR-M3_3_2-a "False positive: static function template has internal linkage"
 template <class...>
-struct constraints {
-  /// @brief The type that is actually used for the @c constraints template parameters
-  using type = decltype(nullptr);
-};
+static auto nullptr_if() noexcept -> decltype(nullptr);
+// parasoft-end-suppress AUTOSAR-M3_3_2-a
 
 }  // namespace constraints_impl
 
@@ -48,7 +51,7 @@ struct constraints {
 /// do not conflict with each other as if redeclarations that differ only by
 /// default arguments.
 template <class... EnableIfs>
-using constraints = typename constraints_impl::constraints<EnableIfs...>::type;
+using constraints = decltype(constraints_impl::nullptr_if<EnableIfs...>());
 // parasoft-end-suppress AUTOSAR-A2_7_3-a-2
 
 }  // namespace base

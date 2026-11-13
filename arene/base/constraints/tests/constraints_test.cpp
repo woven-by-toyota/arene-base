@@ -63,10 +63,10 @@ using is_a_b = decltype(is_a_b_fun<T, U>);
 // Overloads with mutually-exclusive constraints
 // (This just makes sure they aren't considered redeclarations)
 template <class T, constraints<enable_if_t<is_same_v<T, a>>> = nullptr>
-void a_or_b_fun() {}
+auto a_or_b_fun() -> a;
 //
 template <class T, constraints<enable_if_t<is_same_v<T, b>>> = nullptr>
-void a_or_b_fun() {}
+auto a_or_b_fun() -> b;
 //
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +104,13 @@ TEST(Constraints, WithMultipleRequirementsIsNotSatisfiedIfAnyRequirementIsNotSat
   EXPECT_FALSE((substitution_succeeds<is_a_b, b>));
   EXPECT_TRUE((substitution_succeeds<is_a_b, a, b>));
   EXPECT_FALSE((substitution_succeeds<is_a_b, b, a>));
+}
+
+/// @test Given overloads with mutually exclusive constraints, when each valid argument is used, then the selected
+/// overload has its distinct return type.
+TEST(Constraints, OverloadsWithDifferentConstraintsRemainDistinct) {
+  ::testing::StaticAssertTypeEq<a, decltype(a_or_b_fun<a>())>();
+  ::testing::StaticAssertTypeEq<b, decltype(a_or_b_fun<b>())>();
 }
 
 // Test that we can use Constraints<> to specialise classes
