@@ -99,9 +99,8 @@ class non_owning_ptr : full_ordering_operators_from_less_than_and_equals<non_own
   // parasoft-end-suppress AUTOSAR-A2_10_1-d
 
   ///
-  /// @brief Default, trivial constructor.
-  /// @post Behavior is equivalent to constructing a raw pointer: If explicit,
-  ///       @c get() will return nullptr, otherwise the state is undefined.
+  /// @brief Default constructor.
+  /// @post @c get() returns nullptr.
   ///
   constexpr non_owning_ptr() noexcept = default;
 
@@ -294,7 +293,7 @@ class non_owning_ptr : full_ordering_operators_from_less_than_and_equals<non_own
   }
 
   /// @brief The held pointer
-  pointer ptr_;
+  pointer ptr_{nullptr};
 };
 // parasoft-end-suppress AUTOSAR-A12_1_5-a-2
 // parasoft-end-suppress AUTOSAR-A14_5_1-a
