@@ -24,6 +24,15 @@ cc_test(
     ],
 )
 
+cc_test(
+    name = "manual_reset_event_test",
+    srcs = ["manual_reset_event_test.cpp"],
+    deps = [
+        "//arene/base/synchronization:internal",
+        "//testlibs:test_main",
+    ],
+)
+
 exports_files(
     glob(["*.cpp"]),
     visibility = ["//:__subpackages__"],
