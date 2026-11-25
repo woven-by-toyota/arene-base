@@ -66,12 +66,12 @@ class manual_reset_event {
     }
   }
 
-  /// @brief Reset the event to an unsignalled state.
+  /// @brief Reset the event to an unsignalled state. Safe to call concurrently with other calls to @c reset: exactly
+  /// one concurrent caller performs the underlying wait, the rest are a no-op.
   /// @pre There must be no threads blocked in @c wait.
   /// @throw std::system_error on error.
   void reset() {
-    if (signalled_.load(std::memory_order_acquire)) {
-      signalled_.store(false, std::memory_order_release);
+    if (signalled_.exchange(false, std::memory_order_release)) {
       wait_on_semaphore();
     }
   }
