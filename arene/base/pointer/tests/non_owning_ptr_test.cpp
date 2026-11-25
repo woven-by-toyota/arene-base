@@ -89,6 +89,25 @@ TEST(NonOwningPtr, SizeofIsSizeofPointer) {
 /// @test A default-constructed `non_owning_ptr` is NULL
 TEST(NonOwningPtr, IsExplicitDefaultConstructableAsNullptr) { ASSERT_EQ(non_owning_ptr<int>().get(), nullptr); }
 
+/// @test A plain default-initialized `non_owning_ptr` (no `()`/`{}`) is NULL, not an indeterminate value. This is
+/// distinct from the value-initialized form above: value-initialization (`non_owning_ptr<int>()`) would zero the
+/// object even without a default member initializer on `ptr_`, but plain default-initialization would not, so this
+/// is the case that actually exercises `ptr_`'s default member initializer.
+TEST(NonOwningPtr, IsPlainDefaultInitializedAsNullptr) {
+  non_owning_ptr<int> ptr;  // NOLINT(cppcoreguidelines-init-variables)
+  ASSERT_EQ(ptr.get(), nullptr);
+}
+
+/// @test A `non_owning_ptr` declared as a member of another type, and not listed in that type's constructor
+/// initializer list, is NULL rather than holding an indeterminate pointer
+TEST(NonOwningPtr, IsNullptrAsDefaultInitializedMember) {
+  struct holder {
+    non_owning_ptr<int> member;
+  };
+  holder instance;  // NOLINT(cppcoreguidelines-pro-type-member-init)
+  ASSERT_EQ(instance.member.get(), nullptr);
+}
+
 /// @test A `non_owning_ptr` constructed from `nullptr` is NULL
 TEST(NonOwningPtr, IsConstructableFromNullptr) { ASSERT_EQ(non_owning_ptr<int>(nullptr).get(), nullptr); }
 
